@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.enrichment.go
+OpenIDE-Module-Localizing-Bundle: org/mongkie/enrichment/go/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

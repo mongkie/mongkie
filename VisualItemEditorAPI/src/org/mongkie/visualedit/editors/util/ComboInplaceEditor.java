@@ -1,0 +1,683 @@
+
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ *
+ * Oracle and Java are registered trademarks of Oracle and/or its
+ * affiliates. Other names may be trademarks of their respective owners.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common Development
+ * and Distribution License("CDDL") (collectively, the "License"). You may
+ * not use this file except in compliance with the License. You can obtain a
+ * copy of the License at http://www.netbeans.org/cddl-gplv2.html or
+ * nbbuild/licenses/CDDL-GPL-2-CP. See the License for the specific language
+ * governing permissions and limitations under the License. When
+ * distributing the software, include this License Header Notice in each
+ * file and include the License file at nbbuild/licenses/CDDL-GPL-2-CP.
+ * Oracle designates this particular file as subject to the "Classpath"
+ * exception as provided by Oracle in the GPL Version 2 section of the
+ * License file that accompanied this code. If applicable, add the following
+ * below the License Header, with the fields enclosed by brackets []
+ * replaced by your own identifying information: "Portions Copyrighted
+ * [year] [name of copyright owner]"
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL or
+ * only the GPL Version 2, indicate your decision by adding "[Contributor]
+ * elects to include this software in this distribution under the [CDDL or
+ * GPL Version 2] license." If you do not indicate a single choice of
+ * license, a recipient has the option to distribute your version of this
+ * file under either the CDDL, the GPL Version 2 or to extend the choice of
+ * license to its licensees as provided above. However, if you add GPL
+ * Version 2 code and therefore, elected the GPL Version 2 license, then the
+ * option applies only if the new code is made subject to such option by the
+ * copyright holder.
+ */
+/**
+ * A combo box inplace editor. Does a couple of necessary things: 1. It does not
+ * allow the UI delegate to install a focus listener on it - it will manage
+ * opening and closing the popup on its own - this is to avoid a specific
+ * problem - that if the editor is moved to a different cell and updated, the
+ * focus lost event will arrive after it has been moved, and the UI delegate
+ * will try to close the popup when it should be opening. 2. Contains a
+ * replacement renderer for use on GTK look and feel - on JDK 1.4.2, combo boxes
+ * do not respect the value assigned by setBackground() (there is a fixme note
+ * about this in SynthComboBoxUI, so presumably this will be fixed at some
+ * point).
+ */
+package org.mongkie.visualedit.editors.util;
+
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.beans.PropertyEditor;
+import javax.swing.*;
+import javax.swing.event.AncestorListener;
+import javax.swing.plaf.ComboBoxUI;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.text.JTextComponent;
+import org.openide.explorer.propertysheet.InplaceEditor;
+import org.openide.explorer.propertysheet.PropertyEnv;
+import org.openide.explorer.propertysheet.PropertyModel;
+import org.openide.explorer.propertysheet.editors.EnhancedPropertyEditor;
+
+public class ComboInplaceEditor extends JComboBox implements InplaceEditor, FocusListener, AncestorListener {
+    /*
+     * Keystrokes this inplace editor wants to consume
+     */
+
+    static final KeyStroke[] cbKeyStrokes = new KeyStroke[]{
+        KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, false), KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, false),
+        KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, true), KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, true),
+        KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0, false),
+        KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0, false),
+        KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0, true), KeyStroke.getKeyStroke(
+        KeyEvent.VK_PAGE_UP, 0, true)
+    };
+    private static ComboInplaceEditor.PopupChecker checker = null;
+    protected PropertyEditor editor;
+    protected PropertyEnv env;
+    protected PropertyModel mdl;
+    boolean inSetUI = false;
+    private boolean tableUI;
+    private boolean connecting = false;
+    private boolean hasBeenEditable = false;
+    private boolean needLayout = false;
+
+    /**
+     * Create a ComboInplaceEditor - the tableUI flag will tell it to use less
+     * borders & such
+     */
+    public ComboInplaceEditor(boolean tableUI) {
+        if (tableUI) {
+            putClientProperty("JComboBox.isTableCellEditor", Boolean.TRUE); //NOI18N
+        }
+
+        if (Boolean.getBoolean("netbeans.ps.combohack")) { //NOI18N
+            setLightWeightPopupEnabled(false);
+        }
+
+        if (getClass() == ComboInplaceEditor.class) {
+            enableEvents(AWTEvent.FOCUS_EVENT_MASK);
+        }
+
+        this.tableUI = tableUI;
+
+        if (tableUI) {
+            updateUI();
+        }
+    }
+
+    /**
+     * Overridden to add a listener to the editor if necessary, since the UI
+     * won't do that for us without a focus listener
+     */
+    @Override
+    public void addNotify() {
+        super.addNotify();
+
+        if (isEditable() && (getClass() == ComboInplaceEditor.class)) {
+            getEditor().getEditorComponent().addFocusListener(this);
+        }
+
+        getLayout().layoutContainer(this);
+    }
+
+    @Override
+    public void setEditable(boolean val) {
+        boolean hadBeenEditable = hasBeenEditable;
+        hasBeenEditable |= val;
+        super.setEditable(val);
+
+        if (hadBeenEditable != hasBeenEditable) {
+            log("Combo editor for " + editor + " setEditable (" + val + ")");
+            needLayout = true;
+        }
+    }
+
+    /**
+     * Overridden to hide the popup and remove any listeners from the combo
+     * editor
+     */
+    @Override
+    public void removeNotify() {
+        log("Combo editor for " + editor + " removeNotify forcing popup close");
+        setPopupVisible(false);
+        super.removeNotify();
+        getEditor().getEditorComponent().removeFocusListener(this);
+    }
+
+    @Override
+    public Insets getInsets() {
+        if ("Aqua".equals(UIManager.getLookAndFeel().getID())) {
+            return new Insets(0, 0, 0, 0);
+        } else {
+            return super.getInsets();
+        }
+    }
+
+    @Override
+    public void clear() {
+        editor = null;
+        env = null;
+    }
+
+    @Override
+    public void connect(PropertyEditor pe, PropertyEnv env) {
+        connecting = true;
+
+        try {
+            log("Combo editor connect to " + pe + " env=" + env);
+
+            this.env = env;
+            this.editor = pe;
+            setModel(new DefaultComboBoxModel(pe.getTags()));
+
+            boolean editable = (editor instanceof EnhancedPropertyEditor)
+                    ? ((EnhancedPropertyEditor) editor).supportsEditingTaggedValues()
+                    : ((env != null) && Boolean.TRUE.equals(env.getFeatureDescriptor().getValue("canEditAsText"))); //NOI18N
+
+            setEditable(editable);
+            setActionCommand(COMMAND_SUCCESS);
+            reset();
+        } finally {
+            connecting = false;
+        }
+    }
+
+    private void log(String s) {
+        if (PropUtils.isLoggable(ComboInplaceEditor.class) && (getClass() == ComboInplaceEditor.class)) {
+            PropUtils.log(ComboInplaceEditor.class, s); //NOI18N
+        }
+    }
+
+    @Override
+    public void setSelectedItem(Object o) {
+        //Some property editors (i.e. IMT's choice editor) treat
+        //null as 0.  Probably not the right way to do it, but needs to
+        //be handled.
+        if ((o == null) && (editor != null) && (editor.getTags() != null) && (editor.getTags().length > 0)) {
+            o = editor.getTags()[0];
+        }
+
+        if (o != null) {
+            super.setSelectedItem(o);
+        }
+    }
+
+    /**
+     * Overridden to not fire changes is an event is called inside the connect
+     * method
+     */
+    @Override
+    public void fireActionEvent() {
+        if (connecting || (editor == null)) {
+        } else {
+            if (editor == null) {
+                return;
+            }
+
+            if ("comboBoxEdited".equals(getActionCommand())) {
+                log("Translating comboBoxEdited action command to COMMAND_SUCCESS");
+                setActionCommand(COMMAND_SUCCESS);
+            }
+
+            log("Combo editor firing ActionPerformed command=" + getActionCommand());
+            super.fireActionEvent();
+        }
+    }
+
+    @Override
+    public void reset() {
+        String targetValue = null;
+
+        if (editor != null) {
+            log("Combo editor reset setting selected item to " + editor.getAsText());
+            targetValue = editor.getAsText();
+
+            //issue 26367, form editor needs ability to set a custom value
+            //when editing is initiated (event handler combos, part of them
+            //cleaning up their EnhancedPropertyEditors).  
+        }
+
+        if ((getClass() == ComboInplaceEditor.class) && (env != null) && (env.getFeatureDescriptor() != null)) {
+            String initialEditValue = (String) env.getFeatureDescriptor().getValue("initialEditValue"); //NOI18N
+
+            if (initialEditValue != null) {
+                targetValue = initialEditValue;
+            }
+        }
+
+        setSelectedItem(targetValue);
+    }
+
+    @Override
+    public Object getValue() {
+        if (isEditable()) {
+            return getEditor().getItem();
+        } else {
+            return getSelectedItem();
+        }
+    }
+
+    @Override
+    public PropertyEditor getPropertyEditor() {
+        return editor;
+    }
+
+    @Override
+    public PropertyModel getPropertyModel() {
+        return mdl;
+    }
+
+    @Override
+    public void setPropertyModel(PropertyModel pm) {
+        log("Combo editor set property model to " + pm);
+        this.mdl = pm;
+    }
+
+    @Override
+    public JComponent getComponent() {
+        return this;
+    }
+
+    @Override
+    public KeyStroke[] getKeyStrokes() {
+        return cbKeyStrokes;
+    }
+
+    public void handleInitialInputEvent(InputEvent e) {
+        //do nothing, this should get deprecated in InplaceEditor
+    }
+
+    /**
+     * Overridden to use CleanComboUI on Metal L&F to avoid extra borders
+     */
+    @Override
+    public final void updateUI() {
+        LookAndFeel lf = UIManager.getLookAndFeel();
+        String id = lf.getID();
+        boolean useClean = tableUI && (lf instanceof MetalLookAndFeel
+                || "GTK".equals(id) //NOI18N
+                || ("Aqua".equals(id) && "10.5".compareTo(System.getProperty("os.version")) <= 0) //NOI18N
+                || "Kunststoff".equals(id)); //NOI18N
+
+        if (useClean) {
+            super.setUI(PropUtils.createComboUI(this, tableUI));
+        } else {
+            super.updateUI();
+        }
+
+        if (tableUI & getEditor().getEditorComponent() instanceof JComponent) {
+            ((JComponent) getEditor().getEditorComponent()).setBorder(null);
+        }
+    }
+
+    /**
+     * Overridden to set a flag used to block the UI from adding a focus
+     * listener, and to use an alternate renderer class on GTK look and feel to
+     * work around a painting bug in SynthComboUI (colors not set correctly)
+     */
+    @Override
+    public void setUI(ComboBoxUI ui) {
+        inSetUI = true;
+
+        try {
+            super.setUI(ui);
+        } finally {
+            inSetUI = false;
+        }
+    }
+
+    /**
+     * Overridden to handle a corner case - an NPE if the UI tries to display
+     * the popup, but the combo box is removed from the parent before that can
+     * happen - only happens on very rapid clicks between popups
+     */
+    @Override
+    public void showPopup() {
+        try {
+            log(" Combo editor show popup");
+            super.showPopup();
+        } catch (NullPointerException e) {
+            //An inevitable consequence - the look and feel will queue display
+            //of the popup, but it can be processed after the combo box is
+            //offscreen
+            log(" Combo editor show popup later due to npe");
+
+            SwingUtilities.invokeLater(
+                    new Runnable() {
+
+                        @Override
+                        public void run() {
+                            ComboInplaceEditor.super.showPopup();
+                        }
+                    });
+        }
+    }
+
+    private void prepareEditor() {
+        Component c = getEditor().getEditorComponent();
+
+        if (c instanceof JTextComponent) {
+            JTextComponent jtc = (JTextComponent) c;
+            String s = jtc.getText();
+
+            if ((s != null) && (s.length() > 0)) {
+                jtc.setSelectionStart(0);
+                jtc.setSelectionEnd(s.length());
+            }
+
+            if (tableUI) {
+                jtc.setBackground(getBackground());
+            } else {
+                jtc.setBackground(PropUtils.getTextFieldBackground());
+            }
+            if (tableUI) {
+                jtc.requestFocus();
+            }
+        }
+
+        if (getLayout() != null) {
+            getLayout().layoutContainer(this);
+        }
+
+        repaint();
+    }
+
+    /**
+     * Overridden to do the focus-popup handling that would normally be done by
+     * the look and feel
+     */
+    @Override
+    public void processFocusEvent(FocusEvent fe) {
+        if ((fe.getID() == FocusEvent.FOCUS_LOST)
+                && fe.getOppositeComponent() == getEditor().getEditorComponent()
+                && isPopupVisible()) {
+
+            return; // If the popup is visible and the focus is transferred to the editor component,
+            // ignore the event - it would close the popup.
+        }
+        super.processFocusEvent(fe);
+
+        if (PropUtils.isLoggable(ComboInplaceEditor.class)) {
+            PropUtils.log(ComboInplaceEditor.class, "Focus event on combo " + "editor"); //NOI18N
+            PropUtils.log(ComboInplaceEditor.class, fe);
+        }
+
+        Component focusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+
+        if (isDisplayable() && (fe.getID() == FocusEvent.FOCUS_GAINED) && (focusOwner == this) && !isPopupVisible()) {
+            if (isEditable()) {
+                prepareEditor();
+
+                if (tableUI) {
+                    SwingUtilities.invokeLater(new ComboInplaceEditor.PopupChecker());
+                }
+            } else {
+                if (tableUI) {
+                    showPopup();
+
+                    //Try to beat the event mis-ordering at its own game
+                    SwingUtilities.invokeLater(new ComboInplaceEditor.PopupChecker());
+                }
+            }
+
+            repaint();
+        } else if ((fe.getID() == FocusEvent.FOCUS_LOST) && isPopupVisible() && !isDisplayable()) {
+            if (!PropUtils.psCommitOnFocusLoss) {
+                setActionCommand(COMMAND_FAILURE);
+                fireActionEvent();
+            }
+
+            //We were removed, but we may be immediately added. See if that's the
+            //case after other queued events run
+            SwingUtilities.invokeLater(
+                    new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (!isDisplayable()) {
+                                hidePopup();
+                            }
+                        }
+                    });
+        }
+
+        repaint();
+    }
+
+    @Override
+    public boolean isKnownComponent(Component c) {
+        return (c == getEditor().getEditorComponent());
+    }
+
+    @Override
+    public void setValue(Object o) {
+        setSelectedItem(o);
+    }
+
+    /**
+     * Returns true if the combo box is editable
+     */
+    @Override
+    public boolean supportsTextEntry() {
+        return isEditable();
+    }
+
+    /**
+     * Overridden to install an ancestor listener which will ensure the popup is
+     * always opened correctly
+     */
+    @Override
+    protected void installAncestorListener() {
+        //Use a replacement which will check to ensure the popup is 
+        //displayed
+        if (tableUI) {
+            addAncestorListener(this);
+        } else {
+            super.installAncestorListener();
+        }
+    }
+
+    /**
+     * Overridden to block the UI from adding its own focus listener, which will
+     * close the popup at the wrong times. We will manage focus ourselves
+     * instead
+     */
+    @Override
+    public void addFocusListener(FocusListener fl) {
+        if (!inSetUI || !tableUI) {
+            super.addFocusListener(fl);
+        }
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+        //do nothing
+        prepareEditor();
+    }
+
+    /**
+     * If the editor loses focus, we're done editing - fire COMMAND_FAILURE
+     */
+    @Override
+    public void focusLost(FocusEvent e) {
+        Component c = e.getOppositeComponent();
+
+        if (!isAncestorOf(c) && (c != getEditor().getEditorComponent())) {
+            if ((c == this) || (c.getClass().getName().equals("org.openide.explorer.propertysheet.SheetTable") && ((JTable) c).isAncestorOf(this))) {
+                //workaround for issue 38029 - editable combo editor can lose focus to ...itself
+                return;
+            }
+
+            setActionCommand(COMMAND_FAILURE);
+            log(" Combo editor lost focus - setting action command to " + COMMAND_FAILURE);
+            getEditor().getEditorComponent().removeFocusListener(this);
+
+            if (checker == null) {
+                log("No active popup checker, firing action event");
+                fireActionEvent();
+            }
+        }
+    }
+
+    /**
+     * Overridden to ensure the editor gets focus if editable
+     */
+    @Override
+    public void firePopupMenuCanceled() {
+        super.firePopupMenuCanceled();
+
+        if (isEditable()) {
+            Component focus = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+
+            if (isDisplayable() && (focus == this)) {
+                log("combo editor popup menu canceled.  Requesting focus on editor component");
+                getEditor().getEditorComponent().requestFocus();
+            }
+        }
+    }
+
+    /**
+     * Overridden to fire COMMAND_FAILURE on Escape
+     */
+    @Override
+    public void processKeyEvent(KeyEvent ke) {
+        super.processKeyEvent(ke);
+
+        if ((ke.getID() == KeyEvent.KEY_PRESSED) && (ke.getKeyCode() == KeyEvent.VK_ESCAPE)) {
+            setActionCommand(COMMAND_FAILURE);
+            fireActionEvent();
+        }
+    }
+
+    @Override
+    public void ancestorAdded(javax.swing.event.AncestorEvent event) {
+        //This is where we typically have a problem with popups not showing,
+        //and below is the cure... Problem is that the popup is hidden
+        //because the combo's ancestor is changed (even though we blocked
+        //the normal ancestor listener from being added)
+        checker = new ComboInplaceEditor.PopupChecker();
+        SwingUtilities.invokeLater(checker);
+    }
+
+    @Override
+    public void ancestorMoved(javax.swing.event.AncestorEvent event) {
+        //do nothing
+        if (needLayout && (getLayout() != null)) {
+            getLayout().layoutContainer(this);
+        }
+    }
+
+    @Override
+    public void ancestorRemoved(javax.swing.event.AncestorEvent event) {
+        //do nothing
+    }
+
+    @Override
+    public void paintChildren(Graphics g) {
+        if ((editor != null) && !hasFocus() && editor.isPaintable()) {
+        } else {
+            super.paintChildren(g);
+        }
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        //For property panel usage, allow the editor to paint
+        if ((editor != null) && !hasFocus() && editor.isPaintable()) {
+            Insets ins = getInsets();
+            Color c = g.getColor();
+
+            try {
+                g.setColor(getBackground());
+                g.fillRect(0, 0, getWidth(), getHeight());
+            } finally {
+                g.setColor(c);
+            }
+
+            ins.left += PropUtils.getTextMargin();
+            editor.paintValue(
+                    g,
+                    new Rectangle(
+                    ins.left, ins.top, getWidth() - (ins.right + ins.left), getHeight() - (ins.top + ins.bottom)));
+        } else {
+            g.setColor(Color.red);
+            super.paintComponent(g);
+        }
+    }
+
+    /**
+     * A handy runnable which will ensure the popup is really displayed
+     */
+    private class PopupChecker implements Runnable {
+
+        @Override
+        public void run() {
+            Window w = KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow();
+
+            //in Java 1.5+ KeyboardFocusManager.getActiveWindow() may return null
+            if (null != w && w.isAncestorOf(ComboInplaceEditor.this)) {
+                if (isShowing() && !isPopupVisible()) {
+                    log("Popup checker ensuring editor prepared or popup visible");
+
+                    if (isEditable()) {
+                        prepareEditor();
+                    }
+                    showPopup();
+                }
+
+                checker = null;
+            }
+        }
+    }
+
+    /*
+     * Replacement renderer class to hack around bug in SynthComboUI - will only
+     * be used on GTK look & feel. GTK does not set background/highlight colors
+     * correctly
+     */
+    private class Renderer extends DefaultListCellRenderer {
+
+        private boolean sel = false;
+
+        /**
+         * Overridden to return the combo box's background color if selected and
+         * focused - in GTK L&F combo boxes are always white (there's even a
+         * &quot;fixme&quot; note in the code.
+         */
+        @Override
+        public Color getBackground() {
+            //This method can be called in the superclass constructor, thanks
+            //to updateUI().  At that time, this==null, so an NPE would happen
+            //if we tried tor reference the outer class
+            if (ComboInplaceEditor.this == null) {
+                return null;
+            }
+
+            if (!sel && ((getText() != null) && (getSelectedItem() != null) && getText().equals(getSelectedItem()))) {
+                return ComboInplaceEditor.this.getBackground();
+            } else {
+                return super.getBackground();
+            }
+        }
+
+        @Override
+        public Component getListCellRendererComponent(
+                JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            sel = isSelected;
+
+            return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        }
+    }
+}

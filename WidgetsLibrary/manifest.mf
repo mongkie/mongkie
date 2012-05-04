@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.lib.widgets
+OpenIDE-Module-Localizing-Bundle: org/mongkie/lib/widgets/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

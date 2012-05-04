@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.vm.plugins
+OpenIDE-Module-Localizing-Bundle: org/mongkie/vm/plugins/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-mongkie-ui-kopath-PathwayDisplayAction.instance">
+                <attr name="component" methodvalue="org.mongkie.ui.kopath.PathwayDisplayTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="org.mongkie.ui.kopath.Bundle#CTL_PathwayDisplayAction"/>
+                <attr name="iconBase" stringvalue="org/mongkie/ui/kopath/resources/pathways.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+                <attr name="roles" stringvalue="PathwayRole"/>
+            </file>
+            <file name="org-mongkie-ui-kopath-PathwayExplorerAction.instance">
+                <attr name="component" methodvalue="org.mongkie.ui.kopath.PathwayExplorerTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="org.mongkie.ui.kopath.Bundle#CTL_PathwayExplorerAction"/>
+                <attr name="iconBase" stringvalue="org/mongkie/ui/kopath/resources/databaseNetwork.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+                <attr name="roles" stringvalue="PathwayRole"/>
+            </file>
+            <file name="org-mongkie-ui-kopath-PathwaySearchAction.instance">
+                <attr name="component" methodvalue="org.mongkie.ui.kopath.PathwaySearchTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="org.mongkie.ui.kopath.Bundle#CTL_PathwaySearchAction"/>
+                <attr name="iconBase" stringvalue="org/mongkie/ui/kopath/resources/search.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+                <attr name="roles" stringvalue="PathwayRole"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="PathwayDisplayAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-mongkie-ui-kopath-PathwayDisplayAction.instance"/>
+                <attr name="position" intvalue="110"/>
+            </file>
+            <file name="PathwayExplorerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-mongkie-ui-kopath-PathwayExplorerAction.instance"/>
+                <attr name="position" intvalue="130"/>
+            </file>
+            <file name="PathwaySearchAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-mongkie-ui-kopath-PathwaySearchAction.instance"/>
+                <attr name="position" intvalue="120"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="PathwayDisplayTopComponent.settings" url="PathwayDisplayTopComponentSettings.xml"/>
+            <file name="PathwayExplorerTopComponent.settings" url="PathwayExplorerTopComponentSettings.xml"/>
+            <file name="PathwaySearchTopComponent.settings" url="PathwaySearchTopComponentSettings.xml"/>
+        </folder>
+    </folder>
+</filesystem>

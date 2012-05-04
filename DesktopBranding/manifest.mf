@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.desktop.branding
+OpenIDE-Module-Install: org/mongkie/desktop/branding/Installer.class
+OpenIDE-Module-Layer: org/mongkie/desktop/branding/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/mongkie/desktop/branding/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-mongkie-ui-series-HeatMapAction.instance">
+                <attr name="component" methodvalue="org.mongkie.ui.series.HeatMapTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="org.mongkie.ui.series.Bundle#CTL_HeatMapAction"/>
+                <attr name="iconBase" stringvalue="org/mongkie/ui/series/resources/heatmap.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+                <attr name="roles" stringvalue="NetworkRole"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="HeatMapAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-mongkie-ui-series-HeatMapAction.instance"/>
+                <attr name="position" intvalue="50"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="HeatMapTopComponent.settings" url="HeatMapTopComponentSettings.xml"/>
+        </folder>
+    </folder>
+</filesystem>

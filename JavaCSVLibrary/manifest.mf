@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.lib.javacsv
+OpenIDE-Module-Localizing-Bundle: org/mongkie/lib/javacsv/Bundle.properties
+OpenIDE-Module-Specification-Version: 2.1
+

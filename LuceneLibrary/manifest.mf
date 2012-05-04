@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.lib.lucene
+OpenIDE-Module-Localizing-Bundle: org/mongkie/lib/lucene/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.4.3
+

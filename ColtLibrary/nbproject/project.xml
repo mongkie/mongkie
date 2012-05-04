@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>org.mongkie.lib.colt</code-name-base>
+            <suite-component/>
+            <module-dependencies/>
+            <public-packages>
+                <package>EDU.oswego.cs.dl.util.concurrent</package>
+                <package>EDU.oswego.cs.dl.util.concurrent.misc</package>
+                <package>cern.clhep</package>
+                <package>cern.colt</package>
+                <package>cern.colt.bitvector</package>
+                <package>cern.colt.buffer</package>
+                <package>cern.colt.function</package>
+                <package>cern.colt.list</package>
+                <package>cern.colt.list.adapter</package>
+                <package>cern.colt.map</package>
+                <package>cern.colt.matrix</package>
+                <package>cern.colt.matrix.bench</package>
+                <package>cern.colt.matrix.doublealgo</package>
+                <package>cern.colt.matrix.impl</package>
+                <package>cern.colt.matrix.linalg</package>
+                <package>cern.colt.matrix.objectalgo</package>
+                <package>cern.jet.math</package>
+                <package>cern.jet.random</package>
+                <package>cern.jet.random.engine</package>
+                <package>cern.jet.random.sampling</package>
+                <package>cern.jet.stat</package>
+                <package>cern.jet.stat.quantile</package>
+                <package>corejava</package>
+                <package>hep.aida</package>
+                <package>hep.aida.bin</package>
+                <package>hep.aida.ref</package>
+            </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/concurrent.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/concurrent.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/colt.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/colt.jar</binary-origin>
+            </class-path-extension>
+        </data>
+    </configuration>
+</project>

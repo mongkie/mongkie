@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.kopath
+OpenIDE-Module-Install: org/mongkie/kopath/Installer.class
+OpenIDE-Module-Localizing-Bundle: org/mongkie/kopath/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

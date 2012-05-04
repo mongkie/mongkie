@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.ui.context
+OpenIDE-Module-Layer: org/mongkie/ui/context/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/mongkie/ui/context/Bundle.properties
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
+OpenIDE-Module-Specification-Version: 1.0
+

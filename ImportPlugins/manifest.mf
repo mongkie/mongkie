@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.importer.plugins
+OpenIDE-Module-Localizing-Bundle: org/mongkie/importer/plugins/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

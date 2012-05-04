@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-mongkie-ui-visualedit-VisualEditorAction.instance">
+                <attr name="component" methodvalue="org.mongkie.ui.visualedit.VisualEditorTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="org.mongkie.ui.visualedit.Bundle#CTL_VisualEditorAction"/>
+                <attr name="iconBase" stringvalue="org/mongkie/ui/visualedit/resources/edit.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+                <attr name="roles" stringvalue="NetworkRole"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="VisualEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-mongkie-ui-visualedit-VisualEditorAction.instance"/>
+                <attr name="position" intvalue="10"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="VisualEditorTopComponent.settings" url="VisualEditorTopComponentSettings.xml"/>
+        </folder>
+    </folder>
+</filesystem>

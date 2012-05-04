@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.visualmap
+OpenIDE-Module-Localizing-Bundle: org/mongkie/visualmap/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

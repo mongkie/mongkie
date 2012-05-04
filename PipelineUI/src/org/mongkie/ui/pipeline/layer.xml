@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-mongkie-ui-pipeline-PipelineAction.instance">
+                <attr name="component" methodvalue="org.mongkie.ui.pipeline.PipelineTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="org.mongkie.ui.pipeline.Bundle#CTL_PipelineAction"/>
+                <attr name="iconBase" stringvalue="org/mongkie/ui/pipeline/resources/pipeline.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+                <attr name="roles" stringvalue="NetworkRole"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="PipelineAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-mongkie-ui-pipeline-PipelineAction.instance"/>
+                <attr name="position" intvalue="60"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="PipelineTopComponent.settings" url="PipelineTopComponentSettings.xml"/>
+        </folder>
+    </folder>
+</filesystem>
