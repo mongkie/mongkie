@@ -20,7 +20,6 @@ package org.mongkie.datatable;
 import java.lang.reflect.InvocationTargetException;
 import kobic.prefuse.display.DataEditSupport;
 import kobic.prefuse.display.DataViewSupport;
-import org.mongkie.util.lang.StringUtilities;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
