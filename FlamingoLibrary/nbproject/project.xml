@@ -24,8 +24,8 @@
                 <package>org.pushingpixels.flamingo.internal.utils</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/flamingo.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/flamingo.jar</binary-origin>
+                <runtime-relative-path>ext/flamingo-6.3.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/flamingo-6.3.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

@@ -15,29 +15,43 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.datatable;
+package org.mongkie.ui.datatable.graph;
 
-import org.mongkie.datatable.spi.DataAction;
+import javax.swing.Icon;
+import kobic.prefuse.Constants;
 import org.mongkie.datatable.spi.DataTable;
-import org.openide.nodes.Node;
+import org.mongkie.visualization.MongkieDisplay;
+import org.openide.util.ImageUtilities;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface DataTableControllerUI {
+@ServiceProvider(service = DataTable.class, position = 200)
+public class EdgeDataTable extends AbstractDataTable {
 
-    public DataTable selectTable(String name);
+    @Override
+    protected String getLabelColumn(MongkieDisplay d) {
+        return d.getGraph().getEdgeLabelField();
+    }
 
-    public DataTable selectNodeTable();
+    @Override
+    public String getDataGroup() {
+        return Constants.EDGES;
+    }
 
-    public DataTable selectEdgeTable();
+    @Override
+    public String getName() {
+        return EDGES;
+    }
 
-    public DataTable getSelectedTable();
-
-    public void setActivatedNodes(Node... nodes);
-
-    public void executeDataAction(DataTable table, DataAction a);
-
-    public void refreshModel(DataTable table, boolean actionsOnly);
+    @Override
+    public Icon getIcon() {
+        if (icon == null) {
+            icon = ImageUtilities.loadImageIcon("org/mongkie/ui/datatable/resources/edges.png", false);
+        }
+        return icon;
+    }
+    private Icon icon;
 }

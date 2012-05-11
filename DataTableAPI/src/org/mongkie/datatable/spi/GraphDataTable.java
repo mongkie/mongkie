@@ -15,29 +15,31 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.datatable;
+package org.mongkie.datatable.spi;
 
-import org.mongkie.datatable.spi.DataAction;
-import org.mongkie.datatable.spi.DataTable;
-import org.openide.nodes.Node;
+import org.mongkie.visualization.MongkieDisplay;
+import prefuse.data.Table;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface DataTableControllerUI {
+public interface GraphDataTable extends DataTable {
 
-    public DataTable selectTable(String name);
+    public String getDataGroup();
 
-    public DataTable selectNodeTable();
+    //TODO: Data table for visual tables, eg. AggregateTable
+//    public boolean isVisualGroup();
+    public void clear();
 
-    public DataTable selectEdgeTable();
+    public Model getModel();
 
-    public DataTable getSelectedTable();
+    public static interface Model<T extends GraphDataTable> {
 
-    public void setActivatedNodes(Node... nodes);
+        public MongkieDisplay getDisplay();
 
-    public void executeDataAction(DataTable table, DataAction a);
+        public Table getTable();
 
-    public void refreshModel(DataTable table, boolean actionsOnly);
+        public T getDataTable();
+    }
 }

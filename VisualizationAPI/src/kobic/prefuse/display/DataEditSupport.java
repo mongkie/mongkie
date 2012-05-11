@@ -41,6 +41,14 @@ public abstract class DataEditSupport {
 
     public abstract boolean isEditable(String field);
 
+    public abstract boolean isAddColumnSupported();
+
+    public abstract boolean isRemoveColumnSupported();
+
+    public abstract boolean isAddDataSupported();
+
+    public abstract boolean isRemoveDataSupported();
+
     public Object getValueAt(Tuple data, String field) {
         Object val = data.get(field);
         if (val != null && data.getTable().getMetadata(field).hasMultipleValues()) {
@@ -58,7 +66,7 @@ public abstract class DataEditSupport {
         }
         return old;
     }
-    
+
     public Class getColumnType(String field) {
         return getTable().getMetadata(field).hasMultipleValues() ? String[].class : getTable().getColumnType(field);
     }

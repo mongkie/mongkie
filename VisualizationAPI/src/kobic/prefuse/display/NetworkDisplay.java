@@ -97,6 +97,7 @@ public abstract class NetworkDisplay extends Display {
     private HoverTooltipControl nodeTooltipControl, edgeTooltipControl;
     private HighlightControl highlightControl;
     public static final String PROP_KEY = "NetworkDisplay";
+    private boolean fired;
 
     public NetworkDisplay() {
         this((Graph) null);
@@ -113,6 +114,7 @@ public abstract class NetworkDisplay extends Display {
     public NetworkDisplay(Graph g, Object... fields) {
         super(new Visualization());
         NetworkDisplay.this.initializeClass(fields);
+        fired = (g != null);
 
         v = getVisualization();
         this.g = g == null ? GraphFactory.createDefault() : g;
@@ -148,6 +150,10 @@ public abstract class NetworkDisplay extends Display {
             v.run(LAYOUT);
         }
         v.run(ANIMATE);
+    }
+
+    public boolean isFired() {
+        return fired;
     }
 
     public NetworkDisplay(Visualization v, Object... fields) {
@@ -327,7 +333,7 @@ public abstract class NetworkDisplay extends Display {
     }
 
     protected Image getLoadingImage() {
-        Image img = IOLib.getImage(NetworkDisplay.class, IMAGE_PATH + "loading.gif");
+        Image img = IOLib.getImage(NetworkDisplay.class, IMAGE_PATH + "loading.png");
         waitForImage(img);
         return img;
     }
@@ -386,6 +392,26 @@ public abstract class NetworkDisplay extends Display {
             public boolean isEditable(String field) {
                 return true;
             }
+
+            @Override
+            public boolean isAddColumnSupported() {
+                return true;
+            }
+
+            @Override
+            public boolean isRemoveColumnSupported() {
+                return true;
+            }
+
+            @Override
+            public boolean isAddDataSupported() {
+                return true;
+            }
+
+            @Override
+            public boolean isRemoveDataSupported() {
+                return true;
+            }
         };
     }
 
@@ -394,6 +420,26 @@ public abstract class NetworkDisplay extends Display {
 
             @Override
             public boolean isEditable(String field) {
+                return true;
+            }
+
+            @Override
+            public boolean isAddColumnSupported() {
+                return true;
+            }
+
+            @Override
+            public boolean isRemoveColumnSupported() {
+                return true;
+            }
+
+            @Override
+            public boolean isAddDataSupported() {
+                return true;
+            }
+
+            @Override
+            public boolean isRemoveDataSupported() {
                 return true;
             }
         };
@@ -449,6 +495,7 @@ public abstract class NetworkDisplay extends Display {
         if (this.g != g) {
             throw new IllegalStateException("Graph is not changed to new one?");
         }
+        fired = (g != null);
         indexSearchFields(nodeSearchEngine, edgeSearchEngine);
         synchronized (listeners) {
             for (Iterator<DisplayListener> iter = listeners.iterator(); iter.hasNext();) {
@@ -1071,22 +1118,22 @@ public abstract class NetworkDisplay extends Display {
         return (DataViewSupport) ((Table) getVisualization().getSourceData(dataGroup)).getClientProperty(DataViewSupport.PROP_KEY);
     }
 
-    protected DataViewSupport createNodeDataViewSupport(Table table) {
+    protected DataViewSupport createNodeDataViewSupport(final Table table) {
         return new DataViewSupport(table) {
 
             @Override
             public Schema getOutlineSchema() {
-                return getGraph().getNodeTable().getSchema();
+                return table.getSchema();
             }
         };
     }
 
-    protected DataViewSupport createEdgeDataViewSupport(Table table) {
+    protected DataViewSupport createEdgeDataViewSupport(final Table table) {
         return new DataViewSupport(table) {
 
             @Override
             public Schema getOutlineSchema() {
-                return getGraph().getEdgeTable().getSchema();
+                return table.getSchema();
             }
         };
     }

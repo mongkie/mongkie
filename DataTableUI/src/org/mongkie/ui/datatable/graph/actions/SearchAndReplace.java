@@ -15,12 +15,12 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.ui.datatable.graph;
+package org.mongkie.ui.datatable.graph.actions;
 
-import javax.swing.Icon;
-import kobic.prefuse.Constants;
-import org.mongkie.datatable.spi.DataTable;
-import org.mongkie.visualization.MongkieDisplay;
+import java.awt.Image;
+import org.mongkie.datatable.spi.DataAction;
+import org.mongkie.ui.datatable.graph.AbstractDataTable;
+import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -28,41 +28,36 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = DataTable.class, position = 200)
-public class EdgesDataTable extends AbstractDataTable {
+@ServiceProvider(service = DataAction.class, position = 50)
+public class SearchAndReplace extends AbstractDataAction {
 
     @Override
-    protected String getLabelColumn(MongkieDisplay d) {
-        return d.getGraph().getEdgeLabelField();
-    }
-
-    @Override
-    protected String getDataGroup() {
-        return Constants.EDGES;
+    public SettingUI<AbstractDataTable> getSettingUI(AbstractDataTable table) {
+        return null;
     }
 
     @Override
     public String getName() {
-        return EDGES;
+        return "Search/Replace";
     }
 
     @Override
-    public Icon getIcon() {
-        if (icon == null) {
-            icon = ImageUtilities.loadImageIcon("org/mongkie/ui/datatable/resources/edges.png", false);
-        }
-        return icon;
+    public String getDescription() {
+        return "Search and replace data in the table";
     }
-    private Icon icon;
 
     @Override
-    protected Model createModel(MongkieDisplay d) {
-        return new Model(d) {
+    public Image getIcon() {
+        return ImageUtilities.loadImage("org/mongkie/ui/datatable/resources/binocular--pencil.png", false);
+    }
 
-            @Override
-            protected boolean isModelFor(AbstractDataTable table) {
-                return table.getName().equals(getName());
-            }
-        };
+    @Override
+    public void execute(AbstractDataTable table) {
+        System.out.println(getDescription());
+    }
+
+    @Override
+    public boolean isEnabled(AbstractModel model) {
+        return model.getTable().getTupleCount() > 0;
     }
 }

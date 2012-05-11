@@ -17,6 +17,10 @@
  */
 package org.mongkie.ui.datatable;
 
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.lang.reflect.InvocationTargetException;
@@ -26,9 +30,14 @@ import java.util.List;
 import javax.swing.*;
 import kobic.prefuse.display.DisplayListener;
 import org.mongkie.datatable.DataTableController;
+import org.mongkie.datatable.DataTableControllerUI;
+import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.datatable.spi.DataTable;
+import org.mongkie.datatable.spi.GraphDataTable;
+import org.mongkie.datatable.spi.PopupAction;
 import static org.mongkie.kopath.viz.Config.ROLE_PATHWAY;
 import org.mongkie.lib.widgets.BusyLabel;
+import org.mongkie.ui.datatable.graph.NodeDataTable;
 import org.mongkie.util.AccumulativeEventsProcessor;
 import static org.mongkie.visualization.Config.MODE_DATATABLE;
 import static org.mongkie.visualization.Config.ROLE_NETWORK;
@@ -46,6 +55,16 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import static org.pushingpixels.flamingo.api.common.CommandButtonDisplayState.MEDIUM;
+import static org.pushingpixels.flamingo.api.common.CommandButtonDisplayState.SMALL;
+import org.pushingpixels.flamingo.api.common.JCommandButton;
+import static org.pushingpixels.flamingo.api.common.JCommandButton.CommandButtonKind.*;
+import org.pushingpixels.flamingo.api.common.JCommandMenuButton;
+import org.pushingpixels.flamingo.api.common.RichTooltip;
+import org.pushingpixels.flamingo.api.common.icon.ImageWrapperResizableIcon;
+import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
+import org.pushingpixels.flamingo.api.common.popup.JPopupPanel;
+import org.pushingpixels.flamingo.api.common.popup.PopupPanelCallback;
 import prefuse.data.Graph;
 
 /**
@@ -70,6 +89,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     static final String PREFERRED_ID = "DataTableTopComponent";
     private BusyLabel refreshing;
+    private MongkieDisplay display;
 
     public DataTableTopComponent() {
         initComponents();
@@ -103,7 +123,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
             @Override
             public void displayClosedAll() {
-                refreshing.setBusy(false);
+                refreshTables(null);
             }
         });
         final MongkieDisplay d = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
@@ -133,28 +153,28 @@ public final class DataTableTopComponent extends TopComponent implements Display
                 @Override
                 public void itemStateChanged(ItemEvent e) {
                     if (e.getStateChange() == ItemEvent.DESELECTED) {
-                        removeTools();
+                        clearActionsAndTools();
                         table.deselected();
                     } else if (e.getStateChange() == ItemEvent.SELECTED) {
                         if (!refreshing.isBusy()) {
-                            JComponent view = table.getView();
+                            JComponent view = display != null ? table.getView() : null;
                             configureViewScrollPane(view);
                             viewScrollPane.setViewportView(view);
                         }
                         table.selected();
-                        addTools(table);
+                        addActionsAndTools(table);
                     }
                 }
             });
             topToolbar.add(toggle, i);
-            if (i == 0) {
+            if (table instanceof NodeDataTable) {
                 table.selected();
-                addTools(table);
+                addActionsAndTools(table);
             }
         }
     }
 
-    private void removeTools() {
+    private void clearActionsAndTools() {
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
@@ -168,18 +188,86 @@ public final class DataTableTopComponent extends TopComponent implements Display
         });
     }
 
-    private void addTools(final DataTable table) {
+    private void addActionsAndTools(final DataTable table) {
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override
             public void run() {
                 int i = topToolbar.getComponentIndex(separatorAfterTableButtons) + 1;
-                for (JComponent tool : table.getTools()) {
-                    topToolbar.add(tool, i++);
+                JCommandButton command;
+                for (final DataAction a : Lookup.getDefault().lookup(DataTableController.class).getDataActionsFor(table)) {
+                    boolean popupOnly = false;
+                    command = (a.getIcon() != null)
+                            ? new JCommandButton(a.getName(), ImageWrapperResizableIcon.getIcon(a.getIcon(), new Dimension(16, 16)))
+                            : new JCommandButton(a.getName());
+                    command.setCommandButtonKind(a instanceof PopupAction
+                            ? (popupOnly = ((PopupAction) a).isPopupOnly()) ? POPUP_ONLY : ACTION_AND_POPUP_MAIN_ACTION : ACTION_ONLY);
+                    command.setDisplayState(a.hideActionText() ? SMALL : MEDIUM);
+                    if (a.getDescription() != null && !a.getDescription().isEmpty()) {
+                        if (a instanceof PopupAction) {
+                            command.setPopupRichTooltip(new RichTooltip(a.getName(), ((PopupAction) a).getPopupDescription()));
+                        }
+                        command.setActionRichTooltip(new RichTooltip(a.getName(), a.getDescription()));
+
+                    }
+                    if (a instanceof PopupAction) {
+                        command.setPopupCallback(new PopupPanelCallback() {
+
+                            @Override
+                            public JPopupPanel getPopupPanel(JCommandButton jcb) {
+                                JCommandPopupMenu popup = new JCommandPopupMenu();
+                                JCommandMenuButton menu;
+                                for (final DataAction da : ((PopupAction) a).getDataActions(table)) {
+                                    menu = new JCommandMenuButton(da.getName(),
+                                            ImageWrapperResizableIcon.getIcon(da.getIcon() == null ? a.getIcon() : da.getIcon(), new Dimension(16, 16)));
+                                    menu.addActionListener(new ActionListener() {
+
+                                        @Override
+                                        public void actionPerformed(ActionEvent e) {
+                                            Lookup.getDefault().lookup(DataTableControllerUI.class).executeDataAction(table, da);
+                                        }
+                                    });
+                                    if (da.getDescription() != null && !da.getDescription().isEmpty()) {
+                                        menu.setActionRichTooltip(new RichTooltip(da.getName(), da.getDescription()));
+                                    }
+                                    popup.addMenuButton(menu);
+                                }
+                                return popup;
+                            }
+                        });
+                    }
+                    if (!popupOnly) {
+                        command.addActionListener(new ActionListener() {
+
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                Lookup.getDefault().lookup(DataTableControllerUI.class).executeDataAction(table, a);
+                            }
+                        });
+                    }
+                    command.putClientProperty(DataAction.PROP_KEY, a);
+                    command.setEnabled(a.isEnabled(table));
+                    topToolbar.add(command, i++);
+                }
+                JComponent[] tools = table.getTools();
+                if (tools != null && tools.length > 0) {
+                    topToolbar.add(new javax.swing.JToolBar.Separator(), i++);
+                    for (JComponent tool : tools) {
+                        topToolbar.add(tool, i++);
+                    }
                 }
                 topToolbar.updateUI();
             }
         });
+    }
+
+    private void refreshActionsAndTools(DataTable table) {
+        for (Component c : topToolbar.getComponents()) {
+            if (c instanceof JCommandButton) {
+                JCommandButton command = (JCommandButton) c;
+                command.setEnabled(table != null && ((DataAction) command.getClientProperty(DataAction.PROP_KEY)).isEnabled(table));
+            }
+        }
     }
 
     private void associateExplorerLookups() {
@@ -204,20 +292,23 @@ public final class DataTableTopComponent extends TopComponent implements Display
         return null;
     }
 
-    private void clearTables() {
-        SwingUtilities.invokeLater(new Runnable() {
+    void refreshModel(final DataTable table, boolean actionsOnly) {
+        if (!actionsOnly) {
+            SwingUtilities.invokeLater(new Runnable() {
 
-            @Override
-            public void run() {
-                for (DataTable table : Lookup.getDefault().lookupAll(DataTable.class)) {
-                    table.clear();
+                @Override
+                public void run() {
+                    table.refreshModel(display);
                 }
-            }
-        });
+            });
+        } else if (table == getSelectedTable()) {
+            refreshActionsAndTools(table);
+        }
     }
 
     private void refreshTables(final MongkieDisplay d) {
-        if (!refreshing.isBusy()) {
+        this.display = d;
+        if (d != null && !refreshing.isBusy()) {
             refreshing.setBusy(true);
         }
         Runnable refresh = new Runnable() {
@@ -234,13 +325,21 @@ public final class DataTableTopComponent extends TopComponent implements Display
                             }
                         }
                     });
-                    JComponent view = Lookup.getDefault().lookup(DataTableController.class).getDataTable(tableButtonGroup.getSelection().getActionCommand()).getView();
-                    configureViewScrollPane(view);
-                    refreshing.setBusy(false, view);
                 } catch (InterruptedException ex) {
                     Exceptions.printStackTrace(ex);
                 } catch (InvocationTargetException ex) {
                     Exceptions.printStackTrace(ex);
+                } finally {
+                    if (d == null) {
+                        refreshing.setBusy(false);
+                        refreshActionsAndTools(null);
+                    } else {
+                        DataTable table = getSelectedTable();
+                        JComponent view = table.getView();
+                        configureViewScrollPane(view);
+                        refreshing.setBusy(false, view);
+                        refreshActionsAndTools(table);
+                    }
                 }
             }
         };
@@ -254,17 +353,31 @@ public final class DataTableTopComponent extends TopComponent implements Display
     private AccumulativeEventsProcessor refreshProcessor;
 
     private void configureViewScrollPane(JComponent view) {
-        if (view instanceof JScrollPane) {
-            viewScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-            view.setPreferredSize(viewScrollPane.getViewport().getViewSize());
-        } else {
-            viewScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        if (view != null) {
+            if (view instanceof JScrollPane) {
+                viewScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+                view.setPreferredSize(viewScrollPane.getViewport().getViewSize());
+            } else {
+                viewScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+            }
         }
     }
 
     @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {
-        clearTables();
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                DataTable currentTable = getSelectedTable();
+                for (GraphDataTable table : Lookup.getDefault().lookupAll(GraphDataTable.class)) {
+                    table.clear();
+                    if (currentTable == table) {
+                        refreshActionsAndTools(null);
+                    }
+                }
+            }
+        });
         if (d.isLoading() && !refreshing.isBusy()) {
             refreshing.setBusy(true);
         }
@@ -272,6 +385,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     @Override
     public void graphChanged(MongkieDisplay d, Graph g) {
+        //TODO: refresh only graph tables
         refreshTables(d);
     }
 

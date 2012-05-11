@@ -32,7 +32,7 @@ import kobic.prefuse.Constants;
 import kobic.prefuse.display.DataViewSupport;
 import org.mongkie.datatable.DataChildFactory;
 import org.mongkie.datatable.DataNode;
-import org.mongkie.datatable.spi.DataTable;
+import org.mongkie.datatable.spi.GraphDataTable;
 import org.mongkie.util.lang.StringUtilities;
 import org.mongkie.visualization.MongkieDisplay;
 import org.netbeans.swing.outline.DefaultOutlineCellRenderer;
@@ -45,6 +45,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import prefuse.Visualization;
+import prefuse.data.Graph;
 import prefuse.data.Schema;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
@@ -58,9 +59,9 @@ import prefuse.visual.expression.InGroupPredicate;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class AbstractDataTable extends OutlineView implements DataTable, ExplorerManager.Provider {
+public abstract class AbstractDataTable extends OutlineView implements GraphDataTable, ExplorerManager.Provider {
 
-    private Model model;
+    private AbstractModel model;
 
     private static class OutlineHtmlRenderer {
 
@@ -231,18 +232,26 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
 
     @Override
     public JComponent getView() {
-        return this;
+//        return this;
+        MongkieDisplay d = model.getDisplay();
+        return (d != null && d.isFired()) ? this : null;
     }
 
     @Override
-    public List<JComponent> getTools() {
-        return new ToolsPanel().getToolComponents();
+    public JComponent[] getTools() {
+        return new JComponent[]{filterTools};
+    }
+    private FilterToolsPanel filterTools = new FilterToolsPanel();
+
+    protected final Table getTable() {
+        assert model != null && model.getDisplay() != null;
+        return (Table) model.getDisplay().getVisualization().getSourceData(getDataGroup());
     }
 
     @Override
     public void clear() {
         if (model != null) {
-            model.unset();
+            model.setSelctionSyncEnabled(false);
         }
         if (childFactory != null) {
             childFactory.setTable(null, null);
@@ -251,38 +260,49 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
 
     @Override
     public void refreshModel(MongkieDisplay d) {
-        Model old = model;
+        AbstractModel old = model;
         if (old != null) {
-            model.unset();
+            old.unset();
         }
-        model = lookupModel(d);
-        if (model == null) {
-            model = createModel(d);
-            d.add(model);
-        }
-        Table table = (Table) d.getVisualization().getSourceData(getDataGroup());
-        String labelColumn = getLabelColumn(d);
-        setPropertyColumns();
-        DataViewSupport viewSupport = (DataViewSupport) table.getClientProperty(DataViewSupport.PROP_KEY);
-        Schema outline = viewSupport.getOutlineSchema();
-        for (int i = 0, j = 0; i < outline.getColumnCount(); i++) {
-            String col = outline.getColumnName(i);
-            addPropertyColumn(col, viewSupport.getColumnTitle(col), outline.getColumnType(i).getSimpleName());
-        }
-        getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
-        if (childFactory == null) {
-            em.setRootContext(new AbstractNode(
-                    Children.create(childFactory = new DataChildFactory(table, labelColumn), true)) {
+        if (d != null) {
+            model = lookupModel(d);
+            if (model == null) {
+                model = createModel(d);
+                d.add(model);
+            }
+            Table table = getTable();
+            String labelColumn = getLabelColumn(d);
+            setPropertyColumns();
+            DataViewSupport viewSupport = (DataViewSupport) table.getClientProperty(DataViewSupport.PROP_KEY);
+            Schema outline = viewSupport.getOutlineSchema();
+            for (int i = 0, j = 0; i < outline.getColumnCount(); i++) {
+                String col = outline.getColumnName(i);
+                addPropertyColumn(col, viewSupport.getColumnTitle(col), outline.getColumnType(i).getSimpleName());
+            }
+            getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
+            if (childFactory == null) {
+                em.setRootContext(new AbstractNode(
+                        Children.create(childFactory = new DataChildFactory(table, labelColumn), true)) {
 
-                @Override
-                public Action[] getActions(boolean context) {
-                    return new Action[]{};
-                }
-            });
+                    @Override
+                    public Action[] getActions(boolean context) {
+                        return new Action[]{};
+                    }
+                });
+            } else {
+                childFactory.setTable(table, labelColumn);
+            }
+            model.reset(table);
         } else {
-            childFactory.setTable(table, labelColumn);
+            model = null;
+            clear();
+            setPropertyColumns();
+            getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
         }
-        model.reset();
+    }
+
+    DataChildFactory getDataChildFactory() {
+        return childFactory;
     }
     private DataChildFactory childFactory;
 
@@ -301,22 +321,26 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
             model.setSelectedNodes();
         }
     }
+
+    boolean isSelected() {
+        return showing;
+    }
     private boolean showing = false;
 
-    private Model lookupModel(MongkieDisplay d) {
-        for (Model m : d.getLookup().lookupAll(Model.class)) {
-            if (m.isModelFor(this)) {
+    private AbstractModel lookupModel(MongkieDisplay d) {
+        for (AbstractModel m : d.getLookup().lookupAll(AbstractModel.class)) {
+            if (this == m.getDataTable()) {
                 return m;
             }
         }
         return null;
     }
 
-    protected abstract Model createModel(MongkieDisplay d);
+    protected AbstractModel createModel(MongkieDisplay d) {
+        return new AbstractModel(d, this);
+    }
 
     protected abstract String getLabelColumn(MongkieDisplay d);
-
-    protected abstract String getDataGroup();
 
     @Override
     public ExplorerManager getExplorerManager() {
@@ -324,30 +348,59 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
     }
     private final ExplorerManager em = new ExplorerManager();
 
-    protected abstract class Model implements TupleSetListener, PropertyChangeListener {
+    @Override
+    public AbstractModel getModel() {
+        return model;
+    }
 
+    public static class AbstractModel<T extends AbstractDataTable> implements Model<T>, TupleSetListener, PropertyChangeListener {
+
+        private final T dataTable;
         private final MongkieDisplay display;
         private List<Node> selectedNodes = new ArrayList<Node>();
+        private Table table;
 
-        protected Model(MongkieDisplay display) {
+        protected AbstractModel(MongkieDisplay display, T dataTable) {
             this.display = display;
+            this.dataTable = dataTable;
         }
 
+        @Override
         public MongkieDisplay getDisplay() {
             return display;
         }
 
-        protected void reset() {
-            em.addPropertyChangeListener(this);
-            TupleSet selectedTuples = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
-            selectedTuples.addTupleSetListener(this);
-            setSelectedNodesOf(selectedTuples);
+        public Graph getGraph() {
+            assert display != null;
+            return display.getGraph();
+        }
+
+        @Override
+        public Table getTable() {
+            return table;
+        }
+
+        protected void reset(Table table) {
+            this.table = table;
+            setSelctionSyncEnabled(true);
         }
 
         protected void unset() {
-            em.removePropertyChangeListener(this);
-            display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).removeTupleSetListener(this);
-            clearSelection();
+            this.table = null;
+            setSelctionSyncEnabled(false);
+        }
+
+        protected void setSelctionSyncEnabled(boolean enabled) {
+            if (enabled) {
+                dataTable.getExplorerManager().addPropertyChangeListener(this);
+                TupleSet selectedTuples = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+                selectedTuples.addTupleSetListener(this);
+                setSelectedNodesOf(selectedTuples);
+            } else {
+                dataTable.getExplorerManager().removePropertyChangeListener(this);
+                display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).removeTupleSetListener(this);
+                clearSelection();
+            }
         }
 
         /**
@@ -373,7 +426,7 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
                             selectedItems.clear();
                         } else {
                             for (Node n : oldNodes) {
-                                VisualItem item = display.getVisualization().getVisualItem(getDataGroup(), ((DataNode) n).getTuple());
+                                VisualItem item = display.getVisualization().getVisualItem(dataTable.getDataGroup(), ((DataNode) n).getTuple());
                                 if (selectedItems.containsTuple(item) && !newNodes.contains(n)) {
                                     selectedItems.removeTuple(item);
                                     centerItem = item;
@@ -382,7 +435,7 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
                         }
                         // Then, add newly selected items
                         for (Node n : newNodes) {
-                            VisualItem item = display.getVisualization().getVisualItem(getDataGroup(), ((DataNode) n).getTuple());
+                            VisualItem item = display.getVisualization().getVisualItem(dataTable.getDataGroup(), ((DataNode) n).getTuple());
                             if (!selectedItems.containsTuple(item)) {
                                 if (newNodes.size() == 1) {
                                     selectedItems.setTuple(item);
@@ -431,13 +484,13 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
         }
 
         protected void setSelectedNodesOf(TupleSet selectedItems) {
-            if (!showing) {
+            if (!dataTable.isSelected()) {
                 return;
             }
             selectedNodes.clear();
-            for (Iterator<VisualItem> items = selectedItems.tuples(new InGroupPredicate(getDataGroup())); items.hasNext();) {
+            for (Iterator<VisualItem> items = selectedItems.tuples(new InGroupPredicate(dataTable.getDataGroup())); items.hasNext();) {
                 Tuple tuple = items.next().getSourceTuple();
-                DataNode n = childFactory.getNodeOf(tuple);
+                DataNode n = dataTable.getDataChildFactory().getNodeOf(tuple);
                 if (n == null) {
                     // filtered rows by DataViewSupport.getFilter()
                     continue;
@@ -460,7 +513,7 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
         private void setSelectedNodes(final Node[] nodes) {
             try {
                 userSelection = false;
-                em.setSelectedNodes(nodes);
+                dataTable.getExplorerManager().setSelectedNodes(nodes);
             } catch (PropertyVetoException ex) {
                 Exceptions.printStackTrace(ex);
             } finally {
@@ -475,6 +528,9 @@ public abstract class AbstractDataTable extends OutlineView implements DataTable
         }
         private boolean userSelection = true;
 
-        protected abstract boolean isModelFor(AbstractDataTable table);
+        @Override
+        public T getDataTable() {
+            return dataTable;
+        }
     }
 }

@@ -29,7 +29,7 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ServiceProvider(service = DataTable.class, position = 100)
-public class NodesDataTable extends AbstractDataTable {
+public class NodeDataTable extends AbstractDataTable {
 
     @Override
     protected String getLabelColumn(MongkieDisplay d) {
@@ -37,7 +37,7 @@ public class NodesDataTable extends AbstractDataTable {
     }
 
     @Override
-    protected String getDataGroup() {
+    public String getDataGroup() {
         return Constants.NODES;
     }
 
@@ -54,15 +54,4 @@ public class NodesDataTable extends AbstractDataTable {
         return icon;
     }
     private Icon icon;
-
-    @Override
-    protected Model createModel(MongkieDisplay d) {
-        return new Model(d) {
-
-            @Override
-            protected boolean isModelFor(AbstractDataTable table) {
-                return table.getName().equals(getName());
-            }
-        };
-    }
 }

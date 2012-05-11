@@ -15,43 +15,47 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.datatable.spi;
+package org.mongkie.ui.datatable.graph.actions.column;
 
 import java.awt.Image;
-import javax.swing.JPanel;
+import org.mongkie.datatable.spi.GraphAddColumnAction;
+import org.mongkie.datatable.spi.GraphDataTable;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
- * Data actions to be used for DataTable UI or graph context menus of Display in Visualization UI.
- * These actions are added as buttons in the toolbar of graph data tables.
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface DataAction<T extends DataTable> {
+@ServiceProvider(service = GraphAddColumnAction.class, position = 0)
+public class AddNewColumn extends GraphAddColumnAction {
 
-    public static final String PROP_KEY = "actionToManipulateDataTable";
+    @Override
+    public String getName() {
+        return "New...";
+    }
 
-    public String getName();
+    @Override
+    public String getDescription() {
+        return "Create a new column";
+    }
 
-    public String getDescription();
+    @Override
+    public Image getIcon() {
+        return null;
+    }
 
-    public Image getIcon();
-    
-    public boolean hideActionText();
+    @Override
+    public void execute(GraphDataTable table) {
+        System.out.println(getDescription());
+    }
 
-    public void execute(T table);
+    @Override
+    public boolean isEnabled(GraphDataTable table) {
+        return true;
+    }
 
-    public boolean isEnabled(T table);
-
-    public SettingUI<T> getSettingUI(T table);
-
-    public boolean isActionFor(DataTable table);
-
-    public static interface SettingUI<T extends DataTable> {
-
-        public void load(T table, DataAction<T> a);
-
-        public boolean apply(boolean ok);
-
-        public JPanel getPanel();
+    @Override
+    public SettingUI<GraphDataTable> getSettingUI(GraphDataTable table) {
+        return null;
     }
 }

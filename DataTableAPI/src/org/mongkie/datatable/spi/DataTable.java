@@ -17,7 +17,6 @@
  */
 package org.mongkie.datatable.spi;
 
-import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import org.mongkie.visualization.MongkieDisplay;
@@ -37,9 +36,7 @@ public interface DataTable {
 
     public JComponent getView();
 
-    public List<JComponent> getTools();
-
-    public void clear();
+    public JComponent[] getTools();
 
     public void refreshModel(MongkieDisplay d);
 

@@ -15,29 +15,34 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.datatable;
+package org.mongkie.ui.datatable.graph.actions;
 
 import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.datatable.spi.DataTable;
-import org.openide.nodes.Node;
+import org.mongkie.ui.datatable.graph.AbstractDataTable;
+import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface DataTableControllerUI {
+public abstract class AbstractDataAction implements DataAction<AbstractDataTable> {
 
-    public DataTable selectTable(String name);
+    @Override
+    public boolean isActionFor(DataTable table) {
+        return DataTable.NODES.equals(table.getName()) || DataTable.EDGES.equals(table.getName());
+    }
 
-    public DataTable selectNodeTable();
+    @Override
+    public boolean isEnabled(AbstractDataTable table) {
+        AbstractModel m = table.getModel();
+        return m != null && m.getDisplay().isFired() && isEnabled(table.getModel());
+    }
 
-    public DataTable selectEdgeTable();
+    @Override
+    public boolean hideActionText() {
+        return true;
+    }
 
-    public DataTable getSelectedTable();
-
-    public void setActivatedNodes(Node... nodes);
-
-    public void executeDataAction(DataTable table, DataAction a);
-
-    public void refreshModel(DataTable table, boolean actionsOnly);
+    protected abstract boolean isEnabled(AbstractModel model);
 }

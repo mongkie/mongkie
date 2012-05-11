@@ -15,29 +15,21 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.datatable;
-
-import org.mongkie.datatable.spi.DataAction;
-import org.mongkie.datatable.spi.DataTable;
-import org.openide.nodes.Node;
+package org.mongkie.datatable.spi;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface DataTableControllerUI {
+public abstract class GraphAddColumnAction implements DataAction<GraphDataTable> {
 
-    public DataTable selectTable(String name);
+    @Override
+    public boolean isActionFor(DataTable table) {
+        return false;
+    }
 
-    public DataTable selectNodeTable();
-
-    public DataTable selectEdgeTable();
-
-    public DataTable getSelectedTable();
-
-    public void setActivatedNodes(Node... nodes);
-
-    public void executeDataAction(DataTable table, DataAction a);
-
-    public void refreshModel(DataTable table, boolean actionsOnly);
+    @Override
+    public boolean hideActionText() {
+        return false;
+    }
 }

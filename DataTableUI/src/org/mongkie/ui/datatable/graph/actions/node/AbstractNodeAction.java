@@ -15,29 +15,19 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.datatable;
+package org.mongkie.ui.datatable.graph.actions.node;
 
-import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.datatable.spi.DataTable;
-import org.openide.nodes.Node;
+import org.mongkie.ui.datatable.graph.actions.AbstractDataAction;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface DataTableControllerUI {
+public abstract class AbstractNodeAction extends AbstractDataAction {
 
-    public DataTable selectTable(String name);
-
-    public DataTable selectNodeTable();
-
-    public DataTable selectEdgeTable();
-
-    public DataTable getSelectedTable();
-
-    public void setActivatedNodes(Node... nodes);
-
-    public void executeDataAction(DataTable table, DataAction a);
-
-    public void refreshModel(DataTable table, boolean actionsOnly);
+    @Override
+    public boolean isActionFor(DataTable table) {
+        return DataTable.NODES.equals(table.getName());
+    }
 }

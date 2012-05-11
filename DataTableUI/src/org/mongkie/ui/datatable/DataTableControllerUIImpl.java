@@ -17,10 +17,19 @@
  */
 package org.mongkie.ui.datatable;
 
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.mongkie.datatable.DataTableControllerUI;
+import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.datatable.spi.DataTable;
 import static org.mongkie.datatable.spi.DataTable.EDGES;
 import static org.mongkie.datatable.spi.DataTable.NODES;
+import org.netbeans.validation.api.ui.swing.ValidationPanel;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -59,5 +68,55 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
     @Override
     public void setActivatedNodes(Node... nodes) {
         DataTableTopComponent.findInstance().setActivatedNodes(nodes);
+    }
+
+    @Override
+    public void executeDataAction(final DataTable table, final DataAction a) {
+        if (a.isEnabled(table)) {
+            SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    final DataAction.SettingUI settingUI = a.getSettingUI(table);
+                    if (settingUI != null) {
+                        settingUI.load(table, a);
+                        JPanel settingPanel = settingUI.getPanel();
+                        final DialogDescriptor dd = new DialogDescriptor(settingPanel, settingPanel.getName());
+                        if (settingPanel instanceof ValidationPanel) {
+                            final ValidationPanel vp = (ValidationPanel) settingPanel;
+                            vp.addChangeListener(new ChangeListener() {
+
+                                @Override
+                                public void stateChanged(ChangeEvent e) {
+                                    dd.setValid(!vp.isFatalProblem());
+                                }
+                            });
+                            dd.setValid(!vp.isFatalProblem());
+                        }
+                        if (settingUI.apply(DialogDisplayer.getDefault().notify(dd) == NotifyDescriptor.OK_OPTION)) {
+                            executeDataActionInOtherThread(table, a);
+                        }
+                    } else {
+                        executeDataActionInOtherThread(table, a);
+                    }
+                }
+            });
+        }
+    }
+
+    private void executeDataActionInOtherThread(final DataTable table, final DataAction a) {
+        new Thread() {
+
+            @Override
+            public void run() {
+                a.execute(table);
+            }
+        }.start();
+    }
+
+    @Override
+    public void refreshModel(DataTable table, boolean actionsOnly) {
+        DataTableTopComponent.findInstance().refreshModel(table, actionsOnly);
     }
 }

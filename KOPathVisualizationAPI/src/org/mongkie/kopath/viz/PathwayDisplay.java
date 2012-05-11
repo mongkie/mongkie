@@ -116,6 +116,11 @@ public class PathwayDisplay extends MongkieDisplay implements GraphListener {
     }
 
     @Override
+    protected Image getLoadingImage() {
+        return new ImageIcon(PathwayDisplay.class.getResource("resources/loading.gif")).getImage();
+    }
+
+    @Override
     protected int adjustZorderScore(VisualItem item, int score) {
         int adjustive = 0;
         if (item instanceof NodeItem) {
@@ -877,6 +882,26 @@ public class PathwayDisplay extends MongkieDisplay implements GraphListener {
             }
 
             @Override
+            public boolean isAddColumnSupported() {
+                return false;
+            }
+
+            @Override
+            public boolean isRemoveColumnSupported() {
+                return false;
+            }
+
+            @Override
+            public boolean isAddDataSupported() {
+                return false;
+            }
+
+            @Override
+            public boolean isRemoveDataSupported() {
+                return true;
+            }
+
+            @Override
             public Class getColumnType(String field) {
                 return field.equals(FIELD_SUBNODES) ? String[].class : super.getColumnType(field);
             }
@@ -902,6 +927,26 @@ public class PathwayDisplay extends MongkieDisplay implements GraphListener {
             @Override
             public boolean isEditable(String field) {
                 return false;
+            }
+
+            @Override
+            public boolean isAddColumnSupported() {
+                return false;
+            }
+
+            @Override
+            public boolean isRemoveColumnSupported() {
+                return false;
+            }
+
+            @Override
+            public boolean isAddDataSupported() {
+                return false;
+            }
+
+            @Override
+            public boolean isRemoveDataSupported() {
+                return true;
             }
         };
     }

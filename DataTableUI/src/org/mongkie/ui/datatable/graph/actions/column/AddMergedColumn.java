@@ -15,31 +15,47 @@
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.datatable;
+package org.mongkie.ui.datatable.graph.actions.column;
 
-import java.util.List;
-import org.mongkie.datatable.spi.DataAction;
-import org.mongkie.datatable.spi.DataNodeFactory;
-import org.mongkie.datatable.spi.DataTable;
+import java.awt.Image;
+import org.mongkie.datatable.spi.GraphAddColumnAction;
 import org.mongkie.datatable.spi.GraphDataTable;
-import prefuse.data.Table;
-import prefuse.data.Tuple;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface DataTableController {
+@ServiceProvider(service = GraphAddColumnAction.class, position = 2)
+public class AddMergedColumn extends GraphAddColumnAction {
 
-    public DataTable getDataTable(String name);
+    @Override
+    public String getName() {
+        return "Merge...";
+    }
 
-    public GraphDataTable getNodeDataTable();
+    @Override
+    public String getDescription() {
+        return "Create a new column by merging existing columns";
+    }
 
-    public GraphDataTable getEdgeDataTable();
+    @Override
+    public Image getIcon() {
+        return null;
+    }
 
-    public DataNode createDataNode(Tuple data, String labelColumn);
+    @Override
+    public void execute(GraphDataTable table) {
+        System.out.println(getDescription());
+    }
 
-    public DataNodeFactory getDataNodeFactory(Table table);
+    @Override
+    public boolean isEnabled(GraphDataTable table) {
+        return true;
+    }
 
-    public List<? extends DataAction> getDataActionsFor(DataTable table);
+    @Override
+    public SettingUI<GraphDataTable> getSettingUI(GraphDataTable table) {
+        return null;
+    }
 }

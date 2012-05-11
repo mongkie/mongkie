@@ -17,10 +17,14 @@
  */
 package org.mongkie.datatable.impl;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.DataTableController;
+import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.datatable.spi.DataNodeFactory;
 import org.mongkie.datatable.spi.DataTable;
+import org.mongkie.datatable.spi.GraphDataTable;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Table;
@@ -44,13 +48,13 @@ public class DataTableControllerImpl implements DataTableController {
     }
 
     @Override
-    public DataTable getNodeDataTable() {
-        return getDataTable(DataTable.NODES);
+    public GraphDataTable getNodeDataTable() {
+        return (GraphDataTable) getDataTable(DataTable.NODES);
     }
 
     @Override
-    public DataTable getEdgeDataTable() {
-        return getDataTable(DataTable.EDGES);
+    public GraphDataTable getEdgeDataTable() {
+        return (GraphDataTable) getDataTable(DataTable.EDGES);
     }
 
     @Override
@@ -68,5 +72,16 @@ public class DataTableControllerImpl implements DataTableController {
             }
         }
         return null;
+    }
+
+    @Override
+    public List<DataAction> getDataActionsFor(DataTable table) {
+        List<DataAction> actions = new ArrayList<DataAction>();
+        for (DataAction a : Lookup.getDefault().lookupAll(DataAction.class)) {
+            if (a.isActionFor(table)) {
+                actions.add(a);
+            }
+        }
+        return actions;
     }
 }

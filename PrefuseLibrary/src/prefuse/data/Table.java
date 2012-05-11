@@ -293,7 +293,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      */
     public Schema getSchema() {
         if (m_schema == null) {
-            Schema s = new Schema();
+            //XXX instantiatiation with no parameter is default
+            Schema s = new Schema(getColumnCount());
             for (int i = 0; i < getColumnCount(); ++i) {
                 s.addColumn(getColumnName(i), getColumnType(i),
                         getColumn(i).getDefaultValue());
