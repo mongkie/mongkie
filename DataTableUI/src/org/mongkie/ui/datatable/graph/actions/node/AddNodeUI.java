@@ -136,12 +136,15 @@ public class AddNodeUI extends javax.swing.JPanel implements DataAction.UI<Abstr
 
     @Override
     public JPanel getPanel() {
-        ValidationPanel validationPanel = new ValidationPanel();
-        validationPanel.setInnerComponent(this);
-        ValidationGroup validationGroup = validationPanel.getValidationGroup();
-        validationGroup.add(labelText, StringValidators.REQUIRE_NON_EMPTY_STRING);
+        if (validationPanel == null) {
+            validationPanel = new ValidationPanel();
+            validationPanel.setInnerComponent(this);
+            ValidationGroup validationGroup = validationPanel.getValidationGroup();
+            validationGroup.add(labelText, StringValidators.REQUIRE_NON_EMPTY_STRING);
+        }
         return validationPanel;
     }
+    private ValidationPanel validationPanel;
 
     static AddNodeUI getInstance() {
         return Holder.UI;
