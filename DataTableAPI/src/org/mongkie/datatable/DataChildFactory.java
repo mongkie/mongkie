@@ -94,11 +94,16 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
     }
 
     public DataNode getNodeOf(Tuple tuple) {
-        return tuple2Node.get(tuple.getRow());
+        return getNodeOf(tuple.getRow());
+    }
+
+    public DataNode getNodeOf(int row) {
+        return tuple2Node.get(row);
     }
 
     @Override
     public void tableChanged(Table t, int start, int end, int col, int type) {
-        //TODO refresh on table change event in the graph
+        //TODO accumulative event processing
+        refresh(true);
     }
 }

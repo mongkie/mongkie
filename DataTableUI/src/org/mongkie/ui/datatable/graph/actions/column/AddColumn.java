@@ -76,7 +76,7 @@ public class AddColumn extends AbstractColumnAction implements PopupAction {
     }
 
     @Override
-    public SettingUI<AbstractDataTable> getSettingUI(AbstractDataTable table) {
+    public UI getUI() {
         return null;
     }
 }

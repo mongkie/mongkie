@@ -18,11 +18,17 @@
 package org.mongkie.ui.datatable.graph.actions.node;
 
 import java.awt.Image;
+import java.beans.PropertyVetoException;
+import java.util.HashMap;
+import java.util.Map;
 import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
+import static prefuse.Visualization.DRAW;
+import prefuse.data.Node;
 
 /**
  *
@@ -31,9 +37,21 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = DataAction.class, position = 10)
 public class AddNode extends AbstractNodeAction {
 
+    private String nodeLabel = null;
+    private final Map<String, Object> tupleData = new HashMap<String, Object>();
+
+    void setNodeLabel(String value) {
+        nodeLabel = value;
+    }
+
+    void setTupleData(Map<String, Object> tupleData) {
+        this.tupleData.clear();
+        this.tupleData.putAll(tupleData);
+    }
+
     @Override
-    public SettingUI<AbstractDataTable> getSettingUI(AbstractDataTable table) {
-        return null;
+    public UI getUI() {
+        return AddNodeUI.getInstance();
     }
 
     @Override
@@ -52,8 +70,23 @@ public class AddNode extends AbstractNodeAction {
     }
 
     @Override
-    public void execute(AbstractDataTable table) {
-        System.out.println(">> " + getDescription());
+    public void execute(final AbstractDataTable table) {
+        final AbstractModel model = table.getModel();
+        model.getDisplay().getVisualization().rerun(new Runnable() {
+
+            @Override
+            public void run() {
+                Node n = model.getGraph().addNode();
+                for (String field : tupleData.keySet()) {
+                    n.set(field, tupleData.get(field));
+                }
+                try {
+                    table.getExplorerManager().setSelectedNodes(new org.openide.nodes.Node[]{table.getDataChildFactory().getNodeOf(n.getRow())});
+                } catch (PropertyVetoException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }, DRAW);
     }
 
     @Override

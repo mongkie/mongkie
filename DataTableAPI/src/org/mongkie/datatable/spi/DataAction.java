@@ -35,20 +35,20 @@ public interface DataAction<T extends DataTable> {
     public String getDescription();
 
     public Image getIcon();
-    
+
     public boolean hideActionText();
 
     public void execute(T table);
 
     public boolean isEnabled(T table);
 
-    public SettingUI<T> getSettingUI(T table);
+    public UI getUI();
 
     public boolean isActionFor(DataTable table);
 
-    public static interface SettingUI<T extends DataTable> {
+    public static interface UI<T extends DataTable, A extends DataAction<T>> {
 
-        public void load(T table, DataAction<T> a);
+        public void load(T table, A action);
 
         public boolean apply(boolean ok);
 

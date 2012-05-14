@@ -32,7 +32,7 @@ import org.openide.util.lookup.ServiceProvider;
 public class AddEdge extends AbstractEdgeAction {
 
     @Override
-    public SettingUI<AbstractDataTable> getSettingUI(AbstractDataTable table) {
+    public UI getUI() {
         return null;
     }
 

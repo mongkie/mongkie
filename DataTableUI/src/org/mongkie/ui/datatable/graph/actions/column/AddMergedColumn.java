@@ -55,7 +55,7 @@ public class AddMergedColumn extends GraphAddColumnAction {
     }
 
     @Override
-    public SettingUI<GraphDataTable> getSettingUI(GraphDataTable table) {
+    public UI getUI() {
         return null;
     }
 }

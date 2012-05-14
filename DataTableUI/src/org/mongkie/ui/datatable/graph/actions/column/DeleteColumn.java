@@ -73,7 +73,7 @@ public class DeleteColumn extends AbstractColumnAction implements PopupAction<Ab
     }
 
     @Override
-    public SettingUI<AbstractDataTable> getSettingUI(AbstractDataTable table) {
+    public UI getUI() {
         return null;
     }
 
@@ -118,7 +118,7 @@ public class DeleteColumn extends AbstractColumnAction implements PopupAction<Ab
                 }
 
                 @Override
-                public SettingUI<AbstractDataTable> getSettingUI(AbstractDataTable table) {
+                public UI getUI() {
                     return null;
                 }
 

@@ -78,11 +78,11 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
                 @Override
                 public void run() {
 
-                    final DataAction.SettingUI settingUI = a.getSettingUI(table);
-                    if (settingUI != null) {
-                        settingUI.load(table, a);
-                        JPanel settingPanel = settingUI.getPanel();
-                        final DialogDescriptor dd = new DialogDescriptor(settingPanel, settingPanel.getName());
+                    final DataAction.UI actionUI = a.getUI();
+                    if (actionUI != null) {
+                        actionUI.load(table, a);
+                        JPanel settingPanel = actionUI.getPanel();
+                        final DialogDescriptor dd = new DialogDescriptor(settingPanel, a.getName());
                         if (settingPanel instanceof ValidationPanel) {
                             final ValidationPanel vp = (ValidationPanel) settingPanel;
                             vp.addChangeListener(new ChangeListener() {
@@ -94,7 +94,7 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
                             });
                             dd.setValid(!vp.isFatalProblem());
                         }
-                        if (settingUI.apply(DialogDisplayer.getDefault().notify(dd) == NotifyDescriptor.OK_OPTION)) {
+                        if (actionUI.apply(DialogDisplayer.getDefault().notify(dd) == NotifyDescriptor.OK_OPTION)) {
                             executeDataActionInOtherThread(table, a);
                         }
                     } else {

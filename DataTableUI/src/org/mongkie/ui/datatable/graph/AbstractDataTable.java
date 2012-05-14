@@ -301,7 +301,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         }
     }
 
-    DataChildFactory getDataChildFactory() {
+    public DataChildFactory getDataChildFactory() {
         return childFactory;
     }
     private DataChildFactory childFactory;

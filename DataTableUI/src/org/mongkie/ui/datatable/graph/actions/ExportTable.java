@@ -32,7 +32,7 @@ import org.openide.util.lookup.ServiceProvider;
 public class ExportTable extends AbstractDataAction {
 
     @Override
-    public SettingUI<AbstractDataTable> getSettingUI(AbstractDataTable table) {
+    public UI getUI() {
         return null;
     }
 
