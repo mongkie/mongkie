@@ -25,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+import kobic.prefuse.display.DataEditSupport;
 import org.jdesktop.swingx.icon.EmptyIcon;
 import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.ui.datatable.graph.AbstractDataTable;
@@ -36,6 +37,8 @@ import org.openide.nodes.*;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import prefuse.data.Table;
+import prefuse.data.column.Column;
+import prefuse.util.StringLib;
 
 /**
  *
@@ -171,16 +174,26 @@ public class AddNodeUI extends javax.swing.JPanel implements DataAction.UI<Abstr
             Sheet.Set attributes = Sheet.createPropertiesSet();
             attributes.setDisplayName("Data fields");
             for (final String field : tupleData.keySet()) {
-                Property p = new PropertySupport.ReadWrite(field, table.getColumnType(field), null, null) {
+                Property p = new PropertySupport.ReadWrite(field,
+                        ((DataEditSupport) table.getClientProperty(DataEditSupport.PROP_KEY)).getColumnType(field),
+                        null, null) {
 
                     @Override
                     public Object getValue() throws IllegalAccessException, InvocationTargetException {
-                        return tupleData.get(field);
+                        Object val = tupleData.get(field);
+                        if (val != null && table.getMetadata(field).hasMultipleValues()) {
+                            val = ((String) val).split(Column.MULTI_VAL_SEPARATOR);
+                        }
+                        return val;
                     }
 
                     @Override
                     public void setValue(Object val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-                        tupleData.put(field, val);
+                        if (val != null && table.getMetadata(field).hasMultipleValues()) {
+                            tupleData.put(field, StringLib.concatStringArray((String[]) val, Column.MULTI_VAL_SEPARATOR));
+                        } else {
+                            tupleData.put(field, val);
+                        }
                         if (field.equals(labelField)) {
                             labelText.setText((String) val);
                         }
