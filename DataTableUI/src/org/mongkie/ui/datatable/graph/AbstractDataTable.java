@@ -292,7 +292,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             } else {
                 childFactory.setTable(table, labelColumn);
             }
-            model.reset(table);
+            model.reset(table, showing);
         } else {
             model = null;
             clear();
@@ -310,6 +310,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
     public void deselected() {
         showing = false;
         if (model != null) {
+            model.setSelctionSyncEnabled(false);
             model.clearSelection();
         }
     }
@@ -319,6 +320,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         showing = true;
         if (model != null) {
             model.setSelectedNodes();
+            model.setSelctionSyncEnabled(true);
         }
     }
 
@@ -353,6 +355,21 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         return model;
     }
 
+    @Override
+    public void setSelectedNodes(final Node[] nodes) {
+        if (showing && model != null) {
+            final Node[] olds = em.getSelectedNodes();
+            model.setSelectedNodesInternal(nodes);
+            SwingUtilities.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    model.propertyChange(new PropertyChangeEvent(em, ExplorerManager.PROP_SELECTED_NODES, olds, nodes));
+                }
+            });
+        }
+    }
+
     public static class AbstractModel<T extends AbstractDataTable> implements Model<T>, TupleSetListener, PropertyChangeListener {
 
         private final T dataTable;
@@ -380,9 +397,9 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             return table;
         }
 
-        protected void reset(Table table) {
+        protected void reset(Table table, boolean selected) {
             this.table = table;
-            setSelctionSyncEnabled(true);
+            setSelctionSyncEnabled(selected);
         }
 
         protected void unset() {
@@ -392,6 +409,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
         protected void setSelctionSyncEnabled(boolean enabled) {
             if (enabled) {
+                dataTable.getExplorerManager().removePropertyChangeListener(this);
                 dataTable.getExplorerManager().addPropertyChangeListener(this);
                 TupleSet selectedTuples = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
                 selectedTuples.addTupleSetListener(this);
@@ -411,41 +429,42 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
          */
         @Override
         public void propertyChange(final PropertyChangeEvent evt) {
-            if (userSelection && evt.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES)) {
-                final TupleSet selectedItems = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+            if (!internalTableSelection && evt.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES)) {
+                final TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
                 centerItem = null;
                 display.getVisualization().rerun(new Runnable() {
 
                     @Override
                     public void run() {
                         List<Node> oldNodes = Arrays.asList((Node[]) evt.getOldValue());
-                        List<Node> newNodes = Arrays.asList((Node[]) evt.getNewValue());
-                        tableSelection = true;
+                        selectedNodes.clear();
+                        selectedNodes.addAll(Arrays.asList((Node[]) evt.getNewValue()));
+                        internalDisplaySelection = true;
                         // Firstly, remove unselected items
                         if (oldNodes.isEmpty()) {
-                            selectedItems.clear();
+                            focusedTupleSet.clear();
                         } else {
                             for (Node n : oldNodes) {
                                 VisualItem item = display.getVisualization().getVisualItem(dataTable.getDataGroup(), ((DataNode) n).getTuple());
-                                if (selectedItems.containsTuple(item) && !newNodes.contains(n)) {
-                                    selectedItems.removeTuple(item);
+                                if (focusedTupleSet.containsTuple(item) && !selectedNodes.contains(n)) {
+                                    focusedTupleSet.removeTuple(item);
                                     centerItem = item;
                                 }
                             }
                         }
                         // Then, add newly selected items
-                        for (Node n : newNodes) {
+                        for (Node n : selectedNodes) {
                             VisualItem item = display.getVisualization().getVisualItem(dataTable.getDataGroup(), ((DataNode) n).getTuple());
-                            if (!selectedItems.containsTuple(item)) {
-                                if (newNodes.size() == 1) {
-                                    selectedItems.setTuple(item);
+                            if (!focusedTupleSet.containsTuple(item)) {
+                                if (selectedNodes.size() == 1) {
+                                    focusedTupleSet.setTuple(item);
                                 } else {
-                                    selectedItems.addTuple(item);
+                                    focusedTupleSet.addTuple(item);
                                 }
                                 centerItem = item;
                             }
                         }
-                        tableSelection = false;
+                        internalDisplaySelection = false;
                     }
                 }, Visualization.DRAW);
                 if (centerItem != null) {
@@ -454,7 +473,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             }
         }
         private VisualItem centerItem;
-        private boolean tableSelection = false;
+        private boolean internalDisplaySelection = false;
 
         private void panDisplayCenterTo(VisualItem item) {
             double displayX = display.getDisplayX();
@@ -478,7 +497,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
          */
         @Override
         public void tupleSetChanged(TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
-            if (!tableSelection) {
+            if (!internalDisplaySelection) {
                 setSelectedNodesOf(tupleSet);
             }
         }
@@ -498,7 +517,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                 assert n != null;
                 selectedNodes.add(n);
             }
-            setSelectedNodes(selectedNodes.isEmpty() ? new Node[]{} : selectedNodes.toArray(new Node[]{}));
+            setSelectedNodesInternal(selectedNodes.isEmpty() ? new Node[]{} : selectedNodes.toArray(new Node[]{}));
         }
 
         protected void setSelectedNodes() {
@@ -507,12 +526,12 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
         protected void clearSelection() {
             selectedNodes.clear();
-            setSelectedNodes(new Node[]{});
+            setSelectedNodesInternal(new Node[]{});
         }
 
-        private void setSelectedNodes(final Node[] nodes) {
+        private void setSelectedNodesInternal(final Node[] nodes) {
             try {
-                userSelection = false;
+                internalTableSelection = true;
                 dataTable.getExplorerManager().setSelectedNodes(nodes);
             } catch (PropertyVetoException ex) {
                 Exceptions.printStackTrace(ex);
@@ -521,12 +540,12 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
                     @Override
                     public void run() {
-                        userSelection = true;
+                        internalTableSelection = false;
                     }
                 });
             }
         }
-        private boolean userSelection = true;
+        private boolean internalTableSelection = false;
 
         @Override
         public T getDataTable() {

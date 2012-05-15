@@ -23,11 +23,13 @@ import java.util.List;
 import java.util.Map;
 import kobic.prefuse.display.DataViewSupport;
 import org.mongkie.datatable.spi.DataNodeFactory;
+import org.mongkie.util.AccumulativeEventsProcessor;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
+import prefuse.data.event.EventConstants;
 import prefuse.data.event.TableListener;
 
 /**
@@ -103,7 +105,23 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
 
     @Override
     public void tableChanged(Table t, int start, int end, int col, int type) {
-        //TODO accumulative event processing
-        refresh(true);
+        // enable accumulative refreshing when values of each field updated
+        if (type == EventConstants.UPDATE && col != EventConstants.ALL_COLUMNS) {
+            if (refreshProcessor != null && refreshProcessor.isAccumulating()) {
+                refreshProcessor.eventAttended();
+            } else {
+                refreshProcessor = new AccumulativeEventsProcessor(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        refresh(true);
+                    }
+                });
+                refreshProcessor.start();
+            }
+        } else {
+            refresh(true);
+        }
     }
+    private AccumulativeEventsProcessor refreshProcessor;
 }

@@ -18,6 +18,7 @@
 package org.mongkie.datatable.spi;
 
 import org.mongkie.visualization.MongkieDisplay;
+import org.openide.nodes.Node;
 import prefuse.data.Table;
 
 /**
@@ -33,6 +34,8 @@ public interface GraphDataTable extends DataTable {
     public void clear();
 
     public Model getModel();
+
+    public void setSelectedNodes(Node[] nodes);
 
     public static interface Model<T extends GraphDataTable> {
 

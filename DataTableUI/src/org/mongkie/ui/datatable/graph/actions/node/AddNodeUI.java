@@ -18,7 +18,7 @@
 package org.mongkie.ui.datatable.graph.actions.node;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -47,7 +47,7 @@ import prefuse.util.StringLib;
 public class AddNodeUI extends javax.swing.JPanel implements DataAction.UI<AbstractDataTable, AddNode> {
 
     private AddNode action;
-    private final Map<String, Object> tupleData = new HashMap<String, Object>();
+    private final Map<String, Object> tupleData = new LinkedHashMap<String, Object>();
     private TupleNode tupleNode;
 
     /** Creates new form AddNodeUI */
@@ -124,13 +124,11 @@ public class AddNodeUI extends javax.swing.JPanel implements DataAction.UI<Abstr
 
     @Override
     public boolean apply(boolean ok) {
-        if (ok) {
-            action.setNodeLabel(labelText.getText());
-            action.setTupleData(tupleData);
-        }
+        action.setTupleData(ok ? tupleData : null);
         labelText.getDocument().removeDocumentListener(tupleNode);
         labelText.setText(null);
         tupleData.clear();
+        ((PropertySheet) propertySheet).setNodes(new Node[]{});
         return ok;
     }
 

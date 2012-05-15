@@ -18,13 +18,11 @@
 package org.mongkie.ui.datatable.graph.actions.node;
 
 import java.awt.Image;
-import java.beans.PropertyVetoException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
-import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 import static prefuse.Visualization.DRAW;
@@ -37,16 +35,13 @@ import prefuse.data.Node;
 @ServiceProvider(service = DataAction.class, position = 10)
 public class AddNode extends AbstractNodeAction {
 
-    private String nodeLabel = null;
-    private final Map<String, Object> tupleData = new HashMap<String, Object>();
-
-    void setNodeLabel(String value) {
-        nodeLabel = value;
-    }
+    private final Map<String, Object> tupleData = new LinkedHashMap<String, Object>();
 
     void setTupleData(Map<String, Object> tupleData) {
         this.tupleData.clear();
-        this.tupleData.putAll(tupleData);
+        if (tupleData != null) {
+            this.tupleData.putAll(tupleData);
+        }
     }
 
     @Override
@@ -80,11 +75,7 @@ public class AddNode extends AbstractNodeAction {
                 for (String field : tupleData.keySet()) {
                     n.set(field, tupleData.get(field));
                 }
-                try {
-                    table.getExplorerManager().setSelectedNodes(new org.openide.nodes.Node[]{table.getDataChildFactory().getNodeOf(n.getRow())});
-                } catch (PropertyVetoException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
+                table.setSelectedNodes(new org.openide.nodes.Node[]{table.getDataChildFactory().getNodeOf(n.getRow())});
             }
         }, DRAW);
     }

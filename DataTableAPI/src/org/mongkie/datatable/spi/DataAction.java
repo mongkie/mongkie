@@ -22,7 +22,7 @@ import javax.swing.JPanel;
 
 /**
  * Data actions to be used for DataTable UI or graph context menus of Display in Visualization UI.
- * These actions are added as buttons in the toolbar of graph data tables.
+ * These actions are added as buttons in the toolbar of the data tables.
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
