@@ -58,6 +58,7 @@ public class SearchAndReplace extends AbstractDataAction {
 
     @Override
     public boolean isEnabled(AbstractModel model) {
-        return model.getTable().getTupleCount() > 0;
+//        return model.getTable().getTupleCount() > 0;
+        return false;
     }
 }

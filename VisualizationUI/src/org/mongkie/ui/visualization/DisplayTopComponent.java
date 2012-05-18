@@ -19,9 +19,11 @@ package org.mongkie.ui.visualization;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.*;
 import javax.swing.AbstractAction;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import static kobic.prefuse.Constants.EDGES;
 import static kobic.prefuse.Constants.NODES;
 import kobic.prefuse.controls.PopupControl;
@@ -39,6 +41,7 @@ import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualization.VisualizationControllerUI;
 import org.mongkie.visualization.selection.SelectionListener;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -112,7 +115,14 @@ public final class DisplayTopComponent extends TopComponent
                             }
 
                             private void setActivatedNodesOf(MongkieDisplay display, Set<VisualItem> items) {
-                                List<DataNode> tupleNodes = new ArrayList<DataNode>();
+                                for (DataNode n : tupleNodes) {
+                                    try {
+                                        n.destroy();
+                                    } catch (IOException ex) {
+                                        Exceptions.printStackTrace(ex);
+                                    }
+                                }
+                                tupleNodes.clear();
                                 for (VisualItem item : items) {
                                     if (item instanceof NodeItem) {
                                         tupleNodes.add(Lookup.getDefault().lookup(DataTableController.class).createDataNode(item.getSourceTuple(), display.getGraph().getNodeLabelField()));
@@ -120,8 +130,15 @@ public final class DisplayTopComponent extends TopComponent
                                         tupleNodes.add(Lookup.getDefault().lookup(DataTableController.class).createDataNode(item.getSourceTuple(), display.getGraph().getEdgeLabelField()));
                                     }
                                 }
-                                setActivatedNodes(tupleNodes.toArray(new DataNode[]{}));
+                                SwingUtilities.invokeLater(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        setActivatedNodes(tupleNodes.toArray(new DataNode[]{}));
+                                    }
+                                });
                             }
+                            private final List<DataNode> tupleNodes = new ArrayList<DataNode>();
                         });
                 display.addControlListener(new PopupControl(display) {
 

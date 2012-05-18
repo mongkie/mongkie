@@ -17,6 +17,7 @@
  */
 package org.mongkie.datatable;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import kobic.prefuse.display.DataEditSupport;
 import kobic.prefuse.display.DataViewSupport;
@@ -25,19 +26,24 @@ import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.lookup.Lookups;
+import prefuse.data.Schema;
+import prefuse.data.Table;
 import prefuse.data.Tuple;
+import prefuse.data.event.EventConstants;
+import prefuse.data.event.TableListener;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class DataNode extends AbstractNode {
+public abstract class DataNode extends AbstractNode implements TableListener {
 
     public DataNode(Tuple data, String labelColumn) {
         super(Children.LEAF, Lookups.singleton(data));
         String label = labelColumn != null ? data.getString(labelColumn) : null;
         setName(String.valueOf(data.getRow()));
         setDisplayName(label == null ? "" : label);
+        data.getTable().addTableListener(DataNode.this);
     }
 
     public Tuple getTuple() {
@@ -45,13 +51,55 @@ public abstract class DataNode extends AbstractNode {
     }
 
     @Override
-    protected Sheet createSheet() {
-        Sheet sheet = Sheet.createDefault();
-        sheet.put(preparePropertySet(getTuple()));
-        return sheet;
+    public final PropertySet[] getPropertySets() {
+        return new PropertySet[]{preparePropertySet(getTuple())};
+    }
+
+    @Override
+    public boolean canDestroy() {
+        return true;
+    }
+
+    @Override
+    public void destroy() throws IOException {
+        getTuple().getTable().removeTableListener(this);
+        super.destroy();
+    }
+
+    @Override
+    public void tableChanged(Table t, int start, int end, int col, int type) {
+        Tuple data = getTuple();
+        Schema s = getPropertySchema(data);
+        switch (type) {
+            case EventConstants.INSERT:
+            case EventConstants.DELETE:
+                // column added or deleted
+                if (col != EventConstants.ALL_COLUMNS) {
+                    firePropertySetsChange(null, getPropertySets());
+                }
+                break;
+            case EventConstants.UPDATE:
+                for (int row = start; row <= end; row++) {
+                    if (row == data.getRow()) {
+                        if (col == EventConstants.ALL_COLUMNS) {
+                            for (int i = 0; i < s.getColumnCount(); i++) {
+                                firePropertyChange(s.getColumnName(i), null, data.get(s.getColumnName(i)));
+                            }
+//                            firePropertySetsChange(null, getPropertySets());
+                        } else if (s.getColumnIndex(t.getColumnName(col)) > -1) {
+                            firePropertyChange(t.getColumnName(col), null, data.get(col));
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     protected abstract Sheet.Set preparePropertySet(Tuple data);
+
+    protected abstract Schema getPropertySchema(Tuple data);
 
     public static class Property<T> extends PropertySupport.ReadWrite<T> {
 

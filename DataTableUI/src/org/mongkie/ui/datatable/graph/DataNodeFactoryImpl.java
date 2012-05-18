@@ -50,7 +50,7 @@ public class DataNodeFactoryImpl implements DataNodeFactory {
             protected Set preparePropertySet(Tuple data) {
                 Sheet.Set attributes = Sheet.createPropertiesSet();
                 Property p;
-                Schema properties = ((DataViewSupport) data.getTable().getClientProperty(DataViewSupport.PROP_KEY)).getPropertySchema();
+                Schema properties = getPropertySchema(data);
                 for (int i = 0; i < properties.getColumnCount(); i++) {
                     String field = properties.getColumnName(i);
                     p = new Property(data, field,
@@ -58,6 +58,11 @@ public class DataNodeFactoryImpl implements DataNodeFactory {
                     attributes.put(p);
                 }
                 return attributes;
+            }
+
+            @Override
+            protected Schema getPropertySchema(Tuple data) {
+                return ((DataViewSupport) data.getTable().getClientProperty(DataViewSupport.PROP_KEY)).getPropertySchema();
             }
         };
     }

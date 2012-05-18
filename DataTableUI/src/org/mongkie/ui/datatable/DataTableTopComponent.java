@@ -115,6 +115,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             @Override
             public void displayDeselected(MongkieDisplay display) {
                 display.removeDisplayListener(DataTableTopComponent.this);
+                getSelectedTable().deselected();
             }
 
             @Override
@@ -230,6 +231,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
                                     if (da.getDescription() != null && !da.getDescription().isEmpty()) {
                                         menu.setActionRichTooltip(new RichTooltip(da.getName(), da.getDescription()));
                                     }
+                                    menu.setEnabled(da.isEnabled(table));
                                     popup.addMenuButton(menu);
                                 }
                                 return popup;
@@ -330,16 +332,23 @@ public final class DataTableTopComponent extends TopComponent implements Display
                 } catch (InvocationTargetException ex) {
                     Exceptions.printStackTrace(ex);
                 } finally {
-                    if (d == null) {
-                        refreshing.setBusy(false);
-                        refreshActionsAndTools(null);
-                    } else {
-                        DataTable table = getSelectedTable();
-                        JComponent view = table.getView();
-                        configureViewScrollPane(view);
-                        refreshing.setBusy(false, view);
-                        refreshActionsAndTools(table);
-                    }
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (d == null) {
+                                refreshing.setBusy(false);
+                                refreshActionsAndTools(null);
+                            } else {
+                                DataTable table = getSelectedTable();
+                                JComponent view = table.getView();
+                                configureViewScrollPane(view);
+                                refreshing.setBusy(false, view);
+                                refreshActionsAndTools(table);
+                                table.selected();
+                            }
+                        }
+                    });
                 }
             }
         };
@@ -365,19 +374,19 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                DataTable currentTable = getSelectedTable();
-                for (GraphDataTable table : Lookup.getDefault().lookupAll(GraphDataTable.class)) {
-                    table.clear();
-                    if (currentTable == table) {
-                        refreshActionsAndTools(null);
-                    }
-                }
+//        SwingUtilities.invokeLater(new Runnable() {
+//
+//            @Override
+//            public void run() {
+        DataTable currentTable = getSelectedTable();
+        for (GraphDataTable table : Lookup.getDefault().lookupAll(GraphDataTable.class)) {
+            table.clear();
+            if (currentTable == table) {
+                refreshActionsAndTools(null);
             }
-        });
+        }
+//            }
+//        });
         if (d.isLoading() && !refreshing.isBusy()) {
             refreshing.setBusy(true);
         }

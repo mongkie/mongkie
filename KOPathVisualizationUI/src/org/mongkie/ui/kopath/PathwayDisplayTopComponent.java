@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import kobic.prefuse.controls.PopupControl;
@@ -46,6 +47,7 @@ import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualization.selection.SelectionListener;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -112,7 +114,14 @@ public final class PathwayDisplayTopComponent extends TopComponent {
                             }
 
                             private void setActivatedNodesOf(Set<VisualItem> items) {
-                                List<PathwayDataNode> tupleNodes = new ArrayList<PathwayDataNode>();
+                                for (PathwayDataNode n : tupleNodes) {
+                                    try {
+                                        n.destroy();
+                                    } catch (IOException ex) {
+                                        Exceptions.printStackTrace(ex);
+                                    }
+                                }
+                                tupleNodes.clear();
                                 for (VisualItem item : items) {
                                     if (item instanceof NodeItem) {
                                         tupleNodes.add(new PathwayDataNode(item, FIELD_NAME));
@@ -120,8 +129,15 @@ public final class PathwayDisplayTopComponent extends TopComponent {
                                         tupleNodes.add(new PathwayDataNode(item, FIELD_INTERACTIONID));
                                     }
                                 }
-                                setActivatedNodes(tupleNodes.toArray(new PathwayDataNode[]{}));
+                                SwingUtilities.invokeLater(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        setActivatedNodes(tupleNodes.toArray(new PathwayDataNode[]{}));
+                                    }
+                                });
                             }
+                            List<PathwayDataNode> tupleNodes = new ArrayList<PathwayDataNode>();
                         });
                 display.addControlListener(new PopupControl<PathwayDisplay>(display) {
 

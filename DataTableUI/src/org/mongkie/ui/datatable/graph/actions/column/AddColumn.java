@@ -42,7 +42,7 @@ public class AddColumn extends AbstractColumnAction implements PopupAction {
 
     @Override
     public String getDescription() {
-        return "Create a new column";
+        return "Add a new column";
     }
 
     @Override

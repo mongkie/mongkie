@@ -172,7 +172,8 @@ public class GeneIDSearchPanel extends javax.swing.JPanel {
 }//GEN-LAST:event_resetButtonActionPerformed
 
     private void exampleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exampleButtonActionPerformed
-        geneIdInputArea.setText("7124,672");
+//        geneIdInputArea.setText("7124,672");
+        geneIdInputArea.setText("581,672");
 }//GEN-LAST:event_exampleButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox dbComboBox;

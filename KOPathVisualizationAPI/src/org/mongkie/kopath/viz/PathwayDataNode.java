@@ -100,7 +100,7 @@ public class PathwayDataNode extends DataNode {
         Sheet.Set properties = new Sheet.Set();
         properties.setName(propertiesName);
         Property<String> p;
-        Schema outline = viewSupport.getPropertySchema();
+        Schema outline = getPropertySchema(data);
         for (int i = 0; i < outline.getColumnCount(); i++) {
             final String propertyName = outline.getColumnName(i);
             final String value = viewSupport.getStringAt(data, propertyName);
@@ -200,6 +200,11 @@ public class PathwayDataNode extends DataNode {
 
     private String getDisplayName(String propertyName) {
         return viewSupport.getColumnTitle(propertyName);
+    }
+
+    @Override
+    protected Schema getPropertySchema(Tuple data) {
+        return viewSupport.getPropertySchema();
     }
 
     private static class InplaceHyperlink extends JLabel implements InplaceEditor {

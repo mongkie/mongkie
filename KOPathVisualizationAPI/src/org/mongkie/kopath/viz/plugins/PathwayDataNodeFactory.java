@@ -20,13 +20,14 @@ package org.mongkie.kopath.viz.plugins;
 import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.spi.DataNodeFactory;
+import static org.mongkie.kopath.Config.FIELD_INTERACTIONID;
+import static org.mongkie.kopath.Config.FIELD_NAME;
 import org.mongkie.kopath.viz.PathwayDataNode;
 import org.mongkie.kopath.viz.PathwayDisplay;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Graph;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
-import static org.mongkie.kopath.Config.*;
 
 /**
  *

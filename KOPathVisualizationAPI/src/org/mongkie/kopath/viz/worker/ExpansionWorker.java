@@ -161,7 +161,7 @@ public class ExpansionWorker extends PathwayWorker {
 
     @Override
     public void lastly() {
-        display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).addTuple(seedItem);
+//        display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).addTuple(seedItem);
         Logger.getLogger(getClass().getName()).log(Level.INFO, "Expanding completed.");
         display.setLoading(false);
         synchronized (display.getVisualization()) {

@@ -24,6 +24,8 @@ import org.mongkie.datatable.spi.DataTable;
 import org.mongkie.datatable.spi.PopupAction;
 import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Table;
@@ -109,12 +111,17 @@ public class DeleteColumn extends AbstractColumnAction implements PopupAction<Ab
 
                 @Override
                 public void execute(AbstractDataTable table) {
-                    System.out.println("Delete a column: " + getName());
+                    if (DialogDisplayer.getDefault().notify(
+                            new NotifyDescriptor.Confirmation("Are you sure you want to delete '" + name + "'?",
+                            DeleteColumn.this.getName(), NotifyDescriptor.OK_CANCEL_OPTION))
+                            == NotifyDescriptor.OK_OPTION) {
+                        table.getModel().getTable().removeColumn(name);
+                    }
                 }
 
                 @Override
                 public boolean isEnabled(AbstractDataTable table) {
-                    return true;
+                    return false;
                 }
 
                 @Override

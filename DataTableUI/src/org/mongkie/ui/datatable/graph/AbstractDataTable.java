@@ -164,17 +164,21 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 if (value != null) {
                     DataNode.Property property = (DataNode.Property) value;
-                    String string = StringUtilities.escapeHTML(
-                            model.getDisplay().getDataViewSupport(getDataGroup()).getStringAt(property.getTuple(), property.getName()));
-                    String html = "<html>" + string + "</html>";
-                    Component c = OutlineHtmlRenderer.getInstance().getHtmlRenderer().getTableCellRendererComponent(table, html, isSelected, hasFocus, row, column);
-                    ((HtmlRenderer.Renderer) c).setHtml(true);
-                    ((HtmlRenderer.Renderer) c).setRenderStyle(HtmlRenderer.STYLE_TRUNCATE);
-                    ((JLabel) c).setToolTipText("".equals(string) ? null : StringUtilities.createHtmlTooltip(property.getDisplayName(), string, 4));
-//                    c.setBackground(isSelected ? getSelectionBackground() : table.getBackground());
-//                    c.setForeground(isSelected ? getSelectionForeground() : table.getForeground());
-                    //TODO Add ellipsis button if length of the value exceeds renderer's size?
-                    return c;
+                    if (property.getValueType() == Boolean.TYPE) {
+                        return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, false, row, column);
+                    } else {
+                        String string = StringUtilities.escapeHTML(
+                                model.getDisplay().getDataViewSupport(getDataGroup()).getStringAt(property.getTuple(), property.getName()));
+                        String html = "<html>" + string + "</html>";
+                        Component c = OutlineHtmlRenderer.getInstance().getHtmlRenderer().getTableCellRendererComponent(table, html, isSelected, hasFocus, row, column);
+                        ((HtmlRenderer.Renderer) c).setHtml(true);
+                        ((HtmlRenderer.Renderer) c).setRenderStyle(HtmlRenderer.STYLE_TRUNCATE);
+                        ((JLabel) c).setToolTipText("".equals(string) ? null : StringUtilities.createHtmlTooltip(property.getDisplayName(), string, 4));
+//                        c.setBackground(isSelected ? getSelectionBackground() : table.getBackground());
+//                        c.setForeground(isSelected ? getSelectionForeground() : table.getForeground());
+                        //TODO Add ellipsis button if length of the value exceeds renderer's size?
+                        return c;
+                    }
                 }
                 return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, false, row, column);
             }
@@ -294,8 +298,8 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             }
             model.reset(table, showing);
         } else {
-            model = null;
             clear();
+            model = null;
             setPropertyColumns();
             getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
         }
@@ -311,7 +315,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         showing = false;
         if (model != null) {
             model.setSelctionSyncEnabled(false);
-            model.clearSelection();
         }
     }
 
@@ -319,7 +322,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
     public void selected() {
         showing = true;
         if (model != null) {
-            model.setSelectedNodes();
+            model.setSelectedNodesOf(model.getDisplay().getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS));
             model.setSelctionSyncEnabled(true);
         }
     }
@@ -398,22 +401,22 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         }
 
         protected void reset(Table table, boolean selected) {
-            this.table = table;
             setSelctionSyncEnabled(selected);
+            this.table = table;
         }
 
         protected void unset() {
-            this.table = null;
             setSelctionSyncEnabled(false);
+            this.table = null;
         }
 
         protected void setSelctionSyncEnabled(boolean enabled) {
             if (enabled) {
                 dataTable.getExplorerManager().removePropertyChangeListener(this);
                 dataTable.getExplorerManager().addPropertyChangeListener(this);
-                TupleSet selectedTuples = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
-                selectedTuples.addTupleSetListener(this);
-                setSelectedNodesOf(selectedTuples);
+                TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+                focusedTupleSet.addTupleSetListener(this);
+                setSelectedNodesOf(focusedTupleSet);
             } else {
                 dataTable.getExplorerManager().removePropertyChangeListener(this);
                 display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).removeTupleSetListener(this);
@@ -518,10 +521,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                 selectedNodes.add(n);
             }
             setSelectedNodesInternal(selectedNodes.isEmpty() ? new Node[]{} : selectedNodes.toArray(new Node[]{}));
-        }
-
-        protected void setSelectedNodes() {
-            setSelectedNodesOf(display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS));
         }
 
         protected void clearSelection() {

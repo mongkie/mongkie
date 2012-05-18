@@ -51,7 +51,7 @@ public class AddMergedColumn extends GraphAddColumnAction {
 
     @Override
     public boolean isEnabled(GraphDataTable table) {
-        return true;
+        return false;
     }
 
     @Override

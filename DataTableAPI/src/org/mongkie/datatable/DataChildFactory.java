@@ -17,15 +17,17 @@
  */
 package org.mongkie.datatable;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import kobic.prefuse.display.DataViewSupport;
+import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.spi.DataNodeFactory;
-import org.mongkie.util.AccumulativeEventsProcessor;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
@@ -55,6 +57,13 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
             old.removeTableListener(this);
         }
         if (table == null || this.table != table) {
+            for (DataNode n : tuple2Node.values()) {
+                try {
+                    n.destroy();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
             tuple2Node.clear();
         }
         this.table = table;
@@ -79,6 +88,11 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
             for (Iterator<Integer> keys = tuple2Node.keySet().iterator(); keys.hasNext();) {
                 Integer key = keys.next();
                 if (!toPopulate.contains(table.getTuple(key))) {
+                    try {
+                        tuple2Node.get(key).destroy();
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
                     keys.remove();
                 }
             }
@@ -90,6 +104,7 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
     @Override
     protected Node createNodeForKey(Tuple key) {
         assert nodeFactory.readyFor(key.getTable());
+        assert !tuple2Node.containsKey(key.getRow());
         DataNode n = nodeFactory.createDataNode(key, labelColumn);
         tuple2Node.put(key.getRow(), n);
         return n;
@@ -105,23 +120,10 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
 
     @Override
     public void tableChanged(Table t, int start, int end, int col, int type) {
-        // enable accumulative refreshing when values of each field updated
-        if (type == EventConstants.UPDATE && col != EventConstants.ALL_COLUMNS) {
-            if (refreshProcessor != null && refreshProcessor.isAccumulating()) {
-                refreshProcessor.eventAttended();
-            } else {
-                refreshProcessor = new AccumulativeEventsProcessor(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        refresh(true);
-                    }
-                });
-                refreshProcessor.start();
-            }
-        } else {
+        // row inserted or deleted
+        if (!((NetworkDisplay) t.getClientProperty(NetworkDisplay.PROP_KEY)).isLoading()
+                && col == EventConstants.ALL_COLUMNS) {
             refresh(true);
         }
     }
-    private AccumulativeEventsProcessor refreshProcessor;
 }

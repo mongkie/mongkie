@@ -31,7 +31,7 @@ import org.mongkie.series.SeriesModelListener;
 import org.mongkie.visualization.MongkieDisplay;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class SeriesModelImpl implements SeriesModel {
@@ -82,8 +82,8 @@ public class SeriesModelImpl implements SeriesModel {
         this.series = series;
         for (SeriesModelListener l : listeners) {
             l.seriesChanged(display.getGraph(), old, series);
-            display.fireGraphChangedEvent();
         }
+        display.fireGraphChangedEvent();
     }
 
     void clearData() {

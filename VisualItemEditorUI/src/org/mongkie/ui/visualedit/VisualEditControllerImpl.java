@@ -135,6 +135,6 @@ public class VisualEditControllerImpl implements VisualEditController, Selection
 
     @Override
     public MongkieDisplay getDisplay() {
-        return Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
+        return null;
     }
 }
