@@ -28,6 +28,7 @@ import prefuse.visual.VisualItem;
  */
 public abstract class Constants implements Config {
 
+    public static final String PROPKEY_DATAGROUP = "data.groupName";
     public static final String GRAPH = Graph.GRAPH;
     public static final String NODES = PrefuseLib.getGroupName(GRAPH, Graph.NODES);
     public static final String EDGES = PrefuseLib.getGroupName(GRAPH, Graph.EDGES);

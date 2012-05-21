@@ -18,8 +18,8 @@
 package kobic.prefuse.display;
 
 import java.util.Iterator;
-import kobic.prefuse.Constants;
-import prefuse.data.Graph;
+import static kobic.prefuse.Constants.EDGES;
+import static kobic.prefuse.Constants.PROPKEY_DATAGROUP;
 import prefuse.data.Schema;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
@@ -45,15 +45,15 @@ public abstract class DataViewSupport {
 
     public DataViewSupport(final Table table, Predicate filter) {
         this.table = table;
-        String dataGroup = (String) table.getClientProperty(Graph.PROP_DATAGROUP);
-        if (Graph.EDGES.equals(dataGroup)) {
+        String dataGroup = (String) table.getClientProperty(PROPKEY_DATAGROUP);
+        if (EDGES.equals(dataGroup)) {
             filters = new AndPredicate(new AbstractPredicate() {
 
                 private final NetworkDisplay display = (NetworkDisplay) table.getClientProperty(NetworkDisplay.PROP_KEY);
 
                 @Override
                 public boolean getBoolean(Tuple t) {
-                    return !display.getVisualization().getVisualItem(Constants.EDGES, t).isAggregating();
+                    return !display.getVisualization().getVisualItem(EDGES, t).isAggregating();
                 }
             });
         } else {

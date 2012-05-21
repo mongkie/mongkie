@@ -376,9 +376,11 @@ public abstract class NetworkDisplay extends Display {
     protected VisualGraph addGraph(Visualization v, Graph g) {
         this.g = g;
         g.getNodeTable().putClientProperty(PROP_KEY, this);
+        g.getNodeTable().putClientProperty(PROPKEY_DATAGROUP, NODES);
         g.getNodeTable().putClientProperty(DataViewSupport.PROP_KEY, createNodeDataViewSupport(g.getNodeTable()));
         g.getNodeTable().putClientProperty(DataEditSupport.PROP_KEY, createNodeDataEditSupport(g.getNodeTable()));
         g.getEdgeTable().putClientProperty(PROP_KEY, this);
+        g.getEdgeTable().putClientProperty(PROPKEY_DATAGROUP, EDGES);
         g.getEdgeTable().putClientProperty(DataViewSupport.PROP_KEY, createEdgeDataViewSupport(g.getEdgeTable()));
         g.getEdgeTable().putClientProperty(DataEditSupport.PROP_KEY, createEdgeDataEditSupport(g.getEdgeTable()));
         vg = v.addGraph(GRAPH, g);

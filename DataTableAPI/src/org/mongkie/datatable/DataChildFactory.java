@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import kobic.prefuse.display.DataViewSupport;
 import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.spi.DataNodeFactory;
@@ -119,11 +121,18 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
     }
 
     @Override
-    public void tableChanged(Table t, int start, int end, int col, int type) {
+    public void tableChanged(Table t, int start, int end, int col, final int type) {
+        NetworkDisplay d = (NetworkDisplay) t.getClientProperty(NetworkDisplay.PROP_KEY);
         // row inserted or deleted
-        if (!((NetworkDisplay) t.getClientProperty(NetworkDisplay.PROP_KEY)).isLoading()
+        if (!d.isLoading()
                 && col == EventConstants.ALL_COLUMNS) {
-            refresh(true);
+            d.getVisualization().invokeAfterDataProcessing(this, new Runnable() {
+
+                @Override
+                public void run() {
+                    refresh(true);
+                }
+            });
         }
     }
 }

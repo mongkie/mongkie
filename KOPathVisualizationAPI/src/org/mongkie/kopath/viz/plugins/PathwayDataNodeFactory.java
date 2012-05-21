@@ -17,6 +17,8 @@
  */
 package org.mongkie.kopath.viz.plugins;
 
+import static kobic.prefuse.Constants.NODES;
+import static kobic.prefuse.Constants.PROPKEY_DATAGROUP;
 import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.spi.DataNodeFactory;
@@ -43,8 +45,8 @@ public class PathwayDataNodeFactory implements DataNodeFactory {
 
     @Override
     public DataNode createDataNode(Tuple data, String labelColumn) {
-        String dataGroup = (String) data.getTable().getClientProperty(Graph.PROP_DATAGROUP);
-        if (Graph.NODES.equals(dataGroup)) {
+        String dataGroup = (String) data.getTable().getClientProperty(PROPKEY_DATAGROUP);
+        if (NODES.equals(dataGroup)) {
             labelColumn = FIELD_NAME;
         } else if (Graph.EDGES.equals(dataGroup)) {
             labelColumn = FIELD_INTERACTIONID;

@@ -286,7 +286,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
             if (childFactory == null) {
                 em.setRootContext(new AbstractNode(
-                        Children.create(childFactory = new DataChildFactory(table, labelColumn), true)) {
+                        Children.create(childFactory = new DataChildFactory(table, labelColumn), false)) {
 
                     @Override
                     public Action[] getActions(boolean context) {

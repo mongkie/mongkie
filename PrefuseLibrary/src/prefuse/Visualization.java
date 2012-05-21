@@ -2,6 +2,7 @@ package prefuse;
 
 import java.awt.geom.Rectangle2D;
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import prefuse.action.Action;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityMap;
@@ -177,12 +178,12 @@ public class Visualization {
         m_source = new HashMap();
         m_focus = new HashMap();
         m_displays = new ArrayList();
-        
+
         addFocusGroup(FOCUS_ITEMS, new DefaultTupleSet());
         addFocusGroup(SELECTED_ITEMS, new DefaultTupleSet());
         addFocusGroup(SEARCH_ITEMS, new DefaultTupleSet());
         addFocusGroup(SELECTED_TARGETS, new DefaultTupleSet());
-        
+
         initAggregates();
     }
 
@@ -195,7 +196,7 @@ public class Visualization {
      * in use.
      *
      * @param group the data group name for the visualized data
-     * @param data the data to visualize
+     * @param data  the data to visualize
      * @return a visual abstraction of the input data, a VisualTupleSet instance
      */
     public synchronized VisualTupleSet add(String group, TupleSet data) {
@@ -208,8 +209,8 @@ public class Visualization {
      * visualization. An exception will be thrown if the group name is already
      * in use.
      *
-     * @param group the data group name for the visualized data
-     * @param data the data to visualize
+     * @param group  the data group name for the visualized data
+     * @param data   the data to visualize
      * @param filter a filter Predicate determining which data Tuples in the
      * input data set are visualized
      * @return a visual abstraction of the input data, a VisualTupleSet instance
@@ -226,14 +227,14 @@ public class Visualization {
             throw new IllegalArgumentException("Unsupported TupleSet type.");
         }
     }
-    
+
     protected void checkGroupExists(String group) {
         if (m_visual.containsKey(group) || m_focus.containsKey(group)) {
             throw new IllegalArgumentException(
                     "Group name \'" + group + "\' already in use");
         }
     }
-    
+
     protected void addDataGroup(String group, VisualTupleSet ts, TupleSet src) {
         checkGroupExists(group);
         m_visual.put(group, ts);
@@ -266,7 +267,7 @@ public class Visualization {
      * that do not represent data. An exception will be thrown if the group name
      * is already in use.
      *
-     * @param group the data group name for the visualized data
+     * @param group  the data group name for the visualized data
      * @param schema the data schema to use for the VisualTable
      * @return the added VisualTable
      */
@@ -295,8 +296,8 @@ public class Visualization {
      * visualization. An exception will be thrown if the group name is already
      * in use.
      *
-     * @param group the data group name for the visualized data
-     * @param table the data table to visualize
+     * @param group  the data group name for the visualized data
+     * @param table  the data table to visualize
      * @param filter a filter Predicate determining which data Tuples in the
      * input table are visualized
      */
@@ -313,8 +314,8 @@ public class Visualization {
      * visualization. An exception will be thrown if the group name is already
      * in use.
      *
-     * @param group the data group name for the visualized data
-     * @param table the data table to visualize
+     * @param group  the data group name for the visualized data
+     * @param table  the data table to visualize
      * @param schema the data schema to use for the created VisualTable
      */
     public synchronized VisualTable addTable(
@@ -328,8 +329,8 @@ public class Visualization {
      * visualization. An exception will be thrown if the group name is already
      * in use.
      *
-     * @param group the data group name for the visualized data
-     * @param table the data table to visualize
+     * @param group  the data group name for the visualized data
+     * @param table  the data table to visualize
      * @param filter a filter Predicate determining which data Tuples in the
      * input table are visualized
      * @param schema the data schema to use for the created VisualTable
@@ -379,9 +380,9 @@ public class Visualization {
      * visualization. An exception will be thrown if the group name is already
      * in use.
      *
-     * @param group the data group name for the visualized graph. The nodes and
+     * @param group  the data group name for the visualized graph. The nodes and
      * edges will be available in the "group.nodes" and "group.edges" subgroups.
-     * @param graph the graph to visualize
+     * @param graph  the graph to visualize
      * @param filter a filter Predicate determining which data Tuples in the
      * input graph are visualized
      */
@@ -396,10 +397,10 @@ public class Visualization {
      * visualization. An exception will be thrown if the group name is already
      * in use.
      *
-     * @param group the data group name for the visualized graph. The nodes and
+     * @param group      the data group name for the visualized graph. The nodes and
      * edges will be available in the "group.nodes" and "group.edges" subgroups.
-     * @param graph the graph to visualize
-     * @param filter a filter Predicate determining which data Tuples in the
+     * @param graph      the graph to visualize
+     * @param filter     a filter Predicate determining which data Tuples in the
      * input graph are visualized
      * @param nodeSchema the data schema to use for the visual node table
      * @param edgeSchema the data schema to use for the visual edge table
@@ -409,25 +410,25 @@ public class Visualization {
         checkGroupExists(group); // check before adding sub-tables
         String ngroup = PrefuseLib.getGroupName(group, Graph.NODES);
         String egroup = PrefuseLib.getGroupName(group, Graph.EDGES);
-        
+
         VisualTable nt, et;
         nt = addTable(ngroup, graph.getNodeTable(), filter, nodeSchema);
         et = addTable(egroup, graph.getEdgeTable(), filter, edgeSchema);
-        
+
         VisualGraph vg = new VisualGraph(nt, et,
                 graph.isDirected(), graph.getNodeKeyField(),
                 graph.getEdgeSourceField(), graph.getEdgeTargetField());
         vg.setVisualization(this);
         vg.setGroup(group);
-        
+
         addDataGroup(group, vg, graph);
-        
+
         TupleManager ntm = new TupleManager(nt, vg, TableNodeItem.class);
         TupleManager etm = new TupleManager(et, vg, TableEdgeItem.class);
         nt.setTupleManager(ntm);
         et.setTupleManager(etm);
         vg.setTupleManagers(ntm, etm);
-        
+
         return vg;
     }
 
@@ -439,7 +440,7 @@ public class Visualization {
      *
      * @param group the data group name for the visualized tree. The nodes and
      * edges will be available in the "group.nodes" and "group.edges" subgroups.
-     * @param tree the tree to visualize
+     * @param tree  the tree to visualize
      */
     public synchronized VisualTree addTree(String group, Tree tree) {
         return addTree(group, tree, null);
@@ -451,9 +452,9 @@ public class Visualization {
      * visualization. An exception will be thrown if the group name is already
      * in use.
      *
-     * @param group the data group name for the visualized tree. The nodes and
+     * @param group  the data group name for the visualized tree. The nodes and
      * edges will be available in the "group.nodes" and "group.edges" subgroups.
-     * @param tree the tree to visualize
+     * @param tree   the tree to visualize
      * @param filter a filter Predicate determining which data Tuples in the
      * input graph are visualized
      */
@@ -468,10 +469,10 @@ public class Visualization {
      * visualization. An exception will be thrown if the group name is already
      * in use.
      *
-     * @param group the data group name for the visualized tree. The nodes and
+     * @param group      the data group name for the visualized tree. The nodes and
      * edges will be available in the "group.nodes" and "group.edges" subgroups.
-     * @param tree the tree to visualize
-     * @param filter a filter Predicate determining which data Tuples in the
+     * @param tree       the tree to visualize
+     * @param filter     a filter Predicate determining which data Tuples in the
      * input graph are visualized
      * @param nodeSchema the data schema to use for the visual node table
      * @param edgeSchema the data schema to use for the visual edge table
@@ -481,24 +482,24 @@ public class Visualization {
         checkGroupExists(group); // check before adding sub-tables
         String ngroup = PrefuseLib.getGroupName(group, Graph.NODES);
         String egroup = PrefuseLib.getGroupName(group, Graph.EDGES);
-        
+
         VisualTable nt, et;
         nt = addTable(ngroup, tree.getNodeTable(), filter, nodeSchema);
         et = addTable(egroup, tree.getEdgeTable(), filter, edgeSchema);
-        
+
         VisualTree vt = new VisualTree(nt, et, tree.getNodeKeyField(),
                 tree.getEdgeSourceField(), tree.getEdgeTargetField());
         vt.setVisualization(this);
         vt.setGroup(group);
-        
+
         addDataGroup(group, vt, tree);
-        
+
         TupleManager ntm = new TupleManager(nt, vt, TableNodeItem.class);
         TupleManager etm = new TupleManager(et, vt, TableEdgeItem.class);
         nt.setTupleManager(ntm);
         et.setTupleManager(etm);
         vt.setTupleManagers(ntm, etm);
-        
+
         return vt;
     }
 
@@ -520,7 +521,7 @@ public class Visualization {
      * Add a group of aggregates to this visualization. Aggregates are used to
      * visually represent groups of VisualItems.
      *
-     * @param group the data group name for the aggregates.
+     * @param group  the data group name for the aggregates.
      * @param schema the data schema to use for the AggregateTable
      * @return the generated AggregateTable
      * @see prefuse.visual.AggregateTable
@@ -540,9 +541,9 @@ public class Visualization {
      * used, for example, in the creation of small multiples where only a few
      * visual attributes vary across the multiples.
      *
-     * @param group the data group to use for the derived table
-     * @param source the source data group to derive from
-     * @param filter a Predicate filter indicating which tuples of the source
+     * @param group    the data group to use for the derived table
+     * @param source   the source data group to derive from
+     * @param filter   a Predicate filter indicating which tuples of the source
      * group should be inheritable by the new group
      * @param override a data schema indicating which data fields should not be
      * inherited, but managed locally by the derived group
@@ -552,7 +553,7 @@ public class Visualization {
             String group, String source, Predicate filter, Schema override) {
         VisualTable src = (VisualTable) getGroup(source);
         VisualTable vt = new VisualTable(src, this, group, filter, override);
-        
+
         addDataGroup(group, vt, getSourceData(source));
         return vt;
     }
@@ -567,7 +568,7 @@ public class Visualization {
      * {@link #addDerivedTable(String, String, Predicate, Schema)} method, but
      * with no VisualItem properties inherited from the source group.
      *
-     * @param group the data group to use for the decorators
+     * @param group  the data group to use for the decorators
      * @param source the source data group to decorate
      * @return the generated VisualTable of DecoratorItem instances
      */
@@ -582,7 +583,7 @@ public class Visualization {
      * as {@link prefuse.visual.DecoratorItem} instances that provide access to
      * the decorated item in addition to the standard VisualItem properties.
      *
-     * @param group the data group to use for the decorators
+     * @param group  the data group to use for the decorators
      * @param source the source data group to decorate
      * @param schema schema indicating which variables should <b>not</b> be
      * inherited from the source data group and instead be managed locally by
@@ -601,7 +602,7 @@ public class Visualization {
      * as {@link prefuse.visual.DecoratorItem} instances that provide access to
      * the decorated item in addition to the standard VisualItem properties.
      *
-     * @param group the data group to use for the decorators
+     * @param group  the data group to use for the decorators
      * @param source the source data group to decorate
      * @param filter a Predicate filter indicating which tuples of the source
      * group should be inheritable by the new group
@@ -621,7 +622,7 @@ public class Visualization {
      * as {@link prefuse.visual.DecoratorItem} instances that provide access to
      * the decorated item in addition to the standard VisualItem properties.
      *
-     * @param group the data group to use for the decorators
+     * @param group  the data group to use for the decorators
      * @param source the source data group to decorate
      * @param filter a Predicate filter indicating which tuples of the source
      * group should be inheritable by the new group
@@ -719,11 +720,13 @@ public class Visualization {
         }
         m_visual.clear();
         m_source.clear();
-        
+
         removeGroup(AGGR_ITEMS);
         initAggregates();
+
+        actionsAfterDataProcessing.clear();
     }
-    
+
     private AggregateTable initAggregates() {
         AggregateTable aggrTable = addAggregates(AGGR_ITEMS);
         aggrTable.addColumn(VisualItem.POLYGON, float[].class);
@@ -797,7 +800,7 @@ public class Visualization {
      *
      * @param group the data group from which to lookup the source tuple, only
      * primary visual groups are valid, focus groups will not work
-     * @param t the source data tuple
+     * @param t     the source data tuple
      * @return the associated VisualItem from the given data group, or null if
      * no such VisualItem exists
      */
@@ -840,7 +843,7 @@ public class Visualization {
      * Indicates if a given VisualItem is contained in the given visual data
      * group.
      *
-     * @param item the VisualItem instance
+     * @param item  the VisualItem instance
      * @param group the data group to check for containment
      * @return true if the VisualItem is in the group, false otherwise
      */
@@ -854,7 +857,7 @@ public class Visualization {
         if (item.getGroup() == group) {
             return true;
         }
-        
+
         TupleSet tset = getGroup(group);
         return (tset == null ? false : tset.containsTuple(item));
     }
@@ -875,7 +878,7 @@ public class Visualization {
      * Add a new secondary, or focus, group to this visualization.
      *
      * @param group the name of the focus group to add
-     * @param tset the TupleSet for the focus group
+     * @param tset  the TupleSet for the focus group
      */
     public void addFocusGroup(String group, TupleSet tset) {
         checkGroupExists(group);
@@ -1009,7 +1012,7 @@ public class Visualization {
      * filter expression.
      *
      * @param group the visual data group to iterate over
-     * @param expr an expression string that should parse to a Predicate
+     * @param expr  an expression string that should parse to a Predicate
      * indicating which items should be included in the iteration. The input
      * string will be parsed using the
      * {@link prefuse.data.expression.parser.ExpressionParser} class. If a parse
@@ -1028,7 +1031,7 @@ public class Visualization {
      * Get an iterator over all items in the given group which match the given
      * Predicate filter.
      *
-     * @param group the visual data group to iterate over
+     * @param group  the visual data group to iterate over
      * @param filter a Predicate indicating which items should be included in
      * the iteration.
      * @return a filtered iterator over VisualItems
@@ -1037,7 +1040,7 @@ public class Visualization {
         if (ALL_ITEMS.equals(group)) {
             return items(filter);
         }
-        
+
         TupleSet t = getGroup(group);
         return (t == null ? Collections.EMPTY_LIST.iterator()
                 : t.tuples(filter));
@@ -1050,9 +1053,9 @@ public class Visualization {
      * given filter predicate.
      *
      * @param group the visual data group name
-     * @param p the filter predicate determining which items to modify
+     * @param p     the filter predicate determining which items to modify
      * @param field the data field / column name to set
-     * @param val the value to set
+     * @param val   the value to set
      */
     public void setValue(String group, Predicate p, String field, Object val) {
         Iterator items = items(group, p);
@@ -1067,7 +1070,7 @@ public class Visualization {
      * given filter predicate.
      *
      * @param group the visual data group name
-     * @param p the filter predicate determining which items to modify
+     * @param p     the filter predicate determining which items to modify
      * @param value the visibility value to set
      */
     public void setVisible(String group, Predicate p, boolean value) {
@@ -1083,7 +1086,7 @@ public class Visualization {
      * matching a given filter predicate.
      *
      * @param group the visual data group name
-     * @param p the filter predicate determining which items to modify
+     * @param p     the filter predicate determining which items to modify
      * @param value the interactivity value to set
      */
     public void setInteractive(String group, Predicate p, boolean value) {
@@ -1100,7 +1103,7 @@ public class Visualization {
      * Add a data processing Action to this Visualization. The Action will be
      * updated to use this Visualization in its data processing.
      *
-     * @param name the name of the Action
+     * @param name   the name of the Action
      * @param action the Action to add
      */
     public Action putAction(String name, Action action) {
@@ -1163,7 +1166,7 @@ public class Visualization {
      * thread.
      *
      * @param action the name of the Action to run
-     * @param delay the amount of time to wait, in milliseconds, before running
+     * @param delay  the amount of time to wait, in milliseconds, before running
      * the Action
      * @return the Action scheduled to run
      */
@@ -1177,7 +1180,7 @@ public class Visualization {
      * {@link prefuse.activity.ActivityManager}, which runs in a dedicated
      * thread.
      *
-     * @param action the name of the Action to run
+     * @param action    the name of the Action to run
      * @param startTime the absolute system time, in milliseconds since the
      * epoch, at which to run the Action.
      * @return the Action scheduled to run
@@ -1195,7 +1198,7 @@ public class Visualization {
      * dedicated thread.
      *
      * @param before the name of the Action to wait for
-     * @param after the name of the Action to run after the first one finishes
+     * @param after  the name of the Action to run after the first one finishes
      * @return the Action scheduled to run after the first one finishes
      */
     public Activity runAfter(String before, String after) {
@@ -1209,7 +1212,7 @@ public class Visualization {
      * thread.
      *
      * @param before the name of the Action to wait for
-     * @param after the name of the Action to run after the first one finishes
+     * @param after  the name of the Action to run after the first one finishes
      * @return the Action scheduled to always run after the first one finishes
      */
     public Activity alwaysRunAfter(String before, String after) {
@@ -1225,13 +1228,13 @@ public class Visualization {
     public Activity cancel(String action) {
         return m_actions.cancel(action);
     }
-    
+
     public void cancel() {
         cancel(DRAW);
         cancel(LAYOUT);
         cancel(ANIMATE);
     }
-    
+
     public void run() {
         run(DRAW);
         run(LAYOUT);
@@ -1304,7 +1307,7 @@ public class Visualization {
      * Get the bounding rectangle for all items in the given group.
      *
      * @param group the visual data group name
-     * @param r a rectangle in which to store the computed bounding box
+     * @param r     a rectangle in which to store the computed bounding box
      * @return the input rectangle r, updated to hold the computed bounding box
      */
     public Rectangle2D getBounds(String group, Rectangle2D r) {
@@ -1366,7 +1369,7 @@ public class Visualization {
      * Report damage to associated displays, indicating a region that will need
      * to be redrawn.
      *
-     * @param item the item responsible for the damage
+     * @param item   the item responsible for the damage
      * @param region the damaged region, in item-space coordinates
      */
     public void damageReport(VisualItem item, Rectangle2D region) {
@@ -1377,48 +1380,82 @@ public class Visualization {
             }
         }
     }
-    
+
     public synchronized void rerun(String activity) {
         cancel(activity);
         run(activity);
     }
-    
+
     public void rerun() {
         rerun((Runnable) null);
     }
-    
+
     public void rerun(String... activities) {
         rerun(null, activities);
-        
+
     }
-    
-    public synchronized void rerun(Runnable closure) {
-        
-        cancel(DRAW);
-        cancel(LAYOUT);
-        cancel(ANIMATE);
-        
-        if (closure != null) {
-            closure.run();
-        }
-        
-        run(DRAW);
-        run(LAYOUT);
-        run(ANIMATE);
+
+    public synchronized void rerun(Runnable action) {
+        rerun(action, DRAW, LAYOUT, ANIMATE);
+//
+//        cancel(DRAW);
+//        cancel(LAYOUT);
+//        cancel(ANIMATE);
+//
+//        if (action != null) {
+//            action.run();
+//        }
+//
+//        run(DRAW);
+//        run(LAYOUT);
+//        run(ANIMATE);
     }
-    
-    public synchronized void rerun(Runnable closure, String... activities) {
-        
-        for (String activity : activities) {
-            cancel(activity);
-        }
-        if (closure != null) {
-            closure.run();
-        }
-        
-        for (String activity : activities) {
-            run(activity);
+
+    public synchronized void rerun(Runnable action, String... activities) {
+        try {
+            dataProcessing.lock();
+            if (dataProcessing.getHoldCount() == 1) {
+                for (String activity : activities) {
+                    cancel(activity);
+                }
+            }
+            if (action != null) {
+                action.run();
+            }
+        } finally {
+            dataProcessing.unlock();
+            if (dataProcessing.getHoldCount() == 0) {
+                for (Iterator<Runnable> iter = actionsAfterDataProcessing.values().iterator(); iter.hasNext();) {
+                    iter.next().run();
+                }
+                actionsAfterDataProcessing.clear();
+                for (String activity : activities) {
+                    run(activity);
+                }
+            }
         }
     }
+    private final ReentrantLock dataProcessing = new ReentrantLock();
+
+    public boolean isDataProcessing() {
+        return dataProcessing.getHoldCount() > 0;
+    }
+
+    public void invokeAfterDataProcessing(Runnable action) {
+        if (isDataProcessing()) {
+            actionsAfterDataProcessing.put(action, action);
+        } else {
+            action.run();
+        }
+    }
+
+    public void invokeAfterDataProcessing(Object key, Runnable action) {
+        if (isDataProcessing()) {
+            actionsAfterDataProcessing.put(key, action);
+        } else {
+            action.run();
+        }
+    }
+    private final Map<Object, Runnable> actionsAfterDataProcessing = Collections.synchronizedMap(new HashMap<Object, Runnable>());
 } // end of class Visualization
 

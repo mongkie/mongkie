@@ -35,6 +35,8 @@ import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.KeyStroke;
+import static kobic.prefuse.Constants.NODES;
+import static kobic.prefuse.Constants.PROPKEY_DATAGROUP;
 import kobic.prefuse.display.DataViewSupport;
 import org.mongkie.datatable.DataNode;
 import static org.mongkie.kopath.Config.*;
@@ -85,8 +87,8 @@ public class PathwayDataNode extends DataNode {
     public PathwayDataNode(Tuple data, String labelColumn) {
         super(data, labelColumn);
         this.viewSupport = (DataViewSupport) data.getTable().getClientProperty(DataViewSupport.PROP_KEY);
-        String dataGroup = (String) data.getTable().getClientProperty(Graph.PROP_DATAGROUP);
-        if (Graph.NODES.equals(dataGroup)) {
+        String dataGroup = (String) data.getTable().getClientProperty(PROPKEY_DATAGROUP);
+        if (NODES.equals(dataGroup)) {
             this.propertiesName = "Entity";
         } else if (Graph.EDGES.equals(dataGroup)) {
             this.propertiesName = "Relation";

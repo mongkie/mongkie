@@ -102,7 +102,6 @@ public class Graph extends CompositeTupleSet {
      * Data group name to identify the edges of this graph
      */
     public static final String EDGES = PrefuseConfig.get("data.graph.edgeGroup");
-    public static final String PROP_DATAGROUP = "data.groupName";
     public static final String GRAPH = "graph";
     // -- auxiliary data structures -----
     /**
@@ -359,9 +358,7 @@ public class Graph extends CompositeTupleSet {
 
         removeAllSets();
         super.addSet(EDGES, edges);
-        edges.putClientProperty(PROP_DATAGROUP, EDGES);
         super.addSet(NODES, nodes);
-        nodes.putClientProperty(PROP_DATAGROUP, NODES);
 
         m_directed = directed;
 
