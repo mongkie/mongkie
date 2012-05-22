@@ -159,9 +159,10 @@ public class CascadedTable extends Table {
         
         for ( int i=0; i<m_pnames.size(); ++i ) {
             String name = (String)m_pnames.get(i);
-            Column col = m_parent.getColumn(i);
+            // Cause invalid index error when a column deleted from the parent table
+//            Column col = m_parent.getColumn(i);
             boolean contained = m_names.contains(name);
-            if ( !m_colFilter.include(col, name) || contained ) {
+            if ( !m_colFilter.include(name) || contained ) {
                 m_pnames.remove(i--);
                 if ( !contained ) {
                     ((ColumnEntry)m_entries.get(name)).dispose();
