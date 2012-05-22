@@ -18,8 +18,6 @@
 package org.mongkie.ui.datatable.graph.actions.column;
 
 import java.awt.Image;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.mongkie.datatable.spi.GraphAddColumnAction;
 import org.mongkie.datatable.spi.GraphDataTable;
@@ -66,8 +64,6 @@ public class AddNewColumn extends GraphAddColumnAction {
     @Override
     public void execute(final GraphDataTable table) {
         table.getModel().getTable().addColumn(title, type, defaultValue);
-        Logger.getLogger(getClass().getName()).log(Level.INFO,
-                "Column added to {0}, Type={1}, default={2}", new Object[]{table.getName(), type, defaultValue});
         SwingUtilities.invokeLater(new Runnable() {
 
             @Override

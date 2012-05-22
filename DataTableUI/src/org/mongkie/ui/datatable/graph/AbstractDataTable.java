@@ -170,7 +170,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                         String string = StringUtilities.escapeHTML(
                                 model.getDisplay().getDataViewSupport(getDataGroup()).getStringAt(property.getTuple(), property.getName()));
                         String html = "<html>" + string + "</html>";
-                        Component c = OutlineHtmlRenderer.getInstance().getHtmlRenderer().getTableCellRendererComponent(table, html, isSelected, hasFocus, row, column);
+                        Component c = OutlineHtmlRenderer.getInstance().getHtmlRenderer().getTableCellRendererComponent(table, html, isSelected, false, row, column);
                         ((HtmlRenderer.Renderer) c).setHtml(true);
                         ((HtmlRenderer.Renderer) c).setRenderStyle(HtmlRenderer.STYLE_TRUNCATE);
                         ((JLabel) c).setToolTipText("".equals(string) ? null : StringUtilities.createHtmlTooltip(property.getDisplayName(), string, 4));
