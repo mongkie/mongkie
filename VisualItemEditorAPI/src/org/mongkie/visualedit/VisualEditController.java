@@ -19,13 +19,14 @@ package org.mongkie.visualedit;
 
 import java.util.List;
 import org.mongkie.visualedit.spi.VisualEdit;
+import org.mongkie.visualization.selection.SelectionListener;
 import prefuse.visual.VisualItem;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface VisualEditController {
+public interface VisualEditController extends SelectionListener {
 
     public void openEditor();
 

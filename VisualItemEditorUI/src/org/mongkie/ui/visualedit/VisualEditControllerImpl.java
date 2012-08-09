@@ -24,8 +24,6 @@ import javax.swing.SwingUtilities;
 import org.mongkie.visualedit.VisualEditController;
 import org.mongkie.visualedit.spi.VisualEdit;
 import org.mongkie.visualization.MongkieDisplay;
-import org.mongkie.visualization.VisualizationController;
-import org.mongkie.visualization.selection.SelectionListener;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.visual.VisualItem;
@@ -35,16 +33,11 @@ import prefuse.visual.VisualItem;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ServiceProvider(service = VisualEditController.class)
-public class VisualEditControllerImpl implements VisualEditController, SelectionListener {
-
-    public VisualEditControllerImpl() {
-        Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().addSelectionListener(VisualEditControllerImpl.this);
-    }
+public class VisualEditControllerImpl implements VisualEditController {
 
     @Override
     public void openEditor() {
         SwingUtilities.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 VisualEditorTopComponent editor = VisualEditorTopComponent.findInstance();
@@ -57,7 +50,6 @@ public class VisualEditControllerImpl implements VisualEditController, Selection
     @Override
     public void closeEditor() {
         SwingUtilities.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 VisualEditorTopComponent editor = VisualEditorTopComponent.findInstance();
@@ -69,7 +61,6 @@ public class VisualEditControllerImpl implements VisualEditController, Selection
     @Override
     public void disableEditor() {
         SwingUtilities.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 VisualEditorTopComponent.findInstance().disableEditing();
@@ -87,7 +78,6 @@ public class VisualEditControllerImpl implements VisualEditController, Selection
     public <I extends VisualItem> void edit(final I... items) {
         if (areSameTypes(items)) {
             SwingUtilities.invokeLater(new Runnable() {
-
                 @Override
                 public void run() {
                     VisualEditorTopComponent.findInstance().edit(items);

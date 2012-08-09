@@ -22,6 +22,7 @@ import org.mongkie.visualedit.VisualEditController;
 import org.mongkie.visualedit.VisualEditor;
 import static org.mongkie.visualization.Config.MODE_ACTION;
 import static org.mongkie.visualization.Config.ROLE_NETWORK;
+import org.mongkie.visualization.VisualizationController;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.nodes.Node;
@@ -54,7 +55,8 @@ public final class VisualEditorTopComponent extends TopComponent {
         setName(NbBundle.getMessage(VisualEditorTopComponent.class, "CTL_VisualEditorTopComponent"));
         setToolTipText(NbBundle.getMessage(VisualEditorTopComponent.class, "HINT_VisualEditorTopComponent"));
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
-        Lookup.getDefault().lookupAll(VisualEditController.class);
+        Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().addSelectionListener(
+                Lookup.getDefault().lookup(VisualEditController.class));
     }
 
     <I extends VisualItem> void edit(I... items) {
@@ -97,7 +99,8 @@ public final class VisualEditorTopComponent extends TopComponent {
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files
      * only, i.e. deserialization routines; otherwise you could get a
-     * non-deserialized instance. To obtain the singleton instance, use {@link #findInstance}.
+     * non-deserialized instance. To obtain the singleton instance, use
+     * {@link #findInstance}.
      */
     public static synchronized VisualEditorTopComponent getDefault() {
         if (instance == null) {
@@ -107,8 +110,8 @@ public final class VisualEditorTopComponent extends TopComponent {
     }
 
     /**
-     * Obtain the VisualEditorTopComponent instance. Never call {@link #getDefault}
-     * directly!
+     * Obtain the VisualEditorTopComponent instance. Never call
+     * {@link #getDefault} directly!
      */
     public static synchronized VisualEditorTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
