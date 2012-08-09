@@ -19,7 +19,10 @@ package org.mongkie.ui.visualization;
 
 import java.util.logging.Logger;
 import org.mongkie.ui.visualization.util.StatusLogDisplayer;
+import static org.mongkie.visualization.Config.MODE_DISPLAY;
 import org.openide.modules.ModuleInstall;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  * Manages a module's lifecycle. Remember that an installer is optional and
@@ -35,6 +38,12 @@ public class Installer extends ModuleInstall {
     @Override
     public boolean closing() {
         Logger.getLogger("").removeHandler(StatusLogDisplayer.getInstance());
+        // Close all TopComponents in the MODE_DISPLAY mode.
+        // This required to open only one display at start up,
+        // because DisplayTopComponent's persistent type is set to PERSISTENCE_ONLY_OPENED.
+        for (TopComponent tc : WindowManager.getDefault().findMode(MODE_DISPLAY).getTopComponents()) {
+            tc.close();
+        }
         return true;
     }
 }

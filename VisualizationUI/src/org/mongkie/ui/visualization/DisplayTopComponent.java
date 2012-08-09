@@ -64,7 +64,7 @@ import prefuse.visual.VisualItem;
 @ConvertAsProperties(dtd = "-//org.mongkie.ui.visualization//MongkieDisplay//EN", autostore = false)
 @TopComponent.Description(preferredID = "DisplayTopComponent",
 iconBase = "org/mongkie/ui/visualization/resources/network.png",
-persistenceType = TopComponent.PERSISTENCE_NEVER)
+persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED) // Need to open an initial display
 @TopComponent.Registration(mode = MODE_DISPLAY, openAtStartup = true, roles = ROLE_NETWORK)
 public final class DisplayTopComponent extends TopComponent
         implements org.mongkie.visualization.DisplayTopComponent, NonSingletonTopComponent {
@@ -89,7 +89,6 @@ public final class DisplayTopComponent extends TopComponent
         content.add(getActionMap());
         associateLookup(new AbstractLookup(content));
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
             @Override
             public void run() {
                 display = new MongkieDisplay(g);
@@ -98,7 +97,6 @@ public final class DisplayTopComponent extends TopComponent
                 }
                 Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().addSelectionListener(
                         new SelectionListener() {
-
                             @Override
                             public MongkieDisplay getDisplay() {
                                 return display;
@@ -131,7 +129,6 @@ public final class DisplayTopComponent extends TopComponent
                                     }
                                 }
                                 SwingUtilities.invokeLater(new Runnable() {
-
                                     @Override
                                     public void run() {
                                         setActivatedNodes(tupleNodes.toArray(new DataNode[]{}));
@@ -141,7 +138,6 @@ public final class DisplayTopComponent extends TopComponent
                             private final List<DataNode> tupleNodes = new ArrayList<DataNode>();
                         });
                 display.addControlListener(new PopupControl(display) {
-
                     @Override
                     protected String getUrlField() {
                         return null;
@@ -150,7 +146,6 @@ public final class DisplayTopComponent extends TopComponent
                     @Override
                     protected void addAggregatePopupMenuItems(JPopupMenu popup) {
                         popup.add(new AbstractAction("New Graph", ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/tab_new.png", false)) {
-
                             @Override
                             public void actionPerformed(ActionEvent e) {
 //                                Set<Node> nodes = new HashSet<Node>();
@@ -164,7 +159,6 @@ public final class DisplayTopComponent extends TopComponent
                                         Lookup.getDefault().lookup(VisualizationControllerUI.class).openNewDisplayTopComponent(
                                         display.getVisualGraph().createPartialGraph(((AggregateItem) clickedItem).items(), itemToNode, itemToEdge));
                                 WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
                                     @Override
                                     public void run() {
                                         Visualization v = dtc.getDisplay().getVisualization();
@@ -207,7 +201,6 @@ public final class DisplayTopComponent extends TopComponent
                         false);
                 add(optionsPanel, BorderLayout.PAGE_END);
                 optionsPanel.addCollapseListener(new CollapsiblePanel.CollapseListener() {
-
                     @Override
                     public void collapsed() {
                         display.getOverview().repaint();
@@ -247,7 +240,6 @@ public final class DisplayTopComponent extends TopComponent
     @Override
     public void componentOpened() {
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
             @Override
             public void run() {
                 display.getVisualization().rerun(Visualization.DRAW, Visualization.ANIMATE);
@@ -258,7 +250,6 @@ public final class DisplayTopComponent extends TopComponent
     @Override
     public void componentClosed() {
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
             @Override
             public void run() {
                 display.getVisualization().cancel();
