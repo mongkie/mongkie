@@ -257,6 +257,22 @@ public class DataLib {
         return uniques;
     }
 
+    public static Iterator<Integer> rows(Table table, String column, Object val) {
+        Class type = table.getColumnType(column);
+        if (type.isPrimitive()) {
+            if (type.equals(int.class)) {
+                return table.index(column).rows(((Integer) val).intValue());
+            } else if (type.equals(double.class)) {
+                return table.index(column).rows(((Double) val).doubleValue());
+            } else if (type.equals(boolean.class)) {
+                return table.index(column).rows(((Boolean) val).booleanValue());
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+        return table.index(column).rows(val);
+    }
+
     // ------------------------------------------------------------------------
     /**
      * Get the Tuple with the minimum data field value.

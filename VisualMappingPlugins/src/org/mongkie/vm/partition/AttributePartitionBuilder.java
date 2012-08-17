@@ -78,7 +78,6 @@ public class AttributePartitionBuilder implements PartitionBuilder {
         //Sort attributes by alphabetical order
         Partition[] partitionsArray = partitions.toArray(new Partition[0]);
         Arrays.sort(partitionsArray, new Comparator<Partition>() {
-
             @Override
             public int compare(Partition a, Partition b) {
                 return (a.getName().compareTo(b.getName()));
@@ -125,32 +124,26 @@ public class AttributePartitionBuilder implements PartitionBuilder {
             } else {
                 throw new IllegalArgumentException("Element type must be Nodes or Edges");
             }
-            if (table.getColumnType(column).isPrimitive()) {
-                //TODO index.rows(type)
-            } else {
-                for (final Object val : DataLib.asSet(table, column)) {
-                    AttributePart p = new AttributePart(val, this);
-                    for (Iterator<Integer> rowIter = table.index(column).rows(val); rowIter.hasNext();) {
-                        p.addItem(Lookup.getDefault().lookup(VisualizationController.class).getVisualization().getVisualItem(elementGroup, table.getTuple(rowIter.next())));
-                    }
-                    if (table.getMetadata(column).hasMultipleValues()) {
-                        for (Iterator<Tuple> tupleIter = table.tuples(new AbstractPredicate() {
-
-                            @Override
-                            public boolean getBoolean(Tuple t) {
-                                String str = t.getString(column);
-                                return str != null && str.contains(Column.MULTI_VAL_SEPARATOR) && Arrays.asList(str.split(Column.MULTI_VAL_SEPARATOR)).contains((String) val);
-                            }
-                        }); tupleIter.hasNext();) {
-                            p.addItem(Lookup.getDefault().lookup(VisualizationController.class).getVisualization().getVisualItem(elementGroup, tupleIter.next()));
-                        }
-                    }
-                    p.setPortion((p.size() / (double) table.getTupleCount()) * 100);
-                    parts.add(p);
+            for (final Object val : DataLib.asSet(table, column)) {
+                AttributePart p = new AttributePart(val, this);
+                for (Iterator<Integer> rowIter = DataLib.rows(table, column, val); rowIter.hasNext();) {
+                    p.addItem(Lookup.getDefault().lookup(VisualizationController.class).getVisualization().getVisualItem(elementGroup, table.getTuple(rowIter.next())));
                 }
+                if (table.getMetadata(column).hasMultipleValues()) {
+                    for (Iterator<Tuple> tupleIter = table.tuples(new AbstractPredicate() {
+                        @Override
+                        public boolean getBoolean(Tuple t) {
+                            String str = t.getString(column);
+                            return str != null && str.contains(Column.MULTI_VAL_SEPARATOR) && Arrays.asList(str.split(Column.MULTI_VAL_SEPARATOR)).contains((String) val);
+                        }
+                    }); tupleIter.hasNext();) {
+                        p.addItem(Lookup.getDefault().lookup(VisualizationController.class).getVisualization().getVisualItem(elementGroup, tupleIter.next()));
+                    }
+                }
+                p.setPortion((p.size() / (double) table.getTupleCount()) * 100);
+                parts.add(p);
             }
             Collections.sort(parts, new Comparator<Part>() {
-
                 @Override
                 public int compare(Part p1, Part p2) {
                     return Double.compare(p2.getPortion(), p1.getPortion());
