@@ -19,21 +19,30 @@ package org.mongkie.ui.visualization;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.*;
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import static kobic.prefuse.Constants.EDGES;
 import static kobic.prefuse.Constants.NODES;
 import kobic.prefuse.controls.PopupControl;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.DataTableController;
 import org.mongkie.lib.widgets.CollapsiblePanel;
+import org.mongkie.lib.widgets.WidgetUtilities;
 import org.mongkie.perspective.NonSingletonTopComponent;
 import org.mongkie.perspective.spi.Perspective;
 import org.mongkie.ui.visualization.options.OptionsSettingPanel;
 import org.mongkie.ui.visualization.options.OptionsToolbar;
+import org.mongkie.ui.visualization.tools.AddonPopupDialog;
+import org.mongkie.ui.visualization.tools.AddonsBar;
+import org.mongkie.ui.visualization.tools.PropertiesBar;
+import org.mongkie.ui.visualization.tools.spi.AddonUI;
 import static org.mongkie.visualization.Config.MODE_DISPLAY;
 import static org.mongkie.visualization.Config.ROLE_NETWORK;
 import org.mongkie.visualization.MongkieDisplay;
@@ -194,6 +203,32 @@ public final class DisplayTopComponent extends TopComponent
                 int height = getHeight();
                 display.setSize(width, height);
                 display.pan(width / 2, height / 2);
+
+                JPanel propertiesPanel = new JPanel(new BorderLayout());
+                if (WidgetUtilities.isAquaLookAndFeel()) {
+                    propertiesPanel.setBackground(UIManager.getColor("NbExplorerView.background"));
+                }
+                propertiesPanel.add(new PropertiesBar(), BorderLayout.CENTER);
+                AddonsBar addonsBar = new AddonsBar();
+                for (AddonUI addon : Lookup.getDefault().lookupAll(AddonUI.class)) {
+                    final JButton b = addon.buildActionButton(display);
+                    final AddonUI.ContentPanel c = addon.buildContentPanel(display);
+                    if (c != null) {
+                        final AddonPopupDialog d = new AddonPopupDialog(WindowManager.getDefault().getMainWindow(), true);
+                        d.add(c, BorderLayout.CENTER);
+                        b.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                c.refresh();
+                                d.pack();
+                                d.show(b, b.getWidth() - d.getPreferredSize().width, b.getHeight());
+                            }
+                        });
+                    }
+                    addonsBar.add(b);
+                }
+                propertiesPanel.add(addonsBar, BorderLayout.EAST);
+                add(propertiesPanel, BorderLayout.NORTH);
 
                 CollapsiblePanel optionsPanel = CollapsiblePanel.createPanel(new OptionsToolbar(display), new OptionsSettingPanel(display),
                         ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/arrow_up.png", false), ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/arrow_up_hover.png", false), "Show Display Options",
