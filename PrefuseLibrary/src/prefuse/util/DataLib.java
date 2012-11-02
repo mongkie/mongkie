@@ -273,6 +273,22 @@ public class DataLib {
         return table.index(column).rows(val);
     }
 
+    public static int get(Table table, String column, Object val) {
+        Class type = table.getColumnType(column);
+        if (type.isPrimitive()) {
+            if (type.equals(int.class)) {
+                return table.index(column).get(((Integer) val).intValue());
+            } else if (type.equals(double.class)) {
+                return table.index(column).get(((Double) val).doubleValue());
+            } else if (type.equals(boolean.class)) {
+                return table.index(column).get(((Boolean) val).booleanValue());
+            } else {
+                throw new IllegalStateException();
+            }
+        }
+        return table.index(column).get(val);
+    }
+
     // ------------------------------------------------------------------------
     /**
      * Get the Tuple with the minimum data field value.
@@ -640,6 +656,23 @@ public class DataLib {
             columnNames[i] = table.getColumnName(i);
         }
         return columnNames;
+    }
+
+    /**
+     * Return a first found column name, the type of which equals the given
+     * type. If not found, returns a first column name of the table regardless
+     * of the type.
+     *
+     * @param table
+     * @return
+     */
+    public static String getTypedColumnName(Table table, Class type) {
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            if (table.getColumnType(i) == type) {
+                return table.getColumnName(i);
+            }
+        }
+        return table.getColumnName(0);
     }
 } // end of class DataLib
 

@@ -190,4 +190,12 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
         clickedItem = null;
         globalPopup.show(e.getComponent(), e.getX(), e.getY());
     }
+
+    public D getDisplay() {
+        return display;
+    }
+
+    public VisualItem getClickedItem() {
+        return clickedItem;
+    }
 }

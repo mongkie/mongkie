@@ -33,34 +33,31 @@ import prefuse.util.collections.*;
  * identifier for a node. In this second case, the unique identifier must be
  * included as a data field in the node table. This name of this column can be
  * configured using the appropriate graph constructor. The default column name
- * for this field is
- * {@link #DEFAULT_NODE_KEY}, which by default evaluates to null, indicating
- * that no special node key should be used, just the direct node table row
- * numbers. Though the source, target, and node key values completely specify
- * the graph linkage structure, to make graph operations more efficient an
- * additional table is maintained internally by the Graph class, storing node
- * indegree and outdegree counts and adjacency lists for the inlinks and
- * outlinks for all edges.</p>
+ * for this field is {@link #DEFAULT_NODE_KEY}, which by default evaluates to
+ * null, indicating that no special node key should be used, just the direct
+ * node table row numbers. Though the source, target, and node key values
+ * completely specify the graph linkage structure, to make graph operations more
+ * efficient an additional table is maintained internally by the Graph class,
+ * storing node indegree and outdegree counts and adjacency lists for the
+ * inlinks and outlinks for all edges.</p>
  *
  * <p>Graph edges and edges can be accessed by application code by either using
  * the row numbers of the node and edge tables, which provide unique ids for
- * each, or using the {@link prefuse.data.Node} and
- * {@link prefuse.data.Edge} classes --
- * {@link prefuse.data.Tuple} instances that provide object-oriented access to
- * both node or edge data values and the backing graph structure. Node and Edge
- * tuples are maintained by special TupleManager instances contained within this
- * Graph. By default, they are not accessible from the backing node or edge
- * tables directly. The reason for this is that these tables might be used in
- * multiple graphs simultaneously. For example, a node data table could be used
- * in a number of different graphs, exploring different possible linkages
- * between those node. In short, use this Graph instance to request iterators
- * over Node or Edge tuples, not the backing data tables.</p>
+ * each, or using the {@link prefuse.data.Node} and {@link prefuse.data.Edge}
+ * classes -- {@link prefuse.data.Tuple} instances that provide object-oriented
+ * access to both node or edge data values and the backing graph structure. Node
+ * and Edge tuples are maintained by special TupleManager instances contained
+ * within this Graph. By default, they are not accessible from the backing node
+ * or edge tables directly. The reason for this is that these tables might be
+ * used in multiple graphs simultaneously. For example, a node data table could
+ * be used in a number of different graphs, exploring different possible
+ * linkages between those node. In short, use this Graph instance to request
+ * iterators over Node or Edge tuples, not the backing data tables.</p>
  *
  * <p>All Graph instances also support an internally generated spanning tree,
- * provided by the {@link #getSpanningTree()} or
- * {@link #getSpanningTree(Node)} methods. This is particularly useful in
- * visualization contexts that use an underlying tree structure to compute a
- * graph layout.</p>
+ * provided by the {@link #getSpanningTree()} or {@link #getSpanningTree(Node)}
+ * methods. This is particularly useful in visualization contexts that use an
+ * underlying tree structure to compute a graph layout.</p>
  *
  * @author <a href="http://jheer.org">jeffrey heer</a>
  */
@@ -175,7 +172,7 @@ public class Graph extends CompositeTupleSet {
      * Create a new Graph using the provided table of node data and an empty set
      * of edges.
      *
-     * @param edges    the backing table to use for node data. Node instances of
+     * @param edges the backing table to use for node data. Node instances of
      * this graph will get their data from this table.
      * @param directed true for directed edges, false for undirected
      */
@@ -188,10 +185,10 @@ public class Graph extends CompositeTupleSet {
      * Create a new Graph using the provided table of node data and an empty set
      * of edges.
      *
-     * @param edges     the backing table to use for node data. Node instances of
+     * @param edges the backing table to use for node data. Node instances of
      * this graph will get their data from this table.
-     * @param directed  true for directed edges, false for undirected
-     * @param nodeKey   data field used to uniquely identify a node. If this field
+     * @param directed true for directed edges, false for undirected
+     * @param nodeKey data field used to uniquely identify a node. If this field
      * is null, the node table row numbers will be used
      * @param sourceKey data field used to denote the source node in an edge
      * table
@@ -210,9 +207,9 @@ public class Graph extends CompositeTupleSet {
      * Create a new Graph, using node table row numbers to uniquely identify
      * edges in the edge table's source and target fields.
      *
-     * @param edges    the backing table to use for node data. Node instances of
+     * @param edges the backing table to use for node data. Node instances of
      * this graph will get their data from this table.
-     * @param edges    the backing table to use for edge data. Edge instances of
+     * @param edges the backing table to use for edge data. Edge instances of
      * this graph will get their data from this table.
      * @param directed true for directed edges, false for undirected
      */
@@ -225,11 +222,11 @@ public class Graph extends CompositeTupleSet {
      * Create a new Graph, using node table row numbers to uniquely identify
      * edges in the edge table's source and target fields.
      *
-     * @param edges     the backing table to use for node data. Node instances of
+     * @param edges the backing table to use for node data. Node instances of
      * this graph will get their data from this table.
-     * @param edges     the backing table to use for edge data. Edge instances of
+     * @param edges the backing table to use for edge data. Edge instances of
      * this graph will get their data from this table.
-     * @param directed  true for directed edges, false for undirected
+     * @param directed true for directed edges, false for undirected
      * @param sourceKey data field used to denote the source node in an edge
      * table
      * @param targetKey data field used to denote the target node in an edge
@@ -243,12 +240,12 @@ public class Graph extends CompositeTupleSet {
     /**
      * Create a new Graph.
      *
-     * @param edges     the backing table to use for node data. Node instances of
+     * @param edges the backing table to use for node data. Node instances of
      * this graph will get their data from this table.
-     * @param edges     the backing table to use for edge data. Edge instances of
+     * @param edges the backing table to use for edge data. Edge instances of
      * this graph will get their data from this table.
-     * @param directed  true for directed edges, false for undirected
-     * @param nodeKey   data field used to uniquely identify a node. If this field
+     * @param directed true for directed edges, false for undirected
+     * @param nodeKey data field used to uniquely identify a node. If this field
      * is null, the node table row numbers will be used
      * @param sourceKey data field used to denote the source node in an edge
      * table
@@ -336,10 +333,10 @@ public class Graph extends CompositeTupleSet {
     /**
      * Initialize this Graph instance.
      *
-     * @param edges     the node table
-     * @param edges     the edge table
-     * @param directed  the edge directionality
-     * @param nodeKey   data field used to uniquely identify a node
+     * @param edges the node table
+     * @param edges the edge table
+     * @param directed the edge directionality
+     * @param nodeKey data field used to uniquely identify a node
      * @param sourceKey data field used to denote the source node in an edge
      * table
      * @param targetKey data field used to denote the target node in an edge
@@ -475,7 +472,7 @@ public class Graph extends CompositeTupleSet {
     /**
      * Internal method for updating the linkage of this graph.
      *
-     * @param e    the edge id for the updated link
+     * @param e the edge id for the updated link
      * @param incr the increment value, 1 for an removed link, -1 for a removed
      * link
      */
@@ -497,9 +494,9 @@ public class Graph extends CompositeTupleSet {
     /**
      * Internal method for updating the linkage of this graph.
      *
-     * @param e    the edge id for the updated link
-     * @param s    the source node id for the updated link
-     * @param t    the target node id for the updated link
+     * @param e the edge id for the updated link
+     * @param s the source node id for the updated link
+     * @param t the target node id for the updated link
      * @param incr the increment value, 1 for an removed link, -1 for a removed
      * link
      */
@@ -527,9 +524,9 @@ public class Graph extends CompositeTupleSet {
      * Internal method for adding a link to an adjacency list
      *
      * @param field which adjacency list (inlinks or outlinks) to use
-     * @param len   the length of the adjacency list
-     * @param n     the node id of the adjacency list to use
-     * @param e     the edge to add to the list
+     * @param len the length of the adjacency list
+     * @param n the node id of the adjacency list to use
+     * @param e the edge to add to the list
      */
     protected void addLink(String field, int len, int n, int e) {
         int[] array = (int[]) m_links.get(n, field);
@@ -550,9 +547,9 @@ public class Graph extends CompositeTupleSet {
      * Internal method for removing a link from an adjacency list
      *
      * @param field which adjacency list (inlinks or outlinks) to use
-     * @param len   the length of the adjacency list
-     * @param n     the node id of the adjacency list to use
-     * @param e     the edge to remove from the list
+     * @param len the length of the adjacency list
+     * @param n the node id of the adjacency list to use
+     * @param e the edge to remove from the list
      * @return true if the link was removed successfully, false otherwise
      */
     protected boolean remLink(String field, int len, int n, int e) {
@@ -569,7 +566,7 @@ public class Graph extends CompositeTupleSet {
     /**
      * Update the link table to accomodate an inserted or deleted node
      *
-     * @param r       the node id, also the row number into the link table
+     * @param r the node id, also the row number into the link table
      * @param removed indicates if a node was removed or removed
      */
     protected void updateNodeData(int r, boolean added) {
@@ -831,7 +828,7 @@ public class Graph extends CompositeTupleSet {
     /**
      * Internal method for checking the validity of a node.
      *
-     * @param n              the Node to check for validity
+     * @param n the Node to check for validity
      * @param throwException true if this method should throw an Exception when
      * an invalid node is encountered
      * @return true is the node is valid, false if invalid
@@ -857,8 +854,8 @@ public class Graph extends CompositeTupleSet {
 
     /**
      * Get the collection of edges as a TupleSet. Returns the same result as
-     * {@link CompositeTupleSet#getSet(String)} using
-     * {@link #NODES} as the parameter.
+     * {@link CompositeTupleSet#getSet(String)} using {@link #NODES} as the
+     * parameter.
      *
      * @return the edges of this graph as a TupleSet instance
      */
@@ -1102,7 +1099,7 @@ public class Graph extends CompositeTupleSet {
     /**
      * Internal method for checking the validity of an edge.
      *
-     * @param e              the Edge to check for validity
+     * @param e the Edge to check for validity
      * @param throwException true if this method should throw an Exception when
      * an invalid node is encountered
      * @return true is the edge is valid, false if invalid
@@ -1127,8 +1124,8 @@ public class Graph extends CompositeTupleSet {
 
     /**
      * Get the collection of edges as a TupleSet. Returns the same result as
-     * {@link CompositeTupleSet#getSet(String)} using
-     * {@link #EDGES} as the parameter.
+     * {@link CompositeTupleSet#getSet(String)} using {@link #EDGES} as the
+     * parameter.
      *
      * @return the edges of this graph as a TupleSet instance
      */
@@ -1507,11 +1504,10 @@ public class Graph extends CompositeTupleSet {
     /**
      * Get an iterator edge ids for edges incident on the given node.
      *
-     * @param node      a node id (node table row number)
+     * @param node a node id (node table row number)
      * @param direction the directionality of the edges to include. One of
-     * {@link #INEDGES} (for in-linking edges),
-     * {@link #OUTEDGES} (for out-linking edges), or
-     * {@link #UNDIRECTED} (for all edges).
+     * {@link #INEDGES} (for in-linking edges), {@link #OUTEDGES} (for
+     * out-linking edges), or {@link #UNDIRECTED} (for all edges).
      * @return an iterator over all edge ids for edges incident on the given
      * node
      */
@@ -1847,15 +1843,14 @@ public class Graph extends CompositeTupleSet {
     /**
      * Fire a graph change event
      *
-     * @param t     the backing table where the change occurred (either a node table
+     * @param t the backing table where the change occurred (either a node table
      * or an edge table)
      * @param first the first modified table row
-     * @param last  the last (inclusive) modified table row
-     * @param col   the number of the column modified, or
+     * @param last the last (inclusive) modified table row
+     * @param col the number of the column modified, or
      * {@link prefuse.data.event.EventConstants#ALL_COLUMNS} for operations
      * affecting all columns
-     * @param type  the type of modification, one of
-     * {@link prefuse.data.event.EventConstants#INSERT},
+     * @param type the type of modification, one of null     {@link prefuse.data.event.EventConstants#INSERT},
      * {@link prefuse.data.event.EventConstants#DELETE}, or
      * {@link prefuse.data.event.EventConstants#UPDATE}.
      */

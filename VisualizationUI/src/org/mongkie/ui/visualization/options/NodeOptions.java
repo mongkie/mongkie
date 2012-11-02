@@ -17,12 +17,25 @@
  */
 package org.mongkie.ui.visualization.options;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import kobic.prefuse.display.DisplayListener;
+import kobic.prefuse.display.NetworkDisplay;
+import org.mongkie.lib.widgets.JPopupButton;
 import org.mongkie.ui.visualization.options.spi.Options;
 import org.mongkie.visualization.MongkieDisplay;
+import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
+import prefuse.Visualization;
+import prefuse.data.Graph;
+import prefuse.data.Table;
+import prefuse.data.event.EventConstants;
+import prefuse.data.event.TableListener;
+import prefuse.util.DataLib;
 
 /**
  *
@@ -36,9 +49,82 @@ public class NodeOptions implements Options {
         return "Nodes";
     }
 
+    private void updateLableColumnTool(JPopupButton b, Graph g) {
+        b.clearItems();
+        if (g.getNodeTable().getColumnCount() > 0) {
+            for (String col : DataLib.getColumnNames(g.getNodeTable())) {
+                b.addItem(col, null);
+            }
+            b.setSelectedItem(g.getNodeTable().getColumn(g.getNodeLabelField()) == null
+                    ? DataLib.getTypedColumnName(g.getNodeTable(), String.class) : g.getNodeLabelField());
+            b.setEnabled(true);
+        } else {
+            b.setEnabled(false);
+        }
+    }
+
     @Override
-    public List<JComponent> getTools(MongkieDisplay display) {
-        return null;
+    public List<JComponent> getTools(final MongkieDisplay display) {
+        List<JComponent> tools = new ArrayList<JComponent>();
+        final JPopupButton lableColumnButton = new JPopupButton();
+        lableColumnButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/fontdown.png", false));
+        lableColumnButton.setToolTipText("Choose a column to be used for labeling the nodes");
+        lableColumnButton.setChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                final String col = (String) e.getSource();
+                if (!display.getGraph().getNodeLabelField().equals(col)) {
+                    display.getVisualization().rerun(new Runnable() {
+                        @Override
+                        public void run() {
+                            display.getGraph().setNodeLabelField(col);
+                            display.getNodeLabelRenderer().setLabelField(col);
+                        }
+                    }, Visualization.DRAW);
+                }
+            }
+        });
+        display.addDisplayListener(new DisplayListener() {
+            private Graph g;
+            private TableListener l;
+
+            @Override
+            public void graphDisposing(NetworkDisplay d, Graph g) {
+                lableColumnButton.clearItems();
+                lableColumnButton.setEnabled(false);
+            }
+
+            @Override
+            public void graphChanged(NetworkDisplay d, final Graph g) {
+                if (this.g != g) {
+                    if (this.g != null) {
+                        this.g.getNodeTable().removeTableListener(l);
+                    }
+                    g.getNodeTable().addTableListener(l = new TableListener() {
+                        @Override
+                        public void tableChanged(Table t, int start, int end, int col, int type) {
+                            if (col != EventConstants.ALL_COLUMNS) {
+                                switch (type) {
+                                    case EventConstants.DELETE:
+                                    case EventConstants.INSERT:
+//                                    case EventConstants.UPDATE:
+                                        updateLableColumnTool(lableColumnButton, g);
+                                        System.out.println("column changed");
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    });
+                    updateLableColumnTool(lableColumnButton, g);
+                    this.g = g;
+                }
+            }
+        });
+        updateLableColumnTool(lableColumnButton, display.getGraph());
+        tools.add(lableColumnButton);
+        return tools;
     }
 
     @Override
@@ -48,7 +134,7 @@ public class NodeOptions implements Options {
 
     @Override
     public boolean hasTools() {
-        return false;
+        return true;
     }
 
     @Override

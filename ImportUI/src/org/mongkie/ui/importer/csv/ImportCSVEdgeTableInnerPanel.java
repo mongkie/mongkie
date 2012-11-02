@@ -150,10 +150,10 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
 
         labelColumnComboBox.setName("Label column"); // NOI18N
 
-        hasHeaderCheckBox.setFont(hasHeaderCheckBox.getFont().deriveFont(hasHeaderCheckBox.getFont().getSize()-2f));
+        hasHeaderCheckBox.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         hasHeaderCheckBox.setText(org.openide.util.NbBundle.getMessage(ImportCSVEdgeTableInnerPanel.class, "ImportCSVEdgeTableInnerPanel.hasHeaderCheckBox.text")); // NOI18N
 
-        editColumnExplainLabel.setFont(editColumnExplainLabel.getFont().deriveFont(editColumnExplainLabel.getFont().getSize()-2f));
+        editColumnExplainLabel.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         editColumnExplainLabel.setForeground(new java.awt.Color(242, 70, 200));
         editColumnExplainLabel.setText(org.openide.util.NbBundle.getMessage(ImportCSVEdgeTableInnerPanel.class, "ImportCSVEdgeTableInnerPanel.editColumnExplainLabel.text")); // NOI18N
 

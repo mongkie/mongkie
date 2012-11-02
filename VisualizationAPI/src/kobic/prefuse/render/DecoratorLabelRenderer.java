@@ -19,6 +19,7 @@ package kobic.prefuse.render;
 
 import java.awt.Font;
 import java.awt.Shape;
+import java.util.Iterator;
 import kobic.prefuse.action.layout.DecoratorLayout;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
@@ -69,6 +70,18 @@ public abstract class DecoratorLabelRenderer extends LabelRenderer {
 
     public VisualTable getDecorators() {
         return decorators;
+    }
+
+    public void setLabelField(String field) {
+        if (getTextField().equals(field)) {
+            return;
+        }
+        super.setTextField(field);
+        if (decorators != null) {
+            for (Iterator<DecoratorItem> itemIter = decorators.tuples(); itemIter.hasNext();) {
+                itemIter.next().setValidated(false);
+            }
+        }
     }
 
     @Override

@@ -117,9 +117,11 @@ public class TypeLib {
             return byte.class;
         } else if ( Short.class.equals(type) || type == short.class ) {
             return short.class;
+        } else if (Boolean.class.equals(type) || type == boolean.class) {
+            return boolean.class;
         } else {
             throw new IllegalArgumentException(
-                "Input class must be a numeric type");
+                    "Input class must be a primitive type");
         }
     }
     

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.*;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -39,6 +40,7 @@ import org.mongkie.perspective.NonSingletonTopComponent;
 import org.mongkie.perspective.spi.Perspective;
 import org.mongkie.ui.visualization.options.OptionsSettingPanel;
 import org.mongkie.ui.visualization.options.OptionsToolbar;
+import org.mongkie.ui.visualization.popup.spi.NodeMenuItemFactory;
 import org.mongkie.ui.visualization.tools.AddonPopupDialog;
 import org.mongkie.ui.visualization.tools.AddonsBar;
 import org.mongkie.ui.visualization.tools.PropertiesBar;
@@ -104,6 +106,10 @@ public final class DisplayTopComponent extends TopComponent
                 if (loading) {
                     display.setLoading(true);
                 }
+
+                content.add(display);
+                Lookup.getDefault().lookup(VisualizationController.class).resultChanged(null);
+
                 Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().addSelectionListener(
                         new SelectionListener() {
                             @Override
@@ -146,10 +152,21 @@ public final class DisplayTopComponent extends TopComponent
                             }
                             private final List<DataNode> tupleNodes = new ArrayList<DataNode>();
                         });
-                display.addControlListener(new PopupControl(display) {
+
+                display.addControlListener(new PopupControl<MongkieDisplay>(display) {
                     @Override
                     protected String getUrlField() {
                         return null;
+                    }
+
+                    @Override
+                    protected void addNodePopupMenuItems(JPopupMenu popup) {
+                        super.addNodePopupMenuItems(popup);
+                        for (NodeMenuItemFactory f : Lookup.getDefault().lookupAll(NodeMenuItemFactory.class)) {
+                            for (JMenuItem mi : f.createMenuItems(this)) {
+                                popup.add(mi);
+                            }
+                        }
                     }
 
                     @Override
@@ -195,14 +212,6 @@ public final class DisplayTopComponent extends TopComponent
                         super.addAggregatePopupMenuItems(popup);
                     }
                 });
-                content.add(display);
-                Lookup.getDefault().lookup(VisualizationController.class).resultChanged(null);
-                remove(initializingLabel);
-                add(display, BorderLayout.CENTER);
-                int width = getWidth();
-                int height = getHeight();
-                display.setSize(width, height);
-                display.pan(width / 2, height / 2);
 
                 JPanel propertiesPanel = new JPanel(new BorderLayout());
                 if (WidgetUtilities.isAquaLookAndFeel()) {
@@ -246,6 +255,13 @@ public final class DisplayTopComponent extends TopComponent
                         display.getOverview().repaint();
                     }
                 });
+
+                remove(initializingLabel);
+                add(display, BorderLayout.CENTER);
+                int width = getWidth();
+                int height = getHeight();
+                display.setSize(width, height);
+                display.pan(width / 2, height / 2);
             }
         });
     }

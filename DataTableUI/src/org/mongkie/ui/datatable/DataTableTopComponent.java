@@ -105,7 +105,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
         refreshing.setBusy(false);
 
         Lookup.getDefault().lookup(VisualizationController.class).addWorkspaceListener(new WorkspaceListener() {
-
             @Override
             public void displaySelected(MongkieDisplay display) {
                 refreshTables(display);
@@ -130,7 +129,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
         final MongkieDisplay d = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
         if (d != null) {
             WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
                 @Override
                 public void run() {
                     refreshTables(d);
@@ -150,7 +148,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
                 toggle.setSelected(true);
             }
             toggle.addItemListener(new ItemListener() {
-
                 @Override
                 public void itemStateChanged(ItemEvent e) {
                     if (e.getStateChange() == ItemEvent.DESELECTED) {
@@ -177,7 +174,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     private void clearActionsAndTools() {
         SwingUtilities.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 for (int i = topToolbar.getComponentCount() - 1;
@@ -191,7 +187,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     private void addActionsAndTools(final DataTable table) {
         SwingUtilities.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 int i = topToolbar.getComponentIndex(separatorAfterTableButtons) + 1;
@@ -213,7 +208,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
                     }
                     if (a instanceof PopupAction) {
                         command.setPopupCallback(new PopupPanelCallback() {
-
                             @Override
                             public JPopupPanel getPopupPanel(JCommandButton jcb) {
                                 JCommandPopupMenu popup = new JCommandPopupMenu();
@@ -222,7 +216,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
                                     menu = new JCommandMenuButton(da.getName(),
                                             ImageWrapperResizableIcon.getIcon(da.getIcon() == null ? a.getIcon() : da.getIcon(), new Dimension(16, 16)));
                                     menu.addActionListener(new ActionListener() {
-
                                         @Override
                                         public void actionPerformed(ActionEvent e) {
                                             Lookup.getDefault().lookup(DataTableControllerUI.class).executeDataAction(table, da);
@@ -240,7 +233,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
                     }
                     if (!popupOnly) {
                         command.addActionListener(new ActionListener() {
-
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 Lookup.getDefault().lookup(DataTableControllerUI.class).executeDataAction(table, a);
@@ -297,7 +289,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
     void refreshModel(final DataTable table, boolean actionsOnly) {
         if (!actionsOnly) {
             SwingUtilities.invokeLater(new Runnable() {
-
                 @Override
                 public void run() {
                     table.refreshModel(display);
@@ -314,12 +305,10 @@ public final class DataTableTopComponent extends TopComponent implements Display
             refreshing.setBusy(true);
         }
         Runnable refresh = new Runnable() {
-
             @Override
             public void run() {
                 try {
                     SwingUtilities.invokeAndWait(new Runnable() {
-
                         @Override
                         public void run() {
                             for (DataTable table : Lookup.getDefault().lookupAll(DataTable.class)) {
@@ -333,7 +322,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
                     Exceptions.printStackTrace(ex);
                 } finally {
                     SwingUtilities.invokeLater(new Runnable() {
-
                         @Override
                         public void run() {
                             if (d == null) {
@@ -393,15 +381,20 @@ public final class DataTableTopComponent extends TopComponent implements Display
     }
 
     @Override
-    public void graphChanged(MongkieDisplay d, Graph g) {
-        //TODO: refresh only graph tables
-        refreshTables(d);
+    public void graphChanged(final MongkieDisplay d, Graph g) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //TODO: refresh only graph tables
+                refreshTables(d);
+            }
+        });
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

@@ -52,3 +52,13 @@
 /VisualMappingUI/build/
 /JUnit4Library/build/
 /dist/
+/InteractionManagerUI/build/
+/InteractionManagerAPI/build/
+/ClusteringAPI/nbproject/private/
+/PipelineUI/nbproject/private/
+/ClusteringPlugins/nbproject/private/
+/LayoutPlugins/nbproject/private/
+/WidgetsLibrary/nbproject/private/
+/InteractionManagerAPI/nbproject/private/
+/MiMI/nbproject/private/
+/MiMI/build/

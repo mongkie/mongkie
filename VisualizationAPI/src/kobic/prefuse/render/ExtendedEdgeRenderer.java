@@ -49,17 +49,22 @@ public class ExtendedEdgeRenderer extends EdgeRenderer {
             getAlignedPoint(m_tmpPoints[0], itemBounds, m_xAlign1, m_yAlign1);
             float radius = (float) itemBounds.getHeight();
             ellipse.setFrame(m_tmpPoints[0].getX(), m_tmpPoints[0].getY() - radius, radius, radius);
+            arc.setArc(ellipse.getBounds2D(), 0, 0, Arc2D.OPEN);
             Rectangle2D.intersect(itemBounds, ellipse.getBounds2D(), intersect);
             boolean scaled = m_curWidth > m_width;
             float scale = m_curWidth / 4;
-            float arrowHeight = scaled ? EdgeArrow.get(edge.getShape()).getGap() * scale : EdgeArrow.get(edge.getShape()).getGap();
+            EdgeArrow arrow = edge.isDirected() ? EdgeArrow.get(edge.getShape()) : EdgeArrow.NONE;
+            float arrowHeight = scaled ? arrow.getGap() * scale : arrow.getGap();
             arrowHeight = (float) Math.sqrt(arrowHeight * arrowHeight / 2);
             float arcStartX = (float) m_tmpPoints[0].getX(), arcStartY = (float) m_tmpPoints[0].getY();
             float arrowEndX = (float) intersect.getMinX(), arrowEndY = (float) intersect.getMinY();
-            arc.setArc(ellipse.getBounds2D(), 0, 0, Arc2D.OPEN);
             arc.setAngles(arcStartX, arcStartY, arrowEndX + arrowHeight, arrowEndY - arrowHeight);
-            float arcEndX = (float) arc.getEndPoint().getX(), arcEndY = (float) arc.getEndPoint().getY();
-            m_curArrow = getArrowTrans(arcEndX, arcEndY, arrowEndX, arrowEndY, m_curWidth, scaled ? scale * 0.126 / source.getSize() : 0).createTransformedShape(getArrowHead(edge));
+            if (edge.isDirected()) {
+                float arcEndX = (float) arc.getEndPoint().getX(), arcEndY = (float) arc.getEndPoint().getY();
+                m_curArrow = getArrowTrans(arcEndX, arcEndY, arrowEndX, arrowEndY, m_curWidth, scaled ? scale * 0.126 / source.getSize() : 0).createTransformedShape(getArrowHead(edge));
+            } else {
+                m_curArrow = null;
+            }
             return arc;
         }
         return super.getRawShape(item);

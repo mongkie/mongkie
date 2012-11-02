@@ -602,7 +602,7 @@ public class ImportAttributesPanel extends javax.swing.JPanel {
         forEdgeRadioButton.setText(org.openide.util.NbBundle.getMessage(ImportAttributesPanel.class, "ImportAttributesPanel.forEdgeRadioButton.text")); // NOI18N
         forEdgeRadioButton.setFocusPainted(false);
 
-        hasHeaderCheckBox.setFont(hasHeaderCheckBox.getFont().deriveFont(hasHeaderCheckBox.getFont().getSize()-2f));
+        hasHeaderCheckBox.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         hasHeaderCheckBox.setText(org.openide.util.NbBundle.getMessage(ImportAttributesPanel.class, "ImportAttributesPanel.hasHeaderCheckBox.text")); // NOI18N
         hasHeaderCheckBox.setFocusPainted(false);
 
@@ -617,11 +617,11 @@ public class ImportAttributesPanel extends javax.swing.JPanel {
         previewTable.setBorder(null);
         previewAttributesScrollPane.setViewportView(previewTable);
 
-        editColumnExplainLabel.setFont(editColumnExplainLabel.getFont().deriveFont(editColumnExplainLabel.getFont().getSize()-2f));
+        editColumnExplainLabel.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         editColumnExplainLabel.setText(org.openide.util.NbBundle.getMessage(ImportAttributesPanel.class, "ImportAttributesPanel.editColumnExplainLabel.text")); // NOI18N
         editColumnExplainLabel.setForeground(new java.awt.Color(242, 70, 200));
 
-        keyAttributeListLabel.setFont(keyAttributeListLabel.getFont().deriveFont(keyAttributeListLabel.getFont().getSize()-2f));
+        keyAttributeListLabel.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         keyAttributeListLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/importer/resources/key_mini.png"))); // NOI18N
         keyAttributeListLabel.setText(org.openide.util.NbBundle.getMessage(ImportAttributesPanel.class, "ImportAttributesPanel.keyAttributeListLabel.text")); // NOI18N
         keyAttributeListLabel.setForeground(java.awt.Color.blue);
@@ -748,7 +748,7 @@ public class ImportAttributesPanel extends javax.swing.JPanel {
                                     .addComponent(keyAttributeListLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(editColumnExplainLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(keyAttributesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE))
+                                .addComponent(keyAttributesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(19, 19, 19)
                                 .addComponent(previewAttributesScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))

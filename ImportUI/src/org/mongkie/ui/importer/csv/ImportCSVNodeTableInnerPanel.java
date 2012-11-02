@@ -121,11 +121,11 @@ class ImportCSVNodeTableInnerPanel extends ImportCSVInnerPanel {
         skipNodeTableCheckBox.setText(org.openide.util.NbBundle.getMessage(ImportCSVNodeTableInnerPanel.class, "ImportCSVNodeTableInnerPanel.skipNodeTableCheckBox.text")); // NOI18N
         skipNodeTableCheckBox.setFocusPainted(false);
 
-        hasHeaderCheckBox.setFont(hasHeaderCheckBox.getFont().deriveFont(hasHeaderCheckBox.getFont().getSize()-2f));
+        hasHeaderCheckBox.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         hasHeaderCheckBox.setText(org.openide.util.NbBundle.getMessage(ImportCSVNodeTableInnerPanel.class, "ImportCSVNodeTableInnerPanel.hasHeaderCheckBox.text")); // NOI18N
         hasHeaderCheckBox.setFocusPainted(false);
 
-        editColumnExplainLabel.setFont(editColumnExplainLabel.getFont().deriveFont(editColumnExplainLabel.getFont().getSize()-2f));
+        editColumnExplainLabel.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         editColumnExplainLabel.setForeground(new java.awt.Color(242, 70, 200));
         editColumnExplainLabel.setText(org.openide.util.NbBundle.getMessage(ImportCSVNodeTableInnerPanel.class, "ImportCSVNodeTableInnerPanel.editColumnExplainLabel.text")); // NOI18N
 
@@ -160,7 +160,7 @@ class ImportCSVNodeTableInnerPanel extends ImportCSVInnerPanel {
                 .addComponent(fileButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(226, Short.MAX_VALUE)
+                .addContainerGap(254, Short.MAX_VALUE)
                 .addComponent(editColumnExplainLabel)
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
@@ -171,7 +171,7 @@ class ImportCSVNodeTableInnerPanel extends ImportCSVInnerPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(hasHeaderCheckBox)))
-                .addContainerGap())
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

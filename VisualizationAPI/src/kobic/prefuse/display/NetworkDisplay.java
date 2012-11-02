@@ -125,7 +125,6 @@ public abstract class NetworkDisplay extends Display {
         overview = new OverviewDisplay(this);
         overview.setSize(300, 400);
         m_transact.addActivityListener(new ActivityAdapter() {
-
             @Override
             public void activityCancelled(Activity a) {
                 activityFinished(a);
@@ -171,7 +170,6 @@ public abstract class NetworkDisplay extends Display {
         overview = new OverviewDisplay(this);
         overview.setSize(300, 400);
         m_transact.addActivityListener(new ActivityAdapter() {
-
             @Override
             public void activityCancelled(Activity a) {
                 activityFinished(a);
@@ -212,7 +210,6 @@ public abstract class NetworkDisplay extends Display {
 
     private void search(final SearchTupleSet searchEngine, final String query) {
         v.rerun(new Runnable() {
-
             @Override
             public void run() {
                 TupleSet searchedTupleSet = v.getFocusGroup(SEARCH_ITEMS);
@@ -276,7 +273,6 @@ public abstract class NetworkDisplay extends Display {
 
     protected final void setRepainting(final boolean repainting) {
         v.rerun(new Runnable() {
-
             @Override
             public void run() {
                 animate.remove(repaintingAction);
@@ -389,7 +385,6 @@ public abstract class NetworkDisplay extends Display {
 
     protected DataEditSupport createNodeDataEditSupport(Table table) {
         return new DataEditSupport(table) {
-
             @Override
             public boolean isEditable(String field) {
                 return true;
@@ -419,7 +414,6 @@ public abstract class NetworkDisplay extends Display {
 
     protected DataEditSupport createEdgeDataEditSupport(Table table) {
         return new DataEditSupport(table) {
-
             @Override
             public boolean isEditable(String field) {
                 return true;
@@ -466,7 +460,6 @@ public abstract class NetworkDisplay extends Display {
     public final void resetGraph(Graph g, final DisplayListener processor, String... activities) {
         final Graph ng = (g == null) ? GraphFactory.createDefault() : g;
         v.rerun(new Runnable() {
-
             @Override
             public void run() {
                 unregisterActions();
@@ -524,7 +517,6 @@ public abstract class NetworkDisplay extends Display {
     protected final int getNextAggregateId() {
         int aggregateId = 0;
         for (Object idx : DataLib.ordinalArray(v.getVisualGroup(AGGR_ITEMS).tuples(new AbstractPredicate() {
-
             @Override
             public boolean getBoolean(Tuple t) {
                 return t.getInt(AggregateItem.AGGR_ID) >= 0;
@@ -550,7 +542,6 @@ public abstract class NetworkDisplay extends Display {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
         v.rerun(new Runnable() {
-
             @Override
             public void run() {
                 AggregateItem aggregateItem = (label == null)
@@ -576,7 +567,6 @@ public abstract class NetworkDisplay extends Display {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
         v.rerun(new Runnable() {
-
             @Override
             public void run() {
                 AggregateItem aggrItem = (label == null)
@@ -597,7 +587,6 @@ public abstract class NetworkDisplay extends Display {
     public void unaggregateItems(final AggregateItem aggrItem) {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         v.rerun(new Runnable() {
-
             @Override
             public void run() {
                 v.getFocusGroup(FOCUS_ITEMS).removeTuple(aggrItem);
@@ -662,7 +651,6 @@ public abstract class NetworkDisplay extends Display {
             return;
         }
         v.rerun(new Runnable() {
-
             @Override
             public void run() {
                 AggregateTable aggregateTable = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
@@ -687,12 +675,25 @@ public abstract class NetworkDisplay extends Display {
         addDecorators(v, renderFactory);
         v.setRendererFactory(renderFactory);
     }
+    private DecoratorLabelRenderer nodeLabelRenderer, edgeLabelRenderer, aggregateLabelRenderer;
+
+    public DecoratorLabelRenderer getNodeLabelRenderer() {
+        return nodeLabelRenderer;
+    }
+
+    public DecoratorLabelRenderer getEdgeLabelRenderer() {
+        return edgeLabelRenderer;
+    }
+
+    public DecoratorLabelRenderer getAggregateLabelRenderer() {
+        return aggregateLabelRenderer;
+    }
 
     protected void addDecorators(Visualization v, DefaultRendererFactory rendererFactory) {
         // Node decorator for displaying labels
         nodeDecoratorLayouts = new DecoratedTableListener();
         VisualTable nodeLabels = v.addDecorators(NODE_LABEL, NODES, DEFAULT_NODE_DECORATOR_SCHEMA);
-        DecoratorLabelRenderer nodeLabelRenderer = makeupNodeLabelRenderer(new DecoratorLabelRenderer.Text(nodeLabels, getNodeLabelField()));
+        nodeLabelRenderer = makeupNodeLabelRenderer(new DecoratorLabelRenderer.Text(nodeLabels, getNodeLabelField()));
         rendererFactory.add(new InGroupPredicate(NODE_LABEL), nodeLabelRenderer);
         nodeDecoratorLayouts.addDecoratorRendererLayout(nodeLabelRenderer, new DecoratorLayout.Center(nodeLabels));
         getVisualGraph().getNodeTable().addTableListener(nodeDecoratorLayouts);
@@ -701,7 +702,7 @@ public abstract class NetworkDisplay extends Display {
         String edgeLabelField = getEdgeLabelField();
         if (edgeLabelField != null && g.getEdgeTable().canGetString(edgeLabelField)) {
             VisualTable edgeLabels = v.addDecorators(EDGE_LABEL, EDGES, DEFAULT_EDGE_DECORATOR_SCHEMA);
-            DecoratorLabelRenderer edgeLabelRenderer = makeupEdgeLabelRenderer(new DecoratorLabelRenderer.Text(edgeLabels, edgeLabelField));
+            edgeLabelRenderer = makeupEdgeLabelRenderer(new DecoratorLabelRenderer.Text(edgeLabels, edgeLabelField));
             rendererFactory.add(new InGroupPredicate(EDGE_LABEL), edgeLabelRenderer);
             edgeDecoratorLayouts.addDecoratorRendererLayout(edgeLabelRenderer, new DecoratorLayout.Center(edgeLabels));
             getVisualGraph().getEdgeTable().addTableListener(edgeDecoratorLayouts);
@@ -709,7 +710,7 @@ public abstract class NetworkDisplay extends Display {
         // Aggregate decorator for displaying labels
         aggregateDecoratorLayouts = new DecoratedTableListener();
         VisualTable aggregateLabels = v.addDecorators(AGGREGATE_LABEL, AGGR_ITEMS, DEFAULT_AGGR_DECORATOR_SCHEMA);
-        DecoratorLabelRenderer aggregateLabelRenderer = makeupAggregateLabelRenderer(new DecoratorLabelRenderer.Text(aggregateLabels, AggregateItem.AGGR_NAME));
+        aggregateLabelRenderer = makeupAggregateLabelRenderer(new DecoratorLabelRenderer.Text(aggregateLabels, AggregateItem.AGGR_NAME));
         rendererFactory.add(new InGroupPredicate(AGGREGATE_LABEL), aggregateLabelRenderer);
         aggregateDecoratorLayouts.addDecoratorRendererLayout(aggregateLabelRenderer, new DecoratorLayout.Center(aggregateLabels));
         ((VisualTable) v.getVisualGroup(AGGR_ITEMS)).addTableListener(aggregateDecoratorLayouts);
@@ -1015,7 +1016,6 @@ public abstract class NetworkDisplay extends Display {
         final TableListener aggregateShapeLayout = nodeItemsInAggregateTable.createNodeItemsProjectionListener();
         nodeItemsInAggregateTable.addTableListener(aggregateShapeLayout);
         layout.addActivityListener(new ActivityAdapter() {
-
             @Override
             public void activityCancelled(Activity a) {
                 activityFinished(a);
@@ -1052,7 +1052,6 @@ public abstract class NetworkDisplay extends Display {
         Schema nodeTooltipSchema = getNodeDataViewSupport().getTooltipSchema();
         if (nodeTooltipSchema != null) {
             addControlListener(nodeTooltipControl = new HoverTooltipControl(NODES, nodeTooltipSchema) {
-
                 @Override
                 protected String getString(Tuple data, String field) {
                     return getNodeDataViewSupport().getStringAt(data, field);
@@ -1068,7 +1067,6 @@ public abstract class NetworkDisplay extends Display {
         Schema edgeTooltipSchema = getEdgeDataViewSupport().getTooltipSchema();
         if (edgeTooltipSchema != null && isEdgeInteractive()) {
             addControlListener(edgeTooltipControl = new HoverTooltipControl(EDGES, edgeTooltipSchema) {
-
                 @Override
                 protected String getString(Tuple data, String field) {
                     return getEdgeDataViewSupport().getStringAt(data, field);
@@ -1122,7 +1120,6 @@ public abstract class NetworkDisplay extends Display {
 
     protected DataViewSupport createNodeDataViewSupport(final Table table) {
         return new DataViewSupport(table) {
-
             @Override
             public Schema getOutlineSchema() {
                 return table.getSchema();
@@ -1132,7 +1129,6 @@ public abstract class NetworkDisplay extends Display {
 
     protected DataViewSupport createEdgeDataViewSupport(final Table table) {
         return new DataViewSupport(table) {
-
             @Override
             public Schema getOutlineSchema() {
                 return table.getSchema();

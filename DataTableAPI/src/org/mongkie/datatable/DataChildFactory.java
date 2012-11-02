@@ -87,7 +87,8 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
             // Remove keys not contained anymore
             for (Iterator<Integer> keys = tuple2Node.keySet().iterator(); keys.hasNext();) {
                 Integer key = keys.next();
-                if (!toPopulate.contains(table.getTuple(key))) {
+                if (!table.isValidRow(key)
+                        || !toPopulate.contains(table.getTuple(key))) {
                     try {
                         tuple2Node.get(key).destroy();
                     } catch (IOException ex) {
@@ -125,7 +126,6 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
         if (!d.isLoading()
                 && col == EventConstants.ALL_COLUMNS) {
             d.getVisualization().invokeAfterDataProcessing(this, new Runnable() {
-
                 @Override
                 public void run() {
                     refresh(true);
