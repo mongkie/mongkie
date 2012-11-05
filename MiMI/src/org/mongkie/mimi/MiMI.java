@@ -80,7 +80,7 @@ public class MiMI implements InteractionSource<Integer> {
         if (geneIds.length > 0) {
             Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching interactions for the selected genes...");
             org.mongkie.mimi.jaxb.interaction.ResultSet rs = (org.mongkie.mimi.jaxb.interaction.ResultSet) JAXBContext.newInstance("org.mongkie.mimi.jaxb.interaction", getClass().getClassLoader()).createUnmarshaller()
-                    .unmarshal(new URL("http://localhost:8000/MiMI/q?genes=" + Arrays.toString(geneIds).replaceAll("^\\[|\\]$", "").replaceAll(", ", ",")));
+                    .unmarshal(new URL("http://api.mongkie.org/mimi/q?genes=" + Arrays.toString(geneIds).replaceAll("^\\[|\\]$", "").replaceAll(", ", ",")));
             for (Result r : rs.getResult()) {
                 Set<PPI> interactions = new LinkedHashSet<PPI>();
                 for (Interaction i : r.getInteraction()) {
@@ -98,7 +98,7 @@ public class MiMI implements InteractionSource<Integer> {
         if (geneIds.length > 0) {
             Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching annotations for the selected genes...");
             org.mongkie.mimi.jaxb.annotation.ResultSet rs = (org.mongkie.mimi.jaxb.annotation.ResultSet) JAXBContext.newInstance("org.mongkie.mimi.jaxb.annotation", getClass().getClassLoader()).createUnmarshaller()
-                    .unmarshal(new URL("http://localhost:8000/MiMI/a?genes=" + Arrays.toString(geneIds).replaceAll("^\\[|\\]$", "").replaceAll(", ", ",")));
+                    .unmarshal(new URL("http://api.mongkie.org/mimi/a?genes=" + Arrays.toString(geneIds).replaceAll("^\\[|\\]$", "").replaceAll(", ", ",")));
             for (Annotation a : rs.getAnnotation()) {
                 Attribute.Set attributes = new Attribute.Set();
                 attributes.add(new Attribute(AnnotationElement.GeneID.name(), Integer.valueOf(a.getGeneID())));

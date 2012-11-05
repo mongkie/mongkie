@@ -107,9 +107,8 @@ public class NodeOptions implements Options {
                                 switch (type) {
                                     case EventConstants.DELETE:
                                     case EventConstants.INSERT:
-//                                    case EventConstants.UPDATE:
+                                        // case EventConstants.UPDATE:
                                         updateLableColumnTool(lableColumnButton, g);
-                                        System.out.println("column changed");
                                         break;
                                     default:
                                         break;

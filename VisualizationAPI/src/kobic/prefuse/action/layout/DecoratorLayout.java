@@ -111,7 +111,7 @@ public abstract class DecoratorLayout extends Layout {
                     for (int r = start; r <= end; ++r) {
                         for (Iterator<DecoratorLabelRenderer> rendererIter = renderers.iterator(); rendererIter.hasNext();) {
                             DecoratorLabelRenderer renderer = rendererIter.next();
-                            VisualTable decorators = renderer.getDecorators();
+                            VisualTable decorators = renderer.getDecoratorTable();
                             int decoratorRow = decorators.getChildRow(r);
                             if (decoratorRow > -1
                                     && (col == VisualItem.IDX_VISIBLE || renderer.getColumnFilter().include(parent.getColumnName(col)))) {

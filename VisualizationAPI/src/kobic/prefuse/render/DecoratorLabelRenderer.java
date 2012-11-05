@@ -19,8 +19,8 @@ package kobic.prefuse.render;
 
 import java.awt.Font;
 import java.awt.Shape;
-import java.util.Iterator;
 import kobic.prefuse.action.layout.DecoratorLayout;
+import prefuse.Visualization;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.data.util.AcceptAllColumnProjection;
@@ -38,14 +38,16 @@ import prefuse.visual.VisualTable;
  */
 public abstract class DecoratorLabelRenderer extends LabelRenderer {
 
-    protected final VisualTable decorators;
+    protected final Visualization v;
+    protected final String group;
     private PredicateChain invisibilities;
     private ColumnProjection columnFilter;
 
     protected DecoratorLabelRenderer(VisualTable decorators, String textField, String imageField,
             ColumnProjection columnFilter) {
         super(textField, imageField);
-        this.decorators = decorators;
+        this.v = decorators.getVisualization();
+        this.group = decorators.getGroup();
         this.columnFilter = (columnFilter == null) ? new AcceptAllColumnProjection() : columnFilter;
     }
 
@@ -68,8 +70,16 @@ public abstract class DecoratorLabelRenderer extends LabelRenderer {
         return columnFilter;
     }
 
-    public VisualTable getDecorators() {
-        return decorators;
+    public Visualization getVisualization() {
+        return v;
+    }
+
+    public String getDecoratorGroup() {
+        return group;
+    }
+
+    public VisualTable getDecoratorTable() {
+        return (VisualTable) v.getVisualGroup(group);
     }
 
     public void setLabelField(String field) {
@@ -77,11 +87,7 @@ public abstract class DecoratorLabelRenderer extends LabelRenderer {
             return;
         }
         super.setTextField(field);
-        if (decorators != null) {
-            for (Iterator<DecoratorItem> itemIter = decorators.tuples(); itemIter.hasNext();) {
-                itemIter.next().setValidated(false);
-            }
-        }
+        v.setValue(group, null, VisualItem.VALIDATED, false);
     }
 
     @Override
