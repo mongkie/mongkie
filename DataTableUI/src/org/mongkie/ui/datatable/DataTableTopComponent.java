@@ -301,6 +301,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     private void refreshTables(final MongkieDisplay d) {
         this.display = d;
+        refreshingTables = true;
         if (d != null && !refreshing.isBusy()) {
             refreshing.setBusy(true);
         }
@@ -335,6 +336,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
                                 refreshActionsAndTools(table);
                                 table.selected();
                             }
+                            refreshingTables = false;
                         }
                     });
                 }
@@ -348,6 +350,11 @@ public final class DataTableTopComponent extends TopComponent implements Display
         }
     }
     private AccumulativeEventsProcessor refreshProcessor;
+    private volatile boolean refreshingTables = false;
+
+    boolean isRefreshing(DataTable table) {
+        return refreshingTables;
+    }
 
     private void configureViewScrollPane(JComponent view) {
         if (view != null) {

@@ -32,7 +32,9 @@ import kobic.prefuse.Constants;
 import kobic.prefuse.display.DataViewSupport;
 import org.mongkie.datatable.DataChildFactory;
 import org.mongkie.datatable.DataNode;
+import org.mongkie.datatable.DataTableControllerUI;
 import org.mongkie.datatable.spi.GraphDataTable;
+import org.mongkie.util.AccumulativeEventsProcessor;
 import org.mongkie.util.lang.StringUtilities;
 import org.mongkie.visualization.MongkieDisplay;
 import org.netbeans.swing.outline.DefaultOutlineCellRenderer;
@@ -44,6 +46,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import prefuse.Visualization;
 import prefuse.data.Graph;
 import prefuse.data.Schema;
@@ -149,7 +152,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         outline.setSelectVisibleColumnsLabel("Show/Hide Columns");
         final TableCellRenderer defaultRenderer = outline.getDefaultRenderer(Node.Property.class);
         outline.setDefaultRenderer(Node.Property.class, new DefaultOutlineCellRenderer() {
-
             private Color getSelectionBackground() {
                 Color c = UIManager.getColor("List.selectionBackground");
                 return c != null ? c : ColorLib.getColor(Constants.COLOR_DEFAULT_ITEM_FOCUS);
@@ -185,7 +187,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         });
         final TableCellEditor defaultEditor = outline.getDefaultEditor(Node.Property.class);
         outline.setDefaultEditor(Node.Property.class, new TableCellEditor() {
-
             @Override
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 return defaultEditor.getTableCellEditorComponent(table, value, isSelected, row, column);
@@ -287,7 +288,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             if (childFactory == null) {
                 em.setRootContext(new AbstractNode(
                         Children.create(childFactory = new DataChildFactory(table, labelColumn), false)) {
-
                     @Override
                     public Action[] getActions(boolean context) {
                         return new Action[]{};
@@ -364,7 +364,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             final Node[] olds = em.getSelectedNodes();
             model.setSelectedNodesInternal(nodes);
             SwingUtilities.invokeLater(new Runnable() {
-
                 @Override
                 public void run() {
                     model.propertyChange(new PropertyChangeEvent(em, ExplorerManager.PROP_SELECTED_NODES, olds, nodes));
@@ -425,8 +424,9 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         }
 
         /**
-         * Synchronize selections in the data table with selections in the display.
-         * It will pan the display to place a last selected item in the center of the display
+         * Synchronize selections in the data table with selections in the
+         * display. It will pan the display to place a last selected item in the
+         * center of the display
          *
          * @param evt event object of selection of the data table
          */
@@ -436,7 +436,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                 final TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
                 centerItem = null;
                 display.getVisualization().rerun(new Runnable() {
-
                     @Override
                     public void run() {
                         List<Node> oldNodes = Arrays.asList((Node[]) evt.getOldValue());
@@ -470,7 +469,8 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                         internalDisplaySelection = false;
                     }
                 }, Visualization.DRAW);
-                if (centerItem != null) {
+                if (centerItem != null
+                        && !Lookup.getDefault().lookup(DataTableControllerUI.class).isRefreshing(dataTable)) {
                     panDisplayCenterTo(centerItem);
                 }
             }
@@ -492,18 +492,30 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         }
 
         /**
-         * Synchronize selections in the display with selections in the data table.
+         * Synchronize selections in the display with selections in the data
+         * table.
          *
          * @param tupleSet total set of selected items in the display
-         * @param added    just selected items
-         * @param removed  just deselected items
+         * @param added just selected items
+         * @param removed just deselected items
          */
         @Override
-        public void tupleSetChanged(TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
+        public void tupleSetChanged(final TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
             if (!internalDisplaySelection) {
-                setSelectedNodesOf(tupleSet);
+                if (tableSelectionQ != null && tableSelectionQ.isAccumulating()) {
+                    tableSelectionQ.eventAttended();
+                } else {
+                    tableSelectionQ = new AccumulativeEventsProcessor(new Runnable() {
+                        @Override
+                        public void run() {
+                            setSelectedNodesOf(tupleSet);
+                        }
+                    });
+                    tableSelectionQ.start();
+                }
             }
         }
+        private AccumulativeEventsProcessor tableSelectionQ;
 
         protected void setSelectedNodesOf(TupleSet selectedItems) {
             if (!dataTable.isSelected()) {
@@ -536,7 +548,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                 Exceptions.printStackTrace(ex);
             } finally {
                 SwingUtilities.invokeLater(new Runnable() {
-
                     @Override
                     public void run() {
                         internalTableSelection = false;

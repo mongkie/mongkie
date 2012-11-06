@@ -38,7 +38,7 @@ public class DragSelectionControl extends ControlAdapter implements PaintListene
     private boolean wasHighquality;
     private final DefaultTupleSet prevSelected = new DefaultTupleSet();
     private String activity;
-    private int modifierMask = KeyEvent.SHIFT_DOWN_MASK;
+    private int modifierMask = KeyEvent.CTRL_DOWN_MASK;
     
     public DragSelectionControl(Display d, String targetGroup, String activity) {
         this.v = d.getVisualization();

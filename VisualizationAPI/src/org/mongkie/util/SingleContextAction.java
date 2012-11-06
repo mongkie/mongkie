@@ -27,9 +27,9 @@ import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
- * @param <T> 
+ * @param <T>
  */
 public abstract class SingleContextAction<T> extends AbstractAction implements ContextAwareAction {
 
@@ -39,14 +39,17 @@ public abstract class SingleContextAction<T> extends AbstractAction implements C
         result = lookup.lookupResult(type);
         LookupListener l;
         result.addLookupListener(l = new LookupListener() {
-
             @Override
             public void resultChanged(LookupEvent ev) {
                 Collection<? extends T> contexts = result.allInstances();
-                setEnabled(!contexts.isEmpty() && isEnabled(contexts.iterator().next()));
+                contextChanged(contexts.isEmpty() ? null : contexts.iterator().next());
             }
         });
         l.resultChanged(null);
+    }
+
+    protected void contextChanged(T context) {
+        setEnabled(context != null && isEnabled(context));
     }
 
     @Override

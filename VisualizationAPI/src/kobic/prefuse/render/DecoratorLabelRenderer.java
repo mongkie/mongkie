@@ -19,8 +19,8 @@ package kobic.prefuse.render;
 
 import java.awt.Font;
 import java.awt.Shape;
+import java.util.Iterator;
 import kobic.prefuse.action.layout.DecoratorLayout;
-import prefuse.Visualization;
 import prefuse.data.expression.Predicate;
 import prefuse.data.expression.parser.ExpressionParser;
 import prefuse.data.util.AcceptAllColumnProjection;
@@ -38,16 +38,14 @@ import prefuse.visual.VisualTable;
  */
 public abstract class DecoratorLabelRenderer extends LabelRenderer {
 
-    protected final Visualization v;
-    protected final String group;
+    protected final VisualTable table;
     private PredicateChain invisibilities;
     private ColumnProjection columnFilter;
 
-    protected DecoratorLabelRenderer(VisualTable decorators, String textField, String imageField,
+    protected DecoratorLabelRenderer(VisualTable table, String textField, String imageField,
             ColumnProjection columnFilter) {
         super(textField, imageField);
-        this.v = decorators.getVisualization();
-        this.group = decorators.getGroup();
+        this.table = table;
         this.columnFilter = (columnFilter == null) ? new AcceptAllColumnProjection() : columnFilter;
     }
 
@@ -70,16 +68,8 @@ public abstract class DecoratorLabelRenderer extends LabelRenderer {
         return columnFilter;
     }
 
-    public Visualization getVisualization() {
-        return v;
-    }
-
-    public String getDecoratorGroup() {
-        return group;
-    }
-
     public VisualTable getDecoratorTable() {
-        return (VisualTable) v.getVisualGroup(group);
+        return table;
     }
 
     public void setLabelField(String field) {
@@ -87,22 +77,19 @@ public abstract class DecoratorLabelRenderer extends LabelRenderer {
             return;
         }
         super.setTextField(field);
-        v.setValue(group, null, VisualItem.VALIDATED, false);
+        if (table != null) {
+            for (Iterator<DecoratorItem> itemIter = table.tuples(); itemIter.hasNext();) {
+                itemIter.next().setValidated(false);
+            }
+        }
     }
 
     @Override
     protected Shape getRawShape(VisualItem item) {
-        Shape s = null;
-        try {
-            s = isInvisible(item) ? null : super.getRawShape(item);
-        } catch (Exception ex) {
-            //TODO: Invalid row...
-        }
-        return s;
+        return isInvisible(item) ? null : super.getRawShape(item);
     }
 
     @Override
-    //TODO: Invalid row...
     protected String getText(VisualItem item) {
         return super.getText(((DecoratorItem) item).getDecoratedItem());
     }

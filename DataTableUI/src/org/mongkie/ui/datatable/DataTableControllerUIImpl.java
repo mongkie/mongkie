@@ -74,7 +74,6 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
     public void executeDataAction(final DataTable table, final DataAction a) {
         if (a.isEnabled(table)) {
             SwingUtilities.invokeLater(new Runnable() {
-
                 @Override
                 public void run() {
 
@@ -86,7 +85,6 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
                         if (settingPanel instanceof ValidationPanel) {
                             final ValidationPanel vp = (ValidationPanel) settingPanel;
                             vp.addChangeListener(new ChangeListener() {
-
                                 @Override
                                 public void stateChanged(ChangeEvent e) {
                                     dd.setValid(!vp.isFatalProblem());
@@ -107,7 +105,6 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
 
     private void executeDataActionInOtherThread(final DataTable table, final DataAction a) {
         new Thread() {
-
             @Override
             public void run() {
                 a.execute(table);
@@ -118,5 +115,10 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
     @Override
     public void refreshModel(DataTable table, boolean actionsOnly) {
         DataTableTopComponent.findInstance().refreshModel(table, actionsOnly);
+    }
+
+    @Override
+    public boolean isRefreshing(DataTable table) {
+        return DataTableTopComponent.findInstance().isRefreshing(table);
     }
 }

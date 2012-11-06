@@ -17,17 +17,49 @@
  */
 package org.mongkie.visualization.util;
 
+import kobic.prefuse.display.DisplayListener;
 import org.mongkie.util.SingleContextAction;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Lookup;
+import org.openide.util.Utilities;
+import prefuse.data.Graph;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class DisplayAction extends SingleContextAction<MongkieDisplay> {
+public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
+        implements DisplayListener<MongkieDisplay> {
+
+    private MongkieDisplay current;
+
+    protected DisplayAction() {
+        this(Utilities.actionsGlobalContext());
+    }
 
     protected DisplayAction(Lookup lookup) {
         super(MongkieDisplay.class, lookup);
+    }
+
+    @Override
+    protected void contextChanged(MongkieDisplay d) {
+        super.contextChanged(d);
+        if (current != null) {
+            current.removeDisplayListener(this);
+        }
+        if (d != null) {
+            d.addDisplayListener(this);
+        }
+        current = d;
+    }
+
+    @Override
+    public void graphDisposing(MongkieDisplay d, Graph g) {
+        setEnabled(false);
+    }
+
+    @Override
+    public void graphChanged(MongkieDisplay d, Graph g) {
+        setEnabled(isEnabled(d));
     }
 }

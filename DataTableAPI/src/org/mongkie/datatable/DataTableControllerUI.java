@@ -40,4 +40,6 @@ public interface DataTableControllerUI {
     public void executeDataAction(DataTable table, DataAction a);
 
     public void refreshModel(DataTable table, boolean actionsOnly);
+
+    public boolean isRefreshing(DataTable table);
 }
