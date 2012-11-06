@@ -41,7 +41,7 @@ public class InteractionsControlPanel extends AddonUI.ContentPanel {
         this.display = display;
         initComponents();
         for (String category : Lookup.getDefault().lookup(InteractionController.class).getCategories()) {
-            ((JSqueezeBoxPanel) squeezeBox).addPanel(new CategoryPanel(category), category);
+            ((JSqueezeBoxPanel) squeezeBox).addPanel(new CategoryPanel(display, category), category);
         }
     }
 

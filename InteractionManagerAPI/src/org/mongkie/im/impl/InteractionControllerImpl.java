@@ -220,7 +220,7 @@ public class InteractionControllerImpl implements InteractionController {
         return ((SourceModelImpl) getModel(is)).setKeyField(key);
     }
 
-    private class Expand<K> extends Link<K> {
+    private class Expand<K> extends Query<K> {
 
         private List<K> keys;
 
@@ -235,31 +235,77 @@ public class InteractionControllerImpl implements InteractionController {
         }
 
         @Override
-        protected List<Node> getTargetNodes(Graph g, InteractionSource<K> is, Interactor<K> interactor) {
-            K k = interactor.getKey();
-            if (DataLib.get(g.getNodeTable(), keyField, k) < 0) {
-                Node target = g.addNode();
-                target.set(keyField, k);
-                List<Node> targets = new ArrayList<Node>();
-                targets.add(target);
-                return targets;
+        protected Set<Interaction<K>> query(InteractionSource<K> is, List<K> keys) throws Exception {
+            Set<Interaction<K>> interactions = super.query(is, keys);
+            List<K> qKeys = new ArrayList<K>();
+            for (Interaction<K> i : interactions) {
+                K targetKey = i.getInteractor().getKey();
+                if (!qKeys.contains(targetKey)
+                        && DataLib.get(m.getDisplay().getGraph().getNodeTable(), keyField, targetKey) < 0) {
+                    qKeys.add(targetKey);
+                }
             }
-            return super.getTargetNodes(g, is, interactor);
+            interactions.addAll(super.query(is, qKeys));
+            keys.addAll(qKeys);
+            return interactions;
         }
 
         @Override
-        protected void setLinked(boolean linked) {
-            // Expanding do not affect which linked or not.
+        protected void addSourceNodesOf(Set<Interaction<K>> interactions, Graph g) {
+            for (Interaction i : interactions) {
+                if (DataLib.get(g.getNodeTable(), keyField, i.getSourceKey()) < 0) {
+                    Node n = g.addNode();
+                    n.set(keyField, i.getSourceKey());
+                }
+            }
+        }
+
+        @Override
+        protected void queryFinished(boolean success) {
         }
     }
 
-    private class Link<K> implements LongTask, Runnable {
+    private class Link<K> extends Query<K> {
+
+        Link(SourceModelImpl m, String keyField) {
+            super(m, keyField);
+        }
+
+        @Override
+        protected List<K> getQueryKeys() {
+            List<K> keys = new ArrayList<K>();
+            for (Iterator<Node> nodeIter = m.getDisplay().getGraph().nodes(); nodeIter.hasNext();) {
+                Node n = nodeIter.next();
+                K key = (K) n.get(keyField);
+                if (!keys.contains(key)) {
+                    keys.add(key);
+                }
+            }
+            return keys;
+        }
+
+        @Override
+        protected void queryFinished(boolean success) {
+            m.setLinked(success);
+        }
+
+        @Override
+        protected void addSourceNodesOf(Set<Interaction<K>> interactions, Graph g) {
+            for (Interaction i : interactions) {
+                if (DataLib.get(g.getNodeTable(), keyField, i.getSourceKey()) < 0) {
+                    throw new IllegalStateException("Node for the key does not exist: " + i.getSourceKey());
+                }
+            }
+        }
+    }
+
+    private abstract class Query<K> implements LongTask, Runnable {
 
         protected final SourceModelImpl m;
         protected final String keyField;
         private ProgressTicket progressTicket;
 
-        Link(SourceModelImpl m, String keyField) {
+        Query(SourceModelImpl m, String keyField) {
             this.m = m;
             this.keyField = keyField;
         }
@@ -309,38 +355,7 @@ public class InteractionControllerImpl implements InteractionController {
             }, Visualization.DRAW);
         }
 
-        protected List<K> getQueryKeys() {
-            List<K> keys = new ArrayList<K>();
-            for (Iterator<Node> nodeIter = m.getDisplay().getGraph().nodes(); nodeIter.hasNext();) {
-                Node n = nodeIter.next();
-                K key = (K) n.get(keyField);
-                if (!keys.contains(key)) {
-                    keys.add(key);
-                }
-            }
-            return keys;
-        }
-
-        protected List<Node> getTargetNodes(Graph g, InteractionSource<K> is, Interactor<K> interactor) {
-            List<Node> targets = new ArrayList<Node>();
-            for (Iterator<Integer> targetIter =
-                    DataLib.rows(g.getNodeTable(), keyField, interactor.getKey()); targetIter.hasNext();) {
-                Node target = g.getNode(targetIter.next());
-//                if (interactor.hasAttributes()) {
-//                    for (Attribute a : interactor.getAttributes()) {
-//                        String name = getAttributeName(a.getName(), is.getName());
-//                        if (target.getColumnIndex(name) < 0) {
-//                            Logger.getLogger(getClass().getName()).log(Level.WARNING,
-//                                    "Annotation schema of {0} does not contain the attribute name: {1}", new String[]{is.getName(), a.getName()});
-//                            continue;
-//                        }
-//                        target.set(name, a.getValue());
-//                    }
-//                }
-                targets.add(target);
-            }
-            return targets;
-        }
+        protected abstract List<K> getQueryKeys();
 
         /**
          * Returns an already existing edge of the interaction source for some
@@ -369,44 +384,65 @@ public class InteractionControllerImpl implements InteractionController {
             return null;
         }
 
+        protected Set<Interaction<K>> query(InteractionSource<K> is, List<K> keys) throws Exception {
+            Map<K, Set<Interaction<K>>> results = caches.get(is).query(keys);
+            List<K> qKeys = new ArrayList<K>(keys);
+            qKeys.removeAll(results.keySet());
+            Map<K, Set<Interaction<K>>> qResults = is.query(qKeys.toArray((K[]) Array.newInstance(is.getKeyType(), 0)));
+            for (K k : qResults.keySet()) {
+                Set<Interaction<K>> result = qResults.get(k);
+                results.put(k, Collections.unmodifiableSet(result));
+                caches.get(is).put(k, result);
+            }
+            // Remove duplicated interactions using equals() and hash()
+            Set<Interaction<K>> interactions = new HashSet<Interaction<K>>();
+            for (K k : results.keySet()) {
+                interactions.addAll(results.get(k));
+            }
+            // Remove already added interactions
+            interactions.removeAll(m.getInteractions());
+            return interactions;
+        }
+
+        protected abstract void addSourceNodesOf(Set<Interaction<K>> interactions, Graph g);
+
         @Override
         public void run() {
             Progress.setDisplayName(progressTicket, "Querying interactions from " + m.getInteractionSource().getName());
             Progress.start(progressTicket);
             try {
-                final List<K> keys = getQueryKeys();
-                final Graph g = m.getDisplay().getGraph();
                 final InteractionSource<K> is = m.getInteractionSource();
-                final Map<K, Set<Interaction<K>>> results = caches.get(is).query(keys);
-                List<K> qKeys = new ArrayList<K>(keys);
-                qKeys.removeAll(results.keySet());
-                Map<K, Set<Interaction<K>>> qResults = is.query(qKeys.toArray((K[]) Array.newInstance(is.getKeyType(), 0)));
-                for (K k : qResults.keySet()) {
-                    Set<Interaction<K>> result = qResults.get(k);
-                    results.put(k, Collections.unmodifiableSet(result));
-                    caches.get(is).put(k, result);
-                }
+                List<K> keys = getQueryKeys();
+                final Set<Interaction<K>> interactions = query(is, keys);
                 m.getDisplay().getVisualization().rerun(new Runnable() {
                     @Override
                     public void run() {
-                        // Add attributes columns
+                        Graph g = m.getDisplay().getGraph();
+                        addSourceNodesOf(interactions, g);
+                        // Add columns for attributes of the interaction
                         if (g.getEdgeTable().getColumn(FIELD_INTERACTION_SOURCE) == null) {
                             g.getEdgeTable().addColumn(FIELD_INTERACTION_SOURCE, String.class, null);
                         }
                         addAttributeColumns(g.getEdgeTable(), is.getInteractionSchema(), null);
-                        // Remove duplicated interactions using equals() and hash()
-                        Set<Interaction<K>> interactions = new HashSet<Interaction<K>>();
-                        for (K k : results.keySet()) {
-                            interactions.addAll(results.get(k));
-                        }
-                        // Remove already added interactions
-                        interactions.removeAll(m.getInteractions());
                         for (Interaction<K> i : interactions) {
                             Interactor<K> interactor = i.getInteractor();
                             for (Iterator<Integer> sourceIter =
                                     DataLib.rows(g.getNodeTable(), keyField, i.getSourceKey()); sourceIter.hasNext();) {
                                 Node source = g.getNode(sourceIter.next());
-                                for (Node target : getTargetNodes(g, is, interactor)) {
+                                for (Iterator<Integer> targetIter =
+                                        DataLib.rows(g.getNodeTable(), keyField, interactor.getKey()); targetIter.hasNext();) {
+                                    Node target = g.getNode(targetIter.next());
+//                                    if (interactor.hasAttributes()) {
+//                                        for (Attribute a : interactor.getAttributes()) {
+//                                            String name = getAttributeName(a.getName(), is.getName());
+//                                            if (target.getColumnIndex(name) < 0) {
+//                                                Logger.getLogger(getClass().getName()).log(Level.WARNING,
+//                                                        "Annotation schema of {0} does not contain the attribute name: {1}", new String[]{is.getName(), a.getName()});
+//                                                continue;
+//                                            }
+//                                            target.set(name, a.getValue());
+//                                        }
+//                                    }
                                     Edge e = getExistingEdge(g, is, source, target);
                                     if (e == null) {
                                         e = g.addEdge(source, target);
@@ -428,30 +464,24 @@ public class InteractionControllerImpl implements InteractionController {
                                         }
                                     }
                                     e.setString(FIELD_INTERACTION_SOURCE, is.getName());
-                                    // To annotate nodes newly added. ex) expanding...
-                                    if (!keys.contains(interactor.getKey())) {
-                                        keys.add(interactor.getKey());
-                                    }
                                 }
                             }
                         }
                     }
                 }, Visualization.DRAW);
-                setLinked(true);
+                queryFinished(true);
                 annotateNodesOf(keys);
                 m.getDisplay().fireGraphChangedEvent();
             } catch (Exception ex) {
                 Logger.getLogger(Link.class.getName()).log(Level.SEVERE, null, ex);
                 ErrorManager.getDefault().notify(ex);
-                setLinked(false);
+                queryFinished(false);
             } finally {
                 Progress.finish(progressTicket);
             }
         }
 
-        protected void setLinked(boolean linked) {
-            m.setLinked(linked);
-        }
+        protected abstract void queryFinished(boolean success);
     }
 
     private void addAttributeColumns(Table into, Schema s, String prefix) {

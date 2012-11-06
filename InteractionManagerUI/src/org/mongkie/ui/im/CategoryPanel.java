@@ -20,6 +20,7 @@ package org.mongkie.ui.im;
 
 import org.mongkie.im.InteractionController;
 import org.mongkie.im.spi.InteractionSource;
+import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Lookup;
 
 /**
@@ -33,11 +34,11 @@ public class CategoryPanel extends javax.swing.JPanel {
     /**
      * Creates new form ProcessPanel
      */
-    public CategoryPanel(String category) {
+    public CategoryPanel(MongkieDisplay d, String category) {
         this.category = category;
         initComponents();
         for (InteractionSource is : Lookup.getDefault().lookup(InteractionController.class).getInteractionSources(category)) {
-            add(new SourcePanel(is));
+            add(new SourcePanel(d, is));
         }
     }
 

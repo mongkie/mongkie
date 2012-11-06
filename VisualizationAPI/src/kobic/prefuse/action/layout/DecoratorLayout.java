@@ -106,9 +106,9 @@ public abstract class DecoratorLayout extends Layout {
         public void tableChanged(Table table, int start, int end, int col, int type) {
             if (type == EventConstants.UPDATE && col != EventConstants.ALL_COLUMNS && col != VisualItem.IDX_VALIDATED) {
                 VisualTable parent = (VisualTable) table;
-                Set<DecoratorLabelRenderer> renderers = layouts.keySet();
-                synchronized (layouts) {
-                    for (int r = start; r <= end; ++r) {
+                for (int r = start; r <= end; ++r) {
+                    Set<DecoratorLabelRenderer> renderers = layouts.keySet();
+                    synchronized (layouts) {
                         for (Iterator<DecoratorLabelRenderer> rendererIter = renderers.iterator(); rendererIter.hasNext();) {
                             DecoratorLabelRenderer renderer = rendererIter.next();
                             VisualTable decorators = renderer.getDecoratorTable();

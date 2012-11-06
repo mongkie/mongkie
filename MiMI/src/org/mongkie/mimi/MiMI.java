@@ -78,7 +78,7 @@ public class MiMI implements InteractionSource<Integer> {
     public Map<Integer, Set<PPI>> query(Integer... geneIds) throws JAXBException, MalformedURLException {
         Map<Integer, Set<PPI>> results = new HashMap<Integer, Set<PPI>>();
         if (geneIds.length > 0) {
-            Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching interactions for the selected genes...");
+            Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching interactions for the selected genes... " + Arrays.toString(geneIds));
             org.mongkie.mimi.jaxb.interaction.ResultSet rs = (org.mongkie.mimi.jaxb.interaction.ResultSet) JAXBContext.newInstance("org.mongkie.mimi.jaxb.interaction", getClass().getClassLoader()).createUnmarshaller()
                     .unmarshal(new URL("http://api.mongkie.org/mimi/q?genes=" + Arrays.toString(geneIds).replaceAll("^\\[|\\]$", "").replaceAll(", ", ",")));
             for (Result r : rs.getResult()) {
@@ -96,7 +96,7 @@ public class MiMI implements InteractionSource<Integer> {
     public Map<Integer, Attribute.Set> annotate(Integer... geneIds) throws JAXBException, MalformedURLException {
         Map<Integer, Attribute.Set> results = new HashMap<Integer, Attribute.Set>();
         if (geneIds.length > 0) {
-            Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching annotations for the selected genes...");
+            Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching annotations for the selected genes... " + Arrays.toString(geneIds));
             org.mongkie.mimi.jaxb.annotation.ResultSet rs = (org.mongkie.mimi.jaxb.annotation.ResultSet) JAXBContext.newInstance("org.mongkie.mimi.jaxb.annotation", getClass().getClassLoader()).createUnmarshaller()
                     .unmarshal(new URL("http://api.mongkie.org/mimi/a?genes=" + Arrays.toString(geneIds).replaceAll("^\\[|\\]$", "").replaceAll(", ", ",")));
             for (Annotation a : rs.getAnnotation()) {

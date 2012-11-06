@@ -92,7 +92,19 @@ public abstract class DecoratorLabelRenderer extends LabelRenderer {
 
     @Override
     protected Shape getRawShape(VisualItem item) {
-        return isInvisible(item) ? null : super.getRawShape(item);
+        Shape s = null;
+        try {
+            s = isInvisible(item) ? null : super.getRawShape(item);
+        } catch (Exception ex) {
+            //TODO: Invalid row...
+        }
+        return s;
+    }
+
+    @Override
+    //TODO: Invalid row...
+    protected String getText(VisualItem item) {
+        return super.getText(((DecoratorItem) item).getDecoratedItem());
     }
 
     public abstract void runLayout(VisualItem item, int col, DecoratorItem decorator, DecoratorLayout layout);

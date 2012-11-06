@@ -49,7 +49,7 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
     /**
      * Creates new form ProcessPanel
      */
-    public SourcePanel(final InteractionSource is) {
+    public SourcePanel(MongkieDisplay d, final InteractionSource is) {
         initComponents();
         linking = new JXBusyLabel(
                 new Dimension(interactionLinkButton.getPreferredSize().width, interactionLinkButton.getPreferredSize().height));
@@ -73,6 +73,7 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
                 }
             }
         });
+        graphChanged(d, d.getGraph());
     }
     private JXBusyLabel linking;
 
@@ -185,13 +186,15 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
     @Override
     public void graphChanged(MongkieDisplay d, Graph g) {
         columnComboBox.removeAllItems();
-        Table t = g.getNodeTable();
-        for (int i = 0; i < t.getColumnCount(); i++) {
-            if (is.getKeyType().equals(TypeLib.getWrapperType(t.getColumnType(i)))) {
-                String col = t.getColumnName(i);
-                columnComboBox.addItem(col);
-                if (col.equals(g.getNodeKeyField())) {
-                    columnComboBox.setSelectedItem(col);
+        if (g != null) {
+            Table t = g.getNodeTable();
+            for (int i = 0; i < t.getColumnCount(); i++) {
+                if (is.getKeyType().equals(TypeLib.getWrapperType(t.getColumnType(i)))) {
+                    String col = t.getColumnName(i);
+                    columnComboBox.addItem(col);
+                    if (col.equals(g.getNodeKeyField())) {
+                        columnComboBox.setSelectedItem(col);
+                    }
                 }
             }
         }
