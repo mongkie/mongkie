@@ -95,7 +95,7 @@ public class InteractionsControlPanel extends AddonUI.ContentPanel {
                         .addComponent(linkAllButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(unlinkAllButton)
-                        .addGap(0, 134, Short.MAX_VALUE)))
+                        .addGap(0, 131, Short.MAX_VALUE)))
                 .addGap(4, 4, 4))
         );
         layout.setVerticalGroup(
@@ -103,11 +103,12 @@ public class InteractionsControlPanel extends AddonUI.ContentPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(headerImg, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(squeezeBox, javax.swing.GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
+                .addComponent(squeezeBox, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(unlinkAllButton)
-                    .addComponent(linkAllButton)))
+                    .addComponent(linkAllButton))
+                .addGap(6, 6, 6))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables

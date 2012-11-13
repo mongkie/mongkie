@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -112,7 +113,7 @@ public class InteractionControllerImpl implements InteractionController {
             caches.put(is, new Cache());
         }
 
-        sourcesByCategory = new HashMap<String, List<InteractionSource>>();
+        sourcesByCategory = new LinkedHashMap<String, List<InteractionSource>>();
         for (InteractionSource is : Lookup.getDefault().lookupAll(InteractionSource.class)) {
             String c = is.getCategory();
             List<InteractionSource> sources = sourcesByCategory.get(c);
@@ -240,8 +241,8 @@ public class InteractionControllerImpl implements InteractionController {
             List<K> qKeys = new ArrayList<K>();
             for (Interaction<K> i : interactions) {
                 K targetKey = i.getInteractor().getKey();
-                if (!qKeys.contains(targetKey)
-                        && DataLib.get(m.getDisplay().getGraph().getNodeTable(), keyField, targetKey) < 0) {
+                if (!qKeys.contains(targetKey) //&& DataLib.get(m.getDisplay().getGraph().getNodeTable(), keyField, targetKey) < 0
+                        ) {
                     qKeys.add(targetKey);
                 }
             }
@@ -253,7 +254,7 @@ public class InteractionControllerImpl implements InteractionController {
         protected void addSourceNodesOf(Set<Interaction<K>> interactions, Graph g) {
             for (Interaction i : interactions) {
                 if (DataLib.get(g.getNodeTable(), keyField, i.getSourceKey()) < 0) {
-                    Node n = g.addNode();
+                    Node n = g.addNode(); // Expanded node
                     n.set(keyField, i.getSourceKey());
                 }
             }
@@ -404,6 +405,7 @@ public class InteractionControllerImpl implements InteractionController {
             }
             // Caching keys with no interactions
             for (K k : keys) {
+                results.put(k, NO_INTERACTIONS);
                 caches.get(is).put(k, NO_INTERACTIONS);
             }
             // Remove duplicated interactions using equals() and hash()
@@ -570,5 +572,5 @@ public class InteractionControllerImpl implements InteractionController {
             attributeLookup.clear();
         }
     }
-    private static final String FIELD_INTERACTION_SOURCE = "*InteractionSource*";
+    static final String FIELD_INTERACTION_SOURCE = "*InteractionSource*";
 }

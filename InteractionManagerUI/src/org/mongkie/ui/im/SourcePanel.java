@@ -20,9 +20,12 @@ package org.mongkie.ui.im;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import kobic.prefuse.display.DisplayListener;
+import javax.swing.AbstractAction;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXHyperlink;
 import org.mongkie.im.InteractionController;
@@ -41,7 +44,7 @@ import prefuse.util.TypeLib;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class SourcePanel extends javax.swing.JPanel implements SourceModelListener, DisplayListener<MongkieDisplay> {
+public class SourcePanel extends javax.swing.JPanel implements SourceModelListener {
 
     private final InteractionSource is;
     private final SourceModel model;
@@ -51,14 +54,13 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
      */
     public SourcePanel(MongkieDisplay d, final InteractionSource is) {
         initComponents();
-        linking = new JXBusyLabel(
+        querying = new JXBusyLabel(
                 new Dimension(interactionLinkButton.getPreferredSize().width, interactionLinkButton.getPreferredSize().height));
-        linking.setToolTipText("Querying interactions...");
+        querying.setToolTipText("Querying interactions...");
         ((JXHyperlink) interactionNameLink).setText(is.getName());
         this.is = is;
         model = Lookup.getDefault().lookup(InteractionController.class).getModel(is);
         model.addModelListener(SourcePanel.this);
-        model.getDisplay().addDisplayListener(SourcePanel.this);
         columnComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
@@ -73,9 +75,25 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
                 }
             }
         });
-        graphChanged(d, d.getGraph());
+        partiallyLinkedMenu = new JPopupMenu();
+        partiallyLinkedMenu.add(new JMenuItem(
+                new AbstractAction("Add interactions", ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/link.png", false)) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Lookup.getDefault().lookup(InteractionController.class).executeLink(is);
+                    }
+                }));
+        partiallyLinkedMenu.add(new JMenuItem(
+                new AbstractAction("Remove interactions", ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/link_break.png", false)) {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        Lookup.getDefault().lookup(InteractionController.class).executeUnlink(is);
+                    }
+                }));
+        graphChanged(d.getGraph());
     }
-    private JXBusyLabel linking;
+    private JXBusyLabel querying;
+    private JPopupMenu partiallyLinkedMenu;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -86,13 +104,18 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(2, 0), new java.awt.Dimension(32767, 0));
         interactionLinkButton = new javax.swing.JButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(2, 0), new java.awt.Dimension(32767, 0));
         interactionNameLink = new JXHyperlink();
         keyLabel = new javax.swing.JLabel();
         columnComboBox = new javax.swing.JComboBox();
+        actionMenuButton = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setOpaque(false);
-        setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 8, 3));
+        setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 1, 3));
+        add(filler2);
 
         interactionLinkButton.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         interactionLinkButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/uncheck.png"))); // NOI18N
@@ -109,6 +132,7 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
             }
         });
         add(interactionLinkButton);
+        add(filler1);
 
         interactionNameLink.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionNameLink.text")); // NOI18N
         interactionNameLink.setFocusPainted(false);
@@ -124,21 +148,55 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
         columnComboBox.setMinimumSize(new java.awt.Dimension(37, 22));
         columnComboBox.setPreferredSize(new java.awt.Dimension(100, 22));
         add(columnComboBox);
+
+        actionMenuButton.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        actionMenuButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/menu_dropdown.png"))); // NOI18N
+        actionMenuButton.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionMenuButton.text")); // NOI18N
+        actionMenuButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionMenuButton.toolTipText")); // NOI18N
+        actionMenuButton.setBorderPainted(false);
+        actionMenuButton.setFocusPainted(false);
+        actionMenuButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                actionMenuButtonActionPerformed(evt);
+            }
+        });
+        add(actionMenuButton);
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings.png"))); // NOI18N
+        jButton1.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.jButton1.text")); // NOI18N
+        jButton1.setBorderPainted(false);
+        jButton1.setContentAreaFilled(false);
+        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jButton1.setDisabledIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings_disabled.png"))); // NOI18N
+        jButton1.setEnabled(false);
+        jButton1.setFocusPainted(false);
+        jButton1.setFocusable(false);
+        add(jButton1);
     }// </editor-fold>//GEN-END:initComponents
 
     private void interactionLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_interactionLinkButtonActionPerformed
         if (!model.isLinking()) {
             if (model.isLinked()) {
                 Lookup.getDefault().lookup(InteractionController.class).executeUnlink(is);
+            } else if (model.isPartiallyLinked()) {
+                partiallyLinkedMenu.show(interactionLinkButton, 0, interactionLinkButton.getHeight());
             } else {
                 Lookup.getDefault().lookup(InteractionController.class).executeLink(is);
             }
         }
     }//GEN-LAST:event_interactionLinkButtonActionPerformed
+
+    private void actionMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionMenuButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_actionMenuButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton actionMenuButton;
     private javax.swing.JComboBox columnComboBox;
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
     private javax.swing.JButton interactionLinkButton;
     private javax.swing.JButton interactionNameLink;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel keyLabel;
     // End of variables declaration//GEN-END:variables
 
@@ -146,23 +204,19 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
     public void processQueryEvent(QueryEvent e) {
         switch (e.getType()) {
             case LINK_STARTED:
+            case EXPAND_STARTED:
                 remove(interactionLinkButton);
-                linking.setBusy(true);
-                add(linking, 0);
+                querying.setBusy(true);
+                add(querying, 1);
                 revalidate();
                 repaint();
                 break;
             case LINK_FINISHED:
-                if (model.isLinked()) {
-                    interactionLinkButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/check.png", false));
-                    interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.linked.toolTipText"));
-                } else {
-                    interactionLinkButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/uncheck.png", false));
-                    interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.toolTipText"));
-                }
-                remove(linking);
-                linking.setBusy(false);
-                add(interactionLinkButton, 0);
+            case EXPAND_FINISHED:
+                remove(querying);
+                querying.setBusy(false);
+                updateInteractionLinkButton();
+                add(interactionLinkButton, 1);
                 revalidate();
                 repaint();
                 break;
@@ -170,32 +224,40 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
                 interactionLinkButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/uncheck.png", false));
                 interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.toolTipText"));
                 break;
-            case EXPAND_STARTED:
-                break;
-            case EXPAND_FINISHED:
-                break;
             default:
                 break;
         }
     }
 
-    @Override
-    public void graphDisposing(MongkieDisplay d, Graph g) {
+    private void updateInteractionLinkButton() {
+        if (model.isLinked()) {
+            interactionLinkButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/check.png", false));
+            interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.linked.toolTipText"));
+        } else if (model.isPartiallyLinked()) {
+            interactionLinkButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/check2.png", false));
+            interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.partiallyLinked.toolTipText"));
+        } else {
+            interactionLinkButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/uncheck.png", false));
+            interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.toolTipText"));
+        }
     }
 
     @Override
-    public void graphChanged(MongkieDisplay d, Graph g) {
+    public void graphChanged(Graph g) {
+        updateInteractionLinkButton();
         columnComboBox.removeAllItems();
         if (g != null) {
+            String key = model.getKeyField();
             Table t = g.getNodeTable();
             for (int i = 0; i < t.getColumnCount(); i++) {
                 if (is.getKeyType().equals(TypeLib.getWrapperType(t.getColumnType(i)))) {
-                    String col = t.getColumnName(i);
-                    columnComboBox.addItem(col);
-                    if (col.equals(g.getNodeKeyField())) {
-                        columnComboBox.setSelectedItem(col);
-                    }
+                    columnComboBox.addItem(t.getColumnName(i));
                 }
+            }
+            if (key != null) {
+                columnComboBox.setSelectedItem(key);
+            } else if (g.getNodeKeyField() != null) {
+                columnComboBox.setSelectedItem(g.getNodeKeyField());
             }
         }
     }

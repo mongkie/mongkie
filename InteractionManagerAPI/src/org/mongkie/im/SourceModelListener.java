@@ -19,6 +19,7 @@
 package org.mongkie.im;
 
 import org.mongkie.im.spi.InteractionSource;
+import prefuse.data.Graph;
 
 /**
  *
@@ -27,4 +28,6 @@ import org.mongkie.im.spi.InteractionSource;
 public interface SourceModelListener<I extends InteractionSource> {
 
     public void processQueryEvent(QueryEvent e);
+
+    public void graphChanged(Graph g);
 }

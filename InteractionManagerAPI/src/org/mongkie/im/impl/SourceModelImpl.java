@@ -25,10 +25,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import kobic.prefuse.display.DisplayListener;
 import org.mongkie.im.QueryEvent;
 import org.mongkie.im.QueryEvent.Type;
 import org.mongkie.im.SourceModel;
 import org.mongkie.im.SourceModelListener;
+import static org.mongkie.im.impl.InteractionControllerImpl.FIELD_INTERACTION_SOURCE;
 import org.mongkie.im.spi.Interaction;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.longtask.LongTask;
@@ -37,12 +39,14 @@ import org.mongkie.longtask.LongTaskExecutor;
 import org.mongkie.longtask.LongTaskListener;
 import org.mongkie.visualization.MongkieDisplay;
 import prefuse.data.Edge;
+import prefuse.data.Graph;
+import prefuse.util.DataLib;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-class SourceModelImpl implements SourceModel {
+class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
 
     private final InteractionSource is;
     private final LongTaskExecutor link, expand;
@@ -54,6 +58,7 @@ class SourceModelImpl implements SourceModel {
     SourceModelImpl(MongkieDisplay d, final InteractionSource is) {
         this.is = is;
         this.d = d;
+        d.addDisplayListener(SourceModelImpl.this);
         link = new LongTaskExecutor(true, is.getName() + " Link");
         link.setLongTaskListener(new LongTaskListener() {
             @Override
@@ -140,6 +145,13 @@ class SourceModelImpl implements SourceModel {
         return linked;
     }
 
+    @Override
+    public boolean isPartiallyLinked() {
+        return !linked
+                && d.getGraph().getEdgeTable().getColumn(FIELD_INTERACTION_SOURCE) != null
+                && DataLib.get(d.getGraph().getEdgeTable(), FIELD_INTERACTION_SOURCE, is.getName()) >= 0;
+    }
+
     void fireUnlinkedEvent() {
         setLinked(false);
         setAnnotated(false);
@@ -172,7 +184,7 @@ class SourceModelImpl implements SourceModel {
     }
 
     boolean setKeyField(String key) {
-        if (key.equals(this.key)) {
+        if (key != null && key.equals(this.key)) {
             return false;
         }
         this.key = key;
@@ -211,4 +223,19 @@ class SourceModelImpl implements SourceModel {
         return interactionsMap.keySet();
     }
     private final Map<Interaction, List<Edge>> interactionsMap = new HashMap<Interaction, List<Edge>>();
+
+    @Override
+    public void graphDisposing(MongkieDisplay d, Graph g) {
+        setLinked(false);
+        setAnnotated(false);
+        setKeyField(null);
+        clearInteractions();
+    }
+
+    @Override
+    public void graphChanged(MongkieDisplay d, Graph g) {
+        for (SourceModelListener l : listeners) {
+            l.graphChanged(g);
+        }
+    }
 }

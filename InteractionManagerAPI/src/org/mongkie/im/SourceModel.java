@@ -35,6 +35,8 @@ public interface SourceModel<I extends InteractionSource> {
 
     public boolean isLinked();
 
+    public boolean isPartiallyLinked();
+
     public boolean isAnnotated();
 
     public boolean isExpanding();

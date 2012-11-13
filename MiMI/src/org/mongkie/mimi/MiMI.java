@@ -43,7 +43,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = InteractionSource.class, position = 10)
+@ServiceProvider(service = InteractionSource.class, position = 1)
 public class MiMI implements InteractionSource<Integer> {
 
     private final Schema interactionSchema = InteractionElement.createSchema();
@@ -78,7 +78,7 @@ public class MiMI implements InteractionSource<Integer> {
     public Map<Integer, Set<PPI>> query(Integer... geneIds) throws JAXBException, MalformedURLException {
         Map<Integer, Set<PPI>> results = new HashMap<Integer, Set<PPI>>();
         if (geneIds.length > 0) {
-            Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching interactions for the selected genes... " + Arrays.toString(geneIds));
+            Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching interactions for the selected {0} genes...", geneIds.length);
             org.mongkie.mimi.jaxb.interaction.ResultSet rs = (org.mongkie.mimi.jaxb.interaction.ResultSet) JAXBContext.newInstance("org.mongkie.mimi.jaxb.interaction", getClass().getClassLoader()).createUnmarshaller()
                     .unmarshal(new URL("http://api.mongkie.org/mimi/q?genes=" + Arrays.toString(geneIds).replaceAll("^\\[|\\]$", "").replaceAll(", ", ",")));
             for (Result r : rs.getResult()) {
@@ -96,7 +96,7 @@ public class MiMI implements InteractionSource<Integer> {
     public Map<Integer, Attribute.Set> annotate(Integer... geneIds) throws JAXBException, MalformedURLException {
         Map<Integer, Attribute.Set> results = new HashMap<Integer, Attribute.Set>();
         if (geneIds.length > 0) {
-            Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching annotations for the selected genes... " + Arrays.toString(geneIds));
+            Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching annotations for the selected {0} genes...", geneIds.length);
             org.mongkie.mimi.jaxb.annotation.ResultSet rs = (org.mongkie.mimi.jaxb.annotation.ResultSet) JAXBContext.newInstance("org.mongkie.mimi.jaxb.annotation", getClass().getClassLoader()).createUnmarshaller()
                     .unmarshal(new URL("http://api.mongkie.org/mimi/a?genes=" + Arrays.toString(geneIds).replaceAll("^\\[|\\]$", "").replaceAll(", ", ",")));
             for (Annotation a : rs.getAnnotation()) {
