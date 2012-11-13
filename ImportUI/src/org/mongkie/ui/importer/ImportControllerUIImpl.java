@@ -78,12 +78,13 @@ public class ImportControllerUIImpl implements ImportControllerUI {
                 if (t instanceof OutOfMemoryError) {
                     return;
                 }
-                String message = t.getMessage();
-                if (message == null || message.isEmpty()) {
-                    message = t.getCause().getMessage();
-                }
-                NotifyDescriptor.Message msg = new NotifyDescriptor.Message(message, NotifyDescriptor.ERROR_MESSAGE);
-                DialogDisplayer.getDefault().notify(msg);
+//                String message = t.getMessage();
+//                if (message == null || message.isEmpty()) {
+//                    message = t.getCause().getMessage();
+//                }
+//                NotifyDescriptor.Message msg = new NotifyDescriptor.Message(message, NotifyDescriptor.ERROR_MESSAGE);
+//                DialogDisplayer.getDefault().notify(msg);
+                Exceptions.printStackTrace(t);
             }
         });
     }

@@ -192,7 +192,6 @@ public class ImportControllerImpl implements ImportController {
     @Override
     public void importAttributes(InputStream is, Table to, String[] headerNames, boolean hasHeader, boolean multipleValue, String attributeKey, String networkKey) {
         Table attrTable = readTableFromCSV(is, headerNames, hasHeader);
-        Index attrIdx = attrTable.index(attributeKey);
         List<String> attrNames = new ArrayList(Arrays.asList(DataLib.getColumnNames(attrTable)));
         attrNames.remove(attributeKey);
         for (String attrName : attrNames) {
@@ -206,7 +205,7 @@ public class ImportControllerImpl implements ImportController {
             if (akey == null) {
                 continue;
             }
-            for (Iterator<Integer> rowIter = attrIdx.rows(akey); rowIter.hasNext();) {
+            for (Iterator<Integer> rowIter = DataLib.rows(attrTable, attributeKey, akey); rowIter.hasNext();) {
                 Tuple atuple = attrTable.getTuple(rowIter.next());
                 for (String attrName : attrNames) {
                     String str = null;
