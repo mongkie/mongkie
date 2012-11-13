@@ -223,14 +223,14 @@ public final class DisplayTopComponent extends TopComponent
                     final JButton b = addon.buildActionButton(display);
                     final AddonUI.ContentPanel c = addon.buildContentPanel(display);
                     if (c != null) {
-                        final AddonPopupDialog d = new AddonPopupDialog(WindowManager.getDefault().getMainWindow(), true);
-                        d.add(c, BorderLayout.CENTER);
+                        final AddonPopupDialog d = new AddonPopupDialog(b, false);
+                        d.setContentPane(c);
                         b.addActionListener(new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 c.refresh();
                                 d.pack();
-                                d.show(b, b.getWidth() - d.getPreferredSize().width, b.getHeight());
+                                d.showPopup();
                             }
                         });
                     }

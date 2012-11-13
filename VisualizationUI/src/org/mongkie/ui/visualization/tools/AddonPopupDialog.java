@@ -18,8 +18,19 @@
  */
 package org.mongkie.ui.visualization.tools;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Point;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import javax.swing.JPanel;
+import javax.swing.border.Border;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -27,19 +38,77 @@ import java.awt.Point;
  */
 public class AddonPopupDialog extends javax.swing.JDialog {
 
+    private Component invoker;
+    private PopupDialogListener listener;
+    private JPanel content;
+
     /**
      * Creates new form AddonPopupDialog
      */
-    public AddonPopupDialog(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public AddonPopupDialog(Component invoker, boolean modal) {
+        super(WindowManager.getDefault().getMainWindow(), modal);
+        this.invoker = invoker;
+        listener = new PopupDialogListener();
         initComponents();
+        if (!isModal()) {
+            remove(closePanel);
+        }
+        getRootPane().setBorder(new LeftBottomLineBorder());
     }
 
-    public void show(Component invoker, int x, int y) {
+    public void setContentPane(JPanel content) {
+        if (this.content != null) {
+            remove(this.content);
+        }
+//        if (!isModal()) {
+//            content.setBorder(new LeftBottomLineBorder());
+//        }
+        add(content, BorderLayout.CENTER);
+        this.content = content;
+    }
+
+    @Override
+    public void setModal(boolean modal) {
+        super.setModal(modal);
+        if (isModal() != modal) {
+            if (modal) {
+                getContentPane().add(closePanel, BorderLayout.SOUTH);
+            } else {
+                remove(closePanel);
+            }
+        }
+    }
+
+    public void showPopup() {
+        if (!isVisible()) {
+            relocatePopup();
+            if (isModal()) {
+                WindowManager.getDefault().getMainWindow().addComponentListener(listener);
+            } else {
+                addWindowFocusListener(listener);
+            }
+            setVisible(true);
+            requestFocusInWindow();
+        }
+    }
+
+    private void hidePopup() {
+        if (isVisible()) {
+            setVisible(false);
+            if (isModal()) {
+                WindowManager.getDefault().getMainWindow().removeComponentListener(listener);
+            } else {
+                removeWindowFocusListener(listener);
+            }
+        }
+    }
+
+    private void relocatePopup() {
+        int x = invoker.getWidth() - getPreferredSize().width;
+        int y = invoker.getHeight();
         Point invokerOrigin;
         if (invoker != null) {
             invokerOrigin = invoker.getLocationOnScreen();
-
             // To avoid integer overflow
             long lx, ly;
             lx = ((long) invokerOrigin.x)
@@ -63,7 +132,60 @@ public class AddonPopupDialog extends javax.swing.JDialog {
         } else {
             setLocation(x, y);
         }
-        setVisible(true);
+    }
+
+    private class PopupDialogListener extends ComponentAdapter implements WindowFocusListener {
+
+        @Override
+        public void componentResized(ComponentEvent e) {
+            if (isVisible()) {
+                relocatePopup();
+            }
+        }
+
+        @Override
+        public void componentMoved(ComponentEvent e) {
+            if (isVisible()) {
+                relocatePopup();
+            }
+        }
+
+        @Override
+        public void windowGainedFocus(WindowEvent e) {
+        }
+
+        @Override
+        public void windowLostFocus(WindowEvent e) {
+            hidePopup();
+        }
+    }
+
+    private static class LeftBottomLineBorder implements Border {
+
+        private Insets ins = new Insets(0, 0, 1, 0);
+        private Color col = new Color(221, 229, 248);
+
+        public LeftBottomLineBorder() {
+        }
+
+        public @Override
+        Insets getBorderInsets(Component c) {
+            return ins;
+        }
+
+        public @Override
+        boolean isBorderOpaque() {
+            return false;
+        }
+
+        public @Override
+        void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            Color old = g.getColor();
+            g.setColor(col);
+            g.drawRect(x, y, 1, height); // Left
+            g.drawRect(x, y + height - 2, width, 1); // Bottom
+            g.setColor(old);
+        }
     }
 
     /**
@@ -75,15 +197,12 @@ public class AddonPopupDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jSeparator1 = new javax.swing.JSeparator();
+        closePanel = new javax.swing.JPanel();
+        closeSeparator = new javax.swing.JSeparator();
         closeButton = new javax.swing.JButton();
 
-        setAutoRequestFocus(false);
-        setModal(true);
         setUndecorated(true);
         setResizable(false);
-        setType(java.awt.Window.Type.POPUP);
 
         org.openide.awt.Mnemonics.setLocalizedText(closeButton, org.openide.util.NbBundle.getMessage(AddonPopupDialog.class, "AddonPopupDialog.closeButton.text")); // NOI18N
         closeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -92,80 +211,36 @@ public class AddonPopupDialog extends javax.swing.JDialog {
             }
         });
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout closePanelLayout = new javax.swing.GroupLayout(closePanel);
+        closePanel.setLayout(closePanelLayout);
+        closePanelLayout.setHorizontalGroup(
+            closePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(closeSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, closePanelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(closeButton)
-                .addGap(4, 4, 4))
+                .addGap(3, 3, 3))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        closePanelLayout.setVerticalGroup(
+            closePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(closePanelLayout.createSequentialGroup()
+                .addComponent(closeSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 6, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
                 .addComponent(closeButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(3, 3, 3))
         );
 
-        getContentPane().add(jPanel1, java.awt.BorderLayout.PAGE_END);
+        getContentPane().add(closePanel, java.awt.BorderLayout.SOUTH);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-        setVisible(false);
-//        dispose();
+        hidePopup();
     }//GEN-LAST:event_closeButtonActionPerformed
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AddonPopupDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AddonPopupDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AddonPopupDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AddonPopupDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                AddonPopupDialog dialog = new AddonPopupDialog(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JPanel closePanel;
+    private javax.swing.JSeparator closeSeparator;
     // End of variables declaration//GEN-END:variables
 }
