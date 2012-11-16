@@ -1,5 +1,6 @@
 package prefuse.render;
 
+import prefuse.awt.geom.TransientPath2D;
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
@@ -50,7 +51,7 @@ public class EdgeRenderer extends AbstractShapeRenderer {
     protected Polygon m_arrowHead = updateArrowHead(
             m_arrowWidth, m_arrowHeight);
     protected AffineTransform m_arrowTrans = new AffineTransform();
-    protected Shape m_curArrow;
+    protected TransientPath2D m_curArrow, m_tmpArrow = new TransientPath2D.Double();
     protected boolean edgeBounded = false;
     protected boolean multipleEdge = false;
     protected boolean lineForSingleEdge = true;
@@ -200,7 +201,7 @@ public class EdgeRenderer extends AbstractShapeRenderer {
             } else {
                 arrowTrans = getArrowTrans(start, end, m_curWidth);
             }
-            m_curArrow = arrowTrans.createTransformedShape(arrowHead);
+            m_curArrow = m_tmpArrow.set(arrowHead, arrowTrans);
 
             // update the endpoints for the edge shape
             // need to bias this by arrow head size

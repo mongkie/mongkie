@@ -61,7 +61,7 @@ public class ExtendedEdgeRenderer extends EdgeRenderer {
             arc.setAngles(arcStartX, arcStartY, arrowEndX + arrowHeight, arrowEndY - arrowHeight);
             if (edge.isDirected()) {
                 float arcEndX = (float) arc.getEndPoint().getX(), arcEndY = (float) arc.getEndPoint().getY();
-                m_curArrow = getArrowTrans(arcEndX, arcEndY, arrowEndX, arrowEndY, m_curWidth, scaled ? scale * 0.126 / source.getSize() : 0).createTransformedShape(getArrowHead(edge));
+                m_curArrow = m_tmpArrow.set(getArrowHead(edge), getArrowTrans(arcEndX, arcEndY, arrowEndX, arrowEndY, m_curWidth, scaled ? scale * 0.126 / source.getSize() : 0));
             } else {
                 m_curArrow = null;
             }

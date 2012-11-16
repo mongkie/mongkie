@@ -50,6 +50,7 @@
                 <package>prefuse.action.layout</package>
                 <package>prefuse.action.layout.graph</package>
                 <package>prefuse.activity</package>
+                <package>prefuse.awt.geom</package>
                 <package>prefuse.controls</package>
                 <package>prefuse.data</package>
                 <package>prefuse.data.column</package>

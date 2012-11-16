@@ -492,7 +492,7 @@ public class PathwayDisplay extends MongkieDisplay implements GraphListener {
                     m_arc.setArc(m_ellipse.getBounds2D(), 0, 0, Arc2D.OPEN);
                     m_arc.setAngles(sx, sy, ex + getArrowHeadHeight(), ey);
                     AffineTransform selfArrowTrans = getSelfArrowTrans(sx, sy, ex, ey + eyFix, m_curWidth, thetaFix);
-                    m_curArrow = selfArrowTrans.createTransformedShape(getArrowHead(edge));
+                    m_curArrow = m_tmpArrow.set(getArrowHead(edge), selfArrowTrans);
                     return m_arc;
                 }
                 return super.getRawShape(item);
