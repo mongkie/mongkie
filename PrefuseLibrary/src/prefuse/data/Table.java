@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.event.TableModelEvent;
 
@@ -43,8 +45,8 @@ import prefuse.util.collections.IntIterator;
  * data field with a specific data type. Table data can be accessed directly
  * using the row number and column name, or rows can be treated in an
  * object-oriented fashion using {@link prefuse.data.Tuple} instances that
- * represent a single row of data in the table. As such, tables implement the {@link prefuse.data.tuple.TupleSet}
- * interface.</p>
+ * represent a single row of data in the table. As such, tables implement the
+ * {@link prefuse.data.tuple.TupleSet} interface.</p>
  *
  * <p>Table rows can be inserted or deleted. In any case, none of the other
  * existing table rows are effected by an insertion or deletion. A deleted row
@@ -67,10 +69,10 @@ import prefuse.util.collections.IntIterator;
  * <p>Columns (alternativele referred to as data fields) can be added to the
  * Table using {@link #addColumn(String, Class)} and a host of similar methods.
  * This method will automatically determine the right kind of backing column
- * instance to use. Furthermore, Table columns can be specified using a {@link Schema}
- * instance, which describes the column names, data types, and default values.
- * The Table class also maintains its own internal Schema, which be accessed (in
- * a read-only way) using the {@link #getSchema()} method.</p>
+ * instance to use. Furthermore, Table columns can be specified using a
+ * {@link Schema} instance, which describes the column names, data types, and
+ * default values. The Table class also maintains its own internal Schema, which
+ * be accessed (in a read-only way) using the {@link #getSchema()} method.</p>
  *
  * <p>Tables also support additional structures. The {@link ColumnMetadata}
  * class returned by the {@link #getMetadata(String)} method supports
@@ -133,8 +135,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
     // ------------------------------------------------------------------------
     // Constructors
     /**
-     * Create a new, empty Table. Rows can be added to the table using the {@link #addRow()}
-     * method.
+     * Create a new, empty Table. Rows can be added to the table using the
+     * {@link #addRow()} method.
      */
     public Table() {
         this(0, 0);
@@ -322,9 +324,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * parent table and present a filtered view on this data, a mapping between
      * the row numbers of the table and the row numbers of the backing data
      * column is needed. In those cases, this method returns the result of that
-     * mapping. The method
-     * {@link #getTableRow(int, int)} accesses this map in the reverse
-     * direction.
+     * mapping. The method {@link #getTableRow(int, int)} accesses this map in
+     * the reverse direction.
      *
      * @param row the table row to lookup
      * @param col the table column to lookup
@@ -342,8 +343,9 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * mapping between the row numbers of the table and the row numbers of the
      * backing data column is needed. In those cases, this method returns the
      * result of this mapping, in the direction of the backing column rows to
-     * the table rows of the cascaded table. The method {@link #getColumnRow(int, int)}
-     * accesses this map in the reverse direction.
+     * the table rows of the cascaded table. The method
+     * {@link #getColumnRow(int, int)} accesses this map in the reverse
+     * direction.
      *
      * @param colrow the row of the backing data column
      * @param col the table column to lookup.
@@ -536,9 +538,18 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      */
     @Override
     public void addColumn(String name, Class type, Object defaultValue) {
+        if (columnExists(name)) {
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, "Table already has column with name \"{0}\"", name);
+            return;
+        }
         Column col = ColumnFactory.getColumn(type,
                 m_rows.getMaximumRow() + 1, defaultValue);
         addColumn(name, col);
+    }
+    
+    public boolean columnExists(String name) {
+        int idx = getColumnNumber(name);
+        return idx >= 0 && idx < m_columns.size();
     }
 
     /**
@@ -598,8 +609,7 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * @param col the actual Column instance
      */
     protected void addColumn(String name, Column col) {
-        int idx = getColumnNumber(name);
-        if (idx >= 0 && idx < m_columns.size()) {
+        if (columnExists(name)) {
             throw new IllegalArgumentException(
                     "Table already has column with name \"" + name + "\"");
         }
@@ -945,10 +955,11 @@ public class Table extends AbstractTupleSet implements ColumnListener {
     /**
      * Add a Tuple to this table. If the Tuple is already a member of this
      * table, nothing is done and null is returned. If the Tuple is not a member
-     * of this Table but has a compatible data schema, as determined by {@link Schema#isAssignableFrom(Schema)},
-     * a new row is created, the Tuple's values are copied, and the new Tuple
-     * that is a member of this Table is returned. If the data schemas are not
-     * compatible, nothing is done and null is returned.
+     * of this Table but has a compatible data schema, as determined by
+     * {@link Schema#isAssignableFrom(Schema)}, a new row is created, the
+     * Tuple's values are copied, and the new Tuple that is a member of this
+     * Table is returned. If the data schemas are not compatible, nothing is
+     * done and null is returned.
      *
      * @param t the Tuple to "add" to this table
      * @return the actual Tuple instance added to this table, or null if no new
@@ -1133,8 +1144,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * @param type a Class instance to check for compatibility with the data
      * field values.
      * @return true if the data field is compatible with provided type, false
-     * otherwise. If the value is true, objects returned by the {@link #get(int, String)}
-     * can be cast to the given type.
+     * otherwise. If the value is true, objects returned by the
+     * {@link #get(int, String)} can be cast to the given type.
      * @see #get(int, String)
      */
     public boolean canGet(String field, Class type) {
@@ -1264,9 +1275,9 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * <code>int</code> values.
      *
      * @param field the data field to check
-     * @return true if the data field can return primitive
-     * <code>int</code> values, false otherwise. If true, the {@link #getInt(int, String)}
-     * method can be used safely.
+     * @return true if the data field can return primitive <code>int</code>
+     * values, false otherwise. If true, the {@link #getInt(int, String)} method
+     * can be used safely.
      */
     public final boolean canGetInt(String field) {
         Column col = getColumn(field);
@@ -1348,8 +1359,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * <code>long</code> values.
      *
      * @param field the data field to check
-     * @return true if the data field can return primitive
-     * <code>long</code> values, false otherwise. If true, the {@link #getLong(int, String)}
+     * @return true if the data field can return primitive <code>long</code>
+     * values, false otherwise. If true, the {@link #getLong(int, String)}
      * method can be used safely.
      */
     public final boolean canGetLong(String field) {
@@ -1432,8 +1443,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * <code>float</code> values.
      *
      * @param field the data field to check
-     * @return true if the data field can return primitive
-     * <code>float</code> values, false otherwise. If true, the {@link #getFloat(int, String)}
+     * @return true if the data field can return primitive <code>float</code>
+     * values, false otherwise. If true, the {@link #getFloat(int, String)}
      * method can be used safely.
      */
     public final boolean canGetFloat(String field) {
@@ -1516,8 +1527,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * <code>double</code> values.
      *
      * @param field the data field to check
-     * @return true if the data field can return primitive
-     * <code>double</code> values, false otherwise. If true, the {@link #getDouble(int, String)}
+     * @return true if the data field can return primitive <code>double</code>
+     * values, false otherwise. If true, the {@link #getDouble(int, String)}
      * method can be used safely.
      */
     public final boolean canGetDouble(String field) {
@@ -1601,8 +1612,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * <code>boolean</code> values.
      *
      * @param field the data field to check
-     * @return true if the data field can return primitive
-     * <code>boolean</code> values, false otherwise. If true, the {@link #getBoolean(int, String)}
+     * @return true if the data field can return primitive <code>boolean</code>
+     * values, false otherwise. If true, the {@link #getBoolean(int, String)}
      * method can be used safely.
      */
     public final boolean canGetBoolean(String field) {
@@ -1686,8 +1697,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * <code>String</code> values.
      *
      * @param field the data field to check
-     * @return true if the data field can return primitive
-     * <code>String</code> values, false otherwise. If true, the {@link #getString(int, String)}
+     * @return true if the data field can return primitive <code>String</code>
+     * values, false otherwise. If true, the {@link #getString(int, String)}
      * method can be used safely.
      */
     public final boolean canGetString(String field) {
@@ -1771,8 +1782,8 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * <code>Date</code> values.
      *
      * @param field the data field to check
-     * @return true if the data field can return primitive
-     * <code>Date</code> values, false otherwise. If true, the {@link #getDate(int, String)}
+     * @return true if the data field can return primitive <code>Date</code>
+     * values, false otherwise. If true, the {@link #getDate(int, String)}
      * method can be used safely.
      */
     public final boolean canGetDate(String field) {
@@ -2228,8 +2239,7 @@ public class Table extends AbstractTupleSet implements ColumnListener {
      * @param col the number of the column modified, or
      * {@link prefuse.data.event.EventConstants#ALL_COLUMNS} for operations
      * effecting all columns.
-     * @param type the table modification type, one of
-     * {@link prefuse.data.event.EventConstants#INSERT},
+     * @param type the table modification type, one of      {@link prefuse.data.event.EventConstants#INSERT},
      * {@link prefuse.data.event.EventConstants#DELETE}, or
      * {@link prefuse.data.event.EventConstants#UPDATE}.
      */
