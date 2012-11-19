@@ -33,7 +33,6 @@ import org.mongkie.visualization.color.ColorController;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
-import prefuse.Visualization;
 import static prefuse.Visualization.*;
 import prefuse.data.Graph;
 import prefuse.data.Table;
@@ -57,93 +56,86 @@ public class DefaultProcessor implements Processor<GraphContainer> {
     @Override
     public void process() {
         SwingUtilities.invokeLater(new Runnable() {
-
             @Override
             public void run() {
-                DisplayTopComponent tc = (container instanceof VizGraphContainer)
-                        ? processVisualGraph((VizGraphContainer) container)
-                        : Lookup.getDefault().lookup(VisualizationControllerUI.class).openNewDisplayTopComponent(
-                        container.getSource(), container.getGraph());
-                setDisplay(tc.getDisplay());
+                if (container instanceof VizGraphContainer) {
+                    processVisualGraph((VizGraphContainer) container);
+                } else {
+                    DisplayTopComponent tc =
+                            Lookup.getDefault().lookup(VisualizationControllerUI.class).openNewDisplayTopComponent(
+                            container.getSource(), container.getGraph());
+                    setDisplay(tc.getDisplay());
+                }
             }
         });
     }
 
-    protected final DisplayTopComponent processVisualGraph(final VizGraphContainer vgc) {
+    protected final void processVisualGraph(final VizGraphContainer vgc) {
         VisualizationControllerUI vizUI = Lookup.getDefault().lookup(VisualizationControllerUI.class);
         final DisplayTopComponent tc = vizUI.openEmptyDisplayTopComponent(vgc.getSource(), true);
         vizUI.invokeWhenUIReady(new Runnable() {
-
             @Override
             public void run() {
                 final MongkieDisplay d = tc.getDisplay();
-                final Visualization v = d.getVisualization();
-                v.rerun(new Runnable() {
+                setDisplay(d);
+                d.getVisualization().cancel(LAYOUT);
+                d.setLoading(false);
+                d.resetGraph(vgc.getGraph(), new DisplayListener() {
+                    @Override
+                    public void graphDisposing(NetworkDisplay d, Graph g) {
+                    }
 
                     @Override
-                    public void run() {
-                        v.cancel(LAYOUT);
-                        d.setLoading(false);
-                        d.resetGraph(vgc.getGraph(), new DisplayListener() {
-
-                            @Override
-                            public void graphDisposing(NetworkDisplay d, Graph g) {
+                    public void graphChanged(NetworkDisplay d, Graph g) {
+                        restoreVisualProperties(d.getVisualGraph().getNodeTable().tuples(), vgc.getNodeVisualProperties());
+                        restoreVisualProperties(d.getVisualGraph().getEdgeTable().tuples(), vgc.getEdgeVisualProperties());
+                        Map<Integer, List<Integer>> aggrId2NodeRows = vgc.getAggregateId2NodeRows();
+                        Table aggrVizProperties = vgc.getAggregateVisualProperties();
+                        DefaultTupleSet nodeItems = new DefaultTupleSet();
+                        for (Iterator<Tuple> propsIter = aggrVizProperties.tuples(); propsIter.hasNext();) {
+                            Tuple prop = propsIter.next();
+                            for (int nrow : aggrId2NodeRows.get(prop.getInt(AggregateItem.AGGR_ID))) {
+                                NodeItem nitem = (NodeItem) d.getVisualGraph().getNode(nrow);
+                                nodeItems.addTuple(nitem);
+                                Lookup.getDefault().lookup(ColorController.class).unsetStrokeColor(nitem);
                             }
-
-                            @Override
-                            public void graphChanged(NetworkDisplay d, Graph g) {
-                                restoreVisualProperties(d.getVisualGraph().getNodeTable().tuples(), vgc.getNodeVisualProperties());
-                                restoreVisualProperties(d.getVisualGraph().getEdgeTable().tuples(), vgc.getEdgeVisualProperties());
-                                Map<Integer, List<Integer>> aggrId2NodeRows = vgc.getAggregateId2NodeRows();
-                                Table aggrVizProperties = vgc.getAggregateVisualProperties();
-                                DefaultTupleSet nodeItems = new DefaultTupleSet();
-                                for (Iterator<Tuple> propsIter = aggrVizProperties.tuples(); propsIter.hasNext();) {
-                                    Tuple prop = propsIter.next();
-                                    for (int nrow : aggrId2NodeRows.get(prop.getInt(AggregateItem.AGGR_ID))) {
-                                        NodeItem nitem = (NodeItem) d.getVisualGraph().getNode(nrow);
-                                        nodeItems.addTuple(nitem);
-                                        Lookup.getDefault().lookup(ColorController.class).unsetStrokeColor(nitem);
-                                    }
-                                    AggregateItem aggregate = d.aggregateItems(nodeItems, true, prop.getString(AggregateItem.AGGR_NAME), new String[]{});
-                                    for (int col = 0; col < prop.getColumnCount(); col++) {
-                                        String field = prop.getColumnName(col);
+                            AggregateItem aggregate = d.aggregateItems(nodeItems, true, prop.getString(AggregateItem.AGGR_NAME), new String[]{});
+                            for (int col = 0; col < prop.getColumnCount(); col++) {
+                                String field = prop.getColumnName(col);
 //                                        if (field.equals(AggregateItem.AGGR_ID)) {
 //                                            continue;
 //                                        }
-                                        Object val = prop.get(field);
-                                        aggregate.set(field, val);
-                                        restoreColorProperties(field, aggregate, val);
-                                    }
-                                }
+                                Object val = prop.get(field);
+                                aggregate.set(field, val);
+                                restoreColorProperties(field, aggregate, val);
                             }
-                        }, new String[]{}); // without reruning visualization activities
+                        }
+                    }
+
+                    private <I extends VisualItem> void restoreVisualProperties(Iterator<I> items, Table properties) {
+                        while (items.hasNext()) {
+                            I item = items.next();
+                            for (int col = 0; col < properties.getColumnCount(); col++) {
+                                String field = properties.getColumnName(col);
+                                Object val = properties.get(item.getRow(), field);
+                                item.set(field, val);
+                                restoreColorProperties(field, item, val);
+                            }
+                        }
+                    }
+
+                    private void restoreColorProperties(String field, VisualItem item, Object val) {
+                        if (field.equals(VisualItem.FILLCOLOR)) {
+                            Lookup.getDefault().lookup(ColorController.class).setFillColor(item, ColorLib.getColor((Integer) val));
+                        } else if (field.equals(VisualItem.STROKECOLOR)) {
+                            Lookup.getDefault().lookup(ColorController.class).setStrokeColor(item, ColorLib.getColor((Integer) val));
+                        } else if (field.equals(VisualItem.TEXTCOLOR)) {
+                            Lookup.getDefault().lookup(ColorController.class).setTextColor(item, ColorLib.getColor((Integer) val));
+                        }
                     }
                 }, DRAW, ANIMATE);
             }
-
-            private <I extends VisualItem> void restoreVisualProperties(Iterator<I> items, Table properties) {
-                while (items.hasNext()) {
-                    I item = items.next();
-                    for (int col = 0; col < properties.getColumnCount(); col++) {
-                        String field = properties.getColumnName(col);
-                        Object val = properties.get(item.getRow(), field);
-                        item.set(field, val);
-                        restoreColorProperties(field, item, val);
-                    }
-                }
-            }
-
-            private void restoreColorProperties(String field, VisualItem item, Object val) {
-                if (field.equals(VisualItem.FILLCOLOR)) {
-                    Lookup.getDefault().lookup(ColorController.class).setFillColor(item, ColorLib.getColor((Integer) val));
-                } else if (field.equals(VisualItem.STROKECOLOR)) {
-                    Lookup.getDefault().lookup(ColorController.class).setStrokeColor(item, ColorLib.getColor((Integer) val));
-                } else if (field.equals(VisualItem.TEXTCOLOR)) {
-                    Lookup.getDefault().lookup(ColorController.class).setTextColor(item, ColorLib.getColor((Integer) val));
-                }
-            }
         });
-        return tc;
     }
 
     @Override

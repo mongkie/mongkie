@@ -51,7 +51,8 @@ public class EdgeRenderer extends AbstractShapeRenderer {
     protected Polygon m_arrowHead = updateArrowHead(
             m_arrowWidth, m_arrowHeight);
     protected AffineTransform m_arrowTrans = new AffineTransform();
-    protected TransientPath2D m_curArrow, m_tmpArrow = new TransientPath2D.Double();
+    protected Shape m_curArrow;
+    protected TransientPath2D m_tmpArrow = new TransientPath2D.Double();
     protected boolean edgeBounded = false;
     protected boolean multipleEdge = false;
     protected boolean lineForSingleEdge = true;

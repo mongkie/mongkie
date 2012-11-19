@@ -37,6 +37,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.io.StreamCorruptedException;
 import java.util.Arrays;
+import java.util.logging.Logger;
 import sun.awt.geom.Curve;
 
 /**
@@ -122,11 +123,19 @@ public abstract class TransientPath2D implements Shape, Cloneable {
         this.pointTypes = new byte[initialTypes];
     }
 
-    public TransientPath2D set(Shape s, AffineTransform at) {
+    public Shape set(Shape s, AffineTransform at) {
+        if (s == null) {
+            return null;
+        }
         reset();
         PathIterator pi = s.getPathIterator(at);
         setWindingRule(pi.getWindingRule());
-        append(pi, false);
+        try {
+            append(pi, false);
+        } catch (IllegalPathStateException ex) {
+            Logger.getLogger(TransientPath2D.class.getName()).warning(ex.getMessage());
+            return at.createTransformedShape(s);
+        }
         return this;
     }
 

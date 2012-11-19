@@ -9,8 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.swing.event.TableModelEvent;
 
@@ -539,7 +537,6 @@ public class Table extends AbstractTupleSet implements ColumnListener {
     @Override
     public void addColumn(String name, Class type, Object defaultValue) {
         if (columnExists(name)) {
-            Logger.getLogger(getClass().getName()).log(Level.WARNING, "Table already has column with name \"{0}\"", name);
             return;
         }
         Column col = ColumnFactory.getColumn(type,
