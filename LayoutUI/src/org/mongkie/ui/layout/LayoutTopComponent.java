@@ -32,7 +32,7 @@ import javax.swing.DefaultComboBoxModel;
 import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutModel;
 import org.mongkie.layout.LayoutModelChangeListener;
-import org.mongkie.layout.spi.ILayout;
+import org.mongkie.layout.spi.Layout;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.LayoutBuilder.UI;
 import org.mongkie.lib.widgets.richtooltip.RichTooltip;
@@ -150,7 +150,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
     }
 
     private void refreshChooser() {
-        ILayout l = model != null ? model.getSelectedLayout() : null;
+        Layout l = model != null ? model.getSelectedLayout() : null;
         layoutCombobox.getModel().setSelectedItem(l == null ? NO_SELECTION : l.getBuilder());
 //        if (l == null) {
 //            layoutCombobox.getModel().setSelectedItem(NO_SELECTION);
@@ -164,7 +164,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
     }
 
     private void refreshProperties() {
-        ILayout l = model != null ? model.getSelectedLayout() : null;
+        Layout l = model != null ? model.getSelectedLayout() : null;
         ((PropertySheet) propertySheet).setNodes((l == null) ? new Node[0] : new Node[]{new LayoutNode(l)});
     }
 
@@ -200,7 +200,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
 
     private RichTooltip buildTooltip(LayoutBuilder builder) {
         String description = "";
-        UI layoutUI = null;
+        UI layoutUI;
         try {
             layoutUI = builder.getUI();
             description = layoutUI.getDescription();
@@ -228,7 +228,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
     }
 
     private void reset() {
-        ILayout l = model.getSelectedLayout();
+        Layout l = model.getSelectedLayout();
         if (l != null) {
             l.resetPropertyValues();
             refreshProperties();

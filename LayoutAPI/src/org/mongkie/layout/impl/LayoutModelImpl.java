@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mongkie.layout.LayoutModel;
-import org.mongkie.layout.spi.ILayout;
-import org.mongkie.layout.spi.LayoutProperty;
+import org.mongkie.layout.LayoutProperty;
+import org.mongkie.layout.spi.Layout;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.LongTaskErrorHandler;
 import org.mongkie.longtask.LongTaskExecutor;
@@ -36,12 +36,12 @@ import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class LayoutModelImpl implements LayoutModel {
 
-    private ILayout selectedLayout;
+    private Layout selectedLayout;
     private final List<PropertyChangeListener> listeners;
     private final Map<LayoutPropertyKey, Object> properties;
     private LongTaskExecutor executor;
@@ -53,7 +53,6 @@ public class LayoutModelImpl implements LayoutModel {
         properties = new HashMap<LayoutPropertyKey, Object>();
         executor = new LongTaskExecutor(true, "Layout");
         executor.setLongTaskListener(new LongTaskListener() {
-
             @Override
             public void taskFinished(LongTask task) {
                 setRunning(false);
@@ -65,7 +64,6 @@ public class LayoutModelImpl implements LayoutModel {
             }
         });
         executor.setDefaultErrorHandler(new LongTaskErrorHandler() {
-
             @Override
             public void fatalError(Throwable t) {
                 Logger.getLogger("").log(Level.SEVERE, "", t.getCause() != null ? t.getCause() : t);
@@ -74,12 +72,12 @@ public class LayoutModelImpl implements LayoutModel {
     }
 
     @Override
-    public ILayout getSelectedLayout() {
+    public Layout getSelectedLayout() {
         return selectedLayout;
     }
 
-    protected void setSelectedLayout(ILayout layout) {
-        ILayout oldLayout = selectedLayout;
+    protected void setSelectedLayout(Layout layout) {
+        Layout oldLayout = selectedLayout;
         selectedLayout = layout;
         if (oldLayout != null) {
             saveProperties(oldLayout);
@@ -125,7 +123,7 @@ public class LayoutModelImpl implements LayoutModel {
         }
     }
 
-    protected void saveProperties(ILayout layout) {
+    protected void saveProperties(Layout layout) {
         for (LayoutProperty p : layout.getProperties()) {
             try {
                 Object value = p.getProperty().getValue();
@@ -139,7 +137,7 @@ public class LayoutModelImpl implements LayoutModel {
     }
 
     @SuppressWarnings("unchecked")
-    protected void loadProperties(ILayout layout) {
+    protected void loadProperties(Layout layout) {
         List<LayoutPropertyKey> layoutValues = new ArrayList<LayoutPropertyKey>();
         for (LayoutPropertyKey val : properties.keySet()) {
             if (val.className.equals(layout.getClass().getName())) {

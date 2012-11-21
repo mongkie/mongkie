@@ -24,13 +24,13 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 
 /**
- * A <code>LayoutBuilder</code> provides a specific {@link ILayout} instance. The
- * Builder pattern is more suitable for the ILayout instantiation to allow
- * simpler reusability of ILayout's code.
+ * A <code>LayoutBuilder</code> provides a specific {@link Layout} instance. The
+ * Builder pattern is more suitable for the Layout instantiation to allow
+ * simpler reusability of Layout's code.
  *<p>
  * Only the LayoutBuilder of a given layout algorithm is exposed,
  * this way, one can devise different layout algorithms (represented by their
- * respective LayoutBuilder) that uses a same underlying ILayout implementation,
+ * respective LayoutBuilder) that uses a same underlying Layout implementation,
  * but that differs only by an aggregation, composition or a property that is
  * set only during instantiation time.
  *<p>
@@ -43,12 +43,12 @@ import javax.swing.JPanel;
  * @author Helder Suzuki <heldersuzuki@gephi.org>
  * @author Youngjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class LayoutBuilder<I extends ILayout> {
+public abstract class LayoutBuilder<L extends Layout> {
 
-    protected I layout;
+    protected L layout;
 
     /**
-     * The name of the behavior of the ILayout's provided by this Builder.
+     * The name of the behavior of the Layout's provided by this Builder.
      * @return  the display name of the layout algorithm
      */
     public abstract String getName();
@@ -58,13 +58,13 @@ public abstract class LayoutBuilder<I extends ILayout> {
      * built by this builder.
      * @return a <code>LayoutUI</code> instance
      */
-    public abstract UI<I> getUI();
+    public abstract UI<L> getUI();
 
     /**
      *
-     * @return a ILayout singleton instance with lazy instantiation
+     * @return a Layout singleton instance with lazy instantiation
      */
-    public final I getLayout() {
+    public final L getLayout() {
         if (layout == null) {
             layout = buildLayout();
         }
@@ -73,11 +73,11 @@ public abstract class LayoutBuilder<I extends ILayout> {
     }
 
     /**
-     * Builds an instance of the ILayout.
-     * @return  a new <code>ILayout</code> instance
+     * Builds an instance of the Layout.
+     * @return  a new <code>Layout</code> instance
      * @author Youngjun Jang <yjjang@kribb.re.kr>
      */
-    protected abstract I buildLayout();
+    protected abstract L buildLayout();
 
     @Override
     public String toString() {
@@ -90,7 +90,7 @@ public abstract class LayoutBuilder<I extends ILayout> {
      * @author Mathieu Bastian
      * @author Youngjun Jang <yjjang@kribb.re.kr>
      */
-    public static interface UI<I extends ILayout> {
+    public static interface UI<L extends Layout> {
 
         /**
          * The description of the layout algorithm purpose.
@@ -112,7 +112,7 @@ public abstract class LayoutBuilder<I extends ILayout> {
          * <code>null</code>
          * @author Youngjun Jang <yjjang@kribb.re.kr>
          */
-        public JPanel getSettingPanel(I layout);
+        public JPanel getSettingPanel(L layout);
 
         /**
          * An appraisal of quality for this algorithm. The rank must be between 1 and

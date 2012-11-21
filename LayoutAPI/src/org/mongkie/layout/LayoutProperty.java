@@ -18,9 +18,10 @@ GNU Affero General Public License for more details.
 You should have received a copy of the GNU Affero General Public License
 along with Gephi.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.layout.spi;
+package org.mongkie.layout;
 
 import java.beans.PropertyEditor;
+import org.mongkie.layout.spi.Layout;
 import org.openide.nodes.Node.Property;
 import org.openide.nodes.PropertySupport;
 
@@ -72,7 +73,7 @@ public final class LayoutProperty {
      * @throws NoSuchMethodException if the getter or setter methods cannot be found
      */
     @SuppressWarnings("unchecked")
-    public static LayoutProperty createProperty(ILayout layout, Class valueType, String propertyName, String propertyCategory, String propertyDescription, String getMethod, String setMethod) throws NoSuchMethodException {
+    public static LayoutProperty createProperty(Layout layout, Class valueType, String propertyName, String propertyCategory, String propertyDescription, String getMethod, String setMethod) throws NoSuchMethodException {
         Property property = new PropertySupport.Reflection(
                 layout, valueType, getMethod, setMethod);
 
@@ -101,7 +102,7 @@ public final class LayoutProperty {
      * @throws NoSuchMethodException if the getter or setter methods cannot be found
      */
     @SuppressWarnings("unchecked")
-    public static LayoutProperty createProperty(ILayout layout, Class valueType, String propertyName, String propertyCategory, String propertyDescription, String getMethod, String setMethod, Class<? extends PropertyEditor> editorClass) throws NoSuchMethodException {
+    public static LayoutProperty createProperty(Layout layout, Class valueType, String propertyName, String propertyCategory, String propertyDescription, String getMethod, String setMethod, Class<? extends PropertyEditor> editorClass) throws NoSuchMethodException {
         PropertySupport.Reflection property = new PropertySupport.Reflection(
                 layout, valueType, getMethod, setMethod);
 

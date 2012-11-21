@@ -21,11 +21,11 @@ along with Gephi.  If not, see <http://www.gnu.org/licenses/>.
 package org.mongkie.layout;
 
 import java.beans.PropertyChangeListener;
-import org.mongkie.layout.spi.ILayout;
+import org.mongkie.layout.spi.Layout;
 import org.mongkie.visualization.MongkieDisplay;
 
 /**
- * ILayout model contains data and flags relative to the layout execution and
+ * Layout model contains data and flags relative to the layout execution and
  * user interface. There is one model per {@link MongkieDisplay}
  * <p>
  * <code>PropertyChangeListener</code> can be used to receive events about
@@ -45,7 +45,7 @@ public interface LayoutModel {
      * Returns the currently selected layout or <code>null</code> if no
      * layout is selected.
      */
-    public ILayout getSelectedLayout();
+    public Layout getSelectedLayout();
 
     /**
      * Returns <code>true</code> if a layout is currently running, <code>false</code>

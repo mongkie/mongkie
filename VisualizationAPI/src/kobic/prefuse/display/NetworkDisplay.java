@@ -809,7 +809,7 @@ public abstract class NetworkDisplay extends Display {
                 layout.add(0, networkLayout = l);
             }
             layout.setDuration(duration);
-            v.run(LAYOUT);
+//            v.run(LAYOUT);
         }
     }
 

@@ -19,8 +19,8 @@ package org.mongkie.ui.layout;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.mongkie.layout.spi.ILayout;
-import org.mongkie.layout.spi.LayoutProperty;
+import org.mongkie.layout.LayoutProperty;
+import org.mongkie.layout.spi.Layout;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node.PropertySet;
@@ -33,10 +33,10 @@ import org.openide.util.Exceptions;
  */
 public class LayoutNode extends AbstractNode {
 
-    private ILayout layout;
+    private Layout layout;
     private PropertySet[] propertySets;
 
-    public LayoutNode(ILayout layout) {
+    public LayoutNode(Layout layout) {
         super(Children.LEAF);
         this.layout = layout;
         setName(layout.getBuilder().getName());
@@ -65,7 +65,7 @@ public class LayoutNode extends AbstractNode {
         return propertySets;
     }
 
-    public ILayout getLayout() {
+    public Layout getLayout() {
         return layout;
     }
 }

@@ -1,61 +1,61 @@
+/*
+ * This file is part of MONGKIE. Visit <http://www.mongkie.org/> for details.
+ * Copyright (C) 2012 Korean Bioinformation Center(KOBIC)
+ * 
+ * MONGKIE is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * MONGKIE is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.mongkie.layout.plugins.fruchtermanreingold;
 
-import javax.swing.Icon;
-import javax.swing.JPanel;
+import java.util.ArrayList;
+import java.util.List;
+import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
-import org.mongkie.layout.spi.LayoutBuilder.UI;
-import org.openide.util.NbBundle;
-import org.openide.util.lookup.ServiceProvider;
+import org.mongkie.layout.spi.PrefuseLayout;
+import prefuse.action.layout.graph.FruchtermanReingoldLayout;
+import prefuse.data.Graph;
 
 /**
  *
- * @author yjjang
+ * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = LayoutBuilder.class)
-public class FruchtermanReingold extends LayoutBuilder<FruchtermanReingoldILayout> {
+public class FruchtermanReingold extends PrefuseLayout<FruchtermanReingoldLayout> {
 
-    private final LayoutUI ui = new LayoutUI();
-
-    @Override
-    public String getName() {
-        return NbBundle.getMessage(FruchtermanReingoldILayout.class, "name");
+    FruchtermanReingold(LayoutBuilder<FruchtermanReingold> builder) {
+        super(builder);
     }
 
     @Override
-    public UI<FruchtermanReingoldILayout> getUI() {
-        return ui;
+    protected FruchtermanReingoldLayout createPrefuseLayout() {
+        return new FruchtermanReingoldLayout(Graph.GRAPH);
     }
 
     @Override
-    protected FruchtermanReingoldILayout buildLayout() {
-        return new FruchtermanReingoldILayout(this);
+    public LayoutProperty[] createProperties() {
+        List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
+        return properties.toArray(new LayoutProperty[0]);
     }
 
-    private static class LayoutUI implements UI<FruchtermanReingoldILayout> {
+    @Override
+    public void resetPropertyValues() {
+    }
 
-        @Override
-        public String getDescription() {
-            return NbBundle.getMessage(FruchtermanReingoldILayout.class, "description");
-        }
+    @Override
+    protected void setLayoutParameters(FruchtermanReingoldLayout layout) {
+    }
 
-        @Override
-        public Icon getIcon() {
-            return null;
-        }
-
-        @Override
-        public JPanel getSettingPanel(FruchtermanReingoldILayout layout) {
-            return null;
-        }
-
-        @Override
-        public int getQualityRank() {
-            return 3;
-        }
-
-        @Override
-        public int getSpeedRank() {
-            return 2;
-        }
+    @Override
+    protected boolean isRunOnce() {
+        return true;
     }
 }

@@ -24,7 +24,7 @@ import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutModel;
 import org.mongkie.layout.LayoutModelChangeListener;
-import org.mongkie.layout.spi.ILayout;
+import org.mongkie.layout.spi.Layout;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.progress.Progress;
 import org.mongkie.longtask.progress.ProgressTicket;
@@ -121,7 +121,7 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
     }
 
     @Override
-    public void setLayout(ILayout layout) {
+    public void setLayout(Layout layout) {
         model.setSelectedLayout(layout);
         if (layout != null) {
             // Inject visualization model when the layout choosed
@@ -167,10 +167,10 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
 
     private static class LayoutRun implements LongTask, Runnable {
 
-        private final ILayout layout;
+        private final Layout layout;
         private ProgressTicket progressTicket;
 
-        public LayoutRun(ILayout layout) {
+        public LayoutRun(Layout layout) {
             this.layout = layout;
         }
 
@@ -180,7 +180,7 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
             Progress.start(progressTicket);
             try {
                 layout.initAlgo();
-                while (layout.canAlgo()) {
+                while (layout.hasNextStep()) {
                     layout.goAlgo();
                 }
                 layout.endAlgo();
@@ -191,7 +191,7 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
 
         @Override
         public boolean cancel() {
-            layout.cancel();
+            layout.cancelAlgo();
             return true;
         }
 

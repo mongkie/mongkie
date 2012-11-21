@@ -20,7 +20,7 @@ along with Gephi.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.mongkie.layout;
 
-import org.mongkie.layout.spi.ILayout;
+import org.mongkie.layout.spi.Layout;
 import org.mongkie.visualization.MongkieDisplay;
 
 /**
@@ -45,30 +45,30 @@ public interface LayoutController {
     public void removeModelChangeListener(LayoutModelChangeListener l);
 
     /**
-     * Sets the ILayout to execute.
+     * Sets the Layout to execute.
      * @param layout the layout that is to be selected
      */
-    public void setLayout(ILayout layout);
+    public void setLayout(Layout layout);
 
     /**
-     * Executes the current ILayout.
+     * Executes the current Layout.
      */
     public void executeLayout();
 
     /**
-     * Determine if the current ILayout can be executed.
+     * Determine if the current Layout can be executed.
      * @return <code>true</code> if the layout is executable.
      */
     public boolean canExecute();
 
     /**
-     * Stop the ILayout's execution.
+     * Stop the Layout's execution.
      */
     public void stopLayout();
 
     /**
-     * Determine if the current ILayout execution can be stopped.
-     * If the current ILayout is not running, it generally cannot be stopped.
+     * Determine if the current Layout execution can be stopped.
+     * If the current Layout is not running, it generally cannot be stopped.
      * @return <code>true</code> if the layout can be stopped.
      */
     public boolean canStop();
