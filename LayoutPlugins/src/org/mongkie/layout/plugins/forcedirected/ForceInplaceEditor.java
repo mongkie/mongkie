@@ -20,6 +20,8 @@ package org.mongkie.layout.plugins.forcedirected;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyEditor;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -37,7 +39,7 @@ import org.openide.explorer.propertysheet.PropertyModel;
 import prefuse.util.force.Force;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class ForceInplaceEditor extends JComponent implements InplaceEditor {
@@ -64,6 +66,15 @@ public class ForceInplaceEditor extends JComponent implements InplaceEditor {
         slider.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         slider.setFocusable(false);
         add(slider);
+        slider.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // Enable slider after the first mouse click is consumed
+                if (!slider.isEnabled()) {
+                    slider.setEnabled(true);
+                }
+            }
+        });
         slider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -101,6 +112,8 @@ public class ForceInplaceEditor extends JComponent implements InplaceEditor {
     public void connect(PropertyEditor pe, PropertyEnv env) {
         editor = pe;
         reset();
+        // Disable slider until the first mouse clic is finished.
+        slider.setEnabled(false);
     }
 
     @Override
@@ -165,7 +178,9 @@ public class ForceInplaceEditor extends JComponent implements InplaceEditor {
 
     @Override
     public void setValue(Object o) {
-        setSliderValue((Float) o);
+        if (!o.equals(getValue())) {
+            setSliderValue((Float) o);
+        }
     }
 
     @Override
