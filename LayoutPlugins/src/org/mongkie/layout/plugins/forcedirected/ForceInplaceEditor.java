@@ -24,6 +24,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyEditor;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -50,17 +51,23 @@ public class ForceInplaceEditor extends JComponent implements InplaceEditor {
     private final JSlider slider;
     private final JLabel valueLabel;
     private float min, max;
+    private final String format;
 
     static {
         UIManager.put("Slider.paintValue", Boolean.FALSE);
     }
 
     public ForceInplaceEditor(final Force force, final int paramIdx) {
+        this(force, paramIdx, "%- 1.1f");
+    }
 
+    public ForceInplaceEditor(final Force force, final int paramIdx, final String format) {
+
+        this.format = format;
         min = force.getMinValue(paramIdx);
         max = force.getMaxValue(paramIdx);
 
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
         slider = new JSlider();
         slider.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -79,14 +86,17 @@ public class ForceInplaceEditor extends JComponent implements InplaceEditor {
             @Override
             public void stateChanged(ChangeEvent e) {
                 float val = getSliderValue();
-                valueLabel.setText(String.format("%- 2.1f", val));
+                valueLabel.setText(String.format(format, val));
                 force.setParameter(paramIdx, val);
             }
         });
 
+        add(Box.createRigidArea(new Dimension(2, 0)));
+
         valueLabel = new JLabel("NaN");
+        valueLabel.setFont(new java.awt.Font("Tahoma", 0, 11));
         valueLabel.setVerticalAlignment(SwingConstants.BOTTOM);
-        valueLabel.setPreferredSize(new Dimension(40, 20));
+        valueLabel.setPreferredSize(new Dimension(45, 20));
         add(valueLabel);
 
     }
@@ -185,6 +195,7 @@ public class ForceInplaceEditor extends JComponent implements InplaceEditor {
 
     @Override
     public Object getValue() {
-        return getSliderValue();
+        float val = getSliderValue();
+        return Float.valueOf(String.format(format, val));
     }
 }

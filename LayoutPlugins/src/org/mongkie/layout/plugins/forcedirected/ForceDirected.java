@@ -115,25 +115,25 @@ public class ForceDirected extends PrefuseLayout<ForceDirectedLayout> {
                     NBODY_FORCE,
                     NbBundle.getMessage(getClass(), "ForceDirected.nbodyForce.distance.description"),
                     "getDistance", "setDistance"));
-            p.getProperty().setValue("inplaceEditor", new ForceInplaceEditor(getPrefuseLayout().getForceSimulator().getForces()[0], 1));
+            p.getProperty().setValue("inplaceEditor", new ForceInplaceEditor(getPrefuseLayout().getForceSimulator().getForces()[0], 1, "%- 1.0f"));
             properties.add(p = LayoutProperty.createProperty(this, Float.TYPE,
                     NbBundle.getMessage(getClass(), "ForceDirected.nbodyForce.theta.name"),
                     NBODY_FORCE,
                     NbBundle.getMessage(getClass(), "ForceDirected.nbodyForce.theta.description"),
                     "getTheta", "setTheta"));
-            p.getProperty().setValue("inplaceEditor", new ForceInplaceEditor(getPrefuseLayout().getForceSimulator().getForces()[0], 2));
+            p.getProperty().setValue("inplaceEditor", new ForceInplaceEditor(getPrefuseLayout().getForceSimulator().getForces()[0], 2, "%- 1.2f"));
             properties.add(p = LayoutProperty.createProperty(this, Float.TYPE,
                     NbBundle.getMessage(getClass(), "ForceDirected.dragForce.dragCoefficient.name"),
                     DRAG_FORCE,
                     NbBundle.getMessage(getClass(), "ForceDirected.dragForce.dragCoefficient.description"),
                     "getDragCoefficient", "setDragCoefficient"));
-            p.getProperty().setValue("inplaceEditor", new ForceInplaceEditor(getPrefuseLayout().getForceSimulator().getForces()[1], 0));
+            p.getProperty().setValue("inplaceEditor", new ForceInplaceEditor(getPrefuseLayout().getForceSimulator().getForces()[1], 0, "%- 1.2f"));
             properties.add(p = LayoutProperty.createProperty(this, Float.TYPE,
                     NbBundle.getMessage(getClass(), "ForceDirected.springForce.springCoefficient.name"),
                     SPRING_FORCE,
                     NbBundle.getMessage(getClass(), "ForceDirected.springForce.springCoefficient.description"),
                     "getSpringCoefficient", "setSpringCoefficient"));
-            p.getProperty().setValue("inplaceEditor", new ForceInplaceEditor(getPrefuseLayout().getForceSimulator().getForces()[2], 0));
+            p.getProperty().setValue("inplaceEditor", new ForceInplaceEditor(getPrefuseLayout().getForceSimulator().getForces()[2], 0, "%- 1.1e"));
             properties.add(p = LayoutProperty.createProperty(this, Float.TYPE,
                     NbBundle.getMessage(getClass(), "ForceDirected.springForce.springLength.name"),
                     SPRING_FORCE,
