@@ -126,9 +126,9 @@ public class LayoutModelImpl implements LayoutModel {
     protected void saveProperties(Layout layout) {
         for (LayoutProperty p : layout.getProperties()) {
             try {
-                Object value = p.getProperty().getValue();
+                Object value = p.getValue();
                 if (value != null) {
-                    properties.put(new LayoutPropertyKey(p.getProperty().getName(), layout.getClass().getName()), value);
+                    properties.put(new LayoutPropertyKey(p.getName(), layout.getClass().getName()), value);
                 }
             } catch (Exception e) {
                 Exceptions.printStackTrace(e);
@@ -146,9 +146,9 @@ public class LayoutModelImpl implements LayoutModel {
         }
         for (LayoutProperty property : layout.getProperties()) {
             for (LayoutPropertyKey l : layoutValues) {
-                if (property.getProperty().getName().equals(l.propertyName)) {
+                if (property.getName().equals(l.propertyName)) {
                     try {
-                        property.getProperty().setValue(properties.get(l));
+                        property.setValue(properties.get(l));
                     } catch (Exception e) {
                         Exceptions.printStackTrace(e);
                     }

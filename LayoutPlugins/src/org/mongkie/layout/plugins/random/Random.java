@@ -47,7 +47,7 @@ public class Random extends PrefuseLayout<RandomLayout> {
     }
 
     @Override
-    public void resetPropertyValues() {
+    public void resetProperties() {
     }
 
     @Override

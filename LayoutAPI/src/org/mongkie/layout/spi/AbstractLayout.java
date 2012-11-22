@@ -83,6 +83,14 @@ public abstract class AbstractLayout extends prefuse.action.layout.Layout
 
     protected abstract LayoutProperty[] createProperties();
 
+    @Override
+    public void resetPropertyValues() {
+        resetProperties();
+        firePropertyChange("resetPropertyValues", null, this);
+    }
+
+    protected abstract void resetProperties();
+
     protected boolean isCompleted() {
         return completed;
     }

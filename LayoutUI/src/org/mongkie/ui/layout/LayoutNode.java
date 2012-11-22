@@ -67,14 +67,14 @@ public class LayoutNode extends AbstractNode implements PropertyChangeListener {
         if (propertySets == null) {
             try {
                 Map<String, Sheet.Set> sheetMap = new LinkedHashMap<String, Sheet.Set>();
-                for (LayoutProperty layoutProperty : layout.getProperties()) {
-                    Sheet.Set set = sheetMap.get(layoutProperty.getCategory());
+                for (LayoutProperty p : layout.getProperties()) {
+                    Sheet.Set set = sheetMap.get(p.getCategory());
                     if (set == null) {
                         set = Sheet.createPropertiesSet();
-                        set.setDisplayName(layoutProperty.getCategory());
-                        sheetMap.put(layoutProperty.getCategory(), set);
+                        set.setDisplayName(p.getCategory());
+                        sheetMap.put(p.getCategory(), set);
                     }
-                    set.put(layoutProperty.getProperty());
+                    set.put(p);
                 }
                 propertySets = sheetMap.values().toArray(new PropertySet[0]);
             } catch (Exception ex) {

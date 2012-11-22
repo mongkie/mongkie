@@ -47,7 +47,7 @@ public class Multipartite extends PrefuseLayout<VerticalLinesLayout> {
     }
 
     @Override
-    public void resetPropertyValues() {
+    public void resetProperties() {
     }
 
     @Override

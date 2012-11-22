@@ -110,6 +110,14 @@ public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout> impl
 
     protected abstract LayoutProperty[] createProperties();
 
+    @Override
+    public void resetPropertyValues() {
+        resetProperties();
+        firePropertyChange("resetPropertyValues", null, this);
+    }
+
+    protected abstract void resetProperties();
+
     protected L getPrefuseLayout() {
         if (prefuseLayout == null) {
             prefuseLayout = createPrefuseLayout();

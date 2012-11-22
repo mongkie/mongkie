@@ -37,7 +37,7 @@ public class Circle extends AbstractLayout {
 
     private double radius = 200D;
     private boolean autoScale = true;
-    private LayoutProperty rp;
+    private LayoutProperty radiusProperty;
 
     Circle(CircleLayoutBuilder builder) {
         super(builder);
@@ -50,9 +50,9 @@ public class Circle extends AbstractLayout {
     public void setAutoScale(boolean autoScale) {
         boolean o = this.autoScale;
         this.autoScale = autoScale;
-        if (rp != null) {
-            rp.getProperty().setHidden(autoScale);
-            firePropertyChange(rp.getProperty().getName(), o, autoScale);
+        if (radiusProperty != null) {
+            radiusProperty.setHidden(autoScale);
+            firePropertyChange(radiusProperty.getName(), o, autoScale);
         }
     }
 
@@ -68,14 +68,16 @@ public class Circle extends AbstractLayout {
     protected LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         try {
-            properties.add(LayoutProperty.createProperty(this, boolean.class,
-                    "Auto scale",
-                    "Parameters",
+            properties.add(LayoutProperty.createProperty("Auto scale",
                     "Set whether or not the layout should automatically scale itself to fit the display bounds.",
-                    "isAutoScale", "setAutoScale"));
-            rp = LayoutProperty.createProperty(this, double.class, "Radius", "Parameters", "Radius of the layout circle", "getRadius", "setRadius");
-            rp.getProperty().setHidden(autoScale);
-            properties.add(rp);
+                    "Parameters",
+                    this, boolean.class, "isAutoScale", "setAutoScale"));
+            radiusProperty = LayoutProperty.createProperty("Radius",
+                    "Radius of the layout circle",
+                    "Parameters",
+                    this, double.class, "getRadius", "setRadius");
+            radiusProperty.setHidden(autoScale);
+            properties.add(radiusProperty);
         } catch (NoSuchMethodException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -114,8 +116,11 @@ public class Circle extends AbstractLayout {
     }
 
     @Override
-    public void resetPropertyValues() {
-        setRadius(200D);
-        setAutoScale(true);
+    public void resetProperties() {
+        radius = 200D;
+        autoScale = true;
+        if (radiusProperty != null) {
+            radiusProperty.setHidden(true);
+        }
     }
 }

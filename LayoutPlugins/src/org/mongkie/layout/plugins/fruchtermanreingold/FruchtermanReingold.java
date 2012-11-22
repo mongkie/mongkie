@@ -47,7 +47,7 @@ public class FruchtermanReingold extends PrefuseLayout<FruchtermanReingoldLayout
     }
 
     @Override
-    public void resetPropertyValues() {
+    public void resetProperties() {
     }
 
     @Override

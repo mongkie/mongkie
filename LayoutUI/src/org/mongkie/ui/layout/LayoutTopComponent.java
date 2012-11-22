@@ -243,7 +243,6 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         Layout l = model.getSelectedLayout();
         if (l != null) {
             l.resetPropertyValues();
-            refreshProperties();
         }
     }
 

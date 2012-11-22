@@ -49,7 +49,7 @@ public class Grid extends PrefuseLayout<GridLayout> {
     }
 
     @Override
-    public void resetPropertyValues() {
+    public void resetProperties() {
     }
 
     @Override

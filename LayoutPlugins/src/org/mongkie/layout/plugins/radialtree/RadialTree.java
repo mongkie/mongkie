@@ -34,7 +34,7 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
 
     private double radiusIncrement = 50;
     private boolean autoScale = true;
-    private LayoutProperty ri;
+    private LayoutProperty radiusIncrementProperty;
 
     RadialTree(LayoutBuilder<RadialTree> builder) {
         super(builder);
@@ -47,9 +47,9 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
     public void setAutoScale(boolean autoScale) {
         boolean o = this.autoScale;
         this.autoScale = autoScale;
-        if (ri != null) {
-            ri.getProperty().setHidden(autoScale);
-            firePropertyChange(ri.getProperty().getName(), o, autoScale);
+        if (radiusIncrementProperty != null) {
+            radiusIncrementProperty.setHidden(autoScale);
+            firePropertyChange(radiusIncrementProperty.getName(), o, autoScale);
         }
     }
 
@@ -72,18 +72,16 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
     public LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         try {
-            properties.add(LayoutProperty.createProperty(this, boolean.class,
-                    "Auto scale",
-                    "Parameters",
+            properties.add(LayoutProperty.createProperty("Auto scale",
                     "Set whether or not the layout should automatically scale itself to fit the display bounds.",
-                    "isAutoScale", "setAutoScale"));
-            ri = LayoutProperty.createProperty(this, double.class,
-                    "Radius increment",
                     "Parameters",
+                    this, boolean.class, "isAutoScale", "setAutoScale"));
+            radiusIncrementProperty = LayoutProperty.createProperty("Radius increment",
                     "Set the radius increment to use between concentric circles. Note that this value is used only if auto-scaling is disabled.",
-                    "getRadiusIncrement", "setRadiusIncrement");
-            ri.getProperty().setHidden(autoScale);
-            properties.add(ri);
+                    "Parameters",
+                    this, double.class, "getRadiusIncrement", "setRadiusIncrement");
+            radiusIncrementProperty.setHidden(autoScale);
+            properties.add(radiusIncrementProperty);
         } catch (NoSuchMethodException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -91,9 +89,12 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
     }
 
     @Override
-    public void resetPropertyValues() {
-        setRadiusIncrement(50);
-        setAutoScale(true);
+    public void resetProperties() {
+        radiusIncrement = 50;
+        autoScale = true;
+        if (radiusIncrementProperty != null) {
+            radiusIncrementProperty.setHidden(true);
+        }
     }
 
     @Override
