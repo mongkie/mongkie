@@ -35,10 +35,25 @@ import prefuse.visual.VisualItem;
  */
 public class Circle extends AbstractLayout {
 
-    private double radius = .0D;
+    private double radius = 200D;
+    private boolean autoScale = true;
+    private LayoutProperty rp;
 
     Circle(CircleLayoutBuilder builder) {
         super(builder);
+    }
+
+    public boolean isAutoScale() {
+        return autoScale;
+    }
+
+    public void setAutoScale(boolean autoScale) {
+        boolean o = this.autoScale;
+        this.autoScale = autoScale;
+        if (rp != null) {
+            rp.getProperty().setHidden(autoScale);
+            firePropertyChange(rp.getProperty().getName(), o, autoScale);
+        }
     }
 
     public double getRadius() {
@@ -53,7 +68,14 @@ public class Circle extends AbstractLayout {
     protected LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         try {
-            properties.add(LayoutProperty.createProperty(this, double.class, "Radius", "Parameters", "Radius of the layout circle", "getRadius", "setRadius"));
+            properties.add(LayoutProperty.createProperty(this, boolean.class,
+                    "Auto scale",
+                    "Parameters",
+                    "Set whether or not the layout should automatically scale itself to fit the display bounds.",
+                    "isAutoScale", "setAutoScale"));
+            rp = LayoutProperty.createProperty(this, double.class, "Radius", "Parameters", "Radius of the layout circle", "getRadius", "setRadius");
+            rp.getProperty().setHidden(autoScale);
+            properties.add(rp);
         } catch (NoSuchMethodException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -77,10 +99,8 @@ public class Circle extends AbstractLayout {
         double cx = rect.getCenterX();
         double cy = rect.getCenterY();
 
-        double r = radius;
-        if (r <= 0) {
-            r = 0.45 * (height < width ? height : width);
-        }
+        double r = (isAutoScale() || radius <= 0)
+                ? 0.45 * (height < width ? height : width) : radius;
 
         Iterator<VisualItem> items = ts.tuples();
         for (int i = 0; items.hasNext(); i++) {
@@ -95,6 +115,7 @@ public class Circle extends AbstractLayout {
 
     @Override
     public void resetPropertyValues() {
-        radius = .0D;
+        setRadius(200D);
+        setAutoScale(true);
     }
 }

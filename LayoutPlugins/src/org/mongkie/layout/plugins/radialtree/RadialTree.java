@@ -34,7 +34,7 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
 
     private double radiusIncrement = 50;
     private boolean autoScale = true;
-    private LayoutProperty as, ri;
+    private LayoutProperty ri;
 
     RadialTree(LayoutBuilder<RadialTree> builder) {
         super(builder);
@@ -45,8 +45,12 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
     }
 
     public void setAutoScale(boolean autoScale) {
+        boolean o = this.autoScale;
         this.autoScale = autoScale;
-        refreshRedialIncrementProperty();
+        if (ri != null) {
+            ri.getProperty().setHidden(autoScale);
+            firePropertyChange(ri.getProperty().getName(), o, autoScale);
+        }
     }
 
     public double getRadiusIncrement() {
@@ -68,21 +72,16 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
     public LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         try {
-            if (as == null) {
-                as = LayoutProperty.createProperty(this, boolean.class,
-                        "Auto scale",
-                        "Parameters",
-                        "Set whether or not the layout should automatically scale itself to fit the display bounds.",
-                        "isAutoScale", "setAutoScale");
-            }
-            properties.add(as);
-            if (ri == null) {
-                ri = LayoutProperty.createProperty(this, double.class,
-                        "Radius increment",
-                        "Parameters",
-                        "Set the radius increment to use between concentric circles. Note that this value is used only if auto-scaling is disabled.",
-                        "getRadiusIncrement", "setRadiusIncrement");
-            }
+            properties.add(LayoutProperty.createProperty(this, boolean.class,
+                    "Auto scale",
+                    "Parameters",
+                    "Set whether or not the layout should automatically scale itself to fit the display bounds.",
+                    "isAutoScale", "setAutoScale"));
+            ri = LayoutProperty.createProperty(this, double.class,
+                    "Radius increment",
+                    "Parameters",
+                    "Set the radius increment to use between concentric circles. Note that this value is used only if auto-scaling is disabled.",
+                    "getRadiusIncrement", "setRadiusIncrement");
             ri.getProperty().setHidden(autoScale);
             properties.add(ri);
         } catch (NoSuchMethodException ex) {
@@ -95,14 +94,6 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
     public void resetPropertyValues() {
         setRadiusIncrement(50);
         setAutoScale(true);
-        refreshRedialIncrementProperty();
-    }
-
-    private void refreshRedialIncrementProperty() {
-        if (ri != null) {
-            ri.getProperty().setHidden(autoScale);
-            firePropertyChange(ri.getProperty().getName(), null, autoScale);
-        }
     }
 
     @Override
