@@ -74,10 +74,10 @@ public class GridLayout extends Layout {
             setY(item,null,y);
         }
         // set left-overs invisible
-        while ( iter.hasNext() ) {
-            VisualItem item = (VisualItem)iter.next();
-            item.setVisible(false);
-        }
+//        while ( iter.hasNext() ) {
+//            VisualItem item = (VisualItem)iter.next();
+//            item.setVisible(false);
+//        }
     }
     
     /**
@@ -99,7 +99,7 @@ public class GridLayout extends Layout {
 //        }
 //        m = ts.getTupleCount() / n;
 //        return new int[] {m,n};
-        int m = (int) Math.sqrt(ts.getTupleCount());
+        int m = (int) Math.floor(Math.sqrt(ts.getTupleCount()));
         return new int[] {m, m + 1};
     }
     

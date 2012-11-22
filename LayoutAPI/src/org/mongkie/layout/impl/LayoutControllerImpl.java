@@ -36,7 +36,7 @@ import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Graph;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ServiceProvider(service = LayoutController.class)
@@ -48,7 +48,6 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
     public LayoutControllerImpl() {
         listeners = new ArrayList<LayoutModelChangeListener>();
         Lookup.getDefault().lookup(VisualizationController.class).addWorkspaceListener(new WorkspaceListener() {
-
             @Override
             public void displaySelected(MongkieDisplay display) {
                 display.addDisplayListener(LayoutControllerImpl.this);
@@ -125,7 +124,7 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
         model.setSelectedLayout(layout);
         if (layout != null) {
             // Inject visualization model when the layout choosed
-            layout.setDisplay(Lookup.getDefault().lookup(VisualizationController.class).getDisplay());
+            layout.setDisplay(model.getDisplay());
         }
     }
 

@@ -20,7 +20,6 @@ package org.mongkie.layout.spi;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
-import prefuse.Visualization;
 import prefuse.action.Action;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityAdapter;
@@ -32,7 +31,6 @@ import prefuse.activity.ActivityAdapter;
 public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout> implements Layout {
 
     private final LayoutBuilder<? extends PrefuseLayout> builder;
-    protected Visualization v;
     protected MongkieDisplay display;
     private L prefuseLayout;
     private boolean completed;
@@ -82,8 +80,7 @@ public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout> impl
         }
         d.getLayoutAction().addActivityListener(prefuseListener);
         display = d;
-        v = d.getVisualization();
-        getPrefuseLayout().setVisualization(v);
+        getPrefuseLayout().setVisualization(d.getVisualization());
     }
 
     @Override
