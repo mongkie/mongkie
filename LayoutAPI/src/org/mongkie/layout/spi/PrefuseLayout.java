@@ -17,6 +17,8 @@
  */
 package org.mongkie.layout.spi;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
@@ -36,6 +38,21 @@ public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout> impl
     private boolean completed;
     private final PrefuseLayoutListener prefuseListener;
     private LayoutProperty[] properties;
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+
+    @Override
+    public final void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
+    }
+
+    @Override
+    public final void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
+    }
+
+    protected final void firePropertyChange(String name, Object o, Object n) {
+        pcs.firePropertyChange(name, o, n);
+    }
 
     private static class PrefuseLayoutListener extends ActivityAdapter {
 

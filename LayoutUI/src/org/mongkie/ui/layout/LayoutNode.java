@@ -17,6 +17,9 @@
  */
 package org.mongkie.ui.layout;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.mongkie.layout.LayoutProperty;
@@ -28,10 +31,10 @@ import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class LayoutNode extends AbstractNode {
+public class LayoutNode extends AbstractNode implements PropertyChangeListener {
 
     private Layout layout;
     private PropertySet[] propertySets;
@@ -39,7 +42,24 @@ public class LayoutNode extends AbstractNode {
     public LayoutNode(Layout layout) {
         super(Children.LEAF);
         this.layout = layout;
+        layout.addPropertyChangeListener(LayoutNode.this);
         setName(layout.getBuilder().getName());
+    }
+
+    @Override
+    public boolean canDestroy() {
+        return true;
+    }
+
+    @Override
+    public void destroy() throws IOException {
+        super.destroy();
+        layout.removePropertyChangeListener(this);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        firePropertySetsChange(null, propertySets);
     }
 
     @Override

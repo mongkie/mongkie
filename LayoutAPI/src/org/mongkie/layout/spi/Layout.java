@@ -20,6 +20,7 @@
  */
 package org.mongkie.layout.spi;
 
+import java.beans.PropertyChangeListener;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
 
@@ -38,6 +39,10 @@ import org.mongkie.visualization.MongkieDisplay;
  * @see LayoutBuilder
  */
 public interface Layout {
+    
+    public void addPropertyChangeListener(PropertyChangeListener l);
+    
+    public void removePropertyChangeListener(PropertyChangeListener l);
 
     /**
      * initAlgo() is called to initialize the algorithm (prepare to run).

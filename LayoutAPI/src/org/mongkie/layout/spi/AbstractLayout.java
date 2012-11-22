@@ -18,6 +18,8 @@
  */
 package org.mongkie.layout.spi;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
@@ -36,9 +38,24 @@ public abstract class AbstractLayout extends prefuse.action.layout.Layout
     private LayoutProperty[] properties;
     private boolean completed;
     private LayoutBuilder<? extends Layout> builder;
+    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     protected AbstractLayout(LayoutBuilder<? extends Layout> builder) {
         this.builder = builder;
+    }
+
+    @Override
+    public final void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
+    }
+
+    @Override
+    public final void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
+    }
+
+    protected final void firePropertyChange(String name, Object o, Object n) {
+        pcs.firePropertyChange(name, o, n);
     }
 
     @Override
