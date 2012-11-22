@@ -37,7 +37,9 @@ public class Grid extends PrefuseLayout<GridLayout> {
 
     @Override
     protected GridLayout createPrefuseLayout() {
-        return new GridLayout(NODES);
+        GridLayout l = new GridLayout(NODES);
+        l.setMargin(50, 50, 50, 50);
+        return l;
     }
 
     @Override
