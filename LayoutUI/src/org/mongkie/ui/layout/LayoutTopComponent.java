@@ -20,6 +20,8 @@ package org.mongkie.ui.layout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -28,8 +30,12 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutModel;
 import org.mongkie.layout.LayoutModelChangeListener;
@@ -37,15 +43,20 @@ import org.mongkie.layout.spi.Layout;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.LayoutBuilder.UI;
 import org.mongkie.lib.widgets.richtooltip.RichTooltip;
+import org.mongkie.ui.layout.LayoutPersistenceImpl.Preset;
 import static org.mongkie.visualization.Config.MODE_CONTROL;
 import static org.mongkie.visualization.Config.ROLE_NETWORK;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.awt.StatusDisplayer;
 import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -378,6 +389,11 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         presetsButton.setFocusPainted(false);
         presetsButton.setFocusable(false);
         presetsButton.setIconTextGap(0);
+        presetsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                presetsButtonActionPerformed(evt);
+            }
+        });
         layoutToolbar.add(presetsButton);
 
         resetButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/layout/resources/reset.png"))); // NOI18N
@@ -424,6 +440,47 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
     private void resetButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetButtonActionPerformed
         reset();
     }//GEN-LAST:event_resetButtonActionPerformed
+
+    private void presetsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_presetsButtonActionPerformed
+        JPopupMenu menu = new JPopupMenu();
+        Set<Preset> presets = LayoutPersistenceImpl.getDefault().getPresets(model.getSelectedLayout());
+        if (presets != null && !presets.isEmpty()) {
+            for (final Preset p : presets) {
+                JMenuItem item = new JMenuItem(p.getName());
+                item.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        LayoutPersistenceImpl.getDefault().loadPreset(model.getSelectedLayout(), p);
+                        refreshProperties();
+                        StatusDisplayer.getDefault().setStatusText(
+                                NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.status.presetLoaded", model.getSelectedLayout().getBuilder().getName(), p.getName()));
+                    }
+                });
+                menu.add(item);
+            }
+            menu.add(new JSeparator());
+        }
+        JMenuItem saveItem = new JMenuItem("Save preset...");
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String lastPresetName = NbPreferences.forModule(LayoutTopComponent.class).get("LayoutTopComponent.lastPresetName", "");
+                NotifyDescriptor.InputLine question = new NotifyDescriptor.InputLine("Name", "Preset name");
+                question.setInputText(lastPresetName);
+                if (DialogDisplayer.getDefault().notify(question) == NotifyDescriptor.OK_OPTION) {
+                    String name = question.getInputText();
+                    if (name != null && !name.isEmpty()
+                            && LayoutPersistenceImpl.getDefault().savePreset(model.getSelectedLayout(), name)) {
+                        StatusDisplayer.getDefault().setStatusText(
+                                NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.status.presetSaved", model.getSelectedLayout().getBuilder().getName(), name));
+                        NbPreferences.forModule(LayoutTopComponent.class).put("LayoutTopComponent.lastPresetName", name);
+                    }
+                }
+            }
+        });
+        menu.add(saveItem);
+        menu.show(layoutToolbar, 0, -menu.getPreferredSize().height);
+    }//GEN-LAST:event_presetsButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel infoLabel;
     private javax.swing.JComboBox layoutCombobox;

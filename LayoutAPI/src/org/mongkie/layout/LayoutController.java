@@ -72,4 +72,6 @@ public interface LayoutController {
      * @return <code>true</code> if the layout can be stopped.
      */
     public boolean canStop();
+    
+    public Layout lookupLayout(String name);
 }

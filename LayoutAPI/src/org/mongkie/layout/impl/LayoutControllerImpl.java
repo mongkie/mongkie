@@ -25,6 +25,7 @@ import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutModel;
 import org.mongkie.layout.LayoutModelChangeListener;
 import org.mongkie.layout.spi.Layout;
+import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.progress.Progress;
 import org.mongkie.longtask.progress.ProgressTicket;
@@ -162,6 +163,16 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
         } else {
             fireModelChangeEvent(model, null);
         }
+    }
+
+    @Override
+    public Layout lookupLayout(String name) {
+        for (LayoutBuilder builder : Lookup.getDefault().lookupAll(LayoutBuilder.class)) {
+            if (name.equals(builder.getName())) {
+                return builder.getLayout();
+            }
+        }
+        return null;
     }
 
     private static class LayoutRun implements LongTask, Runnable {
