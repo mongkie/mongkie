@@ -44,7 +44,7 @@ public class GridLayoutBuilder extends LayoutBuilder<Grid> {
     }
 
     @Override
-    protected Grid buildLayout() {
+    public Grid buildLayout() {
         return new Grid(this);
     }
 

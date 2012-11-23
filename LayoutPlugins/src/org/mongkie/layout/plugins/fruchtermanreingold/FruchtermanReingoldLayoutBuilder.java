@@ -44,7 +44,7 @@ public class FruchtermanReingoldLayoutBuilder extends LayoutBuilder<FruchtermanR
     }
 
     @Override
-    protected FruchtermanReingold buildLayout() {
+    public FruchtermanReingold buildLayout() {
         return new FruchtermanReingold(this);
     }
 

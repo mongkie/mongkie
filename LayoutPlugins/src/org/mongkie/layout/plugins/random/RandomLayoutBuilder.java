@@ -44,7 +44,7 @@ public class RandomLayoutBuilder extends LayoutBuilder<Random> {
     }
 
     @Override
-    protected Random buildLayout() {
+    public Random buildLayout() {
         return new Random(this);
     }
 

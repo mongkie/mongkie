@@ -44,7 +44,7 @@ public class ForceDirectedLayoutBuilder extends LayoutBuilder<ForceDirected> {
     }
 
     @Override
-    protected ForceDirected buildLayout() {
+    public ForceDirected buildLayout() {
         return new ForceDirected(this);
     }
 

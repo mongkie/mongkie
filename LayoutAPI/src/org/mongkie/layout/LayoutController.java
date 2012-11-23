@@ -21,6 +21,7 @@ along with Gephi.  If not, see <http://www.gnu.org/licenses/>.
 package org.mongkie.layout;
 
 import org.mongkie.layout.spi.Layout;
+import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.visualization.MongkieDisplay;
 
 /**
@@ -48,7 +49,7 @@ public interface LayoutController {
      * Sets the Layout to execute.
      * @param layout the layout that is to be selected
      */
-    public void setLayout(Layout layout);
+    public void setLayout(LayoutBuilder builder);
 
     /**
      * Executes the current Layout.

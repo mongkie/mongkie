@@ -151,7 +151,6 @@ public class ForceInplaceEditor extends JComponent implements InplaceEditor {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void reset() {
         setValue(editor.getValue());
     }

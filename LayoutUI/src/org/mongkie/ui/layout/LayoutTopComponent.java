@@ -152,11 +152,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         if (model.getSelectedLayout() != null && model.getSelectedLayout().getBuilder() == builder) {
             return;
         }
-        Layout l = builder != null ? builder.getLayout() : null;
-        if (l != null) {
-            l.resetPropertyValues();
-        }
-        Lookup.getDefault().lookup(LayoutController.class).setLayout(l);
+        Lookup.getDefault().lookup(LayoutController.class).setLayout(builder);
     }
 
     private void refreshModel() {

@@ -150,7 +150,7 @@ public abstract class CompositeAction extends Action {
 
     public void removeAll() {
         while (size() > 0) {
-            remove(size() - 1).cancel();
+            remove(size() - 1);
         }
     }
 } // end of class CompositeAction

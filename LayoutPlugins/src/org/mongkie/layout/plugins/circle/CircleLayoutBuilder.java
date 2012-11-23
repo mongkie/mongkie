@@ -44,7 +44,7 @@ public class CircleLayoutBuilder extends LayoutBuilder<Circle> {
     }
 
     @Override
-    protected Circle buildLayout() {
+    public Circle buildLayout() {
         return new Circle(this);
     }
 

@@ -57,19 +57,20 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
                 if (model == null) {
                     model = new LayoutModelImpl(display);
                     display.add(model);
-                } else if (model.getSelectedLayout() != null) {
-                    model.loadProperties(model.getSelectedLayout());
                 }
+//                else if (model.getSelectedLayout() != null) {
+//                    model.loadProperties(model.getSelectedLayout());
+//                }
                 fireModelChangeEvent(old, model);
             }
 
             @Override
             public void displayDeselected(MongkieDisplay display) {
                 display.removeDisplayListener(LayoutControllerImpl.this);
-                LayoutModelImpl old = display.getLookup().lookup(LayoutModelImpl.class);
-                if (old.getSelectedLayout() != null) {
-                    old.saveProperties(old.getSelectedLayout());
-                }
+//                LayoutModelImpl old = display.getLookup().lookup(LayoutModelImpl.class);
+//                if (old.getSelectedLayout() != null) {
+//                    old.saveProperties(old.getSelectedLayout());
+//                }
             }
 
             @Override
@@ -121,12 +122,8 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
     }
 
     @Override
-    public void setLayout(Layout layout) {
-        model.setSelectedLayout(layout);
-        if (layout != null) {
-            // Inject visualization model when the layout choosed
-            layout.setDisplay(model.getDisplay());
-        }
+    public void setLayout(LayoutBuilder builder) {
+        model.setSelectedLayout(builder);
     }
 
     @Override
@@ -167,12 +164,7 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
 
     @Override
     public Layout lookupLayout(String name) {
-        for (LayoutBuilder builder : Lookup.getDefault().lookupAll(LayoutBuilder.class)) {
-            if (name.equals(builder.getName())) {
-                return builder.getLayout();
-            }
-        }
-        return null;
+        return model != null ? model.lookupLayout(name) : null;
     }
 
     private static class LayoutRun implements LongTask, Runnable {

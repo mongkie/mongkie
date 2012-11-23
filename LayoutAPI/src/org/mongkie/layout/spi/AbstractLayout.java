@@ -20,23 +20,25 @@ package org.mongkie.layout.spi;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import kobic.prefuse.display.DisplayListener;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
 import prefuse.action.Action;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityListener;
+import prefuse.data.Graph;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public abstract class AbstractLayout extends prefuse.action.layout.Layout
-        implements Layout, ActivityListener {
+        implements Layout, ActivityListener, DisplayListener<MongkieDisplay> {
 
     protected MongkieDisplay display;
-    private LayoutProperty[] properties;
-    private boolean completed;
+    protected LayoutProperty[] _properties;
+    private volatile boolean completed;
     private LayoutBuilder<? extends Layout> builder;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -65,20 +67,25 @@ public abstract class AbstractLayout extends prefuse.action.layout.Layout
 
     @Override
     public void setDisplay(MongkieDisplay d) {
+        if (display == d) {
+            return;
+        }
         if (display != null) {
             display.getLayoutAction().removeActivityListener(this);
+            display.removeDisplayListener(this);
         }
         d.getLayoutAction().addActivityListener(this);
+        d.addDisplayListener(this);
         display = d;
         setVisualization(d.getVisualization());
     }
 
     @Override
     public LayoutProperty[] getProperties() {
-        if (properties == null) {
-            properties = createProperties();
+        if (_properties == null) {
+            _properties = createProperties();
         }
-        return properties;
+        return _properties;
     }
 
     protected abstract LayoutProperty[] createProperties();
@@ -129,7 +136,6 @@ public abstract class AbstractLayout extends prefuse.action.layout.Layout
 
     @Override
     public void cancelAlgo() {
-        cancel();
         display.cancelLayout();
     }
 
@@ -160,9 +166,21 @@ public abstract class AbstractLayout extends prefuse.action.layout.Layout
     }
 
     private void completeLayout() {
-        synchronized (this) {
-            setCompleted(true);
-            notifyAll();
+        if (!isCompleted()) {
+            synchronized (this) {
+                setCompleted(true);
+                notifyAll();
+            }
         }
+    }
+
+    @Override
+    public void graphDisposing(MongkieDisplay d, Graph g) {
+        d.getLayoutAction().removeActivityListener(this);
+    }
+
+    @Override
+    public void graphChanged(MongkieDisplay d, Graph g) {
+        d.getLayoutAction().addActivityListener(this);
     }
 }

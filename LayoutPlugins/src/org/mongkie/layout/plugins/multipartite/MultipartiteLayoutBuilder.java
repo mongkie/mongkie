@@ -44,7 +44,7 @@ public class MultipartiteLayoutBuilder extends LayoutBuilder<Multipartite> {
     }
 
     @Override
-    protected Multipartite buildLayout() {
+    public Multipartite buildLayout() {
         return new Multipartite(this);
     }
 

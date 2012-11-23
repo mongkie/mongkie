@@ -44,7 +44,7 @@ public class RadialTreeLayoutBuilder extends LayoutBuilder<RadialTree> {
     }
 
     @Override
-    protected RadialTree buildLayout() {
+    public RadialTree buildLayout() {
         return new RadialTree(this);
     }
 

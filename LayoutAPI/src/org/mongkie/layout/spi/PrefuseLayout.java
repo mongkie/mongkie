@@ -19,116 +19,54 @@ package org.mongkie.layout.spi;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
-import org.openide.util.Exceptions;
 import prefuse.action.Action;
-import prefuse.activity.Activity;
-import prefuse.activity.ActivityAdapter;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout>
-        implements Layout, PropertyChangeListener {
+        extends AbstractLayout implements PropertyChangeListener {
 
-    private final LayoutBuilder<? extends PrefuseLayout> builder;
-    protected MongkieDisplay display;
     private L prefuseLayout;
-    private boolean completed;
-    private final PrefuseLayoutListener prefuseListener;
-    private LayoutProperty[] properties;
-    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-
-    @Override
-    public final void addPropertyChangeListener(PropertyChangeListener l) {
-        pcs.addPropertyChangeListener(l);
-    }
-
-    @Override
-    public final void removePropertyChangeListener(PropertyChangeListener l) {
-        pcs.removePropertyChangeListener(l);
-    }
-
-    protected final void firePropertyChange(String name, Object o, Object n) {
-        pcs.firePropertyChange(name, o, n);
-    }
-
-    private static class PrefuseLayoutListener extends ActivityAdapter {
-
-        private final PrefuseLayout layout;
-
-        public PrefuseLayoutListener(PrefuseLayout layout) {
-            this.layout = layout;
-        }
-
-        @Override
-        public void activityFinished(Activity a) {
-            completeLayout();
-        }
-
-        @Override
-        public void activityCancelled(Activity a) {
-            completeLayout();
-        }
-
-        private void completeLayout() {
-            synchronized (layout) {
-                layout.setCompleted(true);
-                layout.notifyAll();
-            }
-        }
-    }
 
     public PrefuseLayout(LayoutBuilder<? extends PrefuseLayout> builder) {
-        this.builder = builder;
-        prefuseListener = new PrefuseLayoutListener(this);
-    }
-
-    @Override
-    public LayoutBuilder<? extends PrefuseLayout> getBuilder() {
-        return builder;
+        super(builder);
     }
 
     @Override
     public void setDisplay(MongkieDisplay d) {
-        if (display != null) {
-            display.getLayoutAction().removeActivityListener(prefuseListener);
-        }
-        d.getLayoutAction().addActivityListener(prefuseListener);
-        display = d;
+        super.setDisplay(d);
         getPrefuseLayout().setVisualization(d.getVisualization());
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        setLayoutParameters(prefuseLayout);
+        setLayoutParameters(getPrefuseLayout());
     }
 
     @Override
     public LayoutProperty[] getProperties() {
-        if (properties == null) {
-            properties = createProperties();
+        if (_properties == null) {
+            _properties = createProperties();
             if (!isRunOnce()) {
-                for (LayoutProperty p : properties) {
+                for (LayoutProperty p : _properties) {
                     p.getPropertyEditor().addPropertyChangeListener(this);
                 }
             }
         }
-        return properties;
+        return _properties;
     }
-
-    protected abstract LayoutProperty[] createProperties();
 
     @Override
     public void resetPropertyValues() {
-        resetProperties();
-        firePropertyChange("resetPropertyValues", null, this);
+        super.resetPropertyValues();
+        if (!isRunOnce()) {
+            setLayoutParameters(getPrefuseLayout());
+        }
     }
-
-    protected abstract void resetProperties();
 
     protected L getPrefuseLayout() {
         if (prefuseLayout == null) {
@@ -138,16 +76,6 @@ public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout>
     }
 
     protected abstract L createPrefuseLayout();
-
-    protected abstract boolean isRunOnce();
-
-    protected boolean isCompleted() {
-        return completed;
-    }
-
-    protected void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
 
     @Override
     public void initAlgo() {
@@ -160,35 +88,7 @@ public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout>
     protected abstract void setLayoutParameters(L layout);
 
     @Override
-    public boolean hasNextStep() {
-        return !isCompleted() && display != null;
-    }
-
-    /**
-     * Just wait until prefuse's layout activity finished.
-     */
-    @Override
-    public void goAlgo() {
-        display.rerunNetworkLayout();
-        synchronized (this) {
-            if (!isCompleted()) {
-                try {
-                    wait();
-                } catch (InterruptedException ex) {
-                    Exceptions.printStackTrace(ex);
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void endAlgo() {
-    }
-
-    @Override
-    public void cancelAlgo() {
-        getPrefuseLayout().cancel();
-        display.cancelLayout();
+    public void run(double frac) {
+        throw new IllegalStateException();
     }
 }

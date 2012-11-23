@@ -21,6 +21,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -28,12 +29,14 @@ import java.util.logging.Logger;
 import org.mongkie.layout.LayoutModel;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.Layout;
+import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.LongTaskErrorHandler;
 import org.mongkie.longtask.LongTaskExecutor;
 import org.mongkie.longtask.LongTaskListener;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -41,6 +44,7 @@ import org.openide.util.Exceptions;
  */
 public class LayoutModelImpl implements LayoutModel {
 
+    private final Map<String, Layout> layouts;
     private Layout selectedLayout;
     private final List<PropertyChangeListener> listeners;
     private final Map<LayoutPropertyKey, Object> properties;
@@ -49,6 +53,13 @@ public class LayoutModelImpl implements LayoutModel {
 
     protected LayoutModelImpl(MongkieDisplay d) {
         this.d = d;
+        layouts = new HashMap<String, Layout>();
+        for (LayoutBuilder builder : Lookup.getDefault().lookupAll(LayoutBuilder.class)) {
+            Layout layout = builder.buildLayout();
+            layout.resetPropertyValues();
+            layout.setDisplay(d);
+            layouts.put(builder.getName(), layout);
+        }
         listeners = new ArrayList<PropertyChangeListener>();
         properties = new HashMap<LayoutPropertyKey, Object>();
         executor = new LongTaskExecutor(true, "Layout");
@@ -76,16 +87,22 @@ public class LayoutModelImpl implements LayoutModel {
         return selectedLayout;
     }
 
-    protected void setSelectedLayout(Layout layout) {
+    void setSelectedLayout(LayoutBuilder builder) {
         Layout oldLayout = selectedLayout;
-        selectedLayout = layout;
-        if (oldLayout != null) {
-            saveProperties(oldLayout);
-        }
-        if (selectedLayout != null) {
-            loadProperties(selectedLayout);
-        }
+        selectedLayout = (builder != null) ? layouts.get(builder.getName()) : null;
+        /* Layout instance is not a singleton anymore, thus not need to save/load properties */
+//        if (oldLayout != null) {
+//            saveProperties(oldLayout);
+//        }
+//        if (selectedLayout != null) {
+//            selectedLayout.resetPropertyValues();
+//            loadProperties(selectedLayout);
+//        }
         firePropertyChangeEvent(SELECTED_LAYOUT, oldLayout, selectedLayout);
+    }
+
+    Layout lookupLayout(String name) {
+        return layouts.get(name);
     }
 
     @Override
@@ -93,11 +110,11 @@ public class LayoutModelImpl implements LayoutModel {
         return executor.isRunning();
     }
 
-    protected void setRunning(boolean on) {
+    void setRunning(boolean on) {
         firePropertyChangeEvent(IS_RUNNING, !on, on);
     }
 
-    protected LongTaskExecutor getExecutor() {
+    LongTaskExecutor getExecutor() {
         return executor;
     }
 
@@ -123,12 +140,12 @@ public class LayoutModelImpl implements LayoutModel {
         }
     }
 
-    protected void saveProperties(Layout layout) {
+    void saveProperties(Layout layout) {
         for (LayoutProperty p : layout.getProperties()) {
             try {
                 Object value = p.getValue();
                 if (value != null) {
-                    properties.put(new LayoutPropertyKey(p.getName(), layout.getClass().getName()), value);
+                    properties.put(new LayoutPropertyKey(layout.getBuilder().getName(), p.getName()), value);
                 }
             } catch (Exception e) {
                 Exceptions.printStackTrace(e);
@@ -136,19 +153,19 @@ public class LayoutModelImpl implements LayoutModel {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    protected void loadProperties(Layout layout) {
-        List<LayoutPropertyKey> layoutValues = new ArrayList<LayoutPropertyKey>();
-        for (LayoutPropertyKey val : properties.keySet()) {
-            if (val.className.equals(layout.getClass().getName())) {
-                layoutValues.add(val);
+    void loadProperties(Layout layout) {
+        List<LayoutPropertyKey> propKeys = new ArrayList<LayoutPropertyKey>();
+        for (Iterator<LayoutPropertyKey> keyIter = properties.keySet().iterator(); keyIter.hasNext();) {
+            LayoutPropertyKey k = keyIter.next();
+            if (k.layoutName.equals(layout.getBuilder().getName())) {
+                propKeys.add(k);
             }
         }
         for (LayoutProperty property : layout.getProperties()) {
-            for (LayoutPropertyKey l : layoutValues) {
-                if (property.getName().equals(l.propertyName)) {
+            for (LayoutPropertyKey k : propKeys) {
+                if (property.getName().equals(k.propertyName)) {
                     try {
-                        property.setValue(properties.get(l));
+                        property.setValue(properties.get(k));
                     } catch (Exception e) {
                         Exceptions.printStackTrace(e);
                     }
@@ -165,12 +182,12 @@ public class LayoutModelImpl implements LayoutModel {
     private static class LayoutPropertyKey {
 
         private volatile int hash = 0;
+        private final String layoutName;
         private final String propertyName;
-        private final String className;
 
-        public LayoutPropertyKey(String propertyName, String className) {
+        public LayoutPropertyKey(String layoutName, String propertyName) {
+            this.layoutName = layoutName;
             this.propertyName = propertyName;
-            this.className = className;
         }
 
         @Override
@@ -182,7 +199,7 @@ public class LayoutModelImpl implements LayoutModel {
                 return true;
             }
             LayoutPropertyKey key = (LayoutPropertyKey) obj;
-            if (key.className.equals(className) && key.propertyName.equals(propertyName)) {
+            if (key.layoutName.equals(layoutName) && key.propertyName.equals(propertyName)) {
                 return true;
             }
             return false;
@@ -192,7 +209,7 @@ public class LayoutModelImpl implements LayoutModel {
         public int hashCode() {
             if (hash == 0) {
                 int h = 7;
-                h += 53 * className.hashCode();
+                h += 53 * layoutName.hashCode();
                 h += 53 * propertyName.hashCode();
                 hash = h;
             }
