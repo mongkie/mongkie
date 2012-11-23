@@ -23,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyEditor;
+import java.lang.reflect.InvocationTargetException;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -37,6 +38,7 @@ import javax.swing.event.ChangeListener;
 import org.openide.explorer.propertysheet.InplaceEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;
 import org.openide.explorer.propertysheet.PropertyModel;
+import org.openide.util.Exceptions;
 import prefuse.util.force.Force;
 
 /**
@@ -87,6 +89,11 @@ public class ForceInplaceEditor extends JComponent implements InplaceEditor {
             public void stateChanged(ChangeEvent e) {
                 float val = getSliderValue();
                 valueLabel.setText(String.format(format, val));
+                try {
+                    model.setValue(val);
+                } catch (InvocationTargetException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
                 force.setParameter(paramIdx, val);
             }
         });

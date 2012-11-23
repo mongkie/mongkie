@@ -117,10 +117,7 @@ public class Circle extends AbstractLayout {
 
     @Override
     public void resetProperties() {
-        radius = 200D;
-        autoScale = true;
-        if (radiusProperty != null) {
-            radiusProperty.setHidden(true);
-        }
+        setRadius(200D);
+        setAutoScale(true);
     }
 }

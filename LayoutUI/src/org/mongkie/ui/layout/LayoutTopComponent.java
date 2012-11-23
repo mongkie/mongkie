@@ -30,7 +30,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JMenuItem;
@@ -152,7 +152,11 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         if (model.getSelectedLayout() != null && model.getSelectedLayout().getBuilder() == builder) {
             return;
         }
-        Lookup.getDefault().lookup(LayoutController.class).setLayout(builder != null ? builder.getLayout() : null);
+        Layout l = builder != null ? builder.getLayout() : null;
+        if (l != null) {
+            l.resetPropertyValues();
+        }
+        Lookup.getDefault().lookup(LayoutController.class).setLayout(l);
     }
 
     private void refreshModel() {
@@ -204,10 +208,10 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
 
         boolean enabled = model != null && model.getSelectedLayout() != null && model.getDisplay().getGraph().getNodeCount() > 0;
         runButton.setEnabled(enabled);
-        resetButton.setEnabled(enabled);
         infoLabel.setEnabled(enabled);
         propertySheet.setEnabled(enabled);
-        presetsButton.setEnabled(enabled);
+        presetsButton.setEnabled(enabled && model.getSelectedLayout().getProperties().length > 0);
+        resetButton.setEnabled(presetsButton.isEnabled());
 
         layoutCombobox.setEnabled(model != null && !model.isRunning() && model.getDisplay().getGraph().getNodeCount() > 0);
     }
@@ -443,7 +447,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
 
     private void presetsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_presetsButtonActionPerformed
         JPopupMenu menu = new JPopupMenu();
-        Set<Preset> presets = LayoutPersistenceImpl.getDefault().getPresets(model.getSelectedLayout());
+        List<Preset> presets = LayoutPersistenceImpl.getDefault().getPresets(model.getSelectedLayout());
         if (presets != null && !presets.isEmpty()) {
             for (final Preset p : presets) {
                 JMenuItem item = new JMenuItem(p.getName());
@@ -458,8 +462,10 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
                 });
                 menu.add(item);
             }
-            menu.add(new JSeparator());
+        } else {
+            menu.add("<html><i>No preset</i></html>");
         }
+        menu.add(new JSeparator());
         JMenuItem saveItem = new JMenuItem("Save preset...");
         saveItem.addActionListener(new ActionListener() {
             @Override

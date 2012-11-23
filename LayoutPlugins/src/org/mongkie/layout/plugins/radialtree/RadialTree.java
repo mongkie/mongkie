@@ -90,11 +90,8 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
 
     @Override
     public void resetProperties() {
-        radiusIncrement = 50;
-        autoScale = true;
-        if (radiusIncrementProperty != null) {
-            radiusIncrementProperty.setHidden(true);
-        }
+        setRadiusIncrement(50);
+        setAutoScale(true);
     }
 
     @Override

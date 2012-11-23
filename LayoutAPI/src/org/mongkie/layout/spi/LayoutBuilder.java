@@ -68,7 +68,6 @@ public abstract class LayoutBuilder<L extends Layout> {
         if (layout == null) {
             layout = buildLayout();
         }
-        layout.resetPropertyValues();
         return layout;
     }
 

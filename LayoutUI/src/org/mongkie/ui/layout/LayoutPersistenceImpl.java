@@ -25,10 +25,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import org.mongkie.layout.LayoutController;
@@ -44,7 +44,7 @@ import org.openide.util.NbPreferences;
  */
 public class LayoutPersistenceImpl {
 
-    private final Map<Layout, Set<Preset>> presets = new HashMap<Layout, Set<Preset>>();
+    private final Map<Layout, List<Preset>> presets = new HashMap<Layout, List<Preset>>();
 
     private LayoutPersistenceImpl() {
         Preferences root = getPresetsPreferences();
@@ -52,17 +52,22 @@ public class LayoutPersistenceImpl {
             for (String layoutName : root.childrenNames()) {
                 Layout l = Lookup.getDefault().lookup(LayoutController.class).lookupLayout(layoutName);
                 if (l != null) {
-                    Set<Preset> layoutPresets = new LinkedHashSet<Preset>();
-                    presets.put(l, layoutPresets);
+                    List<Preset> layoutPresets = new ArrayList<Preset>();
                     Preferences pref = root.node(layoutName);
                     for (String presetName : pref.keys()) {
-                        try {
-                            layoutPresets.add(toObject(pref.getByteArray(presetName, null)));
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        } catch (ClassNotFoundException ex) {
-                            Exceptions.printStackTrace(ex);
+                        byte[] bytes = pref.getByteArray(presetName, null);
+                        if (bytes != null) {
+                            try {
+                                layoutPresets.add(toObject(bytes));
+                            } catch (IOException ex) {
+                                Exceptions.printStackTrace(ex);
+                            } catch (ClassNotFoundException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
                         }
+                    }
+                    if (!layoutPresets.isEmpty()) {
+                        presets.put(l, layoutPresets);
                     }
                 }
             }
@@ -80,23 +85,23 @@ public class LayoutPersistenceImpl {
         private static final LayoutPersistenceImpl INSTANCE = new LayoutPersistenceImpl();
     }
 
-    public Set<Preset> getPresets(Layout l) {
+    public List<Preset> getPresets(Layout l) {
         return presets.get(l);
     }
 
     public void loadPreset(Layout l, Preset preset) {
         for (LayoutProperty p : l.getProperties()) {
             Object val = preset.get(p.getName());
-            if (val != null) {
-                try {
+            try {
+                if (val != null && !val.equals(p.getValue())) {
                     p.setValue(val);
-                } catch (IllegalAccessException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (IllegalArgumentException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (InvocationTargetException ex) {
-                    Exceptions.printStackTrace(ex);
                 }
+            } catch (IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalArgumentException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (InvocationTargetException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
     }
@@ -132,12 +137,15 @@ public class LayoutPersistenceImpl {
 
     private Preset addPreset(Layout l, String name)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        Set<Preset> layoutPresets = presets.get(l);
+        List<Preset> layoutPresets = presets.get(l);
         if (layoutPresets == null) {
-            layoutPresets = new LinkedHashSet<Preset>();
+            layoutPresets = new ArrayList<Preset>();
             presets.put(l, layoutPresets);
         }
         Preset preset = new Preset(l, name);
+        if (layoutPresets.contains(preset)) {
+            layoutPresets.remove(preset);
+        }
         layoutPresets.add(preset);
         return preset;
     }

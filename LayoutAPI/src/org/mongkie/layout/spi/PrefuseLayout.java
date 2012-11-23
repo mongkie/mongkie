@@ -17,6 +17,7 @@
  */
 package org.mongkie.layout.spi;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import org.mongkie.layout.LayoutProperty;
@@ -30,7 +31,8 @@ import prefuse.activity.ActivityAdapter;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout> implements Layout {
+public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout>
+        implements Layout, PropertyChangeListener {
 
     private final LayoutBuilder<? extends PrefuseLayout> builder;
     protected MongkieDisplay display;
@@ -101,9 +103,19 @@ public abstract class PrefuseLayout<L extends prefuse.action.layout.Layout> impl
     }
 
     @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        setLayoutParameters(prefuseLayout);
+    }
+
+    @Override
     public LayoutProperty[] getProperties() {
         if (properties == null) {
             properties = createProperties();
+            if (!isRunOnce()) {
+                for (LayoutProperty p : properties) {
+                    p.getPropertyEditor().addPropertyChangeListener(this);
+                }
+            }
         }
         return properties;
     }

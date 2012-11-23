@@ -203,7 +203,6 @@ public class ForceDirected extends PrefuseLayout<ForceDirectedLayout> {
         setDragCoefficient(DragForce.DEFAULT_DRAG_COEFF);
         setSpringCoefficient(SpringForce.DEFAULT_SPRING_COEFF / 10);
         setSpringLength(SpringForce.DEFAULT_SPRING_LENGTH * 4);
-        setLayoutParameters(getPrefuseLayout());
     }
 
     @Override
