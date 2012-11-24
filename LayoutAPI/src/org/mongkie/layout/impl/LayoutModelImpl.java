@@ -101,10 +101,6 @@ public class LayoutModelImpl implements LayoutModel {
         firePropertyChangeEvent(SELECTED_LAYOUT, oldLayout, selectedLayout);
     }
 
-    Layout lookupLayout(String name) {
-        return layouts.get(name);
-    }
-
     @Override
     public boolean isRunning() {
         return executor.isRunning();

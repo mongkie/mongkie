@@ -162,11 +162,6 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
         }
     }
 
-    @Override
-    public Layout lookupLayout(String name) {
-        return model != null ? model.lookupLayout(name) : null;
-    }
-
     private static class LayoutRun implements LongTask, Runnable {
 
         private final Layout layout;

@@ -31,11 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.Layout;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
 
 /**
@@ -44,31 +42,28 @@ import org.openide.util.NbPreferences;
  */
 public class LayoutPersistenceImpl {
 
-    private final Map<Layout, List<Preset>> presets = new HashMap<Layout, List<Preset>>();
+    private final Map<String, List<Preset>> presets = new HashMap<String, List<Preset>>();
 
     private LayoutPersistenceImpl() {
         Preferences root = getPresetsPreferences();
         try {
             for (String layoutName : root.childrenNames()) {
-                Layout l = Lookup.getDefault().lookup(LayoutController.class).lookupLayout(layoutName);
-                if (l != null) {
-                    List<Preset> layoutPresets = new ArrayList<Preset>();
-                    Preferences pref = root.node(layoutName);
-                    for (String presetName : pref.keys()) {
-                        byte[] bytes = pref.getByteArray(presetName, null);
-                        if (bytes != null) {
-                            try {
-                                layoutPresets.add(toObject(bytes));
-                            } catch (IOException ex) {
-                                Exceptions.printStackTrace(ex);
-                            } catch (ClassNotFoundException ex) {
-                                Exceptions.printStackTrace(ex);
-                            }
+                List<Preset> layoutPresets = new ArrayList<Preset>();
+                Preferences pref = root.node(layoutName);
+                for (String presetName : pref.keys()) {
+                    byte[] bytes = pref.getByteArray(presetName, null);
+                    if (bytes != null) {
+                        try {
+                            layoutPresets.add(toObject(bytes));
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        } catch (ClassNotFoundException ex) {
+                            Exceptions.printStackTrace(ex);
                         }
                     }
-                    if (!layoutPresets.isEmpty()) {
-                        presets.put(l, layoutPresets);
-                    }
+                }
+                if (!layoutPresets.isEmpty()) {
+                    presets.put(layoutName, layoutPresets);
                 }
             }
         } catch (BackingStoreException ex) {
@@ -86,7 +81,7 @@ public class LayoutPersistenceImpl {
     }
 
     public List<Preset> getPresets(Layout l) {
-        return presets.get(l);
+        return presets.get(l.getBuilder().getName());
     }
 
     public void loadPreset(Layout l, Preset preset) {
@@ -137,10 +132,11 @@ public class LayoutPersistenceImpl {
 
     private Preset addPreset(Layout l, String name)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        List<Preset> layoutPresets = presets.get(l);
+        String layoutName = l.getBuilder().getName();
+        List<Preset> layoutPresets = presets.get(layoutName);
         if (layoutPresets == null) {
             layoutPresets = new ArrayList<Preset>();
-            presets.put(l, layoutPresets);
+            presets.put(layoutName, layoutPresets);
         }
         Preset preset = new Preset(l, name);
         if (layoutPresets.contains(preset)) {

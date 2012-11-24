@@ -1,26 +1,25 @@
 /*
-Copyright 2008-2010 Gephi
-Authors : Mathieu Bastian <mathieu.bastian@gephi.org>
-Website : http://www.gephi.org
+ Copyright 2008-2010 Gephi
+ Authors : Mathieu Bastian <mathieu.bastian@gephi.org>
+ Website : http://www.gephi.org
 
-This file is part of Gephi.
+ This file is part of Gephi.
 
-Gephi is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation, either version 3 of the
-License, or (at your option) any later version.
+ Gephi is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation, either version 3 of the
+ License, or (at your option) any later version.
 
-Gephi is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+ Gephi is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License
-along with Gephi.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Affero General Public License
+ along with Gephi.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.mongkie.layout;
 
-import org.mongkie.layout.spi.Layout;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.visualization.MongkieDisplay;
 
@@ -30,7 +29,7 @@ import org.mongkie.visualization.MongkieDisplay;
  * <p>
  * This controller is a singleton and can therefore be found in Lookup:
  * <pre>LayoutController lc = Lookup.getDefault().lookup(LayoutController.class);</pre>
- * 
+ *
  * @author Mathieu Bastian
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
@@ -47,6 +46,7 @@ public interface LayoutController {
 
     /**
      * Sets the Layout to execute.
+     *
      * @param layout the layout that is to be selected
      */
     public void setLayout(LayoutBuilder builder);
@@ -58,6 +58,7 @@ public interface LayoutController {
 
     /**
      * Determine if the current Layout can be executed.
+     *
      * @return <code>true</code> if the layout is executable.
      */
     public boolean canExecute();
@@ -70,9 +71,8 @@ public interface LayoutController {
     /**
      * Determine if the current Layout execution can be stopped.
      * If the current Layout is not running, it generally cannot be stopped.
+     *
      * @return <code>true</code> if the layout can be stopped.
      */
     public boolean canStop();
-    
-    public Layout lookupLayout(String name);
 }
