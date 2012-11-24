@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
-import org.mongkie.layout.spi.AbstractLayout;
+import org.mongkie.layout.spi.PrefuseLayout;
 import org.openide.util.Exceptions;
 import prefuse.data.tuple.TupleSet;
 import prefuse.visual.VisualItem;
@@ -33,7 +33,7 @@ import prefuse.visual.VisualItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class Circle extends AbstractLayout {
+public class Circle extends PrefuseLayout {
 
     private double radius = 200D;
     private boolean autoScale = true;

@@ -29,14 +29,14 @@ import prefuse.action.layout.VerticalLinesLayout;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class Multipartite extends PrefuseLayout<VerticalLinesLayout> {
+public class Multipartite extends PrefuseLayout.Delegation<VerticalLinesLayout> {
 
     Multipartite(LayoutBuilder<Multipartite> builder) {
         super(builder);
     }
 
     @Override
-    protected VerticalLinesLayout createPrefuseLayout() {
+    protected VerticalLinesLayout createDeligateLayout() {
         return new VerticalLinesLayout(display, NODES, null, new String[0]);
     }
 

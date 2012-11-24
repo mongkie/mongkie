@@ -30,7 +30,7 @@ import prefuse.data.Graph;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
+public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
 
     private double radiusIncrement = 50;
     private boolean autoScale = true;
@@ -62,7 +62,7 @@ public class RadialTree extends PrefuseLayout<RadialTreeLayout> {
     }
 
     @Override
-    protected RadialTreeLayout createPrefuseLayout() {
+    protected RadialTreeLayout createDeligateLayout() {
         RadialTreeLayout l = new RadialTreeLayout(Graph.GRAPH);
         l.setAutoScale(autoScale);
         return l;

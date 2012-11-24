@@ -20,26 +20,18 @@ package org.mongkie.layout.spi;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import kobic.prefuse.display.DisplayListener;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
-import org.openide.util.Exceptions;
-import prefuse.action.Action;
-import prefuse.activity.Activity;
-import prefuse.activity.ActivityListener;
-import prefuse.data.Graph;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class AbstractLayout extends prefuse.action.layout.Layout
-        implements Layout, ActivityListener, DisplayListener<MongkieDisplay> {
+public abstract class AbstractLayout implements Layout {
 
+    private final LayoutBuilder<? extends Layout> builder;
     protected MongkieDisplay display;
     protected LayoutProperty[] _properties;
-    private volatile boolean completed;
-    private LayoutBuilder<? extends Layout> builder;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     protected AbstractLayout(LayoutBuilder<? extends Layout> builder) {
@@ -61,27 +53,12 @@ public abstract class AbstractLayout extends prefuse.action.layout.Layout
     }
 
     @Override
-    public LayoutBuilder<? extends Layout> getBuilder() {
-        return builder;
-    }
-
-    @Override
     public void setDisplay(MongkieDisplay d) {
-        if (display == d) {
-            return;
-        }
-        if (display != null) {
-            display.getLayoutAction().removeActivityListener(this);
-            display.removeDisplayListener(this);
-        }
-        d.getLayoutAction().addActivityListener(this);
-        d.addDisplayListener(this);
-        display = d;
-        setVisualization(d.getVisualization());
+        this.display = d;
     }
 
     @Override
-    public LayoutProperty[] getProperties() {
+    public final LayoutProperty[] getProperties() {
         if (_properties == null) {
             _properties = createProperties();
         }
@@ -91,96 +68,15 @@ public abstract class AbstractLayout extends prefuse.action.layout.Layout
     protected abstract LayoutProperty[] createProperties();
 
     @Override
-    public void resetPropertyValues() {
+    public final void resetPropertyValues() {
         resetProperties();
         firePropertyChange("resetPropertyValues", null, this);
     }
 
     protected abstract void resetProperties();
 
-    protected boolean isCompleted() {
-        return completed;
-    }
-
-    protected void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
     @Override
-    public void initAlgo() {
-        display.setLayout(this, isRunOnce() ? 0 : Action.INFINITY);
-        setCompleted(false);
-    }
-
-    protected abstract boolean isRunOnce();
-
-    @Override
-    public void goAlgo() {
-        display.rerunNetworkLayout();
-        synchronized (this) {
-            if (!isCompleted()) {
-                try {
-                    wait();
-                } catch (InterruptedException ex) {
-                    Exceptions.printStackTrace(ex);
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-    }
-
-    @Override
-    public boolean hasNextStep() {
-        return !isCompleted() && display != null;
-    }
-
-    @Override
-    public void cancelAlgo() {
-        display.cancelLayout();
-    }
-
-    @Override
-    public void endAlgo() {
-    }
-
-    @Override
-    public void activityScheduled(Activity a) {
-    }
-
-    @Override
-    public void activityStarted(Activity a) {
-    }
-
-    @Override
-    public void activityStepped(Activity a) {
-    }
-
-    @Override
-    public void activityFinished(Activity a) {
-        completeLayout();
-    }
-
-    @Override
-    public void activityCancelled(Activity a) {
-        completeLayout();
-    }
-
-    private void completeLayout() {
-        if (!isCompleted()) {
-            synchronized (this) {
-                setCompleted(true);
-                notifyAll();
-            }
-        }
-    }
-
-    @Override
-    public void graphDisposing(MongkieDisplay d, Graph g) {
-        d.getLayoutAction().removeActivityListener(this);
-    }
-
-    @Override
-    public void graphChanged(MongkieDisplay d, Graph g) {
-        d.getLayoutAction().addActivityListener(this);
+    public final LayoutBuilder<? extends Layout> getBuilder() {
+        return builder;
     }
 }

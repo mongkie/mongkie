@@ -29,14 +29,14 @@ import prefuse.action.layout.RandomLayout;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class Random extends PrefuseLayout<RandomLayout> {
+public class Random extends PrefuseLayout.Delegation<RandomLayout> {
 
     Random(LayoutBuilder<Random> builder) {
         super(builder);
     }
 
     @Override
-    protected RandomLayout createPrefuseLayout() {
+    protected RandomLayout createDeligateLayout() {
         return new RandomLayout(NODES);
     }
 

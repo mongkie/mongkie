@@ -20,8 +20,8 @@ package org.mongkie.layout.plugins.fruchtermanreingold;
 import java.util.ArrayList;
 import java.util.List;
 import org.mongkie.layout.LayoutProperty;
-import org.mongkie.layout.spi.AbstractLayout;
 import org.mongkie.layout.spi.LayoutBuilder;
+import org.mongkie.layout.spi.PrefuseLayout;
 import prefuse.data.Schema;
 import prefuse.data.Tuple;
 import prefuse.visual.EdgeItem;
@@ -32,7 +32,7 @@ import prefuse.visual.VisualItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class FruchtermanReingold extends AbstractLayout {
+public class FruchtermanReingold extends PrefuseLayout {
 
     private static final float SPEED_DIVISOR = 800;
     private static final float AREA_MULTIPLICATOR = 10000;

@@ -29,14 +29,14 @@ import prefuse.action.layout.GridLayout;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class Grid extends PrefuseLayout<GridLayout> {
+public class Grid extends PrefuseLayout.Delegation<GridLayout> {
 
     Grid(LayoutBuilder<Grid> builder) {
         super(builder);
     }
 
     @Override
-    protected GridLayout createPrefuseLayout() {
+    protected GridLayout createDeligateLayout() {
         GridLayout l = new GridLayout(NODES);
         l.setMargin(50, 50, 50, 50);
         return l;
