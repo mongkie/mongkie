@@ -39,7 +39,7 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
 
     protected MongkieDisplay display;
     protected LayoutProperty[] _properties;
-    private volatile boolean completed;
+    protected volatile boolean completed;
     private final LayoutBuilder<? extends Layout> builder;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -99,27 +99,19 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
 
     protected abstract void resetProperties();
 
-    protected final boolean isCompleted() {
-        return completed;
-    }
-
-    protected final void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
-
     @Override
     public void initAlgo() {
-        display.setLayout(this, isRunOnce() ? 0 : Action.INFINITY);
-        setCompleted(false);
+        display.setGraphLayout(this, isRunOnce() ? 0 : Action.INFINITY);
+        completed = false;
     }
 
     protected abstract boolean isRunOnce();
 
     @Override
     public final void goAlgo() {
-        display.rerunNetworkLayout();
+        display.rerunLayoutAction();
         synchronized (this) {
-            if (!isCompleted()) {
+            if (!completed) {
                 try {
                     wait();
                 } catch (InterruptedException ex) {
@@ -132,12 +124,13 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
 
     @Override
     public final boolean hasNextStep() {
-        return !isCompleted() && display != null;
+        return !completed && display != null;
     }
 
     @Override
-    public void cancelAlgo() {
-        display.cancelLayout();
+    public boolean cancelAlgo() {
+        display.cancelLayoutAction();
+        return true;
     }
 
     @Override
@@ -167,9 +160,9 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
     }
 
     private void completeLayout() {
-        if (!isCompleted()) {
+        if (!completed) {
             synchronized (this) {
-                setCompleted(true);
+                completed = true;
                 notifyAll();
             }
         }
@@ -239,8 +232,8 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
         public final void initAlgo() {
             L layout = getDeligateLayout();
             setLayoutParameters(layout);
-            display.setLayout(layout, isRunOnce() ? 0 : Action.INFINITY);
-            setCompleted(false);
+            display.setGraphLayout(layout, isRunOnce() ? 0 : Action.INFINITY);
+            completed = false;
         }
 
         protected abstract void setLayoutParameters(L layout);

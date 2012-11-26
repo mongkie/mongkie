@@ -363,7 +363,7 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
     }
     
     @Override
-    protected Layout createLayout() {
+    protected Layout createGraphLayout() {
 //        ForceSimulator forceSimulator = new ForceSimulator(new RungeKuttaIntegrator());
 //        forceSimulator.addForce(new NBodyForce(
 //                NBodyForce.DEFAULT_MIN_GRAV_CONSTANT,

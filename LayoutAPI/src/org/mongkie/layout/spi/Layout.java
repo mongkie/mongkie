@@ -78,7 +78,7 @@ public interface Layout {
      */
     public void endAlgo();
 
-    public void cancelAlgo();
+    public boolean cancelAlgo();
 
     /**
      * The properties for this layout.

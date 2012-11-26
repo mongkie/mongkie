@@ -188,8 +188,7 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
 
         @Override
         public boolean cancel() {
-            layout.cancelAlgo();
-            return true;
+            return layout.cancelAlgo();
         }
 
         @Override

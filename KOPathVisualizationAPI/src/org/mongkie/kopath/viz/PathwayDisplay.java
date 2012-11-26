@@ -736,7 +736,7 @@ public class PathwayDisplay extends MongkieDisplay implements GraphListener {
     }
 
     @Override
-    protected Layout createLayout() {
+    protected Layout createGraphLayout() {
         ForceSimulator forceSimulator = new ForceSimulator(new RungeKuttaIntegrator());
         forceSimulator.addForce(new NBodyForce(
                 NBodyForce.DEFAULT_GRAV_CONSTANT,

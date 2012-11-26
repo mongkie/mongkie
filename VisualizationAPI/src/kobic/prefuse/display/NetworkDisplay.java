@@ -87,7 +87,7 @@ public abstract class NetworkDisplay extends Display {
     private final Visualization v;
     private VisualGraph vg;
     private ActionList draw, animate, layout;
-    private transient Layout networkLayout;
+    private transient Layout graphLayout;
     private transient AggregateShape aggregateShape;
     private final OverviewDisplay overview;
     protected static final Predicate INGROUP_FOCUS_ITEMS = new InGroupPredicate(FOCUS_ITEMS);
@@ -165,7 +165,7 @@ public abstract class NetworkDisplay extends Display {
         this.draw = (ActionList) v.getAction(DRAW);
         this.animate = (ActionList) v.getAction(ANIMATE);
         this.layout = (ActionList) v.getAction(LAYOUT);
-        this.networkLayout = (Layout) layout.get(0);
+        this.graphLayout = (Layout) layout.get(0);
 
         overview = new OverviewDisplay(this);
         overview.setSize(300, 400);
@@ -361,11 +361,11 @@ public abstract class NetworkDisplay extends Display {
         return overview;
     }
 
-    public Layout getNetworkLayout() {
-        return networkLayout;
+    public Layout getGraphLayout() {
+        return graphLayout;
     }
 
-    public void rerunNetworkLayout() {
+    public void rerunLayoutAction() {
         v.rerun(LAYOUT);
     }
 
@@ -781,7 +781,7 @@ public abstract class NetworkDisplay extends Display {
         draw.add(new RepaintAction(v));
 
         layout = new ActionList(getLayoutDuration());
-        layout.add(networkLayout = createLayout());
+        layout.add(graphLayout = createGraphLayout());
         addLayoutActions(layout);
         layout.add(new RepaintAction(v));
 
@@ -801,29 +801,45 @@ public abstract class NetworkDisplay extends Display {
         return 8000;
     }
 
-    public void setLayout(Layout l, long duration) {
+    public void setGraphLayout(Layout l, long duration) {
         synchronized (v) {
             v.cancel(LAYOUT);
-            if (networkLayout != l) {
-                layout.remove(networkLayout);
-                layout.add(0, networkLayout = l);
+            if (graphLayout != l) {
+                layout.remove(graphLayout);
+                layout.add(0, graphLayout = l);
             }
             layout.setDuration(duration);
-//            v.run(LAYOUT);
         }
     }
 
-    public void cancelLayout() {
+    public void cancelLayoutAction() {
         synchronized (v) {
             v.cancel(LAYOUT);
         }
+    }
+
+    public void setLayoutActionEnabled(boolean enable) {
+        if (layout.isEnabled() && !enable) {
+            if (layout.isRunning()) {
+                synchronized (v) {
+                    v.cancel(LAYOUT);
+                }
+            }
+            layout.setEnabled(false);
+        } else if (!layout.isEnabled() && enable) {
+            layout.setEnabled(true);
+        }
+    }
+
+    public boolean isLayoutActionEnabled() {
+        return layout.isEnabled();
     }
 
     public ActionList getLayoutAction() {
         return getActionList(LAYOUT);
     }
 
-    protected abstract Layout createLayout();
+    protected abstract Layout createGraphLayout();
 
     protected abstract String getNodeSizeField();
 
