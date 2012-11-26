@@ -22,6 +22,8 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
+import prefuse.util.PrefuseLib;
+import prefuse.visual.VisualItem;
 
 /**
  *
@@ -78,5 +80,59 @@ public abstract class AbstractLayout implements Layout {
     @Override
     public final LayoutBuilder<? extends Layout> getBuilder() {
         return builder;
+    }
+
+    @Override
+    public void initAlgo() {
+        prefuseLayoutEnabled = display.isLayoutActionEnabled();
+        display.setLayoutActionEnabled(false);
+        canceled = false;
+        step = 0;
+        prepare();
+    }
+    private boolean prefuseLayoutEnabled;
+    private int step;
+
+    protected abstract void prepare();
+
+    @Override
+    public final void goAlgo() {
+        run(++step);
+    }
+
+    protected abstract void run(int step);
+
+    @Override
+    public final void endAlgo() {
+        display.setLayoutActionEnabled(prefuseLayoutEnabled);
+        finish();
+    }
+
+    protected abstract void finish();
+
+    @Override
+    public final boolean hasNextStep() {
+        return !canceled && more();
+    }
+
+    protected abstract boolean more();
+
+    @Override
+    public final boolean cancelAlgo() {
+        canceled = true;
+        return true;
+    }
+    private volatile boolean canceled;
+
+    protected final boolean isCanceled() {
+        return canceled;
+    }
+
+    protected void setX(VisualItem item, double x) {
+        PrefuseLib.setX(item, null, x);
+    }
+
+    protected void setY(VisualItem item, double y) {
+        PrefuseLib.setY(item, null, y);
     }
 }

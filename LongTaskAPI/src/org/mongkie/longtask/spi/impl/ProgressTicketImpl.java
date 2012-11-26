@@ -1,25 +1,47 @@
 /*
- Copyright 2008-2010 Gephi
- Authors : Mathieu Bastian <mathieu.bastian@gephi.org>
- Website : http://www.gephi.org
+Copyright 2008-2010 Gephi
+Authors : Mathieu Bastian <mathieu.bastian@gephi.org>
+Website : http://www.gephi.org
 
- This file is part of Gephi.
+This file is part of Gephi.
 
- Gephi is free software: you can redistribute it and/or modify
- it under the terms of the GNU Affero General Public License as
- published by the Free Software Foundation, either version 3 of the
- License, or (at your option) any later version.
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
- Gephi is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Affero General Public License for more details.
+Copyright 2011 Gephi Consortium. All rights reserved.
 
- You should have received a copy of the GNU Affero General Public License
- along with Gephi.  If not, see <http://www.gnu.org/licenses/>.
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 3 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://gephi.org/about/legal/license-notice/
+or /cddl-1.0.txt and /gpl-3.0.txt. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License files at
+/cddl-1.0.txt and /gpl-3.0.txt. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 3, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 3] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 3 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 3 code and therefore, elected the GPL
+Version 3 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+
+Contributor(s):
+
+Portions Copyrighted 2011 Gephi Consortium.
  */
 package org.mongkie.longtask.spi.impl;
 
+import java.util.logging.Logger;
 import org.mongkie.longtask.progress.ProgressTicket;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -36,7 +58,8 @@ public final class ProgressTicketImpl implements ProgressTicket {
     private int progress100 = 0;
     private int progressTotal;
     private int currentUnit = 0;
-    private boolean started = false, finished = false;
+    private boolean started = false;
+    private boolean finished = false;
 
     public ProgressTicketImpl(String displayName, Cancellable cancellable) {
         handle = ProgressHandleFactory.createHandle(displayName, cancellable);
@@ -46,7 +69,6 @@ public final class ProgressTicketImpl implements ProgressTicket {
     /**
      * Finish the task.
      */
-    @Override
     public void finish() {
         if (handle != null && started && !finished) {
             try {
@@ -59,20 +81,32 @@ public final class ProgressTicketImpl implements ProgressTicket {
     }
 
     /**
-     * Notify the user about a new completed unit. Equivalent to incrementing
-     * workunits by one.
+     * Finish the task and display a statusbar message
+     * @param finishMessage 
      */
-    @Override
+    public void finish(String finishMessage) {
+        if (handle != null && started && !finished) {
+            try {
+                handle.finish();
+                finished = true;
+            } catch (Exception e) {
+                System.err.println("Progress Handle failed to finish");
+            }
+            Logger.getLogger(ProgressTicketImpl.class.getName()).info(finishMessage);
+        }
+    }
+
+    /**
+     * Notify the user about a new completed unit. Equivalent to incrementing workunits by one.
+     */
     public void progress() {
         progress(currentUnit + 1);
     }
 
     /**
      * Notify the user about completed workunits.
-     *
      * @param a cumulative number of workunits completed so far
      */
-    @Override
     public void progress(int workunit) {
         this.currentUnit = workunit;
         if (handle != null) {
@@ -86,10 +120,8 @@ public final class ProgressTicketImpl implements ProgressTicket {
 
     /**
      * Notify the user about progress by showing message with details.
-     *
      * @param details about the status of the task
      */
-    @Override
     public void progress(String message) {
         if (handle != null) {
             handle.progress(message);
@@ -97,13 +129,10 @@ public final class ProgressTicketImpl implements ProgressTicket {
     }
 
     /**
-     * Notify the user about completed workunits and show additional detailed
-     * message.
-     *
+     * Notify the user about completed workunits and show additional detailed message.
      * @param message details about the status of the task
      * @param workunit a cumulative number of workunits completed so far
      */
-    @Override
     public void progress(String message, int workunit) {
         currentUnit = workunit;
         if (handle != null) {
@@ -116,13 +145,9 @@ public final class ProgressTicketImpl implements ProgressTicket {
     }
 
     /**
-     * Change the display name of the progress task. Use with care, please make
-     * sure the changed name is not completely different, or otherwise it might
-     * appear to the user as a different task.
-     *
+     * Change the display name of the progress task. Use with care, please make sure the changed name is not completely different, or otherwise it might appear to the user as a different task.
      * @param newDisplayName the new display name
      */
-    @Override
     public void setDisplayName(String newDisplayName) {
         if (handle != null) {
             handle.setDisplayName(newDisplayName);
@@ -132,10 +157,8 @@ public final class ProgressTicketImpl implements ProgressTicket {
 
     /**
      * Returns the current display name.
-     *
      * @return the current task's display name
      */
-    @Override
     public String getDisplayName() {
         return displayName;
     }
@@ -143,7 +166,6 @@ public final class ProgressTicketImpl implements ProgressTicket {
     /**
      * Start the progress indication for indeterminate task.
      */
-    @Override
     public void start() {
         if (handle != null) {
             started = true;
@@ -153,10 +175,8 @@ public final class ProgressTicketImpl implements ProgressTicket {
 
     /**
      * Start the progress indication for a task with known number of steps.
-     *
      * @param workunits total number of workunits that will be processed
      */
-    @Override
     public void start(int workunits) {
         if (handle != null) {
             started = true;
@@ -166,13 +186,9 @@ public final class ProgressTicketImpl implements ProgressTicket {
     }
 
     /**
-     * Currently indeterminate task can be switched to show percentage
-     * completed.
-     *
-     * @param workunits workunits total number of workunits that will be
-     * processed
+     * Currently indeterminate task can be switched to show percentage completed.
+     * @param workunits workunits total number of workunits that will be processed
      */
-    @Override
     public void switchToDeterminate(int workunits) {
         if (handle != null) {
             if (started) {
@@ -187,7 +203,6 @@ public final class ProgressTicketImpl implements ProgressTicket {
     /**
      * Currently determinate task can be switched to indeterminate mode.
      */
-    @Override
     public void switchToIndeterminate() {
         if (handle != null) {
             handle.switchToIndeterminate();

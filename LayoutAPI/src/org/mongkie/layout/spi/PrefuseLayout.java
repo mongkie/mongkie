@@ -39,7 +39,7 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
 
     protected MongkieDisplay display;
     protected LayoutProperty[] _properties;
-    protected volatile boolean completed;
+    protected volatile boolean completed = true;
     private final LayoutBuilder<? extends Layout> builder;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
@@ -70,6 +70,9 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
     public void setDisplay(MongkieDisplay d) {
         if (display == d) {
             return;
+        }
+        if (!completed) {
+            throw new IllegalStateException("Can not change the display while a layout is running");
         }
         if (display != null) {
             display.getLayoutAction().removeActivityListener(this);

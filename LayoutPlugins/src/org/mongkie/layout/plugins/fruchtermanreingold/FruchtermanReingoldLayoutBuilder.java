@@ -67,12 +67,12 @@ public class FruchtermanReingoldLayoutBuilder extends LayoutBuilder<FruchtermanR
 
         @Override
         public int getQualityRank() {
-            return 3;
+            return 2;
         }
 
         @Override
         public int getSpeedRank() {
-            return 2;
+            return 3;
         }
     }
 }

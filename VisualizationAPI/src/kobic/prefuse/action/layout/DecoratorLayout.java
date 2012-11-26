@@ -92,7 +92,7 @@ public abstract class DecoratorLayout extends Layout {
     public static class DecoratedTableListener implements TableListener {
 
         private final Map<DecoratorLabelRenderer, DecoratorLayout> layouts =
-                Collections.synchronizedMap(new HashMap<DecoratorLabelRenderer, DecoratorLayout>());
+                new HashMap<DecoratorLabelRenderer, DecoratorLayout>();
 
         public void addDecoratorRendererLayout(DecoratorLabelRenderer renderer, DecoratorLayout layout) {
             if (layout == null) {
@@ -108,19 +108,17 @@ public abstract class DecoratorLayout extends Layout {
                 VisualTable parent = (VisualTable) table;
                 for (int r = start; r <= end; ++r) {
                     Set<DecoratorLabelRenderer> renderers = layouts.keySet();
-                    synchronized (layouts) {
-                        for (Iterator<DecoratorLabelRenderer> rendererIter = renderers.iterator(); rendererIter.hasNext();) {
-                            DecoratorLabelRenderer renderer = rendererIter.next();
-                            VisualTable decorators = renderer.getDecoratorTable();
-                            int decoratorRow = decorators.getChildRow(r);
-                            if (decoratorRow > -1
-                                    && (col == VisualItem.IDX_VISIBLE || renderer.getColumnFilter().include(parent.getColumnName(col)))) {
-                                DecoratorItem decorator = (DecoratorItem) decorators.getItem(decoratorRow);
-                                if (col == VisualItem.IDX_VISIBLE) {
-                                    decorator.setVisible(parent.getBoolean(r, col));
-                                } else if (decorator.isVisible() && !renderer.isInvisible(decorator)) {
-                                    renderer.runLayout(parent.getItem(r), col, decorator, layouts.get(renderer));
-                                }
+                    for (Iterator<DecoratorLabelRenderer> rendererIter = renderers.iterator(); rendererIter.hasNext();) {
+                        DecoratorLabelRenderer renderer = rendererIter.next();
+                        VisualTable decorators = renderer.getDecoratorTable();
+                        int decoratorRow = decorators.getChildRow(r);
+                        if (decoratorRow > -1
+                                && (col == VisualItem.IDX_VISIBLE || renderer.getColumnFilter().include(parent.getColumnName(col)))) {
+                            DecoratorItem decorator = (DecoratorItem) decorators.getItem(decoratorRow);
+                            if (col == VisualItem.IDX_VISIBLE) {
+                                decorator.setVisible(parent.getBoolean(r, col));
+                            } else if (decorator.isVisible() && !renderer.isInvisible(decorator)) {
+                                renderer.runLayout(parent.getItem(r), col, decorator, layouts.get(renderer));
                             }
                         }
                     }

@@ -1,29 +1,31 @@
 /*
  * This file is part of MONGKIE. Visit <http://www.mongkie.org/> for details.
- * Copyright (C) 2012 Korean Bioinformation Center(KOBIC)
- * 
+ * Visit <http://www.mongkie.org> for details about MONGKIE.
+ * Copyright (C) 2012 Korean Bioinformation Center (KOBIC)
+ *
  * MONGKIE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * MONGKIE is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.mongkie.layout.plugins.fruchtermanreingold;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.mongkie.layout.LayoutProperty;
+import org.mongkie.layout.spi.AbstractLayout;
 import org.mongkie.layout.spi.LayoutBuilder;
-import org.mongkie.layout.spi.PrefuseLayout;
 import prefuse.data.Schema;
-import prefuse.data.Tuple;
+import prefuse.data.tuple.TupleSet;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
@@ -32,7 +34,7 @@ import prefuse.visual.VisualItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class FruchtermanReingold extends PrefuseLayout {
+public class FruchtermanReingold extends AbstractLayout {
 
     private static final float SPEED_DIVISOR = 800;
     private static final float AREA_MULTIPLICATOR = 10000;
@@ -46,47 +48,41 @@ public class FruchtermanReingold extends PrefuseLayout {
     }
 
     @Override
-    public void initAlgo() {
-        super.initAlgo();
-        display.getVisualGraph().getNodeTable().addColumns(ForceVector.SCHEMA);
-    }
-
-    @Override
-    public LayoutProperty[] createProperties() {
+    protected LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         return properties.toArray(new LayoutProperty[0]);
     }
 
     @Override
-    public void resetProperties() {
+    protected void resetProperties() {
         speed = 2;
         area = 4000;
         gravity = 10;
     }
 
     @Override
-    protected boolean isRunOnce() {
-        return false;
+    public void prepare() {
+        display.getVisualGraph().getNodeTable().addColumns(ForceVector.SCHEMA);
     }
 
     @Override
-    public void run(double frac) {
-        Tuple[] nodes = display.getVisualGraph().getNodeTable().toArray();
-        Tuple[] edges = display.getVisualGraph().getEdgeTable().toArray();
+    public void run(int step) {
+        TupleSet nodes = display.getVisualGraph().getNodeTable();
+        TupleSet edges = display.getVisualGraph().getEdgeTable();
 
-        for (Tuple n : nodes) {
-            ForceVector force = ForceVector.get((NodeItem) n);
+        for (Iterator<NodeItem> iter = nodes.tuples(); iter.hasNext();) {
+            ForceVector force = ForceVector.get(iter.next());
             force.dx = 0;
             force.dy = 0;
         }
 
         float maxDisplace = (float) (Math.sqrt(AREA_MULTIPLICATOR * area) / 10f);
-        float k = (float) Math.sqrt((AREA_MULTIPLICATOR * area) / (1f + nodes.length));
+        float k = (float) Math.sqrt((AREA_MULTIPLICATOR * area) / (1f + nodes.getTupleCount()));
 
-        for (Tuple n1 : nodes) {
-            NodeItem N1 = (NodeItem) n1;
-            for (Tuple n2 : nodes) {
-                NodeItem N2 = (NodeItem) n2;
+        for (Iterator<NodeItem> iter1 = nodes.tuples(); iter1.hasNext();) {
+            NodeItem N1 = iter1.next();
+            for (Iterator<NodeItem> iter2 = nodes.tuples(); iter2.hasNext();) {
+                NodeItem N2 = iter2.next();
                 if (N1 != N2) {
                     float xDist = (float) (N1.getX() - N2.getX());
                     float yDist = (float) (N1.getY() - N2.getY());
@@ -101,8 +97,8 @@ public class FruchtermanReingold extends PrefuseLayout {
             }
         }
 
-        for (Tuple e : edges) {
-            EdgeItem E = (EdgeItem) e;
+        for (Iterator<EdgeItem> iter = edges.tuples(); iter.hasNext();) {
+            EdgeItem E = iter.next();
             NodeItem Nf = E.getSourceItem();
             NodeItem Nt = E.getTargetItem();
             float xDist = (float) (Nf.getX() - Nt.getX());
@@ -120,40 +116,50 @@ public class FruchtermanReingold extends PrefuseLayout {
         }
 
         // gravity
-        for (Tuple n : nodes) {
-            NodeItem nitem = (NodeItem) n;
-            ForceVector force = ForceVector.get(nitem);
-            float d = (float) Math.sqrt(nitem.getX() * nitem.getX() + nitem.getY() * nitem.getY());
+        for (Iterator<NodeItem> iter = nodes.tuples(); iter.hasNext();) {
+            NodeItem N = iter.next();
+            ForceVector force = ForceVector.get(N);
+            float d = (float) Math.sqrt(N.getX() * N.getX() + N.getY() * N.getY());
             float gf = 0.01f * k * (float) gravity * d;
-            force.dx -= gf * nitem.getX() / d;
-            force.dy -= gf * nitem.getY() / d;
+            force.dx -= gf * N.getX() / d;
+            force.dy -= gf * N.getY() / d;
         }
 
         // speed
-        double _speed = speed * (nodes.length / 50);
+        double _speed = speed * (nodes.getTupleCount() / 50);
         if (_speed < 2) {
             _speed = 2;
         } else if (_speed > 100) {
             _speed = 100;
         }
-        for (Tuple n : nodes) {
-            ForceVector force = ForceVector.get((NodeItem) n);
+        for (Iterator<NodeItem> iter = nodes.tuples(); iter.hasNext();) {
+            ForceVector force = ForceVector.get(iter.next());
             force.dx *= _speed / SPEED_DIVISOR;
             force.dy *= _speed / SPEED_DIVISOR;
         }
 
-        for (Tuple n : nodes) {
-            NodeItem nitem = (NodeItem) n;
-            ForceVector force = ForceVector.get(nitem);
+        for (Iterator<NodeItem> iter = nodes.tuples(); iter.hasNext();) {
+            NodeItem N = iter.next();
+            ForceVector force = ForceVector.get(N);
             float xDist = force.dx;
             float yDist = force.dy;
             float dist = (float) Math.sqrt(force.dx * force.dx + force.dy * force.dy);
-            if (dist > 0 && !nitem.isFixed()) {
+            if (dist > 0 && !N.isFixed()) {
                 float limitedDist = Math.min(maxDisplace * ((float) _speed / SPEED_DIVISOR), dist);
-                setX(nitem, null, nitem.getX() + xDist / dist * limitedDist);
-                setY(nitem, null, nitem.getY() + yDist / dist * limitedDist);
+                setX(N, N.getX() + xDist / dist * limitedDist);
+                setY(N, N.getY() + yDist / dist * limitedDist);
             }
         }
+        display.getVisualization().repaint();
+    }
+
+    @Override
+    protected void finish() {
+    }
+
+    @Override
+    protected boolean more() {
+        return true;
     }
 
     private static class ForceVector implements Cloneable {
@@ -163,7 +169,7 @@ public class FruchtermanReingold extends PrefuseLayout {
         float old_dx = 0;
         float old_dy = 0;
         float freeze = 0f;
-        private static final String COLUMN = "_fruchtermanReingoldForceVector";
+        private static final String COLUMN = "_fruchtermanReingold2ForceVector";
         static final Schema SCHEMA = new Schema();
 
         static {
