@@ -189,7 +189,8 @@ public class PrefuseConfig extends Properties {
      */
     private void setDefaults() {
         setProperty("size.scale2D", "0.5");
-        setProperty("activity.threadPriority", "6");
+//        setProperty("activity.threadPriority", "6");
+        setProperty("activity.threadPriority", String.valueOf(Thread.NORM_PRIORITY));
         setProperty("data.delimiter", ".");
         setProperty("data.graph.nodeGroup", "nodes");
         setProperty("data.graph.edgeGroup", "edges");
