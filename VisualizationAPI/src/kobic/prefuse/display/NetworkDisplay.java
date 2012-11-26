@@ -780,7 +780,7 @@ public abstract class NetworkDisplay extends Display {
         addDrawActions(draw);
         draw.add(new RepaintAction(v));
 
-        layout = new ActionList(getLayoutDuration());
+        layout = new ActionList(getLayoutDuration(), 50L); // Default step time is 15L
         layout.add(graphLayout = createGraphLayout());
         addLayoutActions(layout);
         layout.add(new RepaintAction(v));
