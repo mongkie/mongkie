@@ -20,14 +20,15 @@ package org.mongkie.layout.plugins.circle;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.PrefuseLayout;
 import org.openide.util.Exceptions;
 import prefuse.data.tuple.TupleSet;
-import prefuse.visual.VisualItem;
+import prefuse.data.util.SortedTupleIterator;
+import prefuse.visual.NodeItem;
 
 /**
  *
@@ -91,9 +92,9 @@ public class Circle extends PrefuseLayout {
 
     @Override
     public void run(double frac) {
-        TupleSet ts = m_vis.getGroup(NODES);
+        TupleSet nodes = display.getVisualGraph().getNodeTable();
 
-        int nn = ts.getTupleCount();
+        int nodeTotal = nodes.getTupleCount();
 
         Rectangle2D rect = getLayoutBounds();
         double height = rect.getHeight();
@@ -104,10 +105,18 @@ public class Circle extends PrefuseLayout {
         double r = (isAutoScale() || radius <= 0)
                 ? 0.45 * (height < width ? height : width) : radius;
 
-        Iterator<VisualItem> items = ts.tuples();
-        for (int i = 0; items.hasNext(); i++) {
-            VisualItem n = items.next();
-            double angle = (2 * Math.PI * i) / nn;
+//        Iterator<NodeItem> nodeItems = nodes.tuples();
+        Iterator<NodeItem> nodeItems = new SortedTupleIterator(nodes.tuples(), nodeTotal,
+                new Comparator<NodeItem>() {
+                    @Override
+                    public int compare(NodeItem n1, NodeItem n2) {
+                        int d1 = n1.getDegree(), d2 = n2.getDegree();
+                        return (d1 == 0 || d2 == 0) ? d1 - d2 : 0;
+                    }
+                });
+        for (int i = 0; nodeItems.hasNext(); i++) {
+            NodeItem n = nodeItems.next();
+            double angle = (2 * Math.PI * i) / nodeTotal;
             double x = Math.cos(angle) * r + cx;
             double y = Math.sin(angle) * r + cy;
             setX(n, null, x);

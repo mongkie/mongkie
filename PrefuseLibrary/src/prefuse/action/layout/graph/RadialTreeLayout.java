@@ -32,7 +32,7 @@ import prefuse.visual.NodeItem;
 public class RadialTreeLayout extends TreeLayout {
     
     public static final int DEFAULT_RADIUS = 50;
-    private static final int MARGIN = 30;
+    private static final int MARGIN = 10;
 
     protected int m_maxDepth = 0;
     protected double m_radiusInc;
@@ -337,7 +337,7 @@ public class RadialTreeLayout extends TreeLayout {
         PARAMS_SCHEMA.addColumn(PARAMS, Params.class, new Params());
     }
     
-    protected void initSchema(TupleSet ts) {
+    public void initSchema(TupleSet ts) {
         ts.addColumns(PARAMS_SCHEMA);
     }
     

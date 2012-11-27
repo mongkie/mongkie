@@ -100,7 +100,7 @@ public class GridLayout extends Layout {
 //        m = ts.getTupleCount() / n;
 //        return new int[] {m,n};
         int m = (int) Math.floor(Math.sqrt(ts.getTupleCount()));
-        return new int[] {m, m + 1};
+        return new int[] {m + 1, m + 1};
     }
     
     /**

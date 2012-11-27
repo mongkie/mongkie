@@ -232,7 +232,7 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
         protected abstract L createDeligateLayout();
 
         @Override
-        public final void initAlgo() {
+        public void initAlgo() {
             L layout = getDeligateLayout();
             setLayoutParameters(layout);
             display.setGraphLayout(layout, isRunOnce() ? 0 : Action.INFINITY);

@@ -37,7 +37,9 @@ public class Random extends PrefuseLayout.Delegation<RandomLayout> {
 
     @Override
     protected RandomLayout createDeligateLayout() {
-        return new RandomLayout(NODES);
+        RandomLayout l = new RandomLayout(NODES);
+        l.setMargin(50, 50, 50, 50);
+        return l;
     }
 
     @Override

@@ -18,13 +18,17 @@
 package org.mongkie.layout.plugins.radialtree;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.PrefuseLayout;
 import org.openide.util.Exceptions;
 import prefuse.action.layout.graph.RadialTreeLayout;
-import prefuse.data.Graph;
+import prefuse.data.util.SortedTupleIterator;
+import prefuse.visual.NodeItem;
+import prefuse.visual.VisualGraph;
 
 /**
  *
@@ -62,8 +66,24 @@ public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
     }
 
     @Override
+    public void initAlgo() {
+        super.initAlgo();
+        VisualGraph vg = display.getVisualGraph();
+        getDeligateLayout().initSchema(vg.getNodes()); // Atfer node table changed, spanning tree becomes null
+        NodeItem root = (NodeItem) new SortedTupleIterator(vg.getNodes().tuples(), vg.getNodeCount(),
+                new Comparator<NodeItem>() {
+                    @Override
+                    public int compare(NodeItem n1, NodeItem n2) {
+                        return n2.getDegree() - n1.getDegree();
+                    }
+                }).next();
+        vg.getSpanningTree(root); // Rebuild spanning tree
+        getDeligateLayout().setLayoutRoot(root);
+    }
+
+    @Override
     protected RadialTreeLayout createDeligateLayout() {
-        RadialTreeLayout l = new RadialTreeLayout(Graph.GRAPH);
+        RadialTreeLayout l = new RadialTreeLayout(GRAPH);
         l.setAutoScale(autoScale);
         return l;
     }
