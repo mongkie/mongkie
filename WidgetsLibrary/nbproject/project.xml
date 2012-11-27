@@ -31,6 +31,14 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.openide.explorer</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>6.45.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.util</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -64,6 +72,7 @@
                 <package>net.miginfocom.swing</package>
                 <package>org.mongkie.lib.widgets</package>
                 <package>org.mongkie.lib.widgets.file</package>
+                <package>org.mongkie.lib.widgets.pe</package>
                 <package>org.mongkie.lib.widgets.richtooltip</package>
                 <package>org.mongkie.lib.widgets.slider</package>
                 <package>org.mongkie.lib.widgets.spline</package>

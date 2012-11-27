@@ -24,6 +24,9 @@ import java.util.List;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.AbstractLayout;
 import org.mongkie.layout.spi.LayoutBuilder;
+import org.mongkie.lib.widgets.pe.JSliderInplaceEditor;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 import prefuse.data.Schema;
 import prefuse.data.tuple.TupleSet;
 import prefuse.visual.EdgeItem;
@@ -47,9 +50,77 @@ public class FruchtermanReingold extends AbstractLayout {
         super(builder);
     }
 
+    public float getArea() {
+        return area;
+    }
+
+    public void setArea(float area) {
+        this.area = area;
+    }
+
+    public float getGravity() {
+        return (float) gravity;
+    }
+
+    public void setGravity(float gravity) {
+        this.gravity = gravity;
+    }
+
+    public float getSpeed() {
+        return (float) speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
     @Override
     protected LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
+        LayoutProperty p;
+        try {
+            p = LayoutProperty.createProperty(
+                    NbBundle.getMessage(FruchtermanReingold.class, "param.speed.name"),
+                    NbBundle.getMessage(FruchtermanReingold.class, "param.speed.description"),
+                    "Parameters",
+                    this, float.class, "getSpeed", "setSpeed");
+            p.setValue("inplaceEditor", new JSliderInplaceEditor.Float(1, 10, "%- 1.0f",
+                    new JSliderInplaceEditor.SliderListener<Float>() {
+                        @Override
+                        public void valueChanged(Float value) {
+                            setSpeed(value);
+                        }
+                    }));
+            properties.add(p);
+            p = LayoutProperty.createProperty(
+                    NbBundle.getMessage(FruchtermanReingold.class, "param.gravity.name"),
+                    NbBundle.getMessage(FruchtermanReingold.class, "param.gravity.description"),
+                    "Parameters",
+                    this, float.class, "getGravity", "setGravity");
+            p.setValue("inplaceEditor", new JSliderInplaceEditor.Float(1, 30, "%- 1.0f",
+                    new JSliderInplaceEditor.SliderListener<Float>() {
+                        @Override
+                        public void valueChanged(Float value) {
+                            setGravity(value);
+                        }
+                    }));
+            properties.add(p);
+            p = LayoutProperty.createProperty(
+                    NbBundle.getMessage(FruchtermanReingold.class, "param.area.name"),
+                    NbBundle.getMessage(FruchtermanReingold.class, "param.area.description"),
+                    "Parameters",
+                    this, float.class, "getArea", "setArea");
+            p.setValue("inplaceEditor", new JSliderInplaceEditor.Float(100, 50000, "%- 1.0f",
+                    new JSliderInplaceEditor.SliderListener<Float>() {
+                        @Override
+                        public void valueChanged(Float value) {
+                            setArea(value);
+                        }
+                    }));
+            properties.add(p);
+        } catch (NoSuchMethodException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         return properties.toArray(new LayoutProperty[0]);
     }
 
@@ -126,12 +197,7 @@ public class FruchtermanReingold extends AbstractLayout {
         }
 
         // speed
-        double _speed = speed * (nodes.getTupleCount() / 50);
-        if (_speed < 2) {
-            _speed = 2;
-        } else if (_speed > 100) {
-            _speed = 100;
-        }
+        double _speed = speed + nodes.getTupleCount() / 50;
         for (Iterator<NodeItem> iter = nodes.tuples(); iter.hasNext();) {
             ForceVector force = ForceVector.get(iter.next());
             force.dx *= _speed / SPEED_DIVISOR;
@@ -169,7 +235,7 @@ public class FruchtermanReingold extends AbstractLayout {
         float old_dx = 0;
         float old_dy = 0;
         float freeze = 0f;
-        private static final String COLUMN = "_fruchtermanReingold2ForceVector";
+        private static final String COLUMN = "_fruchtermanReingoldForceVector";
         static final Schema SCHEMA = new Schema();
 
         static {
