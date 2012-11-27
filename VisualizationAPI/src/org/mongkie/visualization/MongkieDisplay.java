@@ -377,11 +377,12 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
         ForceSimulator forceSimulator = new ForceSimulator(new RungeKuttaIntegrator());
         forceSimulator.addForce(new NBodyForce(
                 NBodyForce.DEFAULT_MIN_GRAV_CONSTANT,
-                NBodyForce.DEFAULT_MAX_DISTANCE,
+//                NBodyForce.DEFAULT_MAX_DISTANCE,
+                NBodyForce.DEFAULT_MIN_DISTANCE,
                 NBodyForce.DEFAULT_THETA));
         forceSimulator.addForce(new DragForce(DragForce.DEFAULT_DRAG_COEFF));
         forceSimulator.addForce(new SpringForce(
-                SpringForce.DEFAULT_SPRING_COEFF / 10,
+                SpringForce.DEFAULT_SPRING_COEFF / 10 * 4,
                 SpringForce.DEFAULT_SPRING_LENGTH * 4));
         return new ForceDirectedLayout(GRAPH, forceSimulator, false) {
             

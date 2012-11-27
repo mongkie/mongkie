@@ -25,6 +25,7 @@ import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.AbstractLayout;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.lib.widgets.pe.JSliderInplaceEditor;
+import org.openide.explorer.propertysheet.PropertyModel;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import prefuse.data.Schema;
@@ -87,7 +88,7 @@ public class FruchtermanReingold extends AbstractLayout {
             p.setValue("inplaceEditor", new JSliderInplaceEditor.Float(1, 10, "%- 1.0f",
                     new JSliderInplaceEditor.SliderListener<Float>() {
                         @Override
-                        public void valueChanged(Float value) {
+                        public void valueChanged(PropertyModel model, Float value) {
                             setSpeed(value);
                         }
                     }));
@@ -100,7 +101,7 @@ public class FruchtermanReingold extends AbstractLayout {
             p.setValue("inplaceEditor", new JSliderInplaceEditor.Float(1, 30, "%- 1.0f",
                     new JSliderInplaceEditor.SliderListener<Float>() {
                         @Override
-                        public void valueChanged(Float value) {
+                        public void valueChanged(PropertyModel model, Float value) {
                             setGravity(value);
                         }
                     }));
@@ -113,7 +114,7 @@ public class FruchtermanReingold extends AbstractLayout {
             p.setValue("inplaceEditor", new JSliderInplaceEditor.Float(100, 50000, "%- 1.0f",
                     new JSliderInplaceEditor.SliderListener<Float>() {
                         @Override
-                        public void valueChanged(Float value) {
+                        public void valueChanged(PropertyModel model, Float value) {
                             setArea(value);
                         }
                     }));

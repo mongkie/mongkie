@@ -86,7 +86,7 @@ public abstract class JSliderInplaceEditor<N extends Number> extends JComponent 
                 if (setter != null) {
                     try {
                         if (!model.getValue().equals(newValue)) {
-                            setter.valueChanged((N) newValue);
+                            setter.valueChanged(model, (N) newValue);
                         }
                     } catch (InvocationTargetException ex) {
                         Exceptions.printStackTrace(ex);
@@ -107,6 +107,10 @@ public abstract class JSliderInplaceEditor<N extends Number> extends JComponent 
     protected abstract N getSliderValue();
 
     protected abstract void setSliderValue(N value);
+
+    protected PropertyModel getModel() {
+        return model;
+    }
 
     @Override
     public void connect(PropertyEditor pe, PropertyEnv env) {
@@ -186,7 +190,7 @@ public abstract class JSliderInplaceEditor<N extends Number> extends JComponent 
 
     public static interface SliderListener<T extends Number> {
 
-        public void valueChanged(T value);
+        public void valueChanged(PropertyModel model, T value);
     }
 
     public static class Float extends JSliderInplaceEditor<java.lang.Float> {

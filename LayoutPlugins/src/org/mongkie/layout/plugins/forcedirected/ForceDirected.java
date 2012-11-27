@@ -201,7 +201,7 @@ public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
         setDistance(NBodyForce.DEFAULT_MIN_DISTANCE);
         setTheta(NBodyForce.DEFAULT_THETA);
         setDragCoefficient(DragForce.DEFAULT_DRAG_COEFF);
-        setSpringCoefficient(SpringForce.DEFAULT_SPRING_COEFF / 10);
+        setSpringCoefficient(SpringForce.DEFAULT_SPRING_COEFF / 10 * 4);
         setSpringLength(SpringForce.DEFAULT_SPRING_LENGTH * 4);
     }
 
@@ -214,7 +214,7 @@ public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
                 NBodyForce.DEFAULT_THETA));
         forceSimulator.addForce(new DragForce(DragForce.DEFAULT_DRAG_COEFF));
         forceSimulator.addForce(new SpringForce(
-                SpringForce.DEFAULT_SPRING_COEFF / 10,
+                SpringForce.DEFAULT_SPRING_COEFF / 10 * 4,
                 SpringForce.DEFAULT_SPRING_LENGTH * 4));
         return new ForceDirectedLayout(Graph.GRAPH, forceSimulator, isRunOnce()) {
             @Override
