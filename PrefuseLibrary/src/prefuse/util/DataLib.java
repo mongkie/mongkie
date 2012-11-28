@@ -262,6 +262,8 @@ public class DataLib {
         if (type.isPrimitive()) {
             if (type.equals(int.class)) {
                 return table.index(column).rows(((Integer) val).intValue());
+            } else if (type.equals(float.class)) {
+                return table.index(column).rows(((Float) val).floatValue());
             } else if (type.equals(double.class)) {
                 return table.index(column).rows(((Double) val).doubleValue());
             } else if (type.equals(boolean.class)) {
@@ -278,6 +280,8 @@ public class DataLib {
         if (type.isPrimitive()) {
             if (type.equals(int.class)) {
                 return table.index(column).get(((Integer) val).intValue());
+            } else if (type.equals(float.class)) {
+                return table.index(column).get(((Float) val).floatValue());
             } else if (type.equals(double.class)) {
                 return table.index(column).get(((Double) val).doubleValue());
             } else if (type.equals(boolean.class)) {
