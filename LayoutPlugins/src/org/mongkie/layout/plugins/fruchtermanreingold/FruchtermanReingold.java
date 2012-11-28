@@ -127,7 +127,7 @@ public class FruchtermanReingold extends AbstractLayout {
 
     @Override
     protected void resetProperties() {
-        speed = 2;
+        speed = 4;
         area = 4000;
         gravity = 10;
     }

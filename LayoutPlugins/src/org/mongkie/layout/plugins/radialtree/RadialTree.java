@@ -123,6 +123,7 @@ public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
                         b.setFrame(b.getMinX() + b.getWidth(), b.getMinY(), b.getWidth(), b.getHeight());
                         int preSize = display.getVisualGraph().getSpanningTree().getNodeCount();
                         int curSize = display.getVisualGraph().getSpanningTree(root).getNodeCount(); // Also rebuild spanning tree
+                        //TODO: curSize > preSize ?
                         GraphicsLib.expand(b, (b.getWidth() * curSize / preSize) - b.getWidth());
                         setLayoutBounds(b);
                         c.setLocation(b.getCenterX(), b.getCenterY());
