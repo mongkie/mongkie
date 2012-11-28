@@ -84,6 +84,7 @@ public class RankingControllerImpl extends RankingController<RankingModelImpl> {
             }
         }
 
+        model.getDisplay().getVisualization().repaint();
         model.fireRankingEvent(APPLY_TRANSFORMER, ranking, transformer);
     }
 
