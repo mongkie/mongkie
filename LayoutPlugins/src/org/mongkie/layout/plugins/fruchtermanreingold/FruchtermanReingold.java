@@ -40,7 +40,7 @@ import prefuse.visual.VisualItem;
  */
 public class FruchtermanReingold extends AbstractLayout {
 
-    private static final float SPEED_DIVISOR = 800;
+    private static final float SPEED_DIVISOR = 600; // Originally 800
     private static final float AREA_MULTIPLICATOR = 10000;
     //Properties
     private float area;

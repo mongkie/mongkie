@@ -113,18 +113,24 @@ public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
         RadialTreeLayout l = new RadialTreeLayout(GRAPH) {
             private final Rectangle2D b = new Rectangle2D.Double();
             private final Point2D c = new Point2D.Double();
+            private final float GAP = 20;
 
             @Override
             public void run(double frac) {
                 int i = 0;
                 for (NodeItem root : roots) {
                     if (i > 0) {
-                        DisplayLib.getBounds(display.getVisualGraph().getSpanningTree().nodes(), 10, b);
-                        b.setFrame(b.getMinX() + b.getWidth(), b.getMinY(), b.getWidth(), b.getHeight());
-                        int preSize = display.getVisualGraph().getSpanningTree().getNodeCount();
-                        int curSize = display.getVisualGraph().getSpanningTree(root).getNodeCount(); // Also rebuild spanning tree
-                        //TODO: curSize > preSize ?
-                        GraphicsLib.expand(b, (b.getWidth() * curSize / preSize) - b.getWidth());
+                        DisplayLib.getBounds(display.getVisualGraph().getSpanningTree().nodes(), 0, b);
+                        b.setFrame(b.getMinX() + b.getWidth() + GAP, b.getMinY(), b.getWidth(), b.getHeight());
+                        int pSize = display.getVisualGraph().getSpanningTree().getNodeCount();
+                        int cSize = display.getVisualGraph().getSpanningTree(root).getNodeCount(); // Also rebuild spanning tree
+                        if (cSize > pSize) {
+                            double width = b.getWidth();
+                            GraphicsLib.expand(b, (width * cSize / pSize) - width);
+                            b.setFrame(b.getMinX() + (b.getWidth() - width) / 2, b.getMinY(), b.getWidth(), b.getHeight());
+                        } else {
+                            GraphicsLib.expand(b, (b.getWidth() * cSize / pSize) - b.getWidth());
+                        }
                         setLayoutBounds(b);
                         c.setLocation(b.getCenterX(), b.getCenterY());
                         setLayoutAnchor(c);
