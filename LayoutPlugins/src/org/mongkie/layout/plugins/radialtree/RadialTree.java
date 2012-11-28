@@ -17,8 +17,12 @@
  */
 package org.mongkie.layout.plugins.radialtree;
 
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
@@ -27,6 +31,9 @@ import org.mongkie.layout.spi.PrefuseLayout;
 import org.openide.util.Exceptions;
 import prefuse.action.layout.graph.RadialTreeLayout;
 import prefuse.data.util.SortedTupleIterator;
+import prefuse.util.DataLib;
+import prefuse.util.GraphicsLib;
+import prefuse.util.display.DisplayLib;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualGraph;
 
@@ -70,20 +77,67 @@ public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
         super.initAlgo();
         VisualGraph vg = display.getVisualGraph();
         getDeligateLayout().initSchema(vg.getNodes()); // Atfer node table changed, spanning tree becomes null
-        NodeItem root = (NodeItem) new SortedTupleIterator(vg.getNodes().tuples(), vg.getNodeCount(),
+        findAllSpanningTreeRoots(
+                DataLib.asLinkedList(new SortedTupleIterator<NodeItem>(vg.getNodes().tuples(), vg.getNodeCount(),
                 new Comparator<NodeItem>() {
                     @Override
                     public int compare(NodeItem n1, NodeItem n2) {
                         return n2.getDegree() - n1.getDegree();
                     }
-                }).next();
-        vg.getSpanningTree(root); // Rebuild spanning tree
-        getDeligateLayout().setLayoutRoot(root);
+                })), roots);
+    }
+    private final List<NodeItem> roots = new ArrayList<NodeItem>();
+
+    private void findAllSpanningTreeRoots(LinkedList<NodeItem> nodes, List<NodeItem> roots) {
+        if (nodes.isEmpty()) {
+            return;
+        }
+        NodeItem root = nodes.removeFirst();
+        for (Iterator<NodeItem> treeIter = display.getVisualGraph().getSpanningTree(root).nodes();
+                treeIter.hasNext();) {
+            nodes.remove(treeIter.next());
+        }
+        roots.add(root);
+        findAllSpanningTreeRoots(nodes, roots);
+    }
+
+    @Override
+    public void endAlgo() {
+        super.endAlgo();
+        display.getVisualGraph().clearSpanningTree();
+        roots.clear();
     }
 
     @Override
     protected RadialTreeLayout createDeligateLayout() {
-        RadialTreeLayout l = new RadialTreeLayout(GRAPH);
+        RadialTreeLayout l = new RadialTreeLayout(GRAPH) {
+            private final Rectangle2D b = new Rectangle2D.Double();
+            private final Point2D c = new Point2D.Double();
+
+            @Override
+            public void run(double frac) {
+                int i = 0;
+                for (NodeItem root : roots) {
+                    if (i > 0) {
+                        DisplayLib.getBounds(display.getVisualGraph().getSpanningTree().nodes(), 10, b);
+                        b.setFrame(b.getMinX() + b.getWidth(), b.getMinY(), b.getWidth(), b.getHeight());
+                        int preSize = display.getVisualGraph().getSpanningTree().getNodeCount();
+                        int curSize = display.getVisualGraph().getSpanningTree(root).getNodeCount(); // Also rebuild spanning tree
+                        GraphicsLib.expand(b, (b.getWidth() * curSize / preSize) - b.getWidth());
+                        setLayoutBounds(b);
+                        c.setLocation(b.getCenterX(), b.getCenterY());
+                        setLayoutAnchor(c);
+                    } else {
+                        display.getVisualGraph().getSpanningTree(root); // Rebuild spanning tree
+                    }
+                    setLayoutRoot(root);
+                    super.run(frac);
+                    i++;
+                }
+                setLayoutBounds(null);
+                setLayoutAnchor(null);
+            }
+        };
         l.setAutoScale(autoScale);
         return l;
     }

@@ -621,6 +621,14 @@ public class DataLib {
         return tuples;
     }
 
+    public static <T extends Tuple> LinkedList<T> asLinkedList(Iterator<T> tuples) {
+        LinkedList<T> list = new LinkedList();
+        while (tuples.hasNext()) {
+            list.add((T) tuples.next());
+        }
+        return list;
+    }
+
     public static void removeTuples(TupleSet tupleSet, Predicate filter) {
         List<Tuple> filteredTuples = new ArrayList<Tuple>();
         for (Iterator<Tuple> filteredIter = tupleSet.tuples(filter); filteredIter.hasNext();) {

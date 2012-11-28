@@ -392,7 +392,8 @@ public class Graph extends CompositeTupleSet {
         edges.addTableListener(m_listener);
         m_listener.setEdgeTable(edges);
 
-        empty = getNodeCount() == 0;
+//        empty = getNodeCount() == 0;
+        empty = m_links.getTupleCount() == 0;
     }
 
     /**

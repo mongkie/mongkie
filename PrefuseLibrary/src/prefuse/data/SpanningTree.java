@@ -4,9 +4,12 @@
  */
 package prefuse.data;
 
+import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import prefuse.data.tuple.TupleManager;
 import prefuse.visual.tuple.TableEdgeItem;
@@ -64,6 +67,7 @@ public class SpanningTree extends Tree {
         // re-use a previously allocated tree if possible
         super.clearEdges();
         super.setRoot(root);
+        TREE_NODES.clear();
             
         // build unweighted spanning tree by BFS
         LinkedList q = new LinkedList();
@@ -73,6 +77,7 @@ public class SpanningTree extends Tree {
         
         while ( !q.isEmpty() ) {
             Node p = (Node)q.removeFirst();
+            TREE_NODES.add(p);
             for ( Iterator iter = p.edges(); iter.hasNext(); ) {
                 Edge e = (Edge)iter.next();
                 Node n = e.getAdjacentNode(p);
@@ -84,6 +89,18 @@ public class SpanningTree extends Tree {
             }
         }
     }
+
+    @Override
+    public Iterator nodes() {
+        return TREE_NODES.iterator();
+    }
+
+    @Override
+    public int getNodeCount() {
+        return TREE_NODES.size();
+    }
+    
+    private final List<Node> TREE_NODES = Collections.synchronizedList(new ArrayList<Node>());
 
     // ------------------------------------------------------------------------
     // Disallow most mutator methods
