@@ -18,6 +18,7 @@
 package org.mongkie.exporter.plugins.graph;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.*;
@@ -30,13 +31,14 @@ import org.mongkie.exporter.spi.AbstractGraphExporter;
 import org.mongkie.visualization.color.ColorController;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import prefuse.Visualization;
 import static prefuse.Visualization.AGGR_ITEMS;
 import prefuse.data.Graph;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
 import prefuse.util.ColorLib;
-import static prefuse.visual.VisualItem.*;
 import prefuse.visual.*;
+import static prefuse.visual.VisualItem.*;
 
 /**
  *
@@ -128,9 +130,12 @@ public class ExporterVizGraph extends AbstractGraphExporter {
         Table derived = serializable.getTable();
         // Color fields reassigned to values get from ColorController
         ColorController cc = Lookup.getDefault().lookup(ColorController.class);
+        // Move visual items so that center of visualization bounds is at the (0,0)
+        Rectangle2D vizBounds = display.getVisualization().getBounds(Visualization.ALL_ITEMS);
         for (Iterator<VisualItem> itemsIter = ((VisualTable) serializable.getBaseTable()).tuples(); itemsIter.hasNext();) {
             VisualItem item = itemsIter.next();
             int row = serializable.getRow(item.getRow());
+            // Reassign color fields
             Color c = cc.getFillColor(item);
             if (c != null) {
                 derived.set(row, FILLCOLOR, ColorLib.color(c));
@@ -143,6 +148,9 @@ public class ExporterVizGraph extends AbstractGraphExporter {
             if (c != null) {
                 derived.set(row, TEXTCOLOR, ColorLib.color(c));
             }
+            // Reassign item locations
+            derived.set(row, X, item.getX() - vizBounds.getCenterX());
+            derived.set(row, Y, item.getY() - vizBounds.getCenterY());
         }
     }
 
