@@ -18,10 +18,12 @@
 package org.mongkie.vm.ranking.transformer;
 
 import java.awt.Color;
+import org.mongkie.visualization.color.ColorController;
 import org.mongkie.visualmap.spi.ranking.AbstractColorTransformer;
 import org.mongkie.visualmap.spi.ranking.Ranking;
 import org.mongkie.visualmap.spi.ranking.Transformer;
 import org.mongkie.visualmap.spi.ranking.TransformerBuilder;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.util.ColorLib;
 import prefuse.util.PrefuseLib;
@@ -57,9 +59,9 @@ public class LabelColorTransformerBuilder implements TransformerBuilder {
         @Override
         public Object transform(VisualItem target, float normalizedValue) {
             Color color = getColor(normalizedValue);
-//            target.setTextColor(ColorLib.color(new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 1f)));
-            PrefuseLib.update(target, VisualItem.TEXTCOLOR,
-                    ColorLib.color(new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 1f)));
+//            PrefuseLib.update(target, VisualItem.TEXTCOLOR,
+//                    ColorLib.color(new Color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, 1f)));
+             Lookup.getDefault().lookup(ColorController.class).setTextColor(target, color);
             return color;
         }
     }
