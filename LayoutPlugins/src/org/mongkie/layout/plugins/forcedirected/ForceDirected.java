@@ -19,12 +19,14 @@ package org.mongkie.layout.plugins.forcedirected;
 
 import java.util.ArrayList;
 import java.util.List;
+import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.PrefuseLayout;
 import org.mongkie.longtask.progress.DeterminateTask;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import prefuse.action.ActionList;
 import prefuse.action.layout.graph.ForceDirectedLayout;
 import prefuse.util.force.DragForce;
 import prefuse.util.force.Force;
@@ -34,8 +36,6 @@ import prefuse.util.force.RungeKuttaIntegrator;
 import prefuse.util.force.SpringForce;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.VisualItem;
-import static kobic.prefuse.Constants.*;
-import prefuse.action.ActionList;
 
 /**
  *
@@ -331,7 +331,7 @@ public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
         super.endAlgo();
         if (isBigGraph) {
             if (!isCanceled()) {
-                LayoutData.restore(display.getVisualGraph().getNodeTable().tuples());
+                LayoutData.apply(display.getVisualGraph().getNodeTable().tuples());
                 display.getVisualization().repaint();
             }
             // Reenable other registered layout actions

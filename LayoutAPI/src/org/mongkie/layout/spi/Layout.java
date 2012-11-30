@@ -155,7 +155,7 @@ public interface Layout {
             }
         }
 
-        public static <I extends VisualItem> void restore(Iterator<I> items) {
+        public static <I extends VisualItem> void apply(Iterator<I> items) {
             while (items.hasNext()) {
                 I item = items.next();
                 LayoutData data = LayoutData.get(item);
