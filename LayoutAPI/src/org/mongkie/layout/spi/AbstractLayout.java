@@ -86,7 +86,7 @@ public abstract class AbstractLayout implements Layout {
     }
 
     @Override
-    public void initAlgo() {
+    public final void initAlgo() {
         prefuseLayoutEnabled = display.isLayoutActionEnabled();
         display.setLayoutActionEnabled(false);
         canceled = false;
@@ -108,10 +108,10 @@ public abstract class AbstractLayout implements Layout {
     @Override
     public final void endAlgo() {
         display.setLayoutActionEnabled(prefuseLayoutEnabled);
-        finish();
+        finish(canceled);
     }
 
-    protected abstract void finish();
+    protected abstract void finish(boolean canceled);
 
     @Override
     public final boolean hasNextStep() {
@@ -126,10 +126,6 @@ public abstract class AbstractLayout implements Layout {
         return true;
     }
     private volatile boolean canceled;
-
-    protected final boolean isCanceled() {
-        return canceled;
-    }
 
     protected void setX(VisualItem item, double x) {
         PrefuseLib.setX(item, null, x);

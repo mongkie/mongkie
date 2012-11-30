@@ -41,6 +41,8 @@ Portions Copyrighted 2011 Gephi Consortium.
  */
 package org.mongkie.longtask.progress;
 
+import org.netbeans.api.progress.ProgressUtils;
+
 /**
  * Progress functionalities accessor.
  *
@@ -174,5 +176,9 @@ public class Progress {
         if (progressTicket != null) {
             progressTicket.switchToIndeterminate();
         }
+    }
+    
+    public static <T> T showProgressDialogAndRun(ProgressRunnable<T> operation, String displayName, boolean includeDetailLabel) {
+        return ProgressUtils.showProgressDialogAndRun(operation, displayName, includeDetailLabel);
     }
 }

@@ -25,7 +25,9 @@ import kobic.prefuse.display.DisplayListener;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
+import prefuse.Visualization;
 import prefuse.action.Action;
+import prefuse.action.ActionList;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityListener;
 import prefuse.data.Graph;
@@ -106,6 +108,7 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
     public void initAlgo() {
         display.setGraphLayout(this, isRunOnce() ? 0 : Action.INFINITY);
         completed = false;
+        canceled = false;
     }
 
     protected abstract boolean isRunOnce();
@@ -133,7 +136,13 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
     @Override
     public boolean cancelAlgo() {
         display.cancelLayoutAction();
+        canceled = true;
         return true;
+    }
+    protected volatile boolean canceled;
+
+    protected final boolean isCanceled() {
+        return canceled;
     }
 
     @Override
@@ -154,12 +163,20 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
 
     @Override
     public void activityFinished(Activity a) {
-        completeLayout();
+        if (isCurrentLayout(a)) {
+            completeLayout();
+        }
     }
 
     @Override
     public void activityCancelled(Activity a) {
-        completeLayout();
+        if (isCurrentLayout(a)) {
+            completeLayout();
+        }
+    }
+
+    protected boolean isCurrentLayout(Activity layoutAction) {
+        return ((ActionList) layoutAction).get(0) == this;
     }
 
     private void completeLayout() {
@@ -179,6 +196,11 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
     @Override
     public void graphChanged(MongkieDisplay d, Graph g) {
         d.getLayoutAction().addActivityListener(this);
+    }
+
+    protected boolean isBigGraph() {
+        return display.getGraph().getNodeCount() > 500
+                || display.getVisualization().getVisualGroup(Visualization.AGGR_ITEMS).getTupleCount() > 50;
     }
 
     public abstract static class Delegation<L extends prefuse.action.layout.Layout>
@@ -237,6 +259,12 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
             setLayoutParameters(layout);
             display.setGraphLayout(layout, isRunOnce() ? 0 : Action.INFINITY);
             completed = false;
+            canceled = false;
+        }
+
+        @Override
+        protected final boolean isCurrentLayout(Activity layoutAction) {
+            return ((ActionList) layoutAction).get(0) == getDeligateLayout();
         }
 
         protected abstract void setLayoutParameters(L layout);

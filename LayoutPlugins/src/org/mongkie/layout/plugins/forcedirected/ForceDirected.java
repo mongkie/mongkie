@@ -22,10 +22,10 @@ import java.util.List;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.PrefuseLayout;
+import org.mongkie.longtask.progress.DeterminateTask;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import prefuse.action.layout.graph.ForceDirectedLayout;
-import prefuse.data.Graph;
 import prefuse.util.force.DragForce;
 import prefuse.util.force.Force;
 import prefuse.util.force.ForceSimulator;
@@ -33,12 +33,15 @@ import prefuse.util.force.NBodyForce;
 import prefuse.util.force.RungeKuttaIntegrator;
 import prefuse.util.force.SpringForce;
 import prefuse.visual.EdgeItem;
+import prefuse.visual.VisualItem;
+import static kobic.prefuse.Constants.*;
+import prefuse.action.ActionList;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout> {
+public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout> implements DeterminateTask {
 
     private float gravConst = NBodyForce.DEFAULT_GRAV_CONSTANT;
     private float distance = NBodyForce.DEFAULT_DISTANCE;
@@ -46,6 +49,7 @@ public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
     private float dragCoeff = DragForce.DEFAULT_DRAG_COEFF;
     private float springCoeff = SpringForce.DEFAULT_SPRING_COEFF;
     private float springLength = SpringForce.DEFAULT_SPRING_LENGTH;
+    private static final int NUMBER_OF_ITERATIONS = 80;
 
     ForceDirected(LayoutBuilder<ForceDirected> builder) {
         super(builder);
@@ -216,7 +220,18 @@ public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
         forceSimulator.addForce(new SpringForce(
                 SpringForce.DEFAULT_SPRING_COEFF / 10 * 4,
                 SpringForce.DEFAULT_SPRING_LENGTH * 4));
-        return new ForceDirectedLayout(Graph.GRAPH, forceSimulator, isRunOnce()) {
+        return new ForceDirectedLayout(GRAPH, forceSimulator, isRunOnce()) {
+            @Override
+            public void run(double frac) {
+                super.run(frac);
+                if (isBigGraph) {
+                    handle.progress(++step);
+                    if (step > NUMBER_OF_ITERATIONS) {
+                        display.cancelLayoutAction();
+                    }
+                }
+            }
+
             @Override
             protected float getSpringLength(EdgeItem e) {
                 if (e.isAggregating()) {
@@ -225,23 +240,127 @@ public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
                     return SpringForce.DEFAULT_MAX_SPRING_LENGTH;
                 }
             }
+
+            @Override
+            protected void setX(VisualItem item, double x) {
+                if (isBigGraph) {
+                    LayoutData.get(item).setX(x);
+                } else {
+                    super.setX(item, x);
+                }
+            }
+
+            @Override
+            protected void setY(VisualItem item, double y) {
+                if (isBigGraph) {
+                    LayoutData.get(item).setY(y);
+                } else {
+                    super.setY(item, y);
+                }
+            }
+
+            @Override
+            protected double getX(VisualItem item) {
+                return isBigGraph ? LayoutData.get(item).getX() : super.getX(item);
+            }
+
+            @Override
+            protected double getEndX(VisualItem item) {
+                return isBigGraph ? LayoutData.get(item).getEndX() : super.getEndX(item);
+            }
+
+            @Override
+            protected double getEndY(VisualItem item) {
+                return isBigGraph ? LayoutData.get(item).getEndY() : super.getEndY(item);
+            }
+
+            @Override
+            public void setX(VisualItem item, VisualItem referrer, double x) {
+                if (isBigGraph) {
+                    LayoutData data = LayoutData.get(item);
+                    double sx = data.getX();
+                    if (Double.isNaN(sx)) {
+                        sx = (referrer != null ? referrer.getX() : x);
+                    }
+                    data.setStartX(sx);
+                    data.setEndX(x);
+                    data.setX(x);
+                } else {
+                    super.setX(item, referrer, x);
+                }
+            }
+
+            @Override
+            public void setY(VisualItem item, VisualItem referrer, double y) {
+                if (isBigGraph) {
+                    LayoutData data = LayoutData.get(item);
+                    double sy = data.getY();
+                    if (Double.isNaN(sy)) {
+                        sy = (referrer != null ? referrer.getY() : y);
+                    }
+                    data.setStartY(sy);
+                    data.setEndY(y);
+                    data.setY(y);
+                } else {
+                    super.setY(item, referrer, y);
+                }
+            }
         };
-//       return new ForceDirectedLayout(Graph.GRAPH, false, isRunOnce());
-//        return new ForceDirectedLayout(Graph.GRAPH, false, isRunOnce()) {
-//
-//            @Override
-//            protected float getSpringLength(EdgeItem e) {
-//                if (e.getBoolean(Constants.FIELD_ISAGGREGATING)) {
-//                    return SpringForce.DEFAULT_MIN_SPRING_LENGTH;
-//                } else {
-//                    return SpringForce.DEFAULT_MAX_SPRING_LENGTH;
-//                }
-//            }
-//        };
+    }
+
+    @Override
+    public void initAlgo() {
+        super.initAlgo();
+        isBigGraph = isBigGraph();
+        if (isBigGraph) {
+            display.getVisualGraph().getNodeTable().addColumns(LayoutData.SCHEMA);
+            LayoutData.init(display.getVisualGraph().getNodeTable().tuples());
+            step = 0;
+            // Disable other registered layout actions
+            ActionList layoutAction = display.getLayoutAction();
+            for (int i = 1; i < layoutAction.size(); i++) {
+                layoutAction.get(i).setEnabled(false);
+            }
+        }
+    }
+    private boolean isBigGraph;
+    private int step;
+
+    @Override
+    public void endAlgo() {
+        super.endAlgo();
+        if (isBigGraph) {
+            if (!isCanceled()) {
+                LayoutData.restore(display.getVisualGraph().getNodeTable().tuples());
+                display.getVisualization().repaint();
+            }
+            // Reenable other registered layout actions
+            ActionList layoutAction = display.getLayoutAction();
+            for (int i = 1; i < layoutAction.size(); i++) {
+                layoutAction.get(i).setEnabled(true);
+            }
+        }
     }
 
     @Override
     protected boolean isRunOnce() {
         return false;
+    }
+
+    // Following methods will be called *BEFORE* initAlgo()
+    @Override
+    public boolean isProgressDialogEnabled() {
+        return isBigGraph();
+    }
+
+    @Override
+    public void setTaskHandle(Handle handle) {
+        this.handle = handle;
+    }
+    private Handle handle;
+
+    @Override
+    public int getWorkunits() {
+        return isBigGraph() ? NUMBER_OF_ITERATIONS : 0;
     }
 }

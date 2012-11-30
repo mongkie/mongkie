@@ -41,12 +41,16 @@ Portions Copyrighted 2011 Gephi Consortium.
 */
 package org.mongkie.longtask.progress;
 
+import org.netbeans.api.progress.ProgressHandle;
+
 /**
  * Progress task following, must be used from {@link Progress} class.
  * 
  * @author Mathieu Bastian
  */
 public interface ProgressTicket {
+    
+    ProgressHandle getHandle();
 
     /**
      * Finish the progress task.

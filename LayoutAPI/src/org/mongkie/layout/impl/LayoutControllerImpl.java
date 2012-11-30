@@ -27,11 +27,14 @@ import org.mongkie.layout.LayoutModelChangeListener;
 import org.mongkie.layout.spi.Layout;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.longtask.LongTask;
+import org.mongkie.longtask.progress.DeterminateTask;
 import org.mongkie.longtask.progress.Progress;
+import org.mongkie.longtask.progress.ProgressRunnable;
 import org.mongkie.longtask.progress.ProgressTicket;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualization.workspace.WorkspaceListener;
+import org.netbeans.api.progress.ProgressHandle;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Graph;
@@ -174,16 +177,52 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
         @Override
         public void run() {
             Progress.setDisplayName(progressTicket, layout.getBuilder().getName());
-            Progress.start(progressTicket);
-            try {
-                layout.initAlgo();
-                while (layout.hasNextStep()) {
-                    layout.goAlgo();
+            if (layout instanceof DeterminateTask) {
+                final DeterminateTask task = (DeterminateTask) layout;
+                if (task.isProgressDialogEnabled()) {
+                    Progress.showProgressDialogAndRun(new ProgressRunnable() {
+                        @Override
+                        public Object run(ProgressHandle handle) {
+                            task.setTaskHandle(new DeterminateTask.Handle(handle, task.getWorkunits()));
+                            runLayout(layout);
+                            return null;
+                        }
+
+                        @Override
+                        public boolean cancel() {
+                            return LayoutRun.this.cancel();
+                        }
+                    }, progressTicket.getDisplayName(), true);
+                } else {
+                    int workunits = task.getWorkunits();
+                    if (workunits > 0) {
+                        Progress.start(progressTicket, workunits);
+                    } else {
+                        Progress.start(progressTicket);
+                    }
+                    task.setTaskHandle(new DeterminateTask.Handle(progressTicket.getHandle(), workunits));
+                    try {
+                        runLayout(layout);
+                    } finally {
+                        Progress.finish(progressTicket);
+                    }
                 }
-                layout.endAlgo();
-            } finally {
-                Progress.finish(progressTicket);
+            } else {
+                Progress.start(progressTicket);
+                try {
+                    runLayout(layout);
+                } finally {
+                    Progress.finish(progressTicket);
+                }
             }
+        }
+
+        private void runLayout(Layout layout) {
+            layout.initAlgo();
+            while (layout.hasNextStep()) {
+                layout.goAlgo();
+            }
+            layout.endAlgo();
         }
 
         @Override
@@ -194,9 +233,6 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
         @Override
         public void setProgressTicket(ProgressTicket progressTicket) {
             this.progressTicket = progressTicket;
-            if (layout instanceof LongTask) {
-                ((LongTask) layout).setProgressTicket(progressTicket);
-            }
         }
     }
 }

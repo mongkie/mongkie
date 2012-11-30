@@ -221,7 +221,7 @@ public class FruchtermanReingold extends AbstractLayout {
     }
 
     @Override
-    protected void finish() {
+    protected void finish(boolean canceled) {
     }
 
     @Override

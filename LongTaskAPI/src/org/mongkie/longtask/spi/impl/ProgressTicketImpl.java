@@ -167,7 +167,7 @@ public final class ProgressTicketImpl implements ProgressTicket {
      * Start the progress indication for indeterminate task.
      */
     public void start() {
-        if (handle != null) {
+        if (handle != null && !started) {
             started = true;
             handle.start();
         }
@@ -178,7 +178,7 @@ public final class ProgressTicketImpl implements ProgressTicket {
      * @param workunits total number of workunits that will be processed
      */
     public void start(int workunits) {
-        if (handle != null) {
+        if (handle != null && !started) {
             started = true;
             this.progressTotal = workunits;
             handle.start(100);
@@ -207,5 +207,10 @@ public final class ProgressTicketImpl implements ProgressTicket {
         if (handle != null) {
             handle.switchToIndeterminate();
         }
+    }
+
+    @Override
+    public ProgressHandle getHandle() {
+        return handle;
     }
 }

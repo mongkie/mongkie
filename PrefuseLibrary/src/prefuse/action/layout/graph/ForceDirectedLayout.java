@@ -218,11 +218,13 @@ public class ForceDirectedLayout extends Layout {
         // run-continuously layout
         if (m_runonce) {
             Point2D anchor = getLayoutAnchor();
-            Iterator iter = m_vis.visibleItems(m_nodeGroup);
+            Iterator<NodeItem> iter = m_vis.visibleItems(m_nodeGroup);
             while (iter.hasNext()) {
-                VisualItem item = (NodeItem) iter.next();
-                item.setX(anchor.getX());
-                item.setY(anchor.getY());
+                NodeItem item = iter.next();
+                setX(item, anchor.getX());
+                setY(item, anchor.getY());
+//                item.setX(anchor.getX());
+//                item.setY(anchor.getY());
             }
             m_fsim.clear();
             long timestep = 1000L;
@@ -258,6 +260,14 @@ public class ForceDirectedLayout extends Layout {
             reset();
         }
     }
+    
+    protected void setX(VisualItem item, double x) {
+        item.setX(x);
+    }
+
+    protected void setY(VisualItem item, double y) {
+        item.setY(y);
+    }
 
     protected boolean isEnabled(VisualItem item) {
         return true;
@@ -286,7 +296,7 @@ public class ForceDirectedLayout extends Layout {
                 fitem.velocity[0] = 0.0f;
                 fitem.velocity[1] = 0.0f;
 
-                if (Double.isNaN(item.getX())) {
+                if (Double.isNaN(getX(item))) {
                     setX(item, referrer, 0.0);
                     setY(item, referrer, 0.0);
                 }
@@ -319,6 +329,10 @@ public class ForceDirectedLayout extends Layout {
             setY(item, referrer, y);
         }
     }
+    
+    protected double getX(VisualItem item) {
+        return item.getX();
+    }
 
     /**
      * Reset the force simulation state for all nodes processed
@@ -330,15 +344,23 @@ public class ForceDirectedLayout extends Layout {
             VisualItem item = (VisualItem) iter.next();
             ForceItem fitem = (ForceItem) item.get(FORCEITEM);
             if (fitem != null) {
-                fitem.location[0] = (float) item.getEndX();
-                fitem.location[1] = (float) item.getEndY();
+                fitem.location[0] = (float) getEndX(item);
+                fitem.location[1] = (float) getEndY(item);
                 fitem.force[0] = fitem.force[1] = 0;
                 fitem.velocity[0] = fitem.velocity[1] = 0;
             }
         }
         m_lasttime = -1L;
     }
+    
+    protected double getEndX(VisualItem item) {
+        return item.getEndX();
+    }
 
+    protected double getEndY(VisualItem item) {
+        return item.getEndY();
+    }
+    
     /**
      * Loads the simulator with all relevant force items and springs.
      * @param fsim the force simulator driving this layout
@@ -366,8 +388,8 @@ public class ForceDirectedLayout extends Layout {
             }
             ForceItem fitem = (ForceItem) item.get(FORCEITEM);
             fitem.mass = getMassValue(item);
-            double x = item.getEndX();
-            double y = item.getEndY();
+            double x = getEndX(item);
+            double y = getEndY(item);
             fitem.location[0] = (Double.isNaN(x) ? startX : (float) x);
             fitem.location[1] = (Double.isNaN(y) ? startY : (float) y);
             fsim.addItem(fitem);
