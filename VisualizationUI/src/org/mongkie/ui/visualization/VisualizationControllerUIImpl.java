@@ -17,11 +17,14 @@
  */
 package org.mongkie.ui.visualization;
 
-import static org.mongkie.visualization.Config.MODE_DISPLAY;
+import static org.mongkie.visualization.Config.*;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.VisualizationControllerUI;
+import org.mongkie.visualization.spi.BigGraphLayout;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.WindowManager;
+import static prefuse.Visualization.*;
 import prefuse.data.Graph;
 
 /**
@@ -47,12 +50,27 @@ public class VisualizationControllerUIImpl implements VisualizationControllerUI 
         MongkieDisplay currentDisplay = tc != null ? tc.getDisplay() : null;
         if (currentDisplay != null && currentDisplay.getGraph().getNodeCount() < 1) {
             if (g != null) {
-                currentDisplay.resetGraph(g);
+                if (isBigGraph(g)) {
+                    currentDisplay.cancelLayoutAction();
+                    currentDisplay.resetGraph(g, null, DRAW, ANIMATE);
+                    Lookup.getDefault().lookup(BigGraphLayout.class).layout(currentDisplay);
+                } else {
+                    currentDisplay.resetGraph(g);
+                }
             } else {
                 currentDisplay.setLoading(loading);
             }
         } else {
             tc = new DisplayTopComponent(g, loading);
+            if (g != null && isBigGraph(g)) {
+                final DisplayTopComponent _tc = tc;
+                WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+                    @Override
+                    public void run() {
+                        Lookup.getDefault().lookup(BigGraphLayout.class).layout(_tc.getDisplay());
+                    }
+                });
+            }
             WindowManager.getDefault().findMode(MODE_DISPLAY).dockInto(tc);
         }
         if (title != null && !title.isEmpty()) {
@@ -61,6 +79,10 @@ public class VisualizationControllerUIImpl implements VisualizationControllerUI 
         tc.open();
         tc.requestActive();
         return tc;
+    }
+
+    private boolean isBigGraph(Graph g) {
+        return g.getNodeCount() > BIGGRAPH_NUMNODES;
     }
 
     @Override

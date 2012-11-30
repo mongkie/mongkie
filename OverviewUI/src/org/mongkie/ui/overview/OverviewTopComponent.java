@@ -19,6 +19,9 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import prefuse.action.ActionList;
+import prefuse.activity.Activity;
+import prefuse.activity.ActivityListener;
 import prefuse.data.Graph;
 
 /**
@@ -30,7 +33,7 @@ autostore = false)
 iconBase = "org/mongkie/ui/overview/resources/overview.png",
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = MODE_OVERVIEW, openAtStartup = true, roles = {ROLE_NETWORK, ROLE_PATHWAY}, position = 100)
-public final class OverviewTopComponent extends TopComponent implements DisplayListener<MongkieDisplay> {
+public final class OverviewTopComponent extends TopComponent implements DisplayListener<MongkieDisplay>, ActivityListener {
 
     private static OverviewTopComponent instance;
     /**
@@ -47,6 +50,7 @@ public final class OverviewTopComponent extends TopComponent implements DisplayL
         Lookup.getDefault().lookup(VisualizationController.class).addWorkspaceListener(new WorkspaceListener() {
             @Override
             public void displaySelected(final MongkieDisplay display) {
+                display.getLayoutAction().addActivityListener(OverviewTopComponent.this);
                 display.addDisplayListener(OverviewTopComponent.this);
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
@@ -60,6 +64,7 @@ public final class OverviewTopComponent extends TopComponent implements DisplayL
 
             @Override
             public void displayDeselected(final MongkieDisplay display) {
+                display.getLayoutAction().removeActivityListener(OverviewTopComponent.this);
                 display.removeDisplayListener(OverviewTopComponent.this);
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
@@ -176,15 +181,44 @@ public final class OverviewTopComponent extends TopComponent implements DisplayL
 
     @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {
+        d.getLayoutAction().removeActivityListener(this);
     }
 
     @Override
     public void graphChanged(final MongkieDisplay d, Graph g) {
+        d.getLayoutAction().addActivityListener(this);
+        repaintOverview(d);
+    }
+
+    private void repaintOverview(final MongkieDisplay d) {
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
             @Override
             public void run() {
                 d.getOverview().repaint();
+                System.out.println("!!");
             }
         });
+    }
+
+    @Override
+    public void activityScheduled(Activity a) {
+    }
+
+    @Override
+    public void activityStarted(Activity a) {
+    }
+
+    @Override
+    public void activityStepped(Activity a) {
+    }
+
+    @Override
+    public void activityFinished(Activity a) {
+        repaintOverview((MongkieDisplay) ((ActionList) a).getVisualization().getDisplay(0));
+    }
+
+    @Override
+    public void activityCancelled(Activity a) {
+        activityFinished(a);
     }
 }

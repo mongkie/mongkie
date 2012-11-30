@@ -23,6 +23,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import kobic.prefuse.display.DisplayListener;
 import org.mongkie.layout.LayoutProperty;
+import static org.mongkie.visualization.Config.*;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
 import prefuse.Visualization;
@@ -199,8 +200,8 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
     }
 
     protected boolean isBigGraph() {
-        return display.getGraph().getNodeCount() > 500
-                || display.getVisualization().getVisualGroup(Visualization.AGGR_ITEMS).getTupleCount() > 50;
+        return display.getGraph().getNodeCount() > BIGGRAPH_NUMNODES
+                || display.getVisualization().getVisualGroup(Visualization.AGGR_ITEMS).getTupleCount() > BIGGRAPH_NUMGROUPS;
     }
 
     public abstract static class Delegation<L extends prefuse.action.layout.Layout>

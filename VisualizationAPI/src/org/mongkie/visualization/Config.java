@@ -30,4 +30,6 @@ public abstract class Config implements kobic.prefuse.Config {
     public static final String MODE_CONTEXT = "properties";
     public static final String MODE_OVERVIEW = "overview";
     public static final String ROLE_NETWORK = "NetworkRole";
+    public static final int BIGGRAPH_NUMNODES = 500;
+    public static final int BIGGRAPH_NUMGROUPS = 50;
 }

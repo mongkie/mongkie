@@ -26,6 +26,9 @@ import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.PrefuseLayout;
+import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.spi.BigGraphLayout;
+import org.openide.util.lookup.ServiceProvider;
 import prefuse.action.layout.GridLayout;
 import prefuse.data.tuple.TupleSet;
 import prefuse.data.util.SortedTupleIterator;
@@ -35,11 +38,32 @@ import prefuse.visual.NodeItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class Grid extends PrefuseLayout.Delegation<GridLayout> {
+@ServiceProvider(service = BigGraphLayout.class)
+public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements BigGraphLayout {
+
+    // Start of layout logics for the big graph
+    public Grid() {
+        super(null);
+        bgLayout = createDeligateLayout();
+    }
+    private GridLayout bgLayout;
+
+    /**
+     * Run layout algorithm for the big graph of the given display
+     *
+     * @param d displays the big graph
+     */
+    @Override
+    public void layout(MongkieDisplay d) {
+        bgLayout.setVisualization(d.getVisualization());
+        d.setGraphLayout(bgLayout, 0);
+        d.rerunLayoutAction();
+    }
 
     Grid(LayoutBuilder<Grid> builder) {
         super(builder);
     }
+    // End of layout logics for the big graph
 
     @Override
     protected GridLayout createDeligateLayout() {
