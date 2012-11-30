@@ -59,11 +59,11 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
         d.setGraphLayout(bgLayout, 0);
         d.rerunLayoutAction();
     }
+    // End of layout logics for the big graph
 
     Grid(LayoutBuilder<Grid> builder) {
         super(builder);
     }
-    // End of layout logics for the big graph
 
     @Override
     protected GridLayout createDeligateLayout() {
