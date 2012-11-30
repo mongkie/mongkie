@@ -149,6 +149,10 @@ public class ExporterVizGraph extends AbstractGraphExporter {
                 derived.set(row, TEXTCOLOR, ColorLib.color(c));
             }
             // Reassign item locations
+            derived.set(row, STARTX, item.getStartX() - vizBounds.getCenterX());
+            derived.set(row, STARTY, item.getStartY() - vizBounds.getCenterY());
+            derived.set(row, ENDX, item.getEndX() - vizBounds.getCenterX());
+            derived.set(row, ENDY, item.getEndY() - vizBounds.getCenterY());
             derived.set(row, X, item.getX() - vizBounds.getCenterX());
             derived.set(row, Y, item.getY() - vizBounds.getCenterY());
         }
