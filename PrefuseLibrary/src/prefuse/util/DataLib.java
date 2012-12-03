@@ -633,7 +633,7 @@ public class DataLib {
         return list;
     }
 
-    public static void removeTuples(TupleSet tupleSet, Predicate filter) {
+    public static TupleSet removeTuples(TupleSet tupleSet, Predicate filter) {
         List<Tuple> filteredTuples = new ArrayList<Tuple>();
         for (Iterator<Tuple> filteredIter = tupleSet.tuples(filter); filteredIter.hasNext();) {
             filteredTuples.add(filteredIter.next());
@@ -641,6 +641,7 @@ public class DataLib {
         for (Tuple filtered : filteredTuples) {
             tupleSet.removeTuple(filtered);
         }
+        return tupleSet;
     }
 
     public static boolean isEquivalent(Tuple one, Tuple other) {

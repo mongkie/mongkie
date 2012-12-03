@@ -24,7 +24,10 @@ import org.mongkie.visualization.MongkieDisplay;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface BigGraphLayout {
+public interface LayoutService {
 
     public void layout(MongkieDisplay d);
+
+    public interface BigGraphLayout extends LayoutService {
+    }
 }

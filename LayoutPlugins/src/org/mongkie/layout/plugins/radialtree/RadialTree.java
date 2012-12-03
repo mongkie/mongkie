@@ -185,4 +185,9 @@ public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
     protected boolean isRunOnce() {
         return true;
     }
+
+    @Override
+    public boolean supportsSelectionOnly() {
+        return false;
+    }
 }

@@ -195,7 +195,6 @@ public final class OverviewTopComponent extends TopComponent implements DisplayL
             @Override
             public void run() {
                 d.getOverview().repaint();
-                System.out.println("!!");
             }
         });
     }

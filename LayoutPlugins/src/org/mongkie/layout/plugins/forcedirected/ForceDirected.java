@@ -363,4 +363,9 @@ public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
     public int getWorkunits() {
         return isBigGraph() ? NUMBER_OF_ITERATIONS : 0;
     }
+
+    @Override
+    public boolean supportsSelectionOnly() {
+        return false;
+    }
 }

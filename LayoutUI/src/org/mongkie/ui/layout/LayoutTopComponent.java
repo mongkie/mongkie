@@ -164,15 +164,6 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
     private void refreshChooser() {
         Layout l = model != null ? model.getSelectedLayout() : null;
         layoutCombobox.getModel().setSelectedItem(l == null ? NO_SELECTION : l.getBuilder());
-//        if (l == null) {
-//            layoutCombobox.getModel().setSelectedItem(NO_SELECTION);
-//            return;
-//        }
-//        for (LayoutBuilder builder : Lookup.getDefault().lookupAll(LayoutBuilder.class)) {
-//            if (builder == l.getBuilder()) {
-//                layoutCombobox.getModel().setSelectedItem(builder);
-//            }
-//        }
     }
 
     private void refreshProperties() {
@@ -188,6 +179,8 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         }
         layoutNodes = (l == null) ? new Node[0] : new Node[]{new LayoutNode(l)};
         ((PropertySheet) propertySheet).setNodes(layoutNodes);
+        selectionOnlyButton.setSelected(l != null && l.supportsSelectionOnly()
+                ? Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly(l) : false);
     }
     private Node[] layoutNodes;
 
@@ -202,12 +195,17 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
             runButton.setToolTipText(NbBundle.getMessage(getClass(), "LayoutTopComponent.stopButton.tooltip"));
         }
 
-        boolean enabled = model != null && model.getSelectedLayout() != null && model.getDisplay().getGraph().getNodeCount() > 0;
+        Layout l = (model != null) ? model.getSelectedLayout() : null;
+        boolean enabled = l != null && model.getDisplay().getGraph().getNodeCount() > 0;
         runButton.setEnabled(enabled);
         infoLabel.setEnabled(enabled);
         propertySheet.setEnabled(enabled);
-        presetsButton.setEnabled(enabled && model.getSelectedLayout().getProperties().length > 0);
+        presetsButton.setEnabled(enabled && l.getProperties().length > 0);
         resetButton.setEnabled(presetsButton.isEnabled());
+        selectionOnlyButton.setEnabled(enabled && !model.isRunning() && l.supportsSelectionOnly());
+        selectionOnlyButton.setToolTipText(l != null && !l.supportsSelectionOnly()
+                ? NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.selectionOnlyButton.toolTipText.notSupported")
+                : NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.selectionOnlyButton.toolTipText"));
 
         layoutCombobox.setEnabled(model != null && !model.isRunning() && model.getDisplay().getGraph().getNodeCount() > 0);
     }
@@ -254,6 +252,10 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         Layout l = model.getSelectedLayout();
         if (l != null) {
             l.resetPropertyValues();
+            if (l.supportsSelectionOnly()) {
+                Lookup.getDefault().lookup(LayoutController.class).setSelectionOnly(l, false);
+                selectionOnlyButton.setSelected(false);
+            }
         }
     }
 
@@ -332,6 +334,8 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         layoutToolbar = new javax.swing.JToolBar();
         presetsButton = new javax.swing.JButton();
         resetButton = new javax.swing.JButton();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
+        selectionOnlyButton = new javax.swing.JToggleButton();
         propertySheet = new PropertySheet();
 
         setLayout(new java.awt.BorderLayout());
@@ -351,7 +355,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         layoutPanel.add(layoutCombobox, gridBagConstraints);
 
         infoLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        infoLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/layout/resources/pin.png"))); // NOI18N
+        infoLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/layout/resources/info.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(infoLabel, org.openide.util.NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.infoLabel.text")); // NOI18N
         infoLabel.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -376,7 +380,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 5);
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
         layoutPanel.add(runButton, gridBagConstraints);
 
         layoutToolbar.setFloatable(false);
@@ -406,6 +410,21 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
             }
         });
         layoutToolbar.add(resetButton);
+        layoutToolbar.add(filler1);
+
+        selectionOnlyButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/layout/resources/selectionOnly.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(selectionOnlyButton, org.openide.util.NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.selectionOnlyButton.text")); // NOI18N
+        selectionOnlyButton.setToolTipText(org.openide.util.NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.selectionOnlyButton.toolTipText")); // NOI18N
+        selectionOnlyButton.setEnabled(false);
+        selectionOnlyButton.setFocusPainted(false);
+        selectionOnlyButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        selectionOnlyButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        selectionOnlyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectionOnlyButtonActionPerformed(evt);
+            }
+        });
+        layoutToolbar.add(selectionOnlyButton);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -483,7 +502,12 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         menu.add(saveItem);
         menu.show(layoutToolbar, 0, -menu.getPreferredSize().height);
     }//GEN-LAST:event_presetsButtonActionPerformed
+
+    private void selectionOnlyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectionOnlyButtonActionPerformed
+        Lookup.getDefault().lookup(LayoutController.class).setSelectionOnly(model.getSelectedLayout(), selectionOnlyButton.isSelected());
+    }//GEN-LAST:event_selectionOnlyButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler filler1;
     private javax.swing.JLabel infoLabel;
     private javax.swing.JComboBox layoutCombobox;
     private javax.swing.JPanel layoutPanel;
@@ -492,6 +516,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
     private javax.swing.JPanel propertySheet;
     private javax.swing.JButton resetButton;
     private javax.swing.JButton runButton;
+    private javax.swing.JToggleButton selectionOnlyButton;
     // End of variables declaration//GEN-END:variables
 
     /**

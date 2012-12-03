@@ -27,7 +27,7 @@ import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.PrefuseLayout;
 import org.mongkie.visualization.MongkieDisplay;
-import org.mongkie.visualization.spi.BigGraphLayout;
+import org.mongkie.visualization.spi.LayoutService.BigGraphLayout;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.action.layout.GridLayout;
 import prefuse.data.tuple.TupleSet;
@@ -74,7 +74,7 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
                 double bx = b.getMinX(), by = b.getMinY();
                 double w = b.getWidth(), h = b.getHeight();
 
-                TupleSet nodes = m_vis.getGroup(m_group);
+                TupleSet nodes = isSelectionOnly() ? getSelectedItems() : display.getVisualGraph().getNodes();
                 int m = rows, n = cols;
                 if (analyze) {
                     int[] d = analyzeGraphGrid(nodes);
@@ -121,6 +121,11 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
 
     @Override
     protected boolean isRunOnce() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsSelectionOnly() {
         return true;
     }
 }

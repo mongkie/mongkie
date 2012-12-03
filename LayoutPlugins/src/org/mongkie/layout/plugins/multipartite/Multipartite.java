@@ -58,4 +58,9 @@ public class Multipartite extends PrefuseLayout.Delegation<VerticalLinesLayout> 
     protected boolean isRunOnce() {
         return true;
     }
+
+    @Override
+    public boolean supportsSelectionOnly() {
+        return false;
+    }
 }

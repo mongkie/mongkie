@@ -23,10 +23,18 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Iterator;
+import static kobic.prefuse.Constants.*;
+import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
+import org.openide.util.Lookup;
+import prefuse.Visualization;
+import prefuse.data.tuple.TupleSet;
 import prefuse.util.PrefuseLib;
+import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
+import prefuse.visual.expression.InGroupPredicate;
 
 /**
  *
@@ -91,10 +99,24 @@ public abstract class AbstractLayout implements Layout {
         display.setLayoutActionEnabled(false);
         canceled = false;
         step = 0;
+        setEnabled(!isSelectionOnly() || isEnabledOnSelectionOnly());
         prepare();
     }
     private boolean prefuseLayoutEnabled;
     private int step;
+
+    protected boolean isEnabledOnSelectionOnly() {
+        return getNodesInSelection().hasNext();
+    }
+    private boolean enabled = true;
+
+    protected boolean isEnabled() {
+        return enabled;
+    }
+
+    protected void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     protected abstract void prepare();
 
@@ -115,7 +137,7 @@ public abstract class AbstractLayout implements Layout {
 
     @Override
     public final boolean hasNextStep() {
-        return !canceled && more();
+        return isEnabled() && !canceled && more();
     }
 
     protected abstract boolean more();
@@ -126,6 +148,19 @@ public abstract class AbstractLayout implements Layout {
         return true;
     }
     private volatile boolean canceled;
+
+    protected final boolean isSelectionOnly() {
+        return supportsSelectionOnly()
+                && Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly(this);
+    }
+
+    protected final Iterator<NodeItem> getNodesInSelection() {
+        return display.getVisualization().items(Visualization.FOCUS_ITEMS, new InGroupPredicate(NODES));
+    }
+
+    protected final TupleSet getSelectedItems() {
+        return display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+    }
 
     protected void setX(VisualItem item, double x) {
         PrefuseLib.setX(item, null, x);
@@ -153,10 +188,10 @@ public abstract class AbstractLayout implements Layout {
     /**
      * Set the margins the layout should observe within its layout bounds.
      *
-     * @param top the top margin, in pixels
-     * @param left the left margin, in pixels
+     * @param top    the top margin, in pixels
+     * @param left   the left margin, in pixels
      * @param bottom the bottom margin, in pixels
-     * @param right the right margin, in pixels
+     * @param right  the right margin, in pixels
      */
     public void setMargin(int top, int left, int bottom, int right) {
         m_insets.top = top;
@@ -173,7 +208,7 @@ public abstract class AbstractLayout implements Layout {
      * region of the first display found in this action's associated
      * Visualization.
      *
-     * @return the layout bounds within which to constain the layout.
+     * @return the layout bounds within which to contain the layout.
      */
     public Rectangle2D getLayoutBounds() {
         if (m_bounds != null) {
@@ -197,7 +232,7 @@ public abstract class AbstractLayout implements Layout {
      * the rectangle object will also change the layout bounds.
      *
      * @param b a rectangle specifying the layout bounds. A reference to this
-     * same instance is kept.
+     *          same instance is kept.
      */
     public void setLayoutBounds(Rectangle2D b) {
         m_bounds = b;
@@ -241,11 +276,11 @@ public abstract class AbstractLayout implements Layout {
      * is not a number (NaN), the x-coordinate of the provided referrer
      * item (if non null) will be used to set the start coordinate.
      *
-     * @param item the item to set
+     * @param item     the item to set
      * @param referrer the referrer item to use for the start location if
-     * the current valu eis not a number (NaN)
-     * @param x the x-coordinate value to set. This will be set for both
-     * the current and end values.
+     *                 the current value is not a number (NaN)
+     * @param x        the x-coordinate value to set. This will be set for both
+     *                 the current and end values.
      * @see prefuse.util.PrefuseLib#setX(VisualItem, VisualItem, double)
      */
     public void setX(VisualItem item, VisualItem referrer, double x) {
@@ -259,11 +294,11 @@ public abstract class AbstractLayout implements Layout {
      * is not a number (NaN), the y-coordinate of the provided referrer
      * item (if non null) will be used to set the start coordinate.
      *
-     * @param item the item to set
+     * @param item     the item to set
      * @param referrer the referrer item to use for the start location if
-     * the current valu eis not a number (NaN)
-     * @param y the y-coordinate value to set. This will be set for both
-     * the current and end values.
+     *                 the current value is not a number (NaN)
+     * @param y        the y-coordinate value to set. This will be set for both
+     *                 the current and end values.
      * @see prefuse.util.PrefuseLib#setY(VisualItem, VisualItem, double)
      */
     public void setY(VisualItem item, VisualItem referrer, double y) {

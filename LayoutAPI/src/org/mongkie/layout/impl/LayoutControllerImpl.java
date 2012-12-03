@@ -125,6 +125,11 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
     }
 
     @Override
+    public boolean setSelectionOnly(Layout l, boolean selectionOnly) {
+        return model.setSelectionOnly(l, selectionOnly);
+    }
+
+    @Override
     public void setLayout(LayoutBuilder builder) {
         model.setSelectedLayout(builder);
     }

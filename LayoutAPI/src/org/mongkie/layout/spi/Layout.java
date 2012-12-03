@@ -47,6 +47,8 @@ public interface Layout {
 
     public void removePropertyChangeListener(PropertyChangeListener l);
 
+    public boolean supportsSelectionOnly();
+
     /**
      * initAlgo() is called to initialize the algorithm (prepare to run).
      */

@@ -20,6 +20,7 @@
  */
 package org.mongkie.layout;
 
+import org.mongkie.layout.spi.Layout;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.visualization.MongkieDisplay;
 
@@ -43,6 +44,8 @@ public interface LayoutController {
     public void addModelChangeListener(LayoutModelChangeListener l);
 
     public void removeModelChangeListener(LayoutModelChangeListener l);
+    
+    public boolean setSelectionOnly(Layout l, boolean selectionOnly);
 
     /**
      * Sets the Layout to execute.

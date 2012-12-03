@@ -139,8 +139,8 @@ public class FruchtermanReingold extends AbstractLayout {
 
     @Override
     public void run(int step) {
-        TupleSet nodes = display.getVisualGraph().getNodeTable();
-        TupleSet edges = display.getVisualGraph().getEdgeTable();
+        TupleSet nodes = display.getVisualGraph().getNodes();
+        TupleSet edges = display.getVisualGraph().getEdges();
 
         for (Iterator<NodeItem> iter = nodes.tuples(); iter.hasNext();) {
             ForceVector force = ForceVector.get(iter.next());
@@ -227,6 +227,11 @@ public class FruchtermanReingold extends AbstractLayout {
     @Override
     protected boolean more() {
         return true;
+    }
+
+    @Override
+    public boolean supportsSelectionOnly() {
+        return false;
     }
 
     private static class ForceVector implements Cloneable {

@@ -34,6 +34,7 @@ import org.openide.nodes.PropertySupport;
 public final class LayoutProperty<T extends Object> extends PropertySupport.Reflection<T> {
 
     protected final String category;
+    public static final String SELECTION_ONLY = "_selectionOnly";
 
     private LayoutProperty(String category, Object instance, Class<T> valueType, String getter, String setter)
             throws NoSuchMethodException {

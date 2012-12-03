@@ -60,4 +60,9 @@ public class Random extends PrefuseLayout.Delegation<RandomLayout> {
     protected boolean isRunOnce() {
         return true;
     }
+
+    @Override
+    public boolean supportsSelectionOnly() {
+        return false;
+    }
 }

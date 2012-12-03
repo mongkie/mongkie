@@ -92,7 +92,7 @@ public class Circle extends PrefuseLayout {
 
     @Override
     public void run(double frac) {
-        TupleSet nodes = display.getVisualGraph().getNodeTable();
+        TupleSet nodes = isSelectionOnly() ? getSelectedItems() : display.getVisualGraph().getNodes();
 
         int nodeTotal = nodes.getTupleCount();
 
@@ -128,5 +128,10 @@ public class Circle extends PrefuseLayout {
     public void resetProperties() {
         setRadius(200D);
         setAutoScale(true);
+    }
+
+    @Override
+    public boolean supportsSelectionOnly() {
+        return true;
     }
 }

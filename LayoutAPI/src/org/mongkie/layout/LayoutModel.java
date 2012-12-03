@@ -40,6 +40,8 @@ public interface LayoutModel {
     public static final String IS_RUNNING = "isRunning";
 
     public MongkieDisplay getDisplay();
+    
+    public boolean isSelectionOnly(Layout l);
 
     /**
      * Returns the currently selected layout or <code>null</code> if no

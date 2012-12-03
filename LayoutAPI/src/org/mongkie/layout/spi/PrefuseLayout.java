@@ -21,17 +21,24 @@ package org.mongkie.layout.spi;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Iterator;
+import static kobic.prefuse.Constants.*;
 import kobic.prefuse.display.DisplayListener;
+import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutProperty;
 import static org.mongkie.visualization.Config.*;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import prefuse.Visualization;
 import prefuse.action.Action;
 import prefuse.action.ActionList;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityListener;
 import prefuse.data.Graph;
+import prefuse.data.tuple.TupleSet;
+import prefuse.visual.NodeItem;
+import prefuse.visual.expression.InGroupPredicate;
 
 /**
  *
@@ -87,6 +94,19 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
         setVisualization(d.getVisualization());
     }
 
+    protected final boolean isSelectionOnly() {
+        return supportsSelectionOnly()
+                && Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly(this);
+    }
+
+    protected final Iterator<NodeItem> getNodesInSelection() {
+        return display.getVisualization().items(Visualization.FOCUS_ITEMS, new InGroupPredicate(NODES));
+    }
+
+    protected final TupleSet getSelectedItems() {
+        return display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+    }
+
     @Override
     public LayoutProperty[] getProperties() {
         if (_properties == null) {
@@ -110,6 +130,11 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
         display.setGraphLayout(this, isRunOnce() ? 0 : Action.INFINITY);
         completed = false;
         canceled = false;
+        setEnabled(!isSelectionOnly() || isEnabledOnSelectionOnly());
+    }
+
+    protected boolean isEnabledOnSelectionOnly() {
+        return getNodesInSelection().hasNext();
     }
 
     protected abstract boolean isRunOnce();
@@ -131,7 +156,7 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
 
     @Override
     public final boolean hasNextStep() {
-        return !completed && display != null;
+        return isEnabled() && !completed && display != null;
     }
 
     @Override
@@ -261,6 +286,7 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
             display.setGraphLayout(layout, isRunOnce() ? 0 : Action.INFINITY);
             completed = false;
             canceled = false;
+            setEnabled(!isSelectionOnly() || isEnabledOnSelectionOnly());
         }
 
         @Override
