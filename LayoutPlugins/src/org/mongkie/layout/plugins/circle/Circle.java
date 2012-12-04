@@ -92,8 +92,7 @@ public class Circle extends PrefuseLayout {
 
     @Override
     public void run(double frac) {
-        TupleSet nodes = isSelectionOnly() ? getSelectedItems() : display.getVisualGraph().getNodes();
-
+        TupleSet nodes = getLayoutTargetNodes();
         int nodeTotal = nodes.getTupleCount();
 
         Rectangle2D rect = getLayoutBounds();

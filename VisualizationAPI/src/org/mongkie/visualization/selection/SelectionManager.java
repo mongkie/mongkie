@@ -18,19 +18,24 @@
 package org.mongkie.visualization.selection;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import static kobic.prefuse.Constants.*;
 import kobic.prefuse.display.DisplayListener;
 import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.workspace.WorkspaceListener;
 import prefuse.Visualization;
+import static prefuse.Visualization.*;
 import prefuse.data.Graph;
 import prefuse.data.Tuple;
 import prefuse.data.event.TupleSetListener;
 import prefuse.data.tuple.DefaultTupleSet;
 import prefuse.data.tuple.TupleSet;
+import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
+import prefuse.visual.expression.InGroupPredicate;
 
 /**
  *
@@ -48,14 +53,14 @@ public class SelectionManager implements WorkspaceListener, TupleSetListener, Di
     @Override
     public void displaySelected(MongkieDisplay display) {
         this.display = display;
-        TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+        TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(FOCUS_ITEMS);
         focusedTupleSet.addTupleSetListener(this);
         tupleSetChanged(focusedTupleSet, ((DefaultTupleSet) focusedTupleSet).toArray(), new Tuple[]{});
     }
 
     @Override
     public void displayDeselected(MongkieDisplay display) {
-        TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+        TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(FOCUS_ITEMS);
         focusedTupleSet.removeTupleSetListener(this);
         tupleSetChanged(new DefaultTupleSet(), new Tuple[]{}, ((DefaultTupleSet) focusedTupleSet).toArray());
         this.display = null;
@@ -64,12 +69,11 @@ public class SelectionManager implements WorkspaceListener, TupleSetListener, Di
     @Override
     public void displayClosed(final MongkieDisplay display) {
         display.getVisualization().rerun(new Runnable() {
-
             @Override
             public void run() {
-                display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).clear();
+                display.getVisualization().getFocusGroup(FOCUS_ITEMS).clear();
             }
-        }, Visualization.DRAW);
+        }, DRAW);
     }
 
     @Override
@@ -119,7 +123,19 @@ public class SelectionManager implements WorkspaceListener, TupleSetListener, Di
 
     public Set<VisualItem> getSelectedItems(NetworkDisplay display) {
         assert display != null;
-        return ((DefaultTupleSet) display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS)).asSet(VisualItem.class);
+        return ((DefaultTupleSet) display.getVisualization().getFocusGroup(FOCUS_ITEMS)).asSet(VisualItem.class);
+    }
+
+    public TupleSet getSelectedItems(Visualization v) {
+        return v.getFocusGroup(FOCUS_ITEMS);
+    }
+
+    public Iterator<NodeItem> getSelectedNodes(Visualization v) {
+        return v.items(FOCUS_ITEMS, new InGroupPredicate(NODES));
+    }
+
+    public Iterator<NodeItem> getSelectedNodes() {
+        return getSelectedNodes(display.getVisualization());
     }
 
     @Override

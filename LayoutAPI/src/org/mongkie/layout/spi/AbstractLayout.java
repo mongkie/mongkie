@@ -24,17 +24,15 @@ import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Iterator;
-import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.VisualizationController;
 import org.openide.util.Lookup;
-import prefuse.Visualization;
 import prefuse.data.tuple.TupleSet;
 import prefuse.util.PrefuseLib;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
-import prefuse.visual.expression.InGroupPredicate;
 
 /**
  *
@@ -106,7 +104,7 @@ public abstract class AbstractLayout implements Layout {
     private int step;
 
     protected boolean isEnabledOnSelectionOnly() {
-        return getNodesInSelection().hasNext();
+        return getSelectedNodes().hasNext();
     }
     private boolean enabled = true;
 
@@ -154,12 +152,16 @@ public abstract class AbstractLayout implements Layout {
                 && Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly(this);
     }
 
-    protected final Iterator<NodeItem> getNodesInSelection() {
-        return display.getVisualization().items(Visualization.FOCUS_ITEMS, new InGroupPredicate(NODES));
+    protected final Iterator<NodeItem> getSelectedNodes() {
+        return Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().getSelectedNodes(display.getVisualization());
     }
 
     protected final TupleSet getSelectedItems() {
-        return display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+        return Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().getSelectedItems(display.getVisualization());
+    }
+
+    protected TupleSet getLayoutTargetNodes() {
+        return isSelectionOnly() ? getSelectedItems() : display.getVisualGraph().getNodes();
     }
 
     protected void setX(VisualItem item, double x) {

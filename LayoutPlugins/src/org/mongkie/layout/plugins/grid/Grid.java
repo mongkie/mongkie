@@ -74,7 +74,7 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
                 double bx = b.getMinX(), by = b.getMinY();
                 double w = b.getWidth(), h = b.getHeight();
 
-                TupleSet nodes = isSelectionOnly() ? getSelectedItems() : display.getVisualGraph().getNodes();
+                TupleSet nodes = getLayoutTargetNodes();
                 int m = rows, n = cols;
                 if (analyze) {
                     int[] d = analyzeGraphGrid(nodes);
