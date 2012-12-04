@@ -53,7 +53,7 @@ public class Circle extends PrefuseLayout {
         this.autoScale = autoScale;
         if (radiusProperty != null) {
             radiusProperty.setHidden(autoScale);
-            firePropertyChange(radiusProperty.getName(), o, autoScale);
+            firePropertyChange("Auto scale", o, autoScale);
         }
     }
 

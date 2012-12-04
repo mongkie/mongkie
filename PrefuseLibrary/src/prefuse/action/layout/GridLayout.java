@@ -99,8 +99,9 @@ public class GridLayout extends Layout {
 //        }
 //        m = ts.getTupleCount() / n;
 //        return new int[] {m,n};
-        int m = (int) Math.floor(Math.sqrt(ts.getTupleCount()));
-        return new int[] {m + 1, m + 1};
+        int m = (int) Math.ceil(Math.sqrt(ts.getTupleCount()));
+        int n = (int) Math.ceil(ts.getTupleCount() / m) + 1;
+        return new int[] {m, n};
     }
     
     /**
@@ -133,6 +134,14 @@ public class GridLayout extends Layout {
      */
     public void setNumRows(int rows) {
         this.rows = rows;
+    }
+
+    public boolean isAnalyze() {
+        return analyze;
+    }
+
+    public void setAnalyze(boolean analyze) {
+        this.analyze = analyze;
     }
     
 } // end of class GridLayout

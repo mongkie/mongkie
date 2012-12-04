@@ -28,6 +28,7 @@ import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.PrefuseLayout;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.spi.LayoutService.BigGraphLayout;
+import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.action.layout.GridLayout;
 import prefuse.data.tuple.TupleSet;
@@ -45,6 +46,7 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
     public Grid() {
         super(null);
         bgLayout = createDeligateLayout();
+        bgLayout.setAnalyze(true);
     }
     private GridLayout bgLayout;
 
@@ -60,9 +62,62 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
         d.rerunLayoutAction();
     }
     // End of layout logics for the big graph
+    private LayoutProperty propNumCols, propNumRows;
 
     Grid(LayoutBuilder<Grid> builder) {
         super(builder);
+    }
+
+    public int getNumCols() {
+        return getDeligateLayout().getNumCols();
+    }
+
+    public void setNumCols(int cols) {
+        if (cols < 1) {
+            cols = 1;
+        }
+        int rows = (int) Math.ceil(display.getVisualGraph().getNodeCount() / cols) + 1;
+        getDeligateLayout().setNumCols(cols);
+        int old = getNumRows();
+        getDeligateLayout().setNumRows(rows);
+        firePropertyChange(propNumRows.getName(), old, rows);
+    }
+
+    public int getNumRows() {
+        return getDeligateLayout().getNumRows();
+    }
+
+    public void setNumRows(int rows) {
+        if (rows < 1) {
+            rows = 1;
+        }
+        int cols = (int) Math.ceil(display.getVisualGraph().getNodeCount() / rows) + 1;
+        int old = getNumCols();
+        getDeligateLayout().setNumCols(cols);
+        getDeligateLayout().setNumRows(rows);
+        firePropertyChange(propNumCols.getName(), old, cols);
+    }
+
+    public boolean isAnalyze() {
+        return getDeligateLayout().isAnalyze();
+    }
+
+    public void setAnalyze(boolean analyze) {
+        GridLayout deligate = getDeligateLayout();
+        boolean o = deligate.isAnalyze();
+        deligate.setAnalyze(analyze);
+        if (propNumCols != null) {
+            propNumCols.setHidden(analyze);
+        }
+        if (propNumRows != null) {
+            propNumRows.setHidden(analyze);
+        }
+        if (!analyze && (getNumRows() < 1 || getNumCols() < 1)) {
+            int[] dim = GridLayout.analyzeGraphGrid(display.getVisualGraph().getNodes());
+            getDeligateLayout().setNumCols(dim[0]);
+            getDeligateLayout().setNumRows(dim[1]);
+        }
+        firePropertyChange("Auto dimensions", o, analyze);
     }
 
     @Override
@@ -86,8 +141,10 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
                         new Comparator<NodeItem>() {
                             @Override
                             public int compare(NodeItem n1, NodeItem n2) {
-                                int d1 = n1.getDegree(), d2 = n2.getDegree();
-                                return (d1 == 0 || d2 == 0) ? d2 - d1 : 0;
+//                                int d1 = n1.getDegree(), d2 = n2.getDegree();
+//                                return (d1 == 0 || d2 == 0) ? d2 - d1 : 0;
+                                // ordered by in and out degree
+                                return n2.getDegree() - n1.getDegree();
                             }
                         });
                 // layout grid contents
@@ -108,15 +165,42 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
     @Override
     public LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
+        try {
+            properties.add(LayoutProperty.createProperty("Auto dimensions",
+                    "Set whether or not to analyze a set of nodes to determine grid dimensions automatically",
+                    "Parameters",
+                    this, boolean.class, "isAnalyze", "setAnalyze"));
+            propNumCols = LayoutProperty.createProperty("Number of columns",
+                    "Set the number of the grid columns",
+                    "Parameters",
+                    this, int.class, "getNumCols", "setNumCols");
+            propNumCols.setHidden(isAnalyze());
+            properties.add(propNumCols);
+            propNumRows = LayoutProperty.createProperty("Number of rows",
+                    "Set the number of the grid rows",
+                    "Parameters",
+                    this, int.class, "getNumRows", "setNumRows");
+            propNumRows.setHidden(isAnalyze());
+            properties.add(propNumRows);
+        } catch (NoSuchMethodException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         return properties.toArray(new LayoutProperty[0]);
     }
 
     @Override
     public void resetProperties() {
+        setAnalyze(true);
+        if (display != null) {
+            int[] dim = GridLayout.analyzeGraphGrid(display.getVisualGraph().getNodes());
+            getDeligateLayout().setNumCols(dim[0]);
+            getDeligateLayout().setNumCols(dim[1]);
+        }
     }
 
     @Override
     protected void setLayoutParameters(GridLayout layout) {
+        //Do nothing
     }
 
     @Override
