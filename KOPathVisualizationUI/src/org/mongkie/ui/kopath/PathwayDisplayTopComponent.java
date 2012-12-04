@@ -23,6 +23,7 @@ import java.awt.dnd.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
@@ -33,8 +34,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import static kobic.prefuse.Constants.*;
 import kobic.prefuse.controls.PopupControl;
 import static org.mongkie.kopath.Config.*;
+import org.mongkie.kopath.NodeType;
 import org.mongkie.kopath.Pathway;
 import static org.mongkie.kopath.viz.Config.ROLE_PATHWAY;
 import org.mongkie.kopath.viz.PathwayDataNode;
@@ -56,9 +59,13 @@ import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import prefuse.Visualization;
+import prefuse.data.expression.AndPredicate;
+import prefuse.data.expression.parser.ExpressionParser;
+import prefuse.data.tuple.TupleSet;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
+import prefuse.visual.expression.InGroupPredicate;
 
 /**
  *
@@ -141,7 +148,27 @@ public final class PathwayDisplayTopComponent extends TopComponent {
                 display.addControlListener(new PopupControl<PathwayDisplay>(display) {
                     @Override
                     protected void addNodePopupMenuItems(JPopupMenu popup) {
-                        super.addNodePopupMenuItems(popup);
+//                        super.addNodePopupMenuItems(popup);
+                        final Action deleteAction = new AbstractAction("Delete",
+                                ImageUtilities.loadImageIcon("kobic/prefuse/resources/delete.png", false)) {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+                                List<NodeItem> selectedNodeItems = new ArrayList<NodeItem>();
+                                for (Iterator<NodeItem> nodeItemIter = focusedTupleSet.tuples(
+                                        new AndPredicate(new InGroupPredicate(NODES), ExpressionParser.predicate(FIELD_ITYPE + " != '" + NodeType.CONTROLLIE.toString() + "'")));
+                                        nodeItemIter.hasNext();) {
+                                    selectedNodeItems.add(nodeItemIter.next());
+                                }
+                                if (!selectedNodeItems.isEmpty() && selectedNodeItems.contains((NodeItem) clickedItem)) {
+                                    focusedTupleSet.clear();
+                                    display.removeNodes(selectedNodeItems.toArray(new NodeItem[selectedNodeItems.size()]));
+                                } else {
+                                    display.removeNodes((NodeItem) clickedItem);
+                                }
+                            }
+                        };
+                        popup.add(deleteAction);
                         final Action expandAction = new AbstractAction("Expand",
                                 ImageUtilities.loadImageIcon("org/mongkie/ui/kopath/resources/expand.png", false)) {
                             @Override

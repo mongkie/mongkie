@@ -36,6 +36,7 @@ import prefuse.Visualization;
 import static prefuse.Visualization.AGGR_ITEMS;
 import static prefuse.Visualization.FOCUS_ITEMS;
 import prefuse.controls.ControlAdapter;
+import prefuse.data.Tuple;
 import prefuse.data.tuple.TupleSet;
 import prefuse.util.ColorLib;
 import prefuse.util.io.IOLib;
@@ -80,16 +81,41 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
         final String urlField = getUrlField();
         if (urlField != null) {
             popup.add(new AbstractAction("Open URL", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "openUrl.png")) {
-
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     openUrl(clickedItem, urlField);
                 }
             });
         }
-
+        final Action deleteAction = new AbstractAction("Delete", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "delete.png")) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+                final NodeItem clickedItem = (NodeItem) getClickedItem();
+                if (focusedTupleSet.containsTuple(clickedItem)) {
+                    final Tuple[] selectedNodeItems = focusedTupleSet.toArray();
+                    focusedTupleSet.clear();
+                    display.getVisualization().rerun(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (Tuple n : selectedNodeItems) {
+                                display.getGraph().removeNode(((NodeItem) n).getSourceTuple().getRow());
+                            }
+                        }
+                    }, new String[]{});
+                } else {
+                    display.getVisualization().rerun(new Runnable() {
+                        @Override
+                        public void run() {
+                            display.getGraph().removeNode(clickedItem.getSourceTuple().getRow());
+                        }
+                    }, new String[]{});
+                }
+                display.getVisualization().repaint();
+            }
+        };
+        popup.add(deleteAction);
         final Action groupingAction = new AbstractAction("Group", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "group.png")) {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 display.aggregateItems(v.getFocusGroup(FOCUS_ITEMS), true);
@@ -97,7 +123,6 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
         };
         popup.add(groupingAction);
         popup.addPopupMenuListener(new PopupMenuListener() {
-
             TupleSet focusedTupleSet = v.getFocusGroup(FOCUS_ITEMS);
 
             @Override
@@ -122,7 +147,6 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
 
     protected void addAggregatePopupMenuItems(JPopupMenu popup) {
         popup.add(new AbstractAction("Select Nodes", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "select.png")) {
-
             private void clearFocusItemsAreNotNodeItem() {
                 List<VisualItem> notNodeItems = new ArrayList<VisualItem>();
                 for (Iterator<VisualItem> focusIter = v.getFocusGroup(FOCUS_ITEMS).tuples(); focusIter.hasNext();) {
@@ -147,7 +171,6 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
             }
         });
         popup.add(new AbstractAction("Ungroup", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "ungroup.png")) {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 display.unaggregateItems((AggregateItem) clickedItem);

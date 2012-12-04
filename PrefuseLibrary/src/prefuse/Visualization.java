@@ -1423,8 +1423,7 @@ public class Visualization {
                 action.run();
             }
         } finally {
-            dataProcessing.unlock();
-            if (dataProcessing.getHoldCount() == 0) {
+            if (dataProcessing.getHoldCount() == 1) {
                 for (Iterator<Runnable> iter = actionsAfterDataProcessing.values().iterator(); iter.hasNext();) {
                     iter.next().run();
                 }
@@ -1433,6 +1432,7 @@ public class Visualization {
                     run(activity);
                 }
             }
+            dataProcessing.unlock();
         }
     }
     private final ReentrantLock dataProcessing = new ReentrantLock();

@@ -450,7 +450,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                                 VisualItem item = display.getVisualization().getVisualItem(dataTable.getDataGroup(), ((DataNode) n).getTuple());
                                 if (focusedTupleSet.containsTuple(item) && !selectedNodes.contains(n)) {
                                     focusedTupleSet.removeTuple(item);
-                                    centerItem = item;
                                 }
                             }
                         }
@@ -463,6 +462,8 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                                 } else {
                                     focusedTupleSet.addTuple(item);
                                 }
+                            }
+                            if (selectedNodes.size() == 1) {
                                 centerItem = item;
                             }
                         }
@@ -496,22 +497,26 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
          * table.
          *
          * @param tupleSet total set of selected items in the display
-         * @param added just selected items
-         * @param removed just deselected items
+         * @param added    just selected items
+         * @param removed  just deselected items
          */
         @Override
         public void tupleSetChanged(final TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
             if (!internalDisplaySelection) {
-                if (tableSelectionQ != null && tableSelectionQ.isAccumulating()) {
-                    tableSelectionQ.eventAttended();
+                if (added.length > 1 || removed.length > 1) {
+                    setSelectedNodesOf(tupleSet);
                 } else {
-                    tableSelectionQ = new AccumulativeEventsProcessor(new Runnable() {
-                        @Override
-                        public void run() {
-                            setSelectedNodesOf(tupleSet);
-                        }
-                    });
-                    tableSelectionQ.start();
+                    if (tableSelectionQ != null && tableSelectionQ.isAccumulating()) {
+                        tableSelectionQ.eventAttended();
+                    } else {
+                        tableSelectionQ = new AccumulativeEventsProcessor(new Runnable() {
+                            @Override
+                            public void run() {
+                                setSelectedNodesOf(tupleSet);
+                            }
+                        });
+                        tableSelectionQ.start();
+                    }
                 }
             }
         }

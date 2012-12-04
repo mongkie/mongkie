@@ -136,8 +136,11 @@ public class GroupManager implements WorkspaceListener, TableListener, DisplayLi
                         ColorModel colorModel = Lookup.getDefault().lookup(ColorController.class).getModel();
                         colorModel.getGroupColorProvider().removeFillColor(group);
                         for (NodeItem nodeItem : members) {
-                            colorModel.getGroupColorProvider().removeStrokeColor(nodeItem);
-                            PrefuseLib.update(nodeItem, VisualItem.STROKECOLOR, ColorLib.color(colorModel.getNodeColorProvider().getStrokeColor(nodeItem)));
+                            //TODO virtual aggregates produce invalid memebrs on deletion, ex. PathwayDisplay
+                            if (nodeItem.isValid()) {
+                                colorModel.getGroupColorProvider().removeStrokeColor(nodeItem);
+                                PrefuseLib.update(nodeItem, VisualItem.STROKECOLOR, ColorLib.color(colorModel.getNodeColorProvider().getStrokeColor(nodeItem)));
+                            }
                         }
                         members.clear();
                         groups.remove(group);
