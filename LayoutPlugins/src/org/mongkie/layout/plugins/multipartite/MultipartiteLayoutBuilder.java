@@ -28,7 +28,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = LayoutBuilder.class)
+//@ServiceProvider(service = LayoutBuilder.class)
 public class MultipartiteLayoutBuilder extends LayoutBuilder<Multipartite> {
 
     private final LayoutUI ui = new LayoutUI();
