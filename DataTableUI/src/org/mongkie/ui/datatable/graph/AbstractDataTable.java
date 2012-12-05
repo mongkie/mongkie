@@ -149,7 +149,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         final Outline outline = getOutline();
         outline.setRootVisible(false);
         outline.getTableHeader().setPreferredSize(new Dimension(0, 24));
-        outline.setSelectVisibleColumnsLabel("Show/Hide Columns");
+        outline.setSelectVisibleColumnsLabel("Show/hide columns");
         final TableCellRenderer defaultRenderer = outline.getDefaultRenderer(Node.Property.class);
         outline.setDefaultRenderer(Node.Property.class, new DefaultOutlineCellRenderer() {
             private Color getSelectionBackground() {

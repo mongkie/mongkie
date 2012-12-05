@@ -13,7 +13,7 @@ public class Installer extends ModuleInstall {
 
     @Override
     public void restored() {
-        UIManager.put("Table.columnSelection", ImageUtilities.loadImageIcon("org/mongkie/desktop/branding/resources/column-selector.png", false));
+        UIManager.put("Table.columnSelection", ImageUtilities.loadImageIcon("org/mongkie/desktop/branding/resources/column-selection.png", false));
         if (isGTK()) {
             UIManager.put("Label.disabledForeground", Color.gray);
         }
