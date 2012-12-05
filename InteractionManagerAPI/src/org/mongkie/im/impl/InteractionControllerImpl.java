@@ -228,10 +228,12 @@ public class InteractionControllerImpl implements InteractionController {
     private class Expand<K> extends Query<K> {
 
         private List<K> keys;
+        private boolean linked;
 
         public Expand(SourceModelImpl m, String keyField, K... keys) {
             super(m, keyField);
             this.keys = new ArrayList<K>(Arrays.asList(keys));
+            linked = (keys.length == DataLib.uniqueCount(m.getDisplay().getGraph().nodes(), keyField));
         }
 
         @Override
@@ -269,6 +271,7 @@ public class InteractionControllerImpl implements InteractionController {
 
         @Override
         protected void queryFinished(boolean success) {
+            m.setLinked(success && linked);
             m.getDisplay().getVisualization().rerun(DRAW);
             if (success && !expandedNodeItems.isEmpty()) {
                 Lookup.getDefault().lookup(ExpandingLayout.class).layout(m.getDisplay(), Collections.unmodifiableList(expandedNodeItems));
