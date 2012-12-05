@@ -59,7 +59,7 @@ public class LayoutNode extends AbstractNode implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        firePropertySetsChange(null, propertySets);
+        firePropertySetsChange(null, getPropertySets());
     }
 
     @Override
