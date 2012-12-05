@@ -63,10 +63,12 @@ public class FilterToolsPanel extends javax.swing.JPanel {
         add(filterLabel);
 
         filterInputTextField.setText(org.openide.util.NbBundle.getMessage(FilterToolsPanel.class, "FilterToolsPanel.filterInputTextField.text")); // NOI18N
+        filterInputTextField.setEnabled(false);
         filterInputTextField.setPreferredSize(new java.awt.Dimension(100, 26));
         add(filterInputTextField);
 
-        filterColumnComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Symbol" }));
+        filterColumnComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NONE" }));
+        filterColumnComboBox.setEnabled(false);
         filterColumnComboBox.setPreferredSize(new java.awt.Dimension(100, 26));
         add(filterColumnComboBox);
     }// </editor-fold>//GEN-END:initComponents
