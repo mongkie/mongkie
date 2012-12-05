@@ -20,6 +20,7 @@ package org.mongkie.mimi;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -74,8 +75,39 @@ public class MiMI implements InteractionSource<Integer> {
         return annotationSchema;
     }
 
+    private static <T extends Object> List<T[]> splitArray(T[] array, int max) {
+        int x = array.length / max;
+        int lower = 0;
+        int upper = 0;
+        List<T[]> list = new ArrayList<T[]>();
+        for (int i = 0; i < x; i++) {
+            upper += max;
+            list.add(Arrays.copyOfRange(array, lower, upper));
+            lower = upper;
+        }
+        if (upper < array.length) {
+            lower = upper;
+            upper = array.length;
+            list.add(Arrays.copyOfRange(array, lower, upper));
+        }
+        return list;
+    }
+
     @Override
     public Map<Integer, Set<PPI>> query(Integer... geneIds) throws JAXBException, MalformedURLException {
+        if (geneIds.length > MAX_NUMGENES) {
+            Map<Integer, Set<PPI>> results = new HashMap<Integer, Set<PPI>>();
+            for (Integer[] genes : splitArray(geneIds, MAX_NUMGENES)) {
+                results.putAll(_query(genes));
+            }
+            return results;
+        } else {
+            return _query(geneIds);
+        }
+    }
+    private static final int MAX_NUMGENES = 100;
+
+    public Map<Integer, Set<PPI>> _query(Integer... geneIds) throws JAXBException, MalformedURLException {
         Map<Integer, Set<PPI>> results = new HashMap<Integer, Set<PPI>>();
         if (geneIds.length > 0) {
             Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching interactions for the selected {0} genes...", geneIds.length);
@@ -94,6 +126,18 @@ public class MiMI implements InteractionSource<Integer> {
 
     @Override
     public Map<Integer, Attribute.Set> annotate(Integer... geneIds) throws JAXBException, MalformedURLException {
+        if (geneIds.length > MAX_NUMGENES) {
+            Map<Integer, Attribute.Set> results = new HashMap<Integer, Attribute.Set>();
+            for (Integer[] genes : splitArray(geneIds, MAX_NUMGENES)) {
+                results.putAll(_annotate(genes));
+            }
+            return results;
+        } else {
+            return _annotate(geneIds);
+        }
+    }
+
+    public Map<Integer, Attribute.Set> _annotate(Integer... geneIds) throws JAXBException, MalformedURLException {
         Map<Integer, Attribute.Set> results = new HashMap<Integer, Attribute.Set>();
         if (geneIds.length > 0) {
             Logger.getLogger(MiMI.class.getName()).log(Level.INFO, "Fetching annotations for the selected {0} genes...", geneIds.length);
