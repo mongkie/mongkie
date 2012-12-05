@@ -2,7 +2,10 @@ package prefuse.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -1327,5 +1330,22 @@ public abstract class ArrayLib {
             return null;
         }
     }
-
+    
+    public static <T extends Object> List<T[]> splitArray(T[] array, int max) {
+        int x = array.length / max;
+        int lower = 0;
+        int upper = 0;
+        List<T[]> list = new ArrayList<T[]>();
+        for (int i = 0; i < x; i++) {
+            upper += max;
+            list.add(Arrays.copyOfRange(array, lower, upper));
+            lower = upper;
+        }
+        if (upper < array.length) {
+            lower = upper;
+            upper = array.length;
+            list.add(Arrays.copyOfRange(array, lower, upper));
+        }
+        return list;
+    }
 } // end of class ArrayLib
