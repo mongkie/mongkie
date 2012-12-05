@@ -32,15 +32,17 @@ import javax.swing.UIManager;
 import static kobic.prefuse.Constants.EDGES;
 import static kobic.prefuse.Constants.NODES;
 import kobic.prefuse.controls.PopupControl;
+import kobic.prefuse.display.DisplayListener;
+import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.DataTableController;
 import org.mongkie.lib.widgets.CollapsiblePanel;
 import org.mongkie.lib.widgets.WidgetUtilities;
 import org.mongkie.perspective.NonSingletonTopComponent;
 import org.mongkie.perspective.spi.Perspective;
+import org.mongkie.ui.visualization.menu.spi.NodePopupMenuItemFactory;
 import org.mongkie.ui.visualization.options.OptionsSettingPanel;
 import org.mongkie.ui.visualization.options.OptionsToolbar;
-import org.mongkie.ui.visualization.menu.spi.NodePopupMenuItemFactory;
 import org.mongkie.ui.visualization.tools.AddonPopupDialog;
 import org.mongkie.ui.visualization.tools.AddonsBar;
 import org.mongkie.ui.visualization.tools.PropertiesBar;
@@ -218,7 +220,7 @@ public final class DisplayTopComponent extends TopComponent
                     propertiesPanel.setBackground(UIManager.getColor("NbExplorerView.background"));
                 }
                 propertiesPanel.add(new PropertiesBar(), BorderLayout.CENTER);
-                AddonsBar addonsBar = new AddonsBar();
+                final AddonsBar addonsBar = new AddonsBar();
                 for (AddonUI addon : Lookup.getDefault().lookupAll(AddonUI.class)) {
                     final JButton b = addon.buildActionButton(display);
                     final AddonUI.ContentPanel c = addon.buildContentPanel(display);
@@ -236,6 +238,19 @@ public final class DisplayTopComponent extends TopComponent
                     }
                     addonsBar.add(b);
                 }
+                //TODO: set enabled each AddonUI?
+                addonsBar.setEnabled(display.getGraph().getNodeCount() > 0);
+                display.addDisplayListener(new DisplayListener() {
+                    @Override
+                    public void graphDisposing(NetworkDisplay d, Graph g) {
+                        addonsBar.setEnabled(false);
+                    }
+
+                    @Override
+                    public void graphChanged(NetworkDisplay d, Graph g) {
+                        addonsBar.setEnabled(d.getGraph().getNodeCount() > 0);
+                    }
+                });
                 propertiesPanel.add(addonsBar, BorderLayout.EAST);
                 add(propertiesPanel, BorderLayout.NORTH);
 
