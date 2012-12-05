@@ -18,7 +18,6 @@
 package org.mongkie.layout.plugins.forcedirected;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
@@ -63,18 +62,18 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
             @Override
             protected boolean isEnabled(VisualItem item) {
                 return (item instanceof NodeItem)
-                        ? !temporarilyFixedNodes.contains((NodeItem) item) : super.isEnabled(item);
+                        ? expandedNodes.contains((NodeItem) item) : super.isEnabled(item);
             }
         };
         ForceSimulator forceSimulator = expandingLayout.getForceSimulator();
-        forceSimulator.addForce(new NBodyForce());
+        forceSimulator.addForce(new NBodyForce(
+                NBodyForce.DEFAULT_GRAV_CONSTANT * 4, NBodyForce.DEFAULT_MAX_DISTANCE, NBodyForce.DEFAULT_THETA));
         forceSimulator.addForce(new DragForce());
-        forceSimulator.addForce(new SpringForce(
-                SpringForce.DEFAULT_SPRING_COEFF / 2, SpringForce.DEFAULT_SPRING_LENGTH * 3.4F));
+        forceSimulator.addForce(new SpringForce());
         isBigGraph = false;
     }
     private final ForceDirectedLayout expandingLayout;
-    private final List<NodeItem> temporarilyFixedNodes = new ArrayList<NodeItem>();
+    private final List<NodeItem> expandedNodes = new ArrayList<NodeItem>();
 
     private long getDuration(int size) {
         long duration = MINIMUM_DURATION * Math.round(size / SIZE_DIVISOR);
@@ -95,20 +94,14 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
             setX(expanded, null, source.getX());
             setY(expanded, null, source.getY());
         }
-        //Fix not expanded nodes temporarily while laying out
-        for (Iterator<NodeItem> nodeIter = d.getVisualization().items(NODES); nodeIter.hasNext();) {
-            NodeItem n = nodeIter.next();
-            if (!expandedNodes.contains(n)) {
-                temporarilyFixedNodes.add(n);
-            }
-        }
+        this.expandedNodes.addAll(expandedNodes);
         d.getLayoutAction().addActivityListener(l);
         d.rerunLayoutAction();
     }
     private final ActivityListener l = new ActivityAdapter() {
         @Override
         public void activityFinished(Activity a) {
-            temporarilyFixedNodes.clear();
+            expandedNodes.clear();
             expandingLayout.setEnabled(false);
             a.removeActivityListener(l);
         }
