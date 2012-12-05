@@ -283,7 +283,7 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
 
         org.openide.awt.Mnemonics.setLocalizedText(fromSelectionButton, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.fromSelectionButton.text")); // NOI18N
 
-        settingsSeparator.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/gear.png"))); // NOI18N
+        settingsSeparator.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/settings.png"))); // NOI18N
         settingsSeparator.setTitle(org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.settingsSeparator.title")); // NOI18N
 
         runButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/run.gif"))); // NOI18N
@@ -297,7 +297,6 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
         settingsPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 16, 2, 4));
         settingsPanel.setLayout(new java.awt.BorderLayout());
 
-        geneIdColumnLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/marker.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(geneIdColumnLabel, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.geneIdColumnLabel.text")); // NOI18N
 
         geneIdColumnComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Gene ID" }));
@@ -310,24 +309,24 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
             .addComponent(settingsSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
             .addComponent(selectionSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(runButton, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(enrichmentComboBox, 0, 257, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(infoLabel))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(geneIdColumnLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(geneIdColumnComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(wholeNetworkButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(fromSelectionButton)))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(runButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(geneIdColumnLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(geneIdColumnComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(wholeNetworkButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(fromSelectionButton)))
+                        .addContainerGap(18, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

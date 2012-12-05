@@ -81,7 +81,7 @@ public class GoEnrichmentSettingUI extends javax.swing.JPanel
 
         pvalueLabel.setText(org.openide.util.NbBundle.getMessage(GoEnrichmentSettingUI.class, "GoEnrichmentSettingUI.pvalueLabel.text")); // NOI18N
 
-        pvalueSpinner.setModel(new javax.swing.SpinnerNumberModel(0.01d, 0.0d, 1.0d, 0.0050d));
+        pvalueSpinner.setModel(new javax.swing.SpinnerNumberModel(0.01d, 0.0d, 1.0d, 0.005d));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -97,7 +97,7 @@ public class GoEnrichmentSettingUI extends javax.swing.JPanel
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(pvalueSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(60, 60, 60))
-                    .addComponent(strategyComboBox, 0, 0, Short.MAX_VALUE)
+                    .addComponent(strategyComboBox, 0, 148, Short.MAX_VALUE)
                     .addComponent(correctionComboBox, 0, 0, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(

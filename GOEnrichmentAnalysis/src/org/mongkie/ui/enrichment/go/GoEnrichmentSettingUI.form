@@ -1,4 +1,4 @@
-<?xml version="1.1" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <Properties>
@@ -35,7 +35,7 @@
                       <Component id="pvalueSpinner" min="-2" pref="64" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="60" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="strategyComboBox" alignment="1" min="0" pref="0" max="32767" attributes="2"/>
+                  <Component id="strategyComboBox" alignment="1" min="0" pref="148" max="32767" attributes="2"/>
                   <Component id="correctionComboBox" alignment="1" min="0" pref="0" max="32767" attributes="2"/>
               </Group>
           </Group>
@@ -105,7 +105,7 @@
     <Component class="javax.swing.JSpinner" name="pvalueSpinner">
       <Properties>
         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-          <SpinnerModel initial="0.01" maximum="1.0" minimum="0.0" numberType="java.lang.Double" stepSize="0.0050" type="number"/>
+          <SpinnerModel initial="0.01" maximum="1.0" minimum="0.0" numberType="java.lang.Double" stepSize="0.005" type="number"/>
         </Property>
       </Properties>
     </Component>
