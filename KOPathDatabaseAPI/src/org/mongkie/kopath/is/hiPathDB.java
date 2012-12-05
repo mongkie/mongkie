@@ -31,7 +31,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = InteractionSource.class, position = 2)
+//@ServiceProvider(service = InteractionSource.class, position = 2)
 public class hiPathDB implements InteractionSource<Integer> {
 
     @Override
