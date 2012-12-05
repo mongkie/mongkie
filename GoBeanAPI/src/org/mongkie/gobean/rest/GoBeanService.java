@@ -21,6 +21,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 import gobean.calculation.EnrichmentMethod;
 import gobean.statistics.MultipleTestCorrectionMethod;
 import java.io.IOException;
@@ -29,15 +30,20 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import org.mongkie.gobean.EnrichedResult;
+import static org.mongkie.gobean.rest.QueryParam.*;
 
-/** Jersey REST client generated for REST resource:GoBeanResource [gobean]<br>
- *  USAGE:<pre>
+/**
+ * Jersey REST client generated for REST resource:GoBeanResource [gobean]<br>
+ * USAGE:
+ * <pre>
  *        GoBeanService client = new GoBeanService(String baseUri, String path);
  *        Object response = client.XXX(...);
  *        // do whatever with response
  *        client.close();
- *  </pre>
+ * </pre>
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class GoBeanService {
@@ -71,11 +77,12 @@ public class GoBeanService {
 
     private <T> T getXml(Class<T> responseType,
             String strategy, String correction, double pCutoff, String genes) throws UniformInterfaceException {
-        return resource.queryParam(QueryParam.ENRICHMENT_STRATEGY, strategy).
-                queryParam(QueryParam.MULTIPLE_TESTING_CORRECTION, correction).
-                queryParam(QueryParam.PVALUE_MAX, String.valueOf(pCutoff)).
-                queryParam(QueryParam.GENES, genes).
-                accept(MediaType.APPLICATION_XML).get(responseType);
+        MultivaluedMap params = new MultivaluedMapImpl();
+        params.add(ENRICHMENT_STRATEGY, strategy);
+        params.add(MULTIPLE_TESTING_CORRECTION, correction);
+        params.add(PVALUE_MAX, String.valueOf(pCutoff));
+        params.add(GENES, genes);
+        return resource.type(MediaType.APPLICATION_FORM_URLENCODED).accept(MediaType.APPLICATION_XML).post(responseType, params);
     }
 
     public void close() {
