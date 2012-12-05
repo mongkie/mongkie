@@ -233,14 +233,14 @@ public class AggregateDragControl extends ControlAdapter {
 
     private void move(VisualItem item, double dx, double dy) {
         if (filter == null || filter.getBoolean(item)) {
-            double x = item.getX();
-            double y = item.getY();
+            double x = item.getEndX();
+            double y = item.getEndY();
             item.setStartX(x);
             item.setStartY(y);
-            item.setX(x + dx);
-            item.setY(y + dy);
             item.setEndX(x + dx);
             item.setEndY(y + dy);
+            item.setX(x + dx);
+            item.setY(y + dy);
         }
     }
 }

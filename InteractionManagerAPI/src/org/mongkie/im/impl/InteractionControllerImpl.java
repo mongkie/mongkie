@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import kobic.prefuse.Constants;
 import kobic.prefuse.data.Attribute;
 import kobic.prefuse.data.Schema;
 import org.mongkie.im.InteractionController;
@@ -44,11 +45,13 @@ import org.mongkie.longtask.progress.Progress;
 import org.mongkie.longtask.progress.ProgressTicket;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.VisualizationController;
+import org.mongkie.visualization.util.LayoutService.ExpandingLayout;
 import org.mongkie.visualization.workspace.WorkspaceListener;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.Visualization;
+import static prefuse.Visualization.*;
 import prefuse.data.Edge;
 import prefuse.data.Graph;
 import prefuse.data.Node;
@@ -57,6 +60,7 @@ import prefuse.data.column.Column;
 import prefuse.util.DataLib;
 import prefuse.util.StringLib;
 import prefuse.util.TypeLib;
+import prefuse.visual.NodeItem;
 
 /**
  *
@@ -211,7 +215,7 @@ public class InteractionControllerImpl implements InteractionController {
                     edgeTable.removeColumn(FIELD_INTERACTION_SOURCE);
                 }
             }
-        }, Visualization.DRAW);
+        }, DRAW);
         d.fireGraphChangedEvent();
         m.fireUnlinkedEvent();
     }
@@ -252,16 +256,24 @@ public class InteractionControllerImpl implements InteractionController {
 
         @Override
         protected void addSourceNodesOf(Set<Interaction<K>> interactions, Graph g) {
+            Visualization v = m.getDisplay().getVisualization();
             for (Interaction i : interactions) {
                 if (DataLib.get(g.getNodeTable(), keyField, i.getSourceKey()) < 0) {
                     Node n = g.addNode(); // Expanded node
                     n.set(keyField, i.getSourceKey());
+                    expandedNodeItems.add((NodeItem) v.getVisualItem(Constants.NODES, n));
                 }
             }
         }
+        private final List<NodeItem> expandedNodeItems = new ArrayList<NodeItem>();
 
         @Override
         protected void queryFinished(boolean success) {
+            m.getDisplay().getVisualization().rerun(DRAW);
+            if (success && !expandedNodeItems.isEmpty()) {
+                Lookup.getDefault().lookup(ExpandingLayout.class).layout(m.getDisplay(), Collections.unmodifiableList(expandedNodeItems));
+            }
+            expandedNodeItems.clear();
         }
     }
 
@@ -279,6 +291,7 @@ public class InteractionControllerImpl implements InteractionController {
         @Override
         protected void queryFinished(boolean success) {
             m.setLinked(success);
+            m.getDisplay().getVisualization().rerun(DRAW);
         }
 
         @Override
@@ -348,7 +361,7 @@ public class InteractionControllerImpl implements InteractionController {
                         }
                     }
                 }
-            }, Visualization.DRAW);
+            }, new String[]{});
         }
         protected final Attribute.Set NO_ATTRIBUTES = new Attribute.Set();
 
@@ -482,9 +495,9 @@ public class InteractionControllerImpl implements InteractionController {
                             }
                         }
                     }
-                }, Visualization.DRAW);
-                queryFinished(true);
+                }, new String[]{});
                 annotateNodesOf(getAllNodeKeys());
+                queryFinished(true);
                 m.getDisplay().fireGraphChangedEvent();
             } catch (Exception ex) {
                 Logger.getLogger(Link.class.getName()).log(Level.SEVERE, null, ex);

@@ -16,9 +16,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.visualization.spi;
+package org.mongkie.visualization.util;
 
+import java.util.List;
 import org.mongkie.visualization.MongkieDisplay;
+import prefuse.visual.NodeItem;
 
 /**
  *
@@ -29,5 +31,10 @@ public interface LayoutService {
     public void layout(MongkieDisplay d);
 
     public interface BigGraphLayout extends LayoutService {
+    }
+
+    public interface ExpandingLayout extends LayoutService {
+
+        public void layout(MongkieDisplay d, List<NodeItem> expandedNodes);
     }
 }

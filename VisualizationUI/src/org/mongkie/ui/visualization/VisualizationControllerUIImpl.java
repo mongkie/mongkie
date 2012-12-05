@@ -20,7 +20,7 @@ package org.mongkie.ui.visualization;
 import static org.mongkie.visualization.Config.*;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.VisualizationControllerUI;
-import org.mongkie.visualization.spi.LayoutService.BigGraphLayout;
+import org.mongkie.visualization.util.LayoutService.BigGraphLayout;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.WindowManager;

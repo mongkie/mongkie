@@ -27,7 +27,7 @@ import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.PrefuseLayout;
 import org.mongkie.visualization.MongkieDisplay;
-import org.mongkie.visualization.spi.LayoutService.BigGraphLayout;
+import org.mongkie.visualization.util.LayoutService.BigGraphLayout;
 import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.action.layout.GridLayout;

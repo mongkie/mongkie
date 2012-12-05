@@ -18,16 +18,23 @@
 package org.mongkie.layout.plugins.forcedirected;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.PrefuseLayout;
 import org.mongkie.longtask.progress.DeterminateTask;
+import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.util.LayoutService.ExpandingLayout;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.util.lookup.ServiceProvider;
 import prefuse.action.ActionList;
 import prefuse.action.layout.graph.ForceDirectedLayout;
+import prefuse.activity.Activity;
+import prefuse.activity.ActivityAdapter;
+import prefuse.activity.ActivityListener;
 import prefuse.util.force.DragForce;
 import prefuse.util.force.Force;
 import prefuse.util.force.ForceSimulator;
@@ -35,14 +42,88 @@ import prefuse.util.force.NBodyForce;
 import prefuse.util.force.RungeKuttaIntegrator;
 import prefuse.util.force.SpringForce;
 import prefuse.visual.EdgeItem;
+import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout> implements DeterminateTask {
+@ServiceProvider(service = ExpandingLayout.class)
+public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
+        implements DeterminateTask, ExpandingLayout {
 
+    // Start of layout logics for the expanding graph
+    private static final long MINIMUM_DURATION = 2000;
+    private static final int SIZE_DIVISOR = 100;
+
+    public ForceDirected() {
+        super(null);
+        expandingLayout = new ForceDirectedLayout(GRAPH, new ForceSimulator(new RungeKuttaIntegrator()), false) {
+            @Override
+            protected boolean isEnabled(VisualItem item) {
+                return (item instanceof NodeItem)
+                        ? !temporarilyFixedNodes.contains((NodeItem) item) : super.isEnabled(item);
+            }
+        };
+        ForceSimulator forceSimulator = expandingLayout.getForceSimulator();
+        forceSimulator.addForce(new NBodyForce());
+        forceSimulator.addForce(new DragForce());
+        forceSimulator.addForce(new SpringForce(
+                SpringForce.DEFAULT_SPRING_COEFF / 2, SpringForce.DEFAULT_SPRING_LENGTH * 3.4F));
+        isBigGraph = false;
+    }
+    private final ForceDirectedLayout expandingLayout;
+    private final List<NodeItem> temporarilyFixedNodes = new ArrayList<NodeItem>();
+
+    private long getDuration(int size) {
+        long duration = MINIMUM_DURATION * Math.round(size / SIZE_DIVISOR);
+        return duration < 1 ? MINIMUM_DURATION : duration;
+    }
+
+    @Override
+    public void layout(MongkieDisplay d, List<NodeItem> expandedNodes) {
+        if (expandedNodes.isEmpty()) {
+            return;
+        }
+        expandingLayout.setVisualization(d.getVisualization());
+        expandingLayout.setEnabled(true);
+        d.setGraphLayout(expandingLayout, getDuration(expandedNodes.size()));
+        //Set initial location of expanded nodes to the location of source node
+        for (NodeItem expanded : expandedNodes) {
+            NodeItem source = (NodeItem) expanded.inNeighbors().next();
+            setX(expanded, null, source.getX());
+            setY(expanded, null, source.getY());
+        }
+        //Fix not expanded nodes temporarily while laying out
+        for (Iterator<NodeItem> nodeIter = d.getVisualization().items(NODES); nodeIter.hasNext();) {
+            NodeItem n = nodeIter.next();
+            if (!expandedNodes.contains(n)) {
+                temporarilyFixedNodes.add(n);
+            }
+        }
+        d.getLayoutAction().addActivityListener(l);
+        d.rerunLayoutAction();
+    }
+    private final ActivityListener l = new ActivityAdapter() {
+        @Override
+        public void activityFinished(Activity a) {
+            temporarilyFixedNodes.clear();
+            expandingLayout.setEnabled(false);
+            a.removeActivityListener(l);
+        }
+
+        @Override
+        public void activityCancelled(Activity a) {
+            activityFinished(a);
+        }
+    };
+
+    @Override
+    public void layout(MongkieDisplay d) {
+        throw new UnsupportedOperationException("Not supported operation.");
+    }
+    // End of layout logics for the expanding graph
     private float gravConst = NBodyForce.DEFAULT_GRAV_CONSTANT;
     private float distance = NBodyForce.DEFAULT_DISTANCE;
     private float theta = NBodyForce.DEFAULT_THETA;
@@ -53,6 +134,7 @@ public class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
 
     ForceDirected(LayoutBuilder<ForceDirected> builder) {
         super(builder);
+        expandingLayout = null;
     }
 
     @Override
