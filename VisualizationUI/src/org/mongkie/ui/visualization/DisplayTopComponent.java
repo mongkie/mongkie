@@ -40,7 +40,7 @@ import org.mongkie.perspective.NonSingletonTopComponent;
 import org.mongkie.perspective.spi.Perspective;
 import org.mongkie.ui.visualization.options.OptionsSettingPanel;
 import org.mongkie.ui.visualization.options.OptionsToolbar;
-import org.mongkie.ui.visualization.popup.spi.NodeMenuItemFactory;
+import org.mongkie.ui.visualization.menu.spi.NodePopupMenuItemFactory;
 import org.mongkie.ui.visualization.tools.AddonPopupDialog;
 import org.mongkie.ui.visualization.tools.AddonsBar;
 import org.mongkie.ui.visualization.tools.PropertiesBar;
@@ -162,7 +162,7 @@ public final class DisplayTopComponent extends TopComponent
                     @Override
                     protected void addNodePopupMenuItems(JPopupMenu popup) {
                         super.addNodePopupMenuItems(popup);
-                        for (NodeMenuItemFactory f : Lookup.getDefault().lookupAll(NodeMenuItemFactory.class)) {
+                        for (NodePopupMenuItemFactory f : Lookup.getDefault().lookupAll(NodePopupMenuItemFactory.class)) {
                             for (JMenuItem mi : f.createMenuItems(this)) {
                                 popup.add(mi);
                             }

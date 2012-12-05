@@ -29,7 +29,7 @@ import javax.swing.JMenuItem;
 import kobic.prefuse.controls.PopupControl;
 import org.mongkie.im.InteractionController;
 import org.mongkie.im.spi.InteractionSource;
-import org.mongkie.ui.visualization.popup.spi.NodeMenuItemFactory;
+import org.mongkie.ui.visualization.menu.spi.NodePopupMenuItemFactory;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -43,14 +43,14 @@ import prefuse.visual.NodeItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = NodeMenuItemFactory.class)
-public class ExpandNodeMenuItemFactory extends NodeMenuItemFactory {
+@ServiceProvider(service = NodePopupMenuItemFactory.class)
+public class ExpandNodePopupFactory extends NodePopupMenuItemFactory {
 
     @Override
     public List<JMenuItem> createMenuItems(final PopupControl<MongkieDisplay> control) {
         List<JMenuItem> menuItems = new ArrayList<JMenuItem>();
         JMenu m = new JMenu("More Interactions");
-        m.setIcon(ImageUtilities.loadImageIcon("org/mongke/ui/im/resources/interaction.png", false));
+        m.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/interaction.png", false));
         final InteractionController ic = Lookup.getDefault().lookup(InteractionController.class);
         for (String category : ic.getCategories()) {
             for (final InteractionSource is : ic.getInteractionSources(category)) {

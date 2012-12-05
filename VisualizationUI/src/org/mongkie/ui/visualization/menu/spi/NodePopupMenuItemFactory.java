@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.ui.visualization.popup.spi;
+package org.mongkie.ui.visualization.menu.spi;
 
 import prefuse.visual.NodeItem;
 
@@ -24,7 +24,7 @@ import prefuse.visual.NodeItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class NodeMenuItemFactory implements PopupMenuItemFactory<NodeItem> {
+public abstract class NodePopupMenuItemFactory implements PopupMenuItemFactory<NodeItem> {
 
     @Override
     public Class<NodeItem> getItemType() {

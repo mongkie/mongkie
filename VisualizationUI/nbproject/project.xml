@@ -138,8 +138,8 @@
                 </test-type>
             </test-dependencies>
             <public-packages>
+                <package>org.mongkie.ui.visualization.menu.spi</package>
                 <package>org.mongkie.ui.visualization.options.spi</package>
-                <package>org.mongkie.ui.visualization.popup.spi</package>
                 <package>org.mongkie.ui.visualization.tools.spi</package>
             </public-packages>
         </data>
