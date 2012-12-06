@@ -145,7 +145,7 @@ public class ClusteringResultView extends OutlineView {
         this.em = em;
     }
 
-    private void randomizeColors() {
+    public void randomizeColors() {
         Collection<Cluster> clusters = clustering.getClusters();
         List<Color> colors = Palette.getSequenceColors(clusters.size());
         int i = 0;
@@ -169,7 +169,6 @@ public class ClusteringResultView extends OutlineView {
 //    }
     public JPanel setClustering(Clustering clustering) {
         this.clustering = clustering;
-        randomizeColors();
         getOutline().clearSelection();
         em.setRootContext(new AbstractNode(Children.create(new ClusterChildFactory(clustering), false)) {
 

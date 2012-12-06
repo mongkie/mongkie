@@ -19,17 +19,20 @@ package org.mongkie.clustering.impl;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.mongkie.clustering.ClusteringController;
 import org.mongkie.clustering.ClusteringModel;
 import org.mongkie.clustering.ClusteringModelListener;
+import org.mongkie.clustering.spi.Cluster;
 import org.mongkie.clustering.spi.Clustering;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.LongTaskErrorHandler;
 import org.mongkie.longtask.LongTaskExecutor;
 import org.mongkie.longtask.LongTaskListener;
 import org.mongkie.visualization.MongkieDisplay;
+import org.openide.util.Lookup;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class ClusteringModelImpl extends ClusteringModel {
@@ -41,7 +44,6 @@ public class ClusteringModelImpl extends ClusteringModel {
 
         executor = new LongTaskExecutor(true, "Clustering");
         executor.setLongTaskListener(new LongTaskListener() {
-
             @Override
             public void taskStarted(LongTask task) {
                 setRunning(true);
@@ -53,7 +55,6 @@ public class ClusteringModelImpl extends ClusteringModel {
             }
         });
         executor.setDefaultErrorHandler(new LongTaskErrorHandler() {
-
             @Override
             public void fatalError(Throwable t) {
                 Logger.getLogger("").log(Level.SEVERE, "", t.getCause() != null ? t.getCause() : t);
@@ -99,6 +100,9 @@ public class ClusteringModelImpl extends ClusteringModel {
     protected void unload(Clustering cl) {
         if (isRunning()) {
             executor.cancel();
+        }
+        for (Cluster c : cl.getClusters()) {
+            Lookup.getDefault().lookup(ClusteringController.class).ungroup(c);
         }
     }
 }
