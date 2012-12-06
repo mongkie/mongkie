@@ -80,6 +80,7 @@ public class GroupManager implements WorkspaceListener, TableListener, DisplayLi
     }
 
     public void ungroup(AggregateItem aggrItem) {
+        //TODO require to check display equaility elsewhere
         MongkieDisplay d = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
         if (d != null) {
             d.unaggregateItems(aggrItem);

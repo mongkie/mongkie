@@ -147,6 +147,9 @@ public class ClusteringResultView extends OutlineView {
 
     public void randomizeColors() {
         Collection<Cluster> clusters = clustering.getClusters();
+        if (clusters.isEmpty()) {
+            return;
+        }
         List<Color> colors = Palette.getSequenceColors(clusters.size());
         int i = 0;
         for (Cluster c : clusters) {

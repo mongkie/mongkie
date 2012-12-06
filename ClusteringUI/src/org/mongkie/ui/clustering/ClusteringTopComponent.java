@@ -177,6 +177,11 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
 
     @Override
     public void clusteringChanged(Clustering o, Clustering n) {
+        if (o != null) {
+            for (Cluster c : o.getClusters()) {
+                Lookup.getDefault().lookup(ClusteringController.class).ungroup(c);
+            }
+        }
         refreshModel();
     }
 
