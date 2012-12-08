@@ -146,7 +146,8 @@ public class ClusteringResultView extends OutlineView {
     }
 
     public void randomizeColors() {
-        Collection<Cluster> clusters = clustering.getClusters();
+        Collection<Cluster> clusters =
+                Lookup.getDefault().lookup(ClusteringController.class).getClusters(clustering);
         if (clusters.isEmpty()) {
             return;
         }

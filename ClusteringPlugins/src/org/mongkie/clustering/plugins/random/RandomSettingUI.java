@@ -90,7 +90,7 @@ public class RandomSettingUI extends javax.swing.JPanel implements ClusteringBui
     }
 
     @Override
-    public void setup(Random random) {
+    public void load(Random random) {
         clusterSizeSpinner.setValue(random.getClusterSize());
     }
 

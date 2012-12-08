@@ -17,14 +17,17 @@
  */
 package org.mongkie.ui.clustering.explorer;
 
+import java.util.Collection;
 import java.util.List;
+import org.mongkie.clustering.ClusteringController;
 import org.mongkie.clustering.spi.Cluster;
 import org.mongkie.clustering.spi.Clustering;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class ClusterChildFactory extends ChildFactory<Cluster> {
@@ -37,7 +40,9 @@ public class ClusterChildFactory extends ChildFactory<Cluster> {
 
     @Override
     protected boolean createKeys(List<Cluster> toPopulate) {
-        for (Cluster c : cl.getClusters()) {
+        Collection<Cluster> clusters =
+                Lookup.getDefault().lookup(ClusteringController.class).getClusters(cl);
+        for (Cluster c : clusters) {
             toPopulate.add(c);
         }
         return true;

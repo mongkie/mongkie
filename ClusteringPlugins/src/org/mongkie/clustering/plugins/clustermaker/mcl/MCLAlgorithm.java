@@ -100,7 +100,7 @@ public class MCLAlgorithm {
         this.debug = debug;
     }
 
-    public List<? extends Cluster> run() {
+    public List<MCLCluster> run() {
         cancelled = false;
         long startTime = System.currentTimeMillis();
 

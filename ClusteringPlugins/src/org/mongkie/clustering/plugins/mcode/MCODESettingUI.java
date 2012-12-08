@@ -246,7 +246,7 @@ public class MCODESettingUI extends javax.swing.JPanel implements ClusteringBuil
     }
 
     @Override
-    public void setup(MCODE clustering) {
+    public void load(MCODE clustering) {
     }
 
     @Override

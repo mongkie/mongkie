@@ -23,10 +23,10 @@ import java.util.List;
 import org.mongkie.visualization.MongkieDisplay;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  * @param <V>
- * @param <L> 
+ * @param <L>
  */
 public abstract class AbstractModel<V, L extends ModelListener> implements Model<V, L> {
 
@@ -62,15 +62,17 @@ public abstract class AbstractModel<V, L extends ModelListener> implements Model
     }
 
     protected void set(V data) {
-        V old = this.data;
-        this.data = data;
-        if (old != null) {
-            unload(old);
+        if (this.data != data) {
+            V old = this.data;
+            this.data = data;
+            if (old != null) {
+                unload(old);
+            }
+            if (data != null) {
+                load(data);
+            }
+            changed(old, data);
         }
-        if (data != null) {
-            load(data);
-        }
-        changed(old, data);
     }
 
     protected abstract void changed(V o, V n);

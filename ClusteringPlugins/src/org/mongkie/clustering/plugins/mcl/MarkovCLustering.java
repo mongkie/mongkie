@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.mongkie.clustering.spi.Cluster;
 import org.mongkie.clustering.DefaultClusterImpl;
 import org.mongkie.clustering.spi.Clustering;
 import org.mongkie.clustering.spi.ClusteringBuilder;
@@ -76,16 +75,16 @@ import prefuse.data.Node;
  * Description is based on the introduction of Stijn van Dongen's thesis Graph
  * Clustering by Flow Simulation (2000); for a mathematical treatment of the
  * algorithm and the associated MCL process, see there.
- * 
+ *
  * Original author: Gregor Heinrich
  *
  * @author Mathieu Bastian <mathieu.bastian@gephi.org>, Yeongjun Jang <yjjang@kribb.re.kr>
- * @deprecated 
+ * @deprecated
  */
-class MarkovCLustering implements Clustering {
+class MarkovCLustering implements Clustering<DefaultClusterImpl> {
 
     private final MarkovCLusteringBuilder builder;
-    private List<Cluster> clusters = new ArrayList<Cluster>();
+    private List<DefaultClusterImpl> clusters = new ArrayList<DefaultClusterImpl>();
     private volatile boolean cancelled = false;
     // Parameters
     private double maxResidual = 0.001;
@@ -98,7 +97,8 @@ class MarkovCLustering implements Clustering {
     }
 
     @Override
-    public void execute(Graph g) {
+    public Collection<DefaultClusterImpl> execute(Graph g) {
+        clusters.clear();
         cancelled = false;
 
         HashMap<Integer, Node> nodeMap = new HashMap<Integer, Node>();
@@ -129,7 +129,7 @@ class MarkovCLustering implements Clustering {
                 System.out.println("sid: " + sourceId + "(" + source.getString("Label") + ")" + ", tid: " + targetId + "(" + target.getString("Label") + ")" + ", weight: " + weight + ", w2: " + w2);
             }
             if (cancelled) {
-                return;
+                return clusters;
             }
         }
 
@@ -140,23 +140,21 @@ class MarkovCLustering implements Clustering {
         matrix = run(matrix, maxResidual, gammaExp, loopGain, zeroMax);
 
         if (cancelled) {
-            return;
+            return clusters;
         }
 
         Map<Integer, ArrayList<Integer>> map = getClusterMap(matrix);
 
         if (cancelled) {
-            return;
+            return clusters;
         }
 
         Set<ArrayList<Integer>> sortedClusters = new HashSet<ArrayList<Integer>>();
         int rank = 0;
-        clusters.clear();
         for (ArrayList<Integer> nodeIdList : map.values()) {
             if (!sortedClusters.contains(nodeIdList)) {
                 sortedClusters.add(nodeIdList);
                 DefaultClusterImpl c = new DefaultClusterImpl(g) {
-
                     @Override
                     public void setRank(int rank) {
                         super.setRank(rank);
@@ -170,20 +168,22 @@ class MarkovCLustering implements Clustering {
                 clusters.add(c);
             }
             if (cancelled) {
-                return;
+                break;
             }
         }
+
+        return clusters;
     }
 
     /**
      * run the MCL process.
      *
-     * @param a matrix
+     * @param a           matrix
      * @param maxResidual maximum difference between row elements and row square
-     *        sum (measure of idempotence)
-     * @param pGamma inflation exponent for Gamma operator
-     * @param loopGain values for cycles
-     * @param maxZero maximum value considered zero for pruning operations
+     *                    sum (measure of idempotence)
+     * @param pGamma      inflation exponent for Gamma operator
+     * @param loopGain    values for cycles
+     * @param maxZero     maximum value considered zero for pruning operations
      * @return the resulting matrix
      */
     private SparseMatrix run(SparseMatrix a, double maxResidual, double pGamma, double loopGain, double maxZero) {
@@ -257,8 +257,8 @@ class MarkovCLustering implements Clustering {
      * By convention, normalisation is done along rows (SparseMatrix has
      * row-major representation)
      *
-     * @param m matrix (mutable)
-     * @param p exponent as a double
+     * @param m       matrix (mutable)
+     * @param p       exponent as a double
      * @param zeromax below which elements are pruned from the sparse matrix
      * @return residuum value, m is modified.
      */
@@ -351,16 +351,6 @@ class MarkovCLustering implements Clustering {
     public boolean cancel() {
         cancelled = true;
         return true;
-    }
-
-    @Override
-    public Collection<Cluster> getClusters() {
-        return clusters;
-    }
-
-    @Override
-    public void clearClusters() {
-        clusters.clear();
     }
 
     @Override

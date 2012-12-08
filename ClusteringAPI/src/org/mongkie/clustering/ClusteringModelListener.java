@@ -17,18 +17,19 @@
  */
 package org.mongkie.clustering;
 
+import java.util.Collection;
 import org.mongkie.clustering.spi.Clustering;
 import org.mongkie.visualization.workspace.ModelListener;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public interface ClusteringModelListener extends ModelListener {
 
     public void clusteringStarted(Clustering cl);
 
-    public void clusteringFinished(Clustering cl);
+    public void clusteringFinished(Clustering cl, Collection clusters);
 
     public void clusteringChanged(Clustering o, Clustering n);
 }

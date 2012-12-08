@@ -18,10 +18,9 @@
 package org.mongkie.clustering.plugins.clustermaker.mcl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
-import org.mongkie.clustering.spi.Cluster;
-import org.mongkie.clustering.plugins.clustermaker.AbstractClustering;
 import org.mongkie.clustering.plugins.clustermaker.DistanceMatrix;
 import org.mongkie.clustering.plugins.clustermaker.converters.DistanceConverter;
 import org.mongkie.clustering.plugins.clustermaker.converters.EdgeWeightConverter;
@@ -29,6 +28,8 @@ import org.mongkie.clustering.plugins.clustermaker.converters.LogConverter;
 import org.mongkie.clustering.plugins.clustermaker.converters.NegLogConverter;
 import org.mongkie.clustering.plugins.clustermaker.converters.NoneConverter;
 import org.mongkie.clustering.plugins.clustermaker.converters.SCPSConverter;
+import org.mongkie.clustering.spi.Clustering;
+import org.mongkie.clustering.spi.ClusteringBuilder;
 import org.mongkie.visualization.VisualizationController;
 import org.openide.util.Lookup;
 import prefuse.data.Graph;
@@ -37,10 +38,10 @@ import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class MCL extends AbstractClustering<MCLBuilder> {
+public class MCL implements Clustering<MCLCluster> {
 
     private double inflationParameter = 2.0;
     private int rNumber = 16;
@@ -57,9 +58,10 @@ public class MCL extends AbstractClustering<MCLBuilder> {
     private volatile boolean cancelled = false;
     private MCLAlgorithm algo = null;
     private final List<EdgeWeightConverter> converters;
+    private final MCLBuilder builder;
 
     public MCL(MCLBuilder builder) {
-        super(builder);
+        this.builder = builder;
         converters = new ArrayList<EdgeWeightConverter>();
         converters.add(new NoneConverter());
         converters.add(new DistanceConverter());
@@ -70,9 +72,8 @@ public class MCL extends AbstractClustering<MCLBuilder> {
     }
 
     @Override
-    public void execute(Graph g) {
+    public Collection<MCLCluster> execute(Graph g) {
         cancelled = false;
-        clearClusters();
 
         List<Node> selectedNodes = null;
         if (selectedOnly) {
@@ -87,28 +88,29 @@ public class MCL extends AbstractClustering<MCLBuilder> {
         if (matrix == null) {
             Logger.getLogger(MCL.class.getName()).severe(
                     "Can't get distance matrix: no attribute value?");
-            return;
+            return null;
         }
 
         algo = new MCLAlgorithm(g, matrix, inflationParameter, rNumber, clusteringThresh, maxResidual, maxThreads);
 
         if (cancelled) {
-            return;
+            return null;
         }
 
         algo.setDebug(false);
-        List<? extends Cluster> results = algo.run();
-        if (results == null) {
-            return; // Algorithm is cancelled
-        }
-
-        getClusters().addAll(results);
+        List<MCLCluster> results = algo.run();
+        return results;
     }
 
     @Override
     public boolean cancel() {
         cancelled = true;
         algo.cancel();
-        return true;
+        return false;
+    }
+
+    @Override
+    public ClusteringBuilder getBuilder() {
+        return builder;
     }
 }

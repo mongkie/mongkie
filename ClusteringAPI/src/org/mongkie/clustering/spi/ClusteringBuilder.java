@@ -23,21 +23,21 @@ import javax.swing.JPanel;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface ClusteringBuilder {
+public interface ClusteringBuilder<C extends Clustering> {
 
-    public Clustering getClustering();
+    public C getClustering();
 
     public String getName();
 
     public String getDescription();
 
-    public SettingUI getSettingUI();
+    public SettingUI<C> getSettingUI();
 
     public static interface SettingUI<C extends Clustering> {
 
         public JPanel getPanel();
 
-        public void setup(C clustering);
+        public void load(C clustering);
 
         public void apply(C clustering);
     }

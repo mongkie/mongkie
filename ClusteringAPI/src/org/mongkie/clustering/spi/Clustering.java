@@ -21,18 +21,14 @@ import java.util.Collection;
 import prefuse.data.Graph;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface Clustering {
+public interface Clustering<C extends Cluster> {
 
-    public void execute(Graph g);
+    public Collection<C> execute(Graph g);
 
     public boolean cancel();
-
-    public Collection<Cluster> getClusters();
-
-    public void clearClusters();
 
     public ClusteringBuilder getBuilder();
 }

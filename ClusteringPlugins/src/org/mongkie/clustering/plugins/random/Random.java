@@ -31,7 +31,7 @@ import prefuse.data.Graph;
 import prefuse.data.Node;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class Random implements Clustering {
@@ -55,8 +55,7 @@ public class Random implements Clustering {
     }
 
     @Override
-    public void execute(Graph g) {
-        clearClusters();
+    public Collection<Cluster> execute(Graph g) {
         List<Node> nodes = new ArrayList<Node>(g.getNodeCount());
         Iterator<Node> nodesIter = g.nodes();
         while (nodesIter.hasNext()) {
@@ -67,6 +66,7 @@ public class Random implements Clustering {
         int i = 1, j = 1;
         DefaultClusterImpl c = new DefaultClusterImpl(g, "Random " + j);
         c.setRank(j - 1);
+        clusters.clear();
         for (Node n : nodes) {
             c.addNode(n);
             if (i >= clusterSize) {
@@ -89,25 +89,16 @@ public class Random implements Clustering {
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
         }
+        return clusters;
     }
 
     @Override
     public boolean cancel() {
         synchronized (this) {
-            clearClusters();
+            clusters.clear();
             notifyAll();
         }
         return true;
-    }
-
-    @Override
-    public Collection<Cluster> getClusters() {
-        return clusters;
-    }
-
-    @Override
-    public void clearClusters() {
-        clusters.clear();
     }
 
     @Override

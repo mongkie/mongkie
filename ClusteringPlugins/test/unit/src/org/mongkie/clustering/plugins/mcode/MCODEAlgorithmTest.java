@@ -17,23 +17,23 @@
  */
 package org.mongkie.clustering.plugins.mcode;
 
-import java.util.Map;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import kobic.prefuse.data.GraphFactory;
+import org.junit.After;
+import org.junit.AfterClass;
+import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import prefuse.data.Graph;
 import prefuse.data.Node;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
-import prefuse.data.io.DataIOException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import prefuse.data.io.CSVTableReader;
-import static org.junit.Assert.*;
+import prefuse.data.io.DataIOException;
 
 /**
  * 

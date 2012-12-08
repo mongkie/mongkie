@@ -32,7 +32,7 @@ import prefuse.data.Node;
 import prefuse.visual.AggregateItem;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ServiceProvider(service = ClusteringController.class)
@@ -55,14 +55,16 @@ public class ClusteringControllerImpl extends ClusteringController<ClusteringMod
         final Clustering cl = model.get();
         final ClusteringTask task = new ClusteringTask(cl);
         model.getExecutor().execute(task, new Runnable() {
-
             @Override
             public void run() {
                 ProgressTicket ticket = task.getProgressTicket();
                 Progress.setDisplayName(ticket, cl.getBuilder().getName() + " Clustering");
                 Progress.start(ticket);
-                cl.execute(model.getDisplay().getGraph());
-                Progress.finish(ticket);
+                try {
+                    model.setClusters(cl.execute(model.getDisplay().getGraph()));
+                } finally {
+                    Progress.finish(ticket);
+                }
             }
         });
     }
@@ -70,6 +72,11 @@ public class ClusteringControllerImpl extends ClusteringController<ClusteringMod
     @Override
     public void cancelClustering() {
         model.getExecutor().cancel();
+    }
+
+    @Override
+    public Collection<Cluster> getClusters(Clustering cl) {
+        return model.getClusters(cl);
     }
 
     @Override

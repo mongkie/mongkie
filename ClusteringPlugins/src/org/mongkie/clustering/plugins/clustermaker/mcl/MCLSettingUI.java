@@ -32,7 +32,7 @@ public class MCLSettingUI implements SettingUI<MCL> {
     }
 
     @Override
-    public void setup(MCL mcl) {
+    public void load(MCL mcl) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

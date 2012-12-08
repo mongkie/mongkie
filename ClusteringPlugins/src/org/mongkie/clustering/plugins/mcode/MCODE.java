@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.mongkie.clustering.spi.Cluster;
 import org.mongkie.clustering.spi.Clustering;
 import org.mongkie.clustering.spi.ClusteringBuilder;
 import prefuse.data.Graph;
@@ -30,10 +29,9 @@ import prefuse.data.Graph;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class MCODE implements Clustering {
+public class MCODE implements Clustering<MCODECluster> {
 
     private final MCODEBuilder builder;
-    private List<Cluster> clusters = new ArrayList<Cluster>();
     private final MCODEAlgorithm algo;
 
     MCODE(MCODEBuilder builder) {
@@ -42,30 +40,21 @@ public class MCODE implements Clustering {
     }
 
     @Override
-    public void execute(Graph g) {
-        clusters.clear();
+    public Collection<MCODECluster> execute(Graph g) {
         algo.setCancelled(false);
         algo.scoreGraph(g, builder.getName());
         if (algo.isCancelled()) {
-            return;
+            return null;
         }
+        List<MCODECluster> clusters = new ArrayList<MCODECluster>();
         clusters.addAll(Arrays.asList(algo.findClusters(g, builder.getName())));
+        return clusters;
     }
 
     @Override
     public boolean cancel() {
         algo.setCancelled(true);
-        return true;
-    }
-
-    @Override
-    public Collection<Cluster> getClusters() {
-        return clusters;
-    }
-
-    @Override
-    public void clearClusters() {
-        clusters.clear();
+        return false;
     }
 
     @Override

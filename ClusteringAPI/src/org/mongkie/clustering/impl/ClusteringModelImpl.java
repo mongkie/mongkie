@@ -17,16 +17,24 @@
  */
 package org.mongkie.clustering.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mongkie.clustering.ClusteringModel;
 import org.mongkie.clustering.ClusteringModelListener;
+import org.mongkie.clustering.spi.Cluster;
 import org.mongkie.clustering.spi.Clustering;
+import org.mongkie.clustering.spi.ClusteringBuilder;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.LongTaskErrorHandler;
 import org.mongkie.longtask.LongTaskExecutor;
 import org.mongkie.longtask.LongTaskListener;
 import org.mongkie.visualization.MongkieDisplay;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -35,10 +43,10 @@ import org.mongkie.visualization.MongkieDisplay;
 public class ClusteringModelImpl extends ClusteringModel {
 
     private LongTaskExecutor executor;
+    private final Map<Clustering, Persistence> persistences = new HashMap<Clustering, Persistence>();
 
-    public ClusteringModelImpl(MongkieDisplay display) {
+    ClusteringModelImpl(MongkieDisplay display) {
         super(display);
-
         executor = new LongTaskExecutor(true, "Clustering");
         executor.setLongTaskListener(new LongTaskListener() {
             @Override
@@ -57,6 +65,10 @@ public class ClusteringModelImpl extends ClusteringModel {
                 Logger.getLogger("").log(Level.SEVERE, "", t.getCause() != null ? t.getCause() : t);
             }
         });
+        for (ClusteringBuilder builder : Lookup.getDefault().lookupAll(ClusteringBuilder.class)) {
+            Clustering cl = builder.getClustering();
+            persistences.put(cl, new Persistence(cl));
+        }
     }
 
     LongTaskExecutor getExecutor() {
@@ -76,7 +88,7 @@ public class ClusteringModelImpl extends ClusteringModel {
             }
         } else {
             for (ClusteringModelListener l : listeners) {
-                l.clusteringFinished(get());
+                l.clusteringFinished(get(), getClusters());
             }
         }
     }
@@ -90,13 +102,52 @@ public class ClusteringModelImpl extends ClusteringModel {
 
     @Override
     protected void load(Clustering cl) {
-//        cl.clearClusters();
     }
 
     @Override
     protected void unload(Clustering cl) {
         if (isRunning()) {
             executor.cancel();
+        }
+    }
+
+    void setClusters(Collection<Cluster> clusters) {
+        persistences.get(get()).setClusters(clusters);
+    }
+
+    @Override
+    public Collection<Cluster> getClusters() {
+        return persistences.get(get()).getClusters();
+    }
+
+    @Override
+    public Collection<Cluster> getClusters(Clustering cl) {
+        return persistences.get(cl).getClusters();
+    }
+
+    private static class Persistence<C extends Cluster> {
+
+        final Clustering clustering;
+        Collection<C> clusters;
+
+        Persistence(Clustering<C> clustering) {
+            this.clustering = clustering;
+            this.clusters = new ArrayList<C>();
+        }
+
+        Clustering getClustering() {
+            return clustering;
+        }
+
+        Collection<C> getClusters() {
+            return Collections.unmodifiableCollection(clusters);
+        }
+
+        void setClusters(Collection<C> clusters) {
+            this.clusters.clear();
+            if (clusters != null) {
+                this.clusters.addAll(clusters);
+            }
         }
     }
 }

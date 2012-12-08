@@ -19,6 +19,7 @@ package org.mongkie.ui.clustering;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.Collection;
 import javax.swing.DefaultComboBoxModel;
 import org.mongkie.clustering.ClusteringController;
 import org.mongkie.clustering.ClusteringModel;
@@ -157,28 +158,27 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
         infoLabel.setEnabled(enabled);
         noResultLabel.setEnabled(enabled);
         settingButtion.setEnabled(enabled && !model.isRunning() && model.get().getBuilder().getSettingUI() != null);
-        groupAllLink.setEnabled(enabled && !model.isRunning() && !model.get().getClusters().isEmpty());
-        ungroupAllLink.setEnabled(enabled && !model.isRunning() && !model.get().getClusters().isEmpty());
-        pieLink.setEnabled(enabled && !model.isRunning() && !model.get().getClusters().isEmpty());
+        groupAllLink.setEnabled(enabled && !model.isRunning() && !model.getClusters().isEmpty());
+        ungroupAllLink.setEnabled(enabled && !model.isRunning() && !model.getClusters().isEmpty());
+        pieLink.setEnabled(enabled && !model.isRunning() && !model.getClusters().isEmpty());
 
         clusteringComboBox.setEnabled(model != null && !model.isRunning() && model.getDisplay().getGraph().getNodeCount() > 0);
     }
 
     private void refreshResult() {
-        Clustering cl;
-        if (model == null || (cl = model.get()) == null || model.getDisplay().getGraph().getNodeCount() < 1) {
+        if (model == null || model.get() == null || model.getDisplay().getGraph().getNodeCount() < 1) {
             clusterizing.setBusy(false);
         } else if (model.isRunning()) {
             clusterizing.setBusy(true);
         } else {
-            clusterizing.setBusy(false, cl.getClusters().isEmpty() ? noResultLabel : ((ClusteringResultView) resultView).setClustering(cl));
+            clusterizing.setBusy(false, model.getClusters().isEmpty() ? noResultLabel : ((ClusteringResultView) resultView).setClustering(model.get()));
         }
     }
 
     @Override
     public void clusteringChanged(Clustering o, Clustering n) {
         if (o != null) {
-            for (Cluster c : o.getClusters()) {
+            for (Cluster c : model.getClusters(o)) {
                 Lookup.getDefault().lookup(ClusteringController.class).ungroup(c);
             }
         }
@@ -192,13 +192,16 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
     }
 
     @Override
-    public void clusteringFinished(final Clustering cl) {
+    public void clusteringFinished(Clustering cl, Collection clusters) {
         refreshEnabled();
-        clusterizing.setBusy(false, cl.getClusters().isEmpty() ? noResultLabel : ((ClusteringResultView) resultView).setClustering(cl));
+        clusterizing.setBusy(false, clusters.isEmpty() ? noResultLabel : ((ClusteringResultView) resultView).setClustering(cl));
         ((ClusteringResultView) resultView).randomizeColors();
     }
 
     private void run() {
+        for (Cluster c : model.getClusters()) {
+            Lookup.getDefault().lookup(ClusteringController.class).ungroup(c);
+        }
         Lookup.getDefault().lookup(ClusteringController.class).clusterize();
     }
 
@@ -211,7 +214,7 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
         ClusteringBuilder.SettingUI settings = builder.getSettingUI();
         DialogDescriptor dialog = new DialogDescriptor(settings.getPanel(),
                 NbBundle.getMessage(ClusteringTopComponent.class, "ClusteringTopComponent.settings.title", builder.getName()));
-        settings.setup(builder.getClustering());
+        settings.load(builder.getClustering());
         if (DialogDisplayer.getDefault().notify(dialog).equals(NotifyDescriptor.OK_OPTION)) {
             settings.apply(builder.getClustering());
             run();
@@ -379,13 +382,13 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
     }//GEN-LAST:event_settingButtionActionPerformed
 
     private void groupAllLinkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_groupAllLinkActionPerformed
-        for (Cluster c : model.get().getClusters()) {
+        for (Cluster c : model.getClusters()) {
             Lookup.getDefault().lookup(ClusteringController.class).group(c);
         }
     }//GEN-LAST:event_groupAllLinkActionPerformed
 
     private void ungroupAllLinkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ungroupAllLinkActionPerformed
-        for (Cluster c : model.get().getClusters()) {
+        for (Cluster c : model.getClusters()) {
             Lookup.getDefault().lookup(ClusteringController.class).ungroup(c);
         }
     }//GEN-LAST:event_ungroupAllLinkActionPerformed

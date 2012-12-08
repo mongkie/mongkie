@@ -17,12 +17,14 @@
  */
 package org.mongkie.clustering;
 
+import java.util.Collection;
+import org.mongkie.clustering.spi.Cluster;
 import org.mongkie.clustering.spi.Clustering;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.workspace.RunnableAbstractModel;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public abstract class ClusteringModel
@@ -31,4 +33,8 @@ public abstract class ClusteringModel
     public ClusteringModel(MongkieDisplay display) {
         super(display);
     }
+
+    public abstract Collection<Cluster> getClusters();
+
+    public abstract Collection<Cluster> getClusters(Clustering cl);
 }

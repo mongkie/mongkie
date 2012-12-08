@@ -17,6 +17,7 @@
  */
 package org.mongkie.clustering;
 
+import java.util.Collection;
 import org.mongkie.clustering.spi.Cluster;
 import org.mongkie.clustering.spi.Clustering;
 import org.mongkie.visualization.group.GroupingSupportable;
@@ -37,4 +38,6 @@ public abstract class ClusteringController<M extends ClusteringModel>
     public abstract void clusterize();
 
     public abstract void cancelClustering();
+    
+    public abstract Collection<Cluster> getClusters(Clustering cl);
 }

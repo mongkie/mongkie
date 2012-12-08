@@ -17,11 +17,11 @@
  */
 package org.mongkie.clustering;
 
-import org.mongkie.clustering.spi.Cluster;
 import java.awt.Color;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.mongkie.clustering.spi.Cluster;
 import prefuse.data.Graph;
 import prefuse.data.Node;
 
