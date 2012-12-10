@@ -52,6 +52,10 @@ public class ClusteringControllerImpl extends ClusteringController<ClusteringMod
 
     @Override
     public void clusterize() {
+        // Before rerunning the algorithm, clear previous cluster groups
+        for (Cluster c : model.getClusters()) {
+            ungroup(c);
+        }
         final Clustering cl = model.get();
         final ClusteringTask task = new ClusteringTask(cl);
         model.getExecutor().execute(task, new Runnable() {
