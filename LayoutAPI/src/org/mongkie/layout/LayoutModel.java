@@ -41,7 +41,7 @@ public interface LayoutModel {
 
     public MongkieDisplay getDisplay();
     
-    public boolean isSelectionOnly(Layout l);
+    public boolean isSelectionOnly();
 
     /**
      * Returns the currently selected layout or <code>null</code> if no

@@ -31,11 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.Layout;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
 
 /**
@@ -100,9 +98,6 @@ public class LayoutPersistenceImpl {
             } catch (InvocationTargetException ex) {
                 Exceptions.printStackTrace(ex);
             }
-        }
-        if (l.supportsSelectionOnly() && preset.contains(LayoutProperty.SELECTION_ONLY)) {
-            Lookup.getDefault().lookup(LayoutController.class).setSelectionOnly(l, (Boolean) preset.get(LayoutProperty.SELECTION_ONLY));
         }
     }
 
@@ -169,10 +164,6 @@ public class LayoutPersistenceImpl {
             this.name = name;
             for (LayoutProperty p : l.getProperties()) {
                 properties.put(p.getName(), p.getValue());
-            }
-            if (l.supportsSelectionOnly()) {
-                properties.put(LayoutProperty.SELECTION_ONLY,
-                        Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly(l));
             }
         }
 

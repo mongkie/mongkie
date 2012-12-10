@@ -95,7 +95,7 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
 
     protected final boolean isSelectionOnly() {
         return supportsSelectionOnly()
-                && Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly(this);
+                && Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly();
     }
 
     protected final Iterator<NodeItem> getSelectedNodes() {

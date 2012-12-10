@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.mongkie.layout.LayoutController;
 import org.mongkie.layout.LayoutModel;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.Layout;
@@ -46,7 +45,7 @@ import org.openide.util.Lookup;
 public class LayoutModelImpl implements LayoutModel {
 
     private final Map<String, Layout> layouts;
-    private final Map<Layout, Boolean> selectionOnlys;
+    private boolean selectionOnly;
     private Layout selectedLayout;
     private final List<PropertyChangeListener> listeners;
     private final Map<LayoutPropertyKey, Object> properties;
@@ -62,7 +61,7 @@ public class LayoutModelImpl implements LayoutModel {
             layout.setDisplay(d);
             layouts.put(builder.getName(), layout);
         }
-        selectionOnlys = new HashMap<Layout, Boolean>();
+        selectionOnly = false;
         listeners = new ArrayList<PropertyChangeListener>();
         properties = new HashMap<LayoutPropertyKey, Object>();
         executor = new LongTaskExecutor(true, "Layout");
@@ -86,16 +85,13 @@ public class LayoutModelImpl implements LayoutModel {
     }
 
     @Override
-    public boolean isSelectionOnly(Layout l) {
-        return selectionOnlys.containsKey(l) && selectionOnlys.get(l);
+    public boolean isSelectionOnly() {
+        return selectionOnly;
     }
 
-    boolean setSelectionOnly(Layout l, boolean selectionOnly) {
-        if (!l.supportsSelectionOnly()) {
-            throw new IllegalStateException(l.getBuilder().getName() + " does not support the selection-only mode");
-        }
-        Boolean old = selectionOnlys.put(l, selectionOnly);
-        return old != null ? old : false;
+    boolean setSelectionOnly(boolean selectionOnly) {
+        this.selectionOnly = selectionOnly;
+        return selectionOnly;
     }
 
     @Override
@@ -163,8 +159,6 @@ public class LayoutModelImpl implements LayoutModel {
                 Exceptions.printStackTrace(e);
             }
         }
-        properties.put(new LayoutPropertyKey(layout.getBuilder().getName(), LayoutProperty.SELECTION_ONLY),
-                Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly(layout));
     }
 
     void loadProperties(Layout layout) {
@@ -177,9 +171,7 @@ public class LayoutModelImpl implements LayoutModel {
         }
         for (LayoutProperty property : layout.getProperties()) {
             for (LayoutPropertyKey k : propKeys) {
-                if (k.propertyName.equals(LayoutProperty.SELECTION_ONLY) && layout.supportsSelectionOnly()) {
-                    Lookup.getDefault().lookup(LayoutController.class).setSelectionOnly(layout, (Boolean) properties.get(k));
-                } else if (property.getName().equals(k.propertyName)) {
+                if (property.getName().equals(k.propertyName)) {
                     try {
                         property.setValue(properties.get(k));
                     } catch (Exception e) {

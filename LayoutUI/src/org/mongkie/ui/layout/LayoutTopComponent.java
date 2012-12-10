@@ -159,6 +159,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         refreshChooser();
         refreshProperties();
         refreshEnabled();
+        selectionOnlyButton.setSelected(model != null && model.isSelectionOnly());
     }
 
     private void refreshChooser() {
@@ -179,8 +180,6 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         }
         layoutNodes = (l == null) ? new Node[0] : new Node[]{new LayoutNode(l)};
         ((PropertySheet) propertySheet).setNodes(layoutNodes);
-        selectionOnlyButton.setSelected(l != null && l.supportsSelectionOnly()
-                ? Lookup.getDefault().lookup(LayoutController.class).getModel().isSelectionOnly(l) : false);
     }
     private Node[] layoutNodes;
 
@@ -202,10 +201,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         propertySheet.setEnabled(enabled);
         presetsButton.setEnabled(enabled && l.getProperties().length > 0);
         resetButton.setEnabled(presetsButton.isEnabled());
-        selectionOnlyButton.setEnabled(enabled && !model.isRunning() && l.supportsSelectionOnly());
-        selectionOnlyButton.setToolTipText(l != null && !l.supportsSelectionOnly()
-                ? NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.selectionOnlyButton.toolTipText.notSupported")
-                : NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.selectionOnlyButton.toolTipText"));
+        selectionOnlyButton.setEnabled(enabled && !model.isRunning());
 
         layoutCombobox.setEnabled(model != null && !model.isRunning() && model.getDisplay().getGraph().getNodeCount() > 0);
     }
@@ -241,6 +237,11 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
     }
 
     private void run() {
+        if (model.isSelectionOnly() && !model.getSelectedLayout().supportsSelectionOnly()) {
+            StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(LayoutTopComponent.class,
+                    "LayoutTopComponent.selectionOnlyButton.toolTipText.notSupported", model.getSelectedLayout().getBuilder().getName()));
+            return;
+        }
         Lookup.getDefault().lookup(LayoutController.class).executeLayout();
     }
 
@@ -252,10 +253,6 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         Layout l = model.getSelectedLayout();
         if (l != null) {
             l.resetPropertyValues();
-            if (l.supportsSelectionOnly()) {
-                Lookup.getDefault().lookup(LayoutController.class).setSelectionOnly(l, false);
-                selectionOnlyButton.setSelected(false);
-            }
         }
     }
 
@@ -504,7 +501,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
     }//GEN-LAST:event_presetsButtonActionPerformed
 
     private void selectionOnlyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectionOnlyButtonActionPerformed
-        Lookup.getDefault().lookup(LayoutController.class).setSelectionOnly(model.getSelectedLayout(), selectionOnlyButton.isSelected());
+        Lookup.getDefault().lookup(LayoutController.class).setSelectionOnly(selectionOnlyButton.isSelected());
     }//GEN-LAST:event_selectionOnlyButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler1;
