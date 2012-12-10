@@ -160,7 +160,6 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
         settingButtion.setEnabled(enabled && !model.isRunning() && model.get().getBuilder().getSettingUI() != null);
         groupAllLink.setEnabled(enabled && !model.isRunning() && !model.getClusters().isEmpty());
         ungroupAllLink.setEnabled(enabled && !model.isRunning() && !model.getClusters().isEmpty());
-        pieLink.setEnabled(enabled && !model.isRunning() && !model.getClusters().isEmpty());
 
         clusteringComboBox.setEnabled(model != null && !model.isRunning() && model.getDisplay().getGraph().getNodeCount() > 0);
     }
@@ -240,8 +239,8 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
         noResultLabel = new javax.swing.JLabel();
         controlPanel = new javax.swing.JPanel();
         groupAllLink = new org.jdesktop.swingx.JXHyperlink();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(8, 0), new java.awt.Dimension(8, 0), new java.awt.Dimension(8, 32767));
         ungroupAllLink = new org.jdesktop.swingx.JXHyperlink();
-        pieLink = new org.jdesktop.swingx.JXHyperlink();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -318,7 +317,7 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
         add(resultView, java.awt.BorderLayout.CENTER);
 
         controlPanel.setOpaque(false);
-        controlPanel.setLayout(new java.awt.GridBagLayout());
+        controlPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 2, 5));
 
         groupAllLink.setClickedColor(new java.awt.Color(0, 51, 255));
         groupAllLink.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/clustering/resources/groupAll.png"))); // NOI18N
@@ -330,12 +329,8 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
                 groupAllLinkActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(2, 2, 5, 10);
-        controlPanel.add(groupAllLink, gridBagConstraints);
+        controlPanel.add(groupAllLink);
+        controlPanel.add(filler1);
 
         ungroupAllLink.setClickedColor(new java.awt.Color(0, 51, 255));
         ungroupAllLink.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/clustering/resources/ungroupAll.png"))); // NOI18N
@@ -347,24 +342,7 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
                 ungroupAllLinkActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(2, 0, 5, 0);
-        controlPanel.add(ungroupAllLink, gridBagConstraints);
-
-        pieLink.setClickedColor(new java.awt.Color(0, 51, 255));
-        pieLink.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/clustering/resources/pie.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(pieLink, org.openide.util.NbBundle.getMessage(ClusteringTopComponent.class, "ClusteringTopComponent.pieLink.text")); // NOI18N
-        pieLink.setEnabled(false);
-        pieLink.setFocusPainted(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(2, 10, 5, 2);
-        controlPanel.add(pieLink, gridBagConstraints);
+        controlPanel.add(ungroupAllLink);
 
         add(controlPanel, java.awt.BorderLayout.PAGE_END);
     }// </editor-fold>//GEN-END:initComponents
@@ -396,10 +374,10 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
     private javax.swing.JPanel chooserPanel;
     private javax.swing.JComboBox clusteringComboBox;
     private javax.swing.JPanel controlPanel;
+    private javax.swing.Box.Filler filler1;
     private org.jdesktop.swingx.JXHyperlink groupAllLink;
     private javax.swing.JLabel infoLabel;
     private javax.swing.JLabel noResultLabel;
-    private org.jdesktop.swingx.JXHyperlink pieLink;
     private javax.swing.JScrollPane resultView;
     private javax.swing.JButton runButton;
     private javax.swing.JButton settingButtion;
