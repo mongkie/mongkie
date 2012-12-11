@@ -80,7 +80,7 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
     protected void addNodePopupMenuItems(JPopupMenu popup) {
         final String urlField = getUrlField();
         if (urlField != null) {
-            popup.add(new AbstractAction("Open URL", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "openUrl.png")) {
+            popup.add(new AbstractAction("Open...", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "openUrl.png")) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     openUrl(clickedItem, urlField);
@@ -90,28 +90,36 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
         final Action deleteAction = new AbstractAction("Delete", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "delete.png")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+                final TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
                 final NodeItem clickedItem = (NodeItem) getClickedItem();
                 if (focusedTupleSet.containsTuple(clickedItem)) {
                     final Tuple[] selectedNodeItems = focusedTupleSet.toArray();
-                    focusedTupleSet.clear();
-                    display.getVisualization().rerun(new Runnable() {
-                        @Override
-                        public void run() {
-                            for (Tuple n : selectedNodeItems) {
-                                display.getGraph().removeNode(((NodeItem) n).getSourceTuple().getRow());
+                    if (JOptionPane.showConfirmDialog(display,
+                            "Are you sure you want to delete selected " + selectedNodeItems.length + " nodes?",
+                            "Question", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                        display.getVisualization().rerun(new Runnable() {
+                            @Override
+                            public void run() {
+                                focusedTupleSet.clear();
+                                for (Tuple n : selectedNodeItems) {
+                                    display.getGraph().removeNode(((NodeItem) n).getSourceTuple().getRow());
+                                }
                             }
-                        }
-                    }, new String[]{});
+                        }, new String[]{});
+                        display.getVisualization().repaint();
+                    }
                 } else {
-                    display.getVisualization().rerun(new Runnable() {
-                        @Override
-                        public void run() {
-                            display.getGraph().removeNode(clickedItem.getSourceTuple().getRow());
-                        }
-                    }, new String[]{});
+                    if (JOptionPane.showConfirmDialog(display, "Are you sure you want to delete the clicked node?",
+                            "Question", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                        display.getVisualization().rerun(new Runnable() {
+                            @Override
+                            public void run() {
+                                display.getGraph().removeNode(clickedItem.getSourceTuple().getRow());
+                            }
+                        }, new String[]{});
+                        display.getVisualization().repaint();
+                    }
                 }
-                display.getVisualization().repaint();
             }
         };
         popup.add(deleteAction);

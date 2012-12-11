@@ -17,12 +17,24 @@
  */
 package org.mongkie.visualization.util;
 
+import java.util.List;
+import static kobic.prefuse.Constants.*;
 import kobic.prefuse.display.DisplayListener;
 import org.mongkie.util.SingleContextAction;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
+import static prefuse.Visualization.*;
 import prefuse.data.Graph;
+import prefuse.data.Tuple;
+import prefuse.data.event.TupleSetListener;
+import prefuse.data.tuple.TupleSet;
+import prefuse.util.DataLib;
+import prefuse.visual.AggregateItem;
+import prefuse.visual.EdgeItem;
+import prefuse.visual.NodeItem;
+import prefuse.visual.VisualItem;
+import prefuse.visual.expression.InGroupPredicate;
 
 /**
  *
@@ -31,7 +43,7 @@ import prefuse.data.Graph;
 public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
         implements DisplayListener<MongkieDisplay> {
 
-    private MongkieDisplay current;
+    protected MongkieDisplay display;
 
     protected DisplayAction() {
         this(Utilities.actionsGlobalContext());
@@ -42,15 +54,23 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
     }
 
     @Override
-    protected void contextChanged(MongkieDisplay d) {
+    protected final void contextChanged(MongkieDisplay d) {
         super.contextChanged(d);
-        if (current != null) {
-            current.removeDisplayListener(this);
+        MongkieDisplay old = display;
+        if (old == d) {
+            return;
+        }
+        if (old != null) {
+            old.removeDisplayListener(this);
         }
         if (d != null) {
             d.addDisplayListener(this);
         }
-        current = d;
+        display = d;
+        displayChanged(old, display);
+    }
+
+    protected void displayChanged(MongkieDisplay old, MongkieDisplay display) {
     }
 
     @Override
@@ -61,5 +81,61 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
     @Override
     public void graphChanged(MongkieDisplay d, Graph g) {
         setEnabled(isEnabled(d));
+    }
+
+    public static abstract class Focused<I extends VisualItem> extends DisplayAction implements TupleSetListener {
+
+        public Focused() {
+            super();
+        }
+
+        public Focused(Lookup lookup) {
+            super(lookup);
+        }
+
+        @Override
+        protected final void displayChanged(MongkieDisplay old, MongkieDisplay display) {
+            if (old != null) {
+                old.getVisualization().getFocusGroup(FOCUS_ITEMS).removeTupleSetListener(this);
+            }
+            if (display != null) {
+                display.getVisualization().getFocusGroup(FOCUS_ITEMS).addTupleSetListener(this);
+            }
+        }
+
+        @Override
+        public void tupleSetChanged(TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
+            setEnabled(tupleSet.getTupleCount() > 0);
+        }
+
+        @Override
+        protected boolean isEnabled(MongkieDisplay display) {
+            return display.getVisualization().items(FOCUS_ITEMS, new InGroupPredicate(getGroup())).hasNext();
+        }
+
+        private String getGroup() {
+            Class<I> type = getItemType();
+            if (type == NodeItem.class) {
+                return NODES;
+            } else if (type == EdgeItem.class) {
+                return EDGES;
+            } else if (type == AggregateItem.class) {
+                return AGGR_ITEMS;
+            }
+            throw new IllegalArgumentException("Unknown type: " + type);
+        }
+
+        protected abstract Class<I> getItemType();
+
+        @Override
+        protected final void performAction(MongkieDisplay display) {
+            performAction(display, DataLib.asList(display.getVisualization().items(FOCUS_ITEMS, new InGroupPredicate(getGroup()))));
+        }
+
+        protected abstract void performAction(MongkieDisplay display, List<I> items);
+
+        protected final void clearFocusedItems() {
+            display.getVisualization().getFocusGroup(FOCUS_ITEMS).clear();
+        }
     }
 }

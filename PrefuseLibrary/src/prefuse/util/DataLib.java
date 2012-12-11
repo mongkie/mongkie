@@ -618,15 +618,19 @@ public class DataLib {
     }
 
     public static List<Tuple> asList(TupleSet tupleSet) {
-        List<Tuple> tuples = new ArrayList();
-        for (Iterator<Tuple> iter = tupleSet.tuples(); iter.hasNext();) {
-            tuples.add(iter.next());
-        }
-        return tuples;
+        return asList(tupleSet.tuples());
     }
 
     public static <T extends Tuple> LinkedList<T> asLinkedList(Iterator<T> tuples) {
         LinkedList<T> list = new LinkedList();
+        while (tuples.hasNext()) {
+            list.add((T) tuples.next());
+        }
+        return list;
+    }
+
+    public static <T extends Tuple> List<T> asList(Iterator<T> tuples) {
+        List<T> list = new ArrayList();
         while (tuples.hasNext()) {
             list.add((T) tuples.next());
         }

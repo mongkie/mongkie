@@ -31,21 +31,21 @@ import org.openide.util.LookupListener;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  * @param <T>
  */
-public abstract class SingleContextAction<T> extends AbstractAction implements ContextAwareAction {
+public abstract class SingleContextAction<T> extends AbstractAction
+        implements ContextAwareAction, LookupListener {
 
     private final Lookup.Result<T> result;
 
     protected SingleContextAction(Class<T> type, Lookup lookup) {
         result = lookup.lookupResult(type);
-        LookupListener l;
-        result.addLookupListener(l = new LookupListener() {
-            @Override
-            public void resultChanged(LookupEvent ev) {
-                Collection<? extends T> contexts = result.allInstances();
-                contextChanged(contexts.isEmpty() ? null : contexts.iterator().next());
-            }
-        });
-        l.resultChanged(null);
+        result.addLookupListener(SingleContextAction.this);
+        resultChanged(null);
+    }
+
+    @Override
+    public final void resultChanged(LookupEvent ev) {
+        Collection<? extends T> contexts = result.allInstances();
+        contextChanged(contexts.isEmpty() ? null : contexts.iterator().next());
     }
 
     protected void contextChanged(T context) {

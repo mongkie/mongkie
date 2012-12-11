@@ -29,12 +29,10 @@ import org.openide.util.NbBundle.Messages;
 import prefuse.Visualization;
 import prefuse.data.tuple.DefaultTupleSet;
 
-@ActionID(
-    category = "Display",
+@ActionID(category = "Display",
 id = "org.mongkie.ui.visualization.actions.SelectAllNodes")
-@ActionRegistration(
-    iconBase = "org/mongkie/ui/visualization/resources/select_all.png",
-displayName = "#CTL_SelectAllNodes")
+@ActionRegistration(iconBase = "org/mongkie/ui/visualization/resources/select_all.png",
+displayName = "#CTL_SelectAllNodes", lazy = true)
 @ActionReference(path = "Shortcuts", name = "D-A")
 @Messages("CTL_SelectAllNodes=Select All")
 public final class SelectAllNodes extends DisplayAction {
