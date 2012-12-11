@@ -83,13 +83,13 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
         setEnabled(isEnabled(d));
     }
 
-    public static abstract class Focused<I extends VisualItem> extends DisplayAction implements TupleSetListener {
+    public static abstract class Focus<I extends VisualItem> extends DisplayAction implements TupleSetListener {
 
-        public Focused() {
+        public Focus() {
             super();
         }
 
-        public Focused(Lookup lookup) {
+        public Focus(Lookup lookup) {
             super(lookup);
         }
 

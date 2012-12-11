@@ -37,7 +37,7 @@ id = "org.mongkie.ui.visualization.actions.DeleteSelectedNodes")
 displayName = "#CTL_DeleteSelectedNodes", lazy = true)
 @ActionReference(path = "Shortcuts", name = "DELETE")
 @Messages("CTL_DeleteSelectedNodes=Delete")
-public final class DeleteSelectedNodes extends DisplayAction.Focused<NodeItem> {
+public final class DeleteSelectedNodes extends DisplayAction.Focus<NodeItem> {
 
     public DeleteSelectedNodes() {
     }
