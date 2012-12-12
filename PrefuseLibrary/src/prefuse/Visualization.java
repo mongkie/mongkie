@@ -212,7 +212,7 @@ public class Visualization {
      * @param group  the data group name for the visualized data
      * @param data   the data to visualize
      * @param filter a filter Predicate determining which data Tuples in the
-     * input data set are visualized
+     *               input data set are visualized
      * @return a visual abstraction of the input data, a VisualTupleSet instance
      */
     public synchronized VisualTupleSet add(
@@ -299,7 +299,7 @@ public class Visualization {
      * @param group  the data group name for the visualized data
      * @param table  the data table to visualize
      * @param filter a filter Predicate determining which data Tuples in the
-     * input table are visualized
+     *               input table are visualized
      */
     public synchronized VisualTable addTable(
             String group, Table table, Predicate filter) {
@@ -332,7 +332,7 @@ public class Visualization {
      * @param group  the data group name for the visualized data
      * @param table  the data table to visualize
      * @param filter a filter Predicate determining which data Tuples in the
-     * input table are visualized
+     *               input table are visualized
      * @param schema the data schema to use for the created VisualTable
      */
     public synchronized VisualTable addTable(
@@ -367,7 +367,7 @@ public class Visualization {
      * in use.
      *
      * @param group the data group name for the visualized graph. The nodes and
-     * edges will be available in the "group.nodes" and "group.edges" subgroups.
+     *              edges will be available in the "group.nodes" and "group.edges" subgroups.
      * @param graph the graph to visualize
      */
     public synchronized VisualGraph addGraph(String group, Graph graph) {
@@ -381,10 +381,10 @@ public class Visualization {
      * in use.
      *
      * @param group  the data group name for the visualized graph. The nodes and
-     * edges will be available in the "group.nodes" and "group.edges" subgroups.
+     *               edges will be available in the "group.nodes" and "group.edges" subgroups.
      * @param graph  the graph to visualize
      * @param filter a filter Predicate determining which data Tuples in the
-     * input graph are visualized
+     *               input graph are visualized
      */
     public synchronized VisualGraph addGraph(
             String group, Graph graph, Predicate filter) {
@@ -398,10 +398,10 @@ public class Visualization {
      * in use.
      *
      * @param group      the data group name for the visualized graph. The nodes and
-     * edges will be available in the "group.nodes" and "group.edges" subgroups.
+     *                   edges will be available in the "group.nodes" and "group.edges" subgroups.
      * @param graph      the graph to visualize
      * @param filter     a filter Predicate determining which data Tuples in the
-     * input graph are visualized
+     *                   input graph are visualized
      * @param nodeSchema the data schema to use for the visual node table
      * @param edgeSchema the data schema to use for the visual edge table
      */
@@ -439,7 +439,7 @@ public class Visualization {
      * in use.
      *
      * @param group the data group name for the visualized tree. The nodes and
-     * edges will be available in the "group.nodes" and "group.edges" subgroups.
+     *              edges will be available in the "group.nodes" and "group.edges" subgroups.
      * @param tree  the tree to visualize
      */
     public synchronized VisualTree addTree(String group, Tree tree) {
@@ -453,10 +453,10 @@ public class Visualization {
      * in use.
      *
      * @param group  the data group name for the visualized tree. The nodes and
-     * edges will be available in the "group.nodes" and "group.edges" subgroups.
+     *               edges will be available in the "group.nodes" and "group.edges" subgroups.
      * @param tree   the tree to visualize
      * @param filter a filter Predicate determining which data Tuples in the
-     * input graph are visualized
+     *               input graph are visualized
      */
     public synchronized VisualTree addTree(
             String group, Tree tree, Predicate filter) {
@@ -470,10 +470,10 @@ public class Visualization {
      * in use.
      *
      * @param group      the data group name for the visualized tree. The nodes and
-     * edges will be available in the "group.nodes" and "group.edges" subgroups.
+     *                   edges will be available in the "group.nodes" and "group.edges" subgroups.
      * @param tree       the tree to visualize
      * @param filter     a filter Predicate determining which data Tuples in the
-     * input graph are visualized
+     *                   input graph are visualized
      * @param nodeSchema the data schema to use for the visual node table
      * @param edgeSchema the data schema to use for the visual edge table
      */
@@ -544,9 +544,9 @@ public class Visualization {
      * @param group    the data group to use for the derived table
      * @param source   the source data group to derive from
      * @param filter   a Predicate filter indicating which tuples of the source
-     * group should be inheritable by the new group
+     *                 group should be inheritable by the new group
      * @param override a data schema indicating which data fields should not be
-     * inherited, but managed locally by the derived group
+     *                 inherited, but managed locally by the derived group
      * @return the derived VisualTable
      */
     public synchronized VisualTable addDerivedTable(
@@ -586,8 +586,8 @@ public class Visualization {
      * @param group  the data group to use for the decorators
      * @param source the source data group to decorate
      * @param schema schema indicating which variables should <b>not</b> be
-     * inherited from the source data group and instead be managed locally by
-     * the generated VisualTable
+     *               inherited from the source data group and instead be managed locally by
+     *               the generated VisualTable
      * @return the generated VisualTable of DecoratorItem instances
      */
     public synchronized VisualTable addDecorators(
@@ -605,7 +605,7 @@ public class Visualization {
      * @param group  the data group to use for the decorators
      * @param source the source data group to decorate
      * @param filter a Predicate filter indicating which tuples of the source
-     * group should be inheritable by the new group
+     *               group should be inheritable by the new group
      * @return the generated VisualTable of DecoratorItem instances
      */
     public synchronized VisualTable addDecorators(
@@ -625,10 +625,10 @@ public class Visualization {
      * @param group  the data group to use for the decorators
      * @param source the source data group to decorate
      * @param filter a Predicate filter indicating which tuples of the source
-     * group should be inheritable by the new group
+     *               group should be inheritable by the new group
      * @param schema schema indicating which variables should <b>not</b> be
-     * inherited from the source data group and instead be managed locally by
-     * the generated VisualTable
+     *               inherited from the source data group and instead be managed locally by
+     *               the generated VisualTable
      * @return the generated VisualTable of DecoratorItem instances
      */
     public synchronized VisualTable addDecorators(
@@ -648,7 +648,7 @@ public class Visualization {
      *
      * @param group the data group to remove
      * @return true if the group was found and removed, false if the group was
-     * not found in this visualization.
+     *         not found in this visualization.
      */
     public synchronized boolean removeGroup(String group) {
         // check for focus group first
@@ -724,7 +724,7 @@ public class Visualization {
         removeGroup(AGGR_ITEMS);
         initAggregates();
 
-        actionsAfterDataProcessing.clear();
+        actionsAfterProcessing.clear();
     }
 
     private AggregateTable initAggregates() {
@@ -799,10 +799,10 @@ public class Visualization {
      * Get the VisualItem associated with a source data tuple, if it exists.
      *
      * @param group the data group from which to lookup the source tuple, only
-     * primary visual groups are valid, focus groups will not work
+     *              primary visual groups are valid, focus groups will not work
      * @param t     the source data tuple
      * @return the associated VisualItem from the given data group, or null if
-     * no such VisualItem exists
+     *         no such VisualItem exists
      */
     public VisualItem getVisualItem(String group, Tuple t) {
         if (t == null) {
@@ -974,7 +974,7 @@ public class Visualization {
      * Get an iterator over all items which match the given Predicate filter.
      *
      * @param filter a Predicate indicating which items should be included in
-     * the iteration
+     *               the iteration
      * @return a filtered iterator over VisualItems
      */
     public Iterator items(Predicate filter) {
@@ -1013,10 +1013,10 @@ public class Visualization {
      *
      * @param group the visual data group to iterate over
      * @param expr  an expression string that should parse to a Predicate
-     * indicating which items should be included in the iteration. The input
-     * string will be parsed using the
-     * {@link prefuse.data.expression.parser.ExpressionParser} class. If a parse
-     * error occurs, an empty iterator is returned.
+     *              indicating which items should be included in the iteration. The input
+     *              string will be parsed using the
+     *              {@link prefuse.data.expression.parser.ExpressionParser} class. If a parse
+     *              error occurs, an empty iterator is returned.
      * @return a filtered iterator over VisualItems
      */
     public Iterator items(String group, String expr) {
@@ -1033,7 +1033,7 @@ public class Visualization {
      *
      * @param group  the visual data group to iterate over
      * @param filter a Predicate indicating which items should be included in
-     * the iteration.
+     *               the iteration.
      * @return a filtered iterator over VisualItems
      */
     public Iterator items(String group, Predicate filter) {
@@ -1167,7 +1167,7 @@ public class Visualization {
      *
      * @param action the name of the Action to run
      * @param delay  the amount of time to wait, in milliseconds, before running
-     * the Action
+     *               the Action
      * @return the Action scheduled to run
      */
     public Activity runAfter(String action, long delay) {
@@ -1182,7 +1182,7 @@ public class Visualization {
      *
      * @param action    the name of the Action to run
      * @param startTime the absolute system time, in milliseconds since the
-     * epoch, at which to run the Action.
+     *                  epoch, at which to run the Action.
      * @return the Action scheduled to run
      */
     public Activity runAt(String action, long startTime) {
@@ -1381,40 +1381,38 @@ public class Visualization {
         }
     }
 
-    public synchronized void rerun(String activity) {
+    public void rerun(String activity) {
         cancel(activity);
         run(activity);
     }
 
-    public void rerun() {
-        rerun((Runnable) null);
-    }
-
     public void rerun(String... activities) {
-        rerun(null, activities);
-
+        for (String activity : activities) {
+            cancel(activity);
+        }
+        for (String activity : activities) {
+            run(activity);
+        }
     }
 
-    public synchronized void rerun(Runnable action) {
-        rerun(action, DRAW, LAYOUT, ANIMATE);
-//
-//        cancel(DRAW);
-//        cancel(LAYOUT);
-//        cancel(ANIMATE);
-//
-//        if (action != null) {
-//            action.run();
-//        }
-//
-//        run(DRAW);
-//        run(LAYOUT);
-//        run(ANIMATE);
+    public void rerun(Runnable action, String... activities) {
+        for (String activity : activities) {
+            cancel(activity);
+        }
+        action.run();
+        for (String activity : activities) {
+            run(activity);
+        }
     }
 
-    public synchronized void rerun(Runnable action, String... activities) {
+    public void process(Runnable action) {
+        process(action, new String[]{});
+    }
+
+    public synchronized void process(Runnable action, String... activities) {
         try {
-            dataProcessing.lock();
-            if (dataProcessing.getHoldCount() == 1) {
+            processingLock.lock();
+            if (processingLock.getHoldCount() == 1) {
                 for (String activity : activities) {
                     cancel(activity);
                 }
@@ -1423,27 +1421,27 @@ public class Visualization {
                 action.run();
             }
         } finally {
-            if (dataProcessing.getHoldCount() == 1) {
-                for (Iterator<Runnable> iter = actionsAfterDataProcessing.values().iterator(); iter.hasNext();) {
+            if (processingLock.getHoldCount() == 1) {
+                for (Iterator<Runnable> iter = actionsAfterProcessing.values().iterator(); iter.hasNext();) {
                     iter.next().run();
                 }
-                actionsAfterDataProcessing.clear();
+                actionsAfterProcessing.clear();
                 for (String activity : activities) {
                     run(activity);
                 }
             }
-            dataProcessing.unlock();
+            processingLock.unlock();
         }
     }
-    private final ReentrantLock dataProcessing = new ReentrantLock();
+    private final ReentrantLock processingLock = new ReentrantLock();
 
     public boolean isDataProcessing() {
-        return dataProcessing.getHoldCount() > 0;
+        return processingLock.getHoldCount() > 0;
     }
 
     public void invokeAfterDataProcessing(Runnable action) {
         if (isDataProcessing()) {
-            actionsAfterDataProcessing.put(action, action);
+            actionsAfterProcessing.put(action, action);
         } else {
             action.run();
         }
@@ -1451,11 +1449,11 @@ public class Visualization {
 
     public void invokeAfterDataProcessing(Object key, Runnable action) {
         if (isDataProcessing()) {
-            actionsAfterDataProcessing.put(key, action);
+            actionsAfterProcessing.put(key, action);
         } else {
             action.run();
         }
     }
-    private final Map<Object, Runnable> actionsAfterDataProcessing = Collections.synchronizedMap(new HashMap<Object, Runnable>());
+    private final Map<Object, Runnable> actionsAfterProcessing = Collections.synchronizedMap(new HashMap<Object, Runnable>());
 } // end of class Visualization
 

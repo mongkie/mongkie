@@ -105,7 +105,7 @@ public class NodeSettingPanel extends javax.swing.JPanel {
                         if (reset) {
                             return;
                         }
-                        display.getVisualization().rerun(new Runnable() {
+                        display.getVisualization().process(new Runnable() {
 
                             @Override
                             public void run() {
@@ -126,7 +126,7 @@ public class NodeSettingPanel extends javax.swing.JPanel {
                         if (reset) {
                             return;
                         }
-                        display.getVisualization().rerun(new Runnable() {
+                        display.getVisualization().process(new Runnable() {
 
                             @Override
                             public void run() {
@@ -147,7 +147,7 @@ public class NodeSettingPanel extends javax.swing.JPanel {
                         if (reset) {
                             return;
                         }
-                        display.getVisualization().rerun(new Runnable() {
+                        display.getVisualization().process(new Runnable() {
 
                             @Override
                             public void run() {
@@ -209,7 +209,7 @@ public class NodeSettingPanel extends javax.swing.JPanel {
 
     private void resetOptions() {
         reset = true;
-        display.getVisualization().rerun(new Runnable() {
+        display.getVisualization().process(new Runnable() {
 
             @Override
             public void run() {

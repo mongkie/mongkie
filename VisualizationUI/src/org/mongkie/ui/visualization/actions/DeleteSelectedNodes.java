@@ -56,7 +56,7 @@ public final class DeleteSelectedNodes extends DisplayAction.Focus<NodeItem> {
         if (DialogDisplayer.getDefault().notify(
                 new NotifyDescriptor.Confirmation("Are you sure you want to delete selected " + nodes.size() + " nodes?", NotifyDescriptor.YES_NO_OPTION))
                 == NotifyDescriptor.YES_OPTION) {
-            display.getVisualization().rerun(new Runnable() {
+            display.getVisualization().process(new Runnable() {
                 @Override
                 public void run() {
                     clearFocusedItems();
@@ -64,7 +64,7 @@ public final class DeleteSelectedNodes extends DisplayAction.Focus<NodeItem> {
                         display.getGraph().removeNode(n.getSourceTuple().getRow());
                     }
                 }
-            }, new String[]{});
+            });
             display.getVisualization().repaint();
         }
     }

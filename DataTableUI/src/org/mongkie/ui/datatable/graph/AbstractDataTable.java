@@ -435,7 +435,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             if (!internalTableSelection && evt.getPropertyName().equals(ExplorerManager.PROP_SELECTED_NODES)) {
                 final TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
                 centerItem = null;
-                display.getVisualization().rerun(new Runnable() {
+                display.getVisualization().process(new Runnable() {
                     @Override
                     public void run() {
                         List<Node> oldNodes = Arrays.asList((Node[]) evt.getOldValue());

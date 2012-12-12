@@ -20,8 +20,8 @@ package kobic.prefuse.display;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.io.ByteArrayInputStream;
-import java.util.List;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import kobic.prefuse.AggregateShape;
@@ -208,22 +208,19 @@ public abstract class NetworkDisplay extends Display {
         edgeSearch.index(v.visibleItems(EDGES), getEdgeLabelField());
     }
 
-    private void search(final SearchTupleSet searchEngine, final String query) {
-        v.rerun(new Runnable() {
-            @Override
-            public void run() {
-                TupleSet searchedTupleSet = v.getFocusGroup(SEARCH_ITEMS);
-                searchedTupleSet.clear();
-                if (query == null || query.length() == 0) {
-                    return;
-                }
-                searchEngine.search(".*" + query + ".*");
-                Iterator<VisualItem> resultsIter = searchEngine.tuples();
-                while (resultsIter.hasNext()) {
-                    searchedTupleSet.addTuple(resultsIter.next());
-                }
-            }
-        }, DRAW);
+    private void search(SearchTupleSet searchEngine, String query) {
+        TupleSet searchedTupleSet = v.getFocusGroup(SEARCH_ITEMS);
+        searchedTupleSet.clear();
+        if (query == null || query.length() == 0) {
+            v.rerun(DRAW);
+            return;
+        }
+        searchEngine.search(".*" + query + ".*");
+        Iterator<VisualItem> resultsIter = searchEngine.tuples();
+        while (resultsIter.hasNext()) {
+            searchedTupleSet.addTuple(resultsIter.next());
+        }
+        v.rerun(DRAW);
     }
 
     public void searchNodes(String query) {
@@ -459,7 +456,7 @@ public abstract class NetworkDisplay extends Display {
 
     public final void resetGraph(Graph g, final DisplayListener processor, String... activities) {
         final Graph ng = (g == null) ? GraphFactory.createDefault() : g;
-        v.rerun(new Runnable() {
+        v.process(new Runnable() {
             @Override
             public void run() {
                 unregisterActions();
@@ -541,7 +538,7 @@ public abstract class NetworkDisplay extends Display {
     public AggregateItem aggregateItems(final TupleSet items, final boolean clearItems, final String label, String... activities) {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
-        v.rerun(new Runnable() {
+        v.process(new Runnable() {
             @Override
             public void run() {
                 AggregateItem aggregateItem = (label == null)
@@ -566,7 +563,7 @@ public abstract class NetworkDisplay extends Display {
     public AggregateItem aggregateNodes(final Collection<Node> nodes, final String label) {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
-        v.rerun(new Runnable() {
+        v.process(new Runnable() {
             @Override
             public void run() {
                 AggregateItem aggrItem = (label == null)
@@ -586,7 +583,7 @@ public abstract class NetworkDisplay extends Display {
 
     public void unaggregateItems(final AggregateItem aggrItem) {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
-        v.rerun(new Runnable() {
+        v.process(new Runnable() {
             @Override
             public void run() {
                 v.getFocusGroup(FOCUS_ITEMS).removeTuple(aggrItem);
@@ -650,7 +647,7 @@ public abstract class NetworkDisplay extends Display {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, "Unknown aggregate shape code: {0}", code);
             return;
         }
-        v.rerun(new Runnable() {
+        v.process(new Runnable() {
             @Override
             public void run() {
                 AggregateTable aggregateTable = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);

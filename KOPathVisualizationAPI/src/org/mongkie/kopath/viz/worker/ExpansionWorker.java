@@ -26,6 +26,7 @@ import org.mongkie.kopath.spi.PathwayDatabase;
 import static org.mongkie.kopath.viz.Config.FIELD_ISEXPANDING;
 import org.mongkie.kopath.viz.PathwayDisplay;
 import prefuse.Visualization;
+import static prefuse.Visualization.*;
 import prefuse.data.Edge;
 import prefuse.data.Graph;
 import prefuse.data.Node;
@@ -62,7 +63,7 @@ public class ExpansionWorker extends PathwayWorker {
     @Override
     public void process(final Graph g) {
         final Graph graph = display.getGraph();
-        display.getVisualization().rerun(new Runnable() {
+        display.getVisualization().process(new Runnable() {
 
             @Override
             public void run() {
@@ -72,7 +73,7 @@ public class ExpansionWorker extends PathwayWorker {
                     display.fireGraphChangedEvent();
                 }
             }
-        });
+        }, DRAW, LAYOUT, ANIMATE);
     }
 
     private Node getNodeUsingAndPredicate(Graph g, final String f1, final Object v1, final String f2, final Object v2) {

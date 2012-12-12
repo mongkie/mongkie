@@ -40,6 +40,7 @@ import kobic.prefuse.EdgeArrow;
 import kobic.prefuse.EdgeStroke;
 import org.mongkie.lib.widgets.JColorButton;
 import org.mongkie.lib.widgets.StrokeChooserPanel.StrokeSample;
+import static org.mongkie.lib.widgets.WidgetUtilities.*;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.color.ColorController;
 import org.openide.DialogDescriptor;
@@ -52,7 +53,6 @@ import prefuse.util.ColorLib;
 import prefuse.util.PrefuseLib;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.VisualItem;
-import static org.mongkie.lib.widgets.WidgetUtilities.*;
 
 /**
  *
@@ -61,17 +61,18 @@ import static org.mongkie.lib.widgets.WidgetUtilities.*;
 public class EdgeSettingPanel extends javax.swing.JPanel {
 
     private final MongkieDisplay display;
-    private boolean reset = false;
+    private boolean resetting = false;
     private final PropertyEditor fontChooser = PropertyEditorManager.findEditor(Font.class);
     private Font currentFont = Config.FONT_DEFAULT_EDGETEXT;
 
-    /** Creates new form EdgeSettingPanel */
+    /**
+     * Creates new form EdgeSettingPanel
+     */
     public EdgeSettingPanel(final MongkieDisplay display) {
         this.display = display;
         initComponents();
 
         lineChooser.setRenderer(new StrokeSample(null) {
-
             @Override
             protected Stroke getStroke(Object value) {
                 return value instanceof EdgeStroke ? ((EdgeStroke) value).getStroke() : null;
@@ -82,7 +83,6 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         }
         lineChooser.setSelectedItem(EdgeStroke.SOLID);
         lineChooser.addItemListener(new ItemListener() {
-
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -97,7 +97,6 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         }
         arrowChooser.setSelectedItem(EdgeArrow.ARROW);
         arrowChooser.addItemListener(new ItemListener() {
-
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -107,7 +106,6 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         });
 
         sizeSpinner.addChangeListener(new ChangeListener() {
-
             @Override
             public void stateChanged(ChangeEvent e) {
                 setLineWidth(((Double) sizeSpinner.getValue()).doubleValue());
@@ -115,7 +113,6 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         });
 
         fontButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 fontChooser.setValue(getCurrentFont());
@@ -128,7 +125,6 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         });
 
         hideLabelCheckBox.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 setLabelVisible(!hideLabelCheckBox.isSelected());
@@ -137,14 +133,12 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
 
         ((JColorButton) colorButton).addPropertyChangeListener(JColorButton.EVENT_COLOR,
                 new PropertyChangeListener() {
-
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if (reset) {
+                        if (resetting) {
                             return;
                         }
-                        display.getVisualization().rerun(new Runnable() {
-
+                        display.getVisualization().process(new Runnable() {
                             @Override
                             public void run() {
                                 Color c = ((JColorButton) colorButton).getColor();
@@ -159,14 +153,12 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
                 });
         ((JColorButton) fontColorButton).addPropertyChangeListener(JColorButton.EVENT_COLOR,
                 new PropertyChangeListener() {
-
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if (reset) {
+                        if (resetting) {
                             return;
                         }
-                        display.getVisualization().rerun(new Runnable() {
-
+                        display.getVisualization().process(new Runnable() {
                             @Override
                             public void run() {
                                 Color c = ((JColorButton) fontColorButton).getColor();
@@ -188,7 +180,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
             }
             e.setStroke(stroke);
         }
-        if (!reset) {
+        if (!resetting) {
             display.getVisualization().repaint();
         }
     }
@@ -202,7 +194,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
             }
             e.setShape(code);
         }
-        if (!reset) {
+        if (!resetting) {
             display.getVisualization().repaint();
         }
     }
@@ -215,7 +207,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
             }
             PrefuseLib.updateDouble(e, VisualItem.SIZE, width);
         }
-        if (!reset) {
+        if (!resetting) {
             display.getVisualization().repaint();
         }
     }
@@ -229,7 +221,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
             }
         }
         currentFont = f;
-        if (!reset) {
+        if (!resetting) {
             display.getVisualization().repaint();
         }
     }
@@ -243,7 +235,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         fontButton.setEnabled(visible);
         fontColorButton.setEnabled(visible);
         fontLabel.setEnabled(visible);
-        if (reset) {
+        if (resetting) {
             hideLabelCheckBox.setSelected(!visible);
         } else {
             display.getVisualization().repaint();
@@ -252,9 +244,8 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
     }
 
     private void resetOptions() {
-        reset = true;
-        display.getVisualization().rerun(new Runnable() {
-
+        resetting = true;
+        display.getVisualization().process(new Runnable() {
             @Override
             public void run() {
                 lineChooser.setSelectedItem(EdgeStroke.SOLID);
@@ -269,10 +260,11 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
                 ((JColorButton) fontColorButton).setColor(ColorLib.getColor(Config.COLOR_DEFAULT_EDGE_TEXT));
             }
         }, DRAW);
-        reset = false;
+        resetting = false;
     }
 
-    /** This method is called from within the constructor to
+    /**
+     * This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.

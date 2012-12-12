@@ -952,7 +952,7 @@ public class PathwayDisplay extends MongkieDisplay implements GraphListener {
     }
 
     public void removeNodes(final NodeItem... nodeItems) {
-        getVisualization().rerun(new Runnable() {
+        getVisualization().process(new Runnable() {
 
             @Override
             public void run() {
@@ -965,7 +965,8 @@ public class PathwayDisplay extends MongkieDisplay implements GraphListener {
                     }
                 }
             }
-        }, DRAW);
+        });
+        getVisualization().repaint();
     }
 
     private void removingNode(final NodeItem nitem) {

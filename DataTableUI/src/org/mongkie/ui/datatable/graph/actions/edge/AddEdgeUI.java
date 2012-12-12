@@ -155,7 +155,7 @@ public class AddEdgeUI extends javax.swing.JPanel implements DataAction.UI<Abstr
             final Visualization v = display.getVisualization();
             final VisualItem source = v.getVisualItem(Constants.NODES, ((TupleLabel) sourceComboBox.getSelectedItem()).getTuple());
             final VisualItem target = v.getVisualItem(Constants.NODES, ((TupleLabel) targetComboBox.getSelectedItem()).getTuple());
-            v.rerun(new Runnable() {
+            v.process(new Runnable() {
 
                 @Override
                 public void run() {
@@ -190,7 +190,7 @@ public class AddEdgeUI extends javax.swing.JPanel implements DataAction.UI<Abstr
                 ok ? ((TupleLabel) targetComboBox.getSelectedItem()).getTuple() : null);
         action.setTupleData(ok ? tupleData : null);
         if (!ok) {
-            display.getVisualization().rerun(new Runnable() {
+            display.getVisualization().process(new Runnable() {
 
                 @Override
                 public void run() {

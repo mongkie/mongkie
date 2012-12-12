@@ -97,7 +97,7 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
                     if (JOptionPane.showConfirmDialog(display,
                             "Are you sure you want to delete selected " + selectedNodeItems.length + " nodes?",
                             "Question", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                        display.getVisualization().rerun(new Runnable() {
+                        display.getVisualization().process(new Runnable() {
                             @Override
                             public void run() {
                                 focusedTupleSet.clear();
@@ -105,18 +105,18 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
                                     display.getGraph().removeNode(((NodeItem) n).getSourceTuple().getRow());
                                 }
                             }
-                        }, new String[]{});
+                        });
                         display.getVisualization().repaint();
                     }
                 } else {
                     if (JOptionPane.showConfirmDialog(display, "Are you sure you want to delete the clicked node?",
                             "Question", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                        display.getVisualization().rerun(new Runnable() {
+                        display.getVisualization().process(new Runnable() {
                             @Override
                             public void run() {
                                 display.getGraph().removeNode(clickedItem.getSourceTuple().getRow());
                             }
-                        }, new String[]{});
+                        });
                         display.getVisualization().repaint();
                     }
                 }

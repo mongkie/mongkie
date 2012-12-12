@@ -171,7 +171,7 @@ public class InteractionControllerImpl implements InteractionController {
         final SourceModelImpl m = (SourceModelImpl) getModel(is);
         final MongkieDisplay d = m.getDisplay();
         final Graph g = d.getGraph();
-        d.getVisualization().rerun(new Runnable() {
+        d.getVisualization().process(new Runnable() {
             @Override
             public void run() {
 //                List<Integer> edges = new ArrayList<Integer>();
@@ -188,8 +188,8 @@ public class InteractionControllerImpl implements InteractionController {
                     g.removeEdge(e);
                 }
             }
-        }, new String[]{});
-        d.getVisualization().rerun(new Runnable() {
+        });
+        d.getVisualization().process(new Runnable() {
             @Override
             public void run() {
                 // Remove attribute columns also...
@@ -215,7 +215,8 @@ public class InteractionControllerImpl implements InteractionController {
                     edgeTable.removeColumn(FIELD_INTERACTION_SOURCE);
                 }
             }
-        }, DRAW);
+        });
+        d.getVisualization().repaint();
         d.fireGraphChangedEvent();
         m.fireUnlinkedEvent();
     }
@@ -345,7 +346,7 @@ public class InteractionControllerImpl implements InteractionController {
             for (K k : keys) {
                 caches.get(is).put(k, NO_ATTRIBUTES);
             }
-            m.getDisplay().getVisualization().rerun(new Runnable() {
+            m.getDisplay().getVisualization().process(new Runnable() {
                 @Override
                 public void run() {
                     for (K k : results.keySet()) {
@@ -364,7 +365,7 @@ public class InteractionControllerImpl implements InteractionController {
                         }
                     }
                 }
-            }, new String[]{});
+            });
         }
         protected final Attribute.Set NO_ATTRIBUTES = new Attribute.Set();
 
@@ -444,7 +445,7 @@ public class InteractionControllerImpl implements InteractionController {
             try {
                 final InteractionSource<K> is = m.getInteractionSource();
                 final Set<Interaction<K>> interactions = query(is, getQueryKeys());
-                m.getDisplay().getVisualization().rerun(new Runnable() {
+                m.getDisplay().getVisualization().process(new Runnable() {
                     @Override
                     public void run() {
                         Graph g = m.getDisplay().getGraph();
@@ -498,7 +499,7 @@ public class InteractionControllerImpl implements InteractionController {
                             }
                         }
                     }
-                }, new String[]{});
+                });
                 annotateNodesOf(getAllNodeKeys());
                 queryFinished(true);
                 m.getDisplay().fireGraphChangedEvent();

@@ -51,7 +51,7 @@ public class SomeActions implements Options {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                display.getVisualization().rerun(new Runnable() {
+                display.getVisualization().process(new Runnable() {
 
                     @Override
                     public void run() {

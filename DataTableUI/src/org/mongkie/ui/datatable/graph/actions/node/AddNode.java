@@ -67,7 +67,7 @@ public class AddNode extends AbstractNodeAction {
     @Override
     public void execute(final AbstractDataTable table) {
         final AbstractModel model = table.getModel();
-        model.getDisplay().getVisualization().rerun(new Runnable() {
+        model.getDisplay().getVisualization().process(new Runnable() {
 
             @Override
             public void run() {

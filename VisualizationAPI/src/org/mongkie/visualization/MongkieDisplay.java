@@ -226,7 +226,7 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
         final Visualization v = getVisualization();
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
-        v.rerun(new Runnable() {
+        v.process(new Runnable() {
             
             @Override
             public void run() {
@@ -297,7 +297,7 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
         final Visualization v = getVisualization();
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
-        v.rerun(new Runnable() {
+        v.process(new Runnable() {
             
             @Override
             public void run() {
@@ -335,7 +335,7 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
         final Graph G = getGraph();
         
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
-        v.rerun(new Runnable() {
+        v.process(new Runnable() {
             
             @Override
             public void run() {

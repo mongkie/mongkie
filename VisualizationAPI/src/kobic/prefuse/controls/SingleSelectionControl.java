@@ -34,11 +34,7 @@ public class SingleSelectionControl extends FocusControl {
     private final Visualization v;
 
     public SingleSelectionControl(Visualization v, String filterGroup) {
-        this(v, filterGroup, null);
-    }
-
-    public SingleSelectionControl(Visualization v, String filterGroup, String activity) {
-        super(1, activity);
+        super(1);
         this.v = v;
         setFilter(new InGroupPredicate(filterGroup));
     }
@@ -59,7 +55,6 @@ public class SingleSelectionControl extends FocusControl {
             if (curFocus != null) {
                 v.getFocusGroup(group).removeTuple(curFocus);
                 curFocus = null;
-                runActivity(v);
             }
             return;
         }
@@ -69,7 +64,6 @@ public class SingleSelectionControl extends FocusControl {
             TupleSet focusedTupleSet = v.getFocusGroup(group);
             curFocus = item;
             focusedTupleSet.setTuple(item);
-            runActivity(v);
         }
     }
 }

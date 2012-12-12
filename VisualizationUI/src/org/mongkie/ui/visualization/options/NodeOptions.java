@@ -74,13 +74,14 @@ public class NodeOptions implements Options {
             public void stateChanged(ChangeEvent e) {
                 final String col = (String) e.getSource();
                 if (!display.getGraph().getNodeLabelField().equals(col)) {
-                    display.getVisualization().rerun(new Runnable() {
+                    display.getVisualization().process(new Runnable() {
                         @Override
                         public void run() {
                             display.getGraph().setNodeLabelField(col);
                             display.getNodeLabelRenderer().setLabelField(col);
                         }
-                    }, Visualization.DRAW);
+                    });
+                    display.getVisualization().repaint();
                 }
             }
         });
