@@ -17,12 +17,13 @@
  */
 package org.mongkie.ui.enrichment.actions;
 
-import org.mongkie.enrichment.util.MultipleTermAction;
 import java.util.Collection;
 import javax.swing.Action;
 import org.mongkie.enrichment.EnrichmentController;
 import org.mongkie.enrichment.spi.EnrichedTerm;
+import org.mongkie.enrichment.util.MultipleTermAction;
 import org.mongkie.util.GlobalLookup;
+import org.mongkie.visualization.VisualizationController;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -30,6 +31,7 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
+import prefuse.Visualization;
 
 /**
  *
@@ -38,7 +40,7 @@ import org.openide.util.NbBundle.Messages;
 @ActionID(category = "EnrichmentAnalysis",
 id = "org.mongkie.ui.enrichment.actions.GroupAction")
 @ActionRegistration(displayName = "#CTL_GroupAction",
-iconBase = "org/mongkie/ui/enrichment/resources/group.png")
+iconBase = "org/mongkie/ui/enrichment/resources/group.png", lazy = true)
 @ActionReference(path = "EnrichmentAnalysis/Result/Actions", position = 1)
 @Messages("CTL_GroupAction=Group")
 public final class GroupAction extends MultipleTermAction {
@@ -76,6 +78,7 @@ public final class GroupAction extends MultipleTermAction {
             }
             Lookup.getDefault().lookup(EnrichmentController.class).group(term);
         }
+        Lookup.getDefault().lookup(VisualizationController.class).getVisualization().rerun(Visualization.DRAW);
     }
 
     @Override

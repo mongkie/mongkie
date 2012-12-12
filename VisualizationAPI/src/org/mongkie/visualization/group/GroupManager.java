@@ -68,7 +68,7 @@ public class GroupManager implements WorkspaceListener, TableListener, DisplayLi
 
     public AggregateItem group(Collection<Node> nodes, String name) {
         MongkieDisplay d = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
-        return d != null ? d.aggregateNodes(nodes, name) : null;
+        return d != null ? d.aggregateNodes(nodes, name, new String[]{}) : null;
     }
 
     public AggregateItem group(Collection<Node> nodes, String name, Color c) {

@@ -293,7 +293,7 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
     }
     
     @Override
-    public AggregateItem aggregateNodes(final Collection<Node> nodes, final String label) {
+    public AggregateItem aggregateNodes(final Collection<Node> nodes, final String label, String... activities) {
         final Visualization v = getVisualization();
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
@@ -325,7 +325,7 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
                 }
                 s.layout(aggrItem);
             }
-        }, DRAW);
+        }, activities);
         return (AggregateItem) aggregates.getTuple(AggregateItem.AGGR_ID, aggregateId);
     }
     
@@ -359,7 +359,8 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
                 aggrItem.removeAllItems();
                 aggregates.removeRow(aggrItem.getRow());
             }
-        }, DRAW);
+        });
+        v.repaint();
     }
     
     @Override

@@ -44,6 +44,7 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
+import prefuse.Visualization;
 
 /**
  * Top component which displays something.
@@ -355,6 +356,7 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
         for (Cluster c : model.getClusters()) {
             Lookup.getDefault().lookup(ClusteringController.class).group(c);
         }
+        model.getDisplay().getVisualization().rerun(Visualization.DRAW);
     }//GEN-LAST:event_groupAllLinkActionPerformed
 
     private void ungroupAllLinkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ungroupAllLinkActionPerformed

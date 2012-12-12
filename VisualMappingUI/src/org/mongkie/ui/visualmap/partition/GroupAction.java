@@ -20,19 +20,21 @@ package org.mongkie.ui.visualmap.partition;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualmap.partition.PartitionController;
 import org.mongkie.visualmap.spi.partition.Part;
 import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import prefuse.Visualization;
 
 @ActionID(category = "Partition",
 id = "org.mongkie.ui.visualmap.partition.GroupAction")
 @ActionRegistration(displayName = "#CTL_GroupAction",
 iconBase = "org/mongkie/ui/visualmap/resources/group.png")
-@ActionReference(path = "Actions/Partition", position = 100)
+@ActionReferences({})
 @Messages("CTL_GroupAction=Group")
 public final class GroupAction implements ActionListener {
 
@@ -47,5 +49,6 @@ public final class GroupAction implements ActionListener {
         for (Part p : parts) {
             Lookup.getDefault().lookup(PartitionController.class).group(p);
         }
+        Lookup.getDefault().lookup(VisualizationController.class).getVisualization().rerun(Visualization.DRAW);
     }
 }

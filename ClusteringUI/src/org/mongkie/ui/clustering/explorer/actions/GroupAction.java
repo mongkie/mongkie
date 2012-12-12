@@ -22,11 +22,13 @@ import java.awt.event.ActionListener;
 import java.util.List;
 import org.mongkie.clustering.ClusteringController;
 import org.mongkie.clustering.spi.Cluster;
+import org.mongkie.visualization.VisualizationController;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import prefuse.Visualization;
 
 /**
  *
@@ -51,5 +53,6 @@ public final class GroupAction implements ActionListener {
         for (Cluster c : clusters) {
             Lookup.getDefault().lookup(ClusteringController.class).group(c);
         }
+        Lookup.getDefault().lookup(VisualizationController.class).getVisualization().rerun(Visualization.DRAW);
     }
 }

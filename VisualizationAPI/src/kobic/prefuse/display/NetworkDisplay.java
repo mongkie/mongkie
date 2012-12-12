@@ -561,6 +561,9 @@ public abstract class NetworkDisplay extends Display {
     }
 
     public AggregateItem aggregateNodes(final Collection<Node> nodes, final String label) {
+        return aggregateNodes(nodes, label, DRAW);
+    }
+    public AggregateItem aggregateNodes(final Collection<Node> nodes, final String label, String... activities) {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
         v.process(new Runnable() {
@@ -577,10 +580,10 @@ public abstract class NetworkDisplay extends Display {
 //                }
                 s.layout(aggrItem);
             }
-        }, DRAW);
+        }, activities);
         return (AggregateItem) aggregates.getTuple(AggregateItem.AGGR_ID, aggregateId);
     }
-
+    
     public void unaggregateItems(final AggregateItem aggrItem) {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         v.process(new Runnable() {
@@ -589,7 +592,8 @@ public abstract class NetworkDisplay extends Display {
                 v.getFocusGroup(FOCUS_ITEMS).removeTuple(aggrItem);
                 aggregates.removeTuple(aggrItem);
             }
-        }, DRAW);
+        });
+        v.repaint();
     }
 
     private DefaultRendererFactory createRendererFactory(Visualization v) {
