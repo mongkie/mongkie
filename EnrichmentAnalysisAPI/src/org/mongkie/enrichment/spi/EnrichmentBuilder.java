@@ -39,7 +39,7 @@ public interface EnrichmentBuilder {
 
         public JPanel getPanel();
 
-        public void setup(E e);
+        public void load(E e);
 
         public void apply(E e);
 

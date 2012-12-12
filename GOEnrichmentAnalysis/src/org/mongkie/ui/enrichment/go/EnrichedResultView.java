@@ -180,6 +180,7 @@ public class EnrichedResultView extends JPanel implements EnrichedResultUI, Enri
         return this;
     }
 
+    @Override
     public void destroy() {
         removeAll();
     }

@@ -23,13 +23,9 @@ package org.mongkie.enrichment.spi;
  */
 public interface Enrichment {
 
-    public void execute(String... genes);
+    public EnrichedResultUI execute(String... genes);
 
     public boolean cancel();
-
-    public EnrichedResultUI getResult();
-
-    public void clearResult();
 
     public EnrichmentBuilder getBuilder();
 }

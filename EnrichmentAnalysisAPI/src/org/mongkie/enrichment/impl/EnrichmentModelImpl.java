@@ -17,8 +17,11 @@
  */
 package org.mongkie.enrichment.impl;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.mongkie.enrichment.EnrichmentModel;
 import org.mongkie.enrichment.EnrichmentModelListener;
+import org.mongkie.enrichment.spi.EnrichedResultUI;
 import org.mongkie.enrichment.spi.Enrichment;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.LongTaskErrorHandler;
@@ -40,7 +43,6 @@ public class EnrichmentModelImpl extends EnrichmentModel {
         super(display);
         executor = new LongTaskExecutor(true, "Enrichment");
         executor.setLongTaskListener(new LongTaskListener() {
-
             @Override
             public void taskStarted(LongTask task) {
                 setRunning(true);
@@ -52,7 +54,6 @@ public class EnrichmentModelImpl extends EnrichmentModel {
             }
         });
         executor.setDefaultErrorHandler(new LongTaskErrorHandler() {
-
             @Override
             public void fatalError(Throwable t) {
                 ErrorManager.getDefault().notify(t);
@@ -91,12 +92,10 @@ public class EnrichmentModelImpl extends EnrichmentModel {
 
     @Override
     protected void load(Enrichment e) {
-        System.out.println(e.getBuilder().getName() + " loaded.");
     }
 
     @Override
     protected void unload(Enrichment e) {
-        System.out.println(e.getBuilder().getName() + " unloaded.");
     }
 
     @Override
@@ -107,4 +106,25 @@ public class EnrichmentModelImpl extends EnrichmentModel {
     void setGeneIdColumn(String geneIdColumn) {
         this.geneIdColumn = geneIdColumn;
     }
+
+    @Override
+    public EnrichedResultUI getResult() {
+        return results.get(get());
+    }
+
+    @Override
+    public EnrichedResultUI getResult(Enrichment en) {
+        return results.get(en);
+    }
+
+    void clearResult(Enrichment en) {
+        if (results.containsKey(en)) {
+            results.remove(en).destroy();
+        }
+    }
+
+    void setResult(Enrichment en, EnrichedResultUI result) {
+        results.put(en, result);
+    }
+    private final Map<Enrichment, EnrichedResultUI> results = new HashMap<Enrichment, EnrichedResultUI>();
 }

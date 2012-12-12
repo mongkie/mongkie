@@ -17,6 +17,7 @@
  */
 package org.mongkie.enrichment;
 
+import org.mongkie.enrichment.spi.EnrichedResultUI;
 import org.mongkie.enrichment.spi.Enrichment;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.workspace.RunnableAbstractModel;
@@ -33,4 +34,8 @@ public abstract class EnrichmentModel
     }
 
     public abstract String getGeneIdColumn();
+
+    public abstract EnrichedResultUI getResult();
+
+    public abstract EnrichedResultUI getResult(Enrichment en);
 }

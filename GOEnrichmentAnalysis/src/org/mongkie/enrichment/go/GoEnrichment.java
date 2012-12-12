@@ -33,7 +33,6 @@ import org.mongkie.ui.enrichment.go.EnrichedResultView;
 public class GoEnrichment implements Enrichment {
 
     private final GoEnrichmentBuilder builder;
-    private EnrichedResultView resultUI = null;
     private volatile boolean canceled = false;
     private EnrichmentMethod strategy = EnrichmentMethod.Classic;
     private MultipleTestCorrectionMethod correction = MultipleTestCorrectionMethod.None;
@@ -44,35 +43,21 @@ public class GoEnrichment implements Enrichment {
     }
 
     @Override
-    public void execute(String... genes) {
+    public EnrichedResultUI execute(String... genes) {
         canceled = false;
 
         EnrichedResult result = GoBeanService.getDefault().getEnrichedResult(strategy, correction, pmax, genes);
 
         if (result == null || canceled) {
-            return;
+            return null;
         }
-        this.resultUI = new EnrichedResultView(result);
+        return new EnrichedResultView(result);
     }
 
     @Override
     public boolean cancel() {
         canceled = true;
         return false;
-    }
-
-    @Override
-    public EnrichedResultUI getResult() {
-        return resultUI;
-    }
-
-    @Override
-    public void clearResult() {
-        if (resultUI == null) {
-            return;
-        }
-        resultUI.destroy();
-        resultUI = null;
     }
 
     @Override

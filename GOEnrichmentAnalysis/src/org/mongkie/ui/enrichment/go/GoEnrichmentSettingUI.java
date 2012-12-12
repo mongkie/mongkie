@@ -131,7 +131,7 @@ public class GoEnrichmentSettingUI extends javax.swing.JPanel
     }
     
     @Override
-    public void setup(GoEnrichment e) {
+    public void load(GoEnrichment e) {
         strategyComboBox.setSelectedItem(e.getStrategy());
         correctionComboBox.setSelectedItem(e.getCorrection());
         pvalueSpinner.getModel().setValue(e.getMaxP());

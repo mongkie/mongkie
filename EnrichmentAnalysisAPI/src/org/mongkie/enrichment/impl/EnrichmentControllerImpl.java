@@ -58,14 +58,16 @@ public class EnrichmentControllerImpl extends EnrichmentController<EnrichmentMod
         model.setGeneIdColumn(geneIdColumn);
         final EnrichmentTask task = new EnrichmentTask(en);
         model.getExecutor().execute(task, new Runnable() {
-
             @Override
             public void run() {
                 ProgressTicket ticket = task.getProgressTicket();
-                Progress.setDisplayName(ticket, en.getBuilder().getName() + " Enrichment Analysis");
-                Progress.start(ticket);
-                en.execute(genes);
-                Progress.finish(ticket);
+                try {
+                    Progress.setDisplayName(ticket, en.getBuilder().getName() + " Enrichment Analysis");
+                    Progress.start(ticket);
+                    model.setResult(en, en.execute(genes));
+                } finally {
+                    Progress.finish(ticket);
+                }
             }
         });
     }
@@ -96,7 +98,6 @@ public class EnrichmentControllerImpl extends EnrichmentController<EnrichmentMod
         final String geneIdColumn = model.getGeneIdColumn();
         Graph g = model.getDisplay().getGraph();
         for (Iterator<Tuple> nodeIter = g.getNodeTable().tuples(new AbstractPredicate() {
-
             @Override
             public boolean getBoolean(Tuple t) {
                 String ids = t.getString(geneIdColumn);
@@ -128,7 +129,7 @@ public class EnrichmentControllerImpl extends EnrichmentController<EnrichmentMod
                 termIter.remove();
             }
         }
-        en.clearResult();
+        model.clearResult(en);
     }
 
     @Override

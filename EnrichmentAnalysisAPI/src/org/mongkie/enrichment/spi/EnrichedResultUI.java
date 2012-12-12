@@ -30,4 +30,6 @@ public interface EnrichedResultUI {
     public EnrichedTerm[] getSelectedTerms();
 
     public EnrichedTerm[] getAllTerms();
+    
+    public void destroy();
 }

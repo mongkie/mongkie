@@ -128,7 +128,7 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
                     EnrichmentBuilder.SettingUI settings = builder.getSettingUI();
                     if (settings != null) {
                         settingsSeparator.setVisible(true);
-                        settings.setup(builder.getEnrichment());
+                        settings.load(builder.getEnrichment());
                         settingsPanel.add(settings.getPanel(), BorderLayout.CENTER);
                     } else {
                         settingsSeparator.setVisible(false);
@@ -197,14 +197,13 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
     }
 
     private void refreshResult() {
-        Enrichment en;
         EnrichmentResultTopComponent resultDisplayer = EnrichmentResultTopComponent.getInstance();
-        if (model == null || (en = model.get()) == null || model.getDisplay().getGraph().getNodeCount() < 1) {
+        if (model == null || model.getDisplay().getGraph().getNodeCount() < 1) {
             resultDisplayer.setResult(null);
         } else if (model.isRunning()) {
             resultDisplayer.setBusy(true);
         } else {
-            resultDisplayer.setResult(en.getResult());
+            resultDisplayer.setResult(model.getResult());
         }
     }
 
@@ -426,7 +425,7 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
             @Override
             public void run() {
                 EnrichmentResultTopComponent resultDisplayer = EnrichmentResultTopComponent.getInstance();
-                resultDisplayer.setResult(en.getResult());
+                resultDisplayer.setResult(model.getResult(en));
                 resultDisplayer.open();
                 resultDisplayer.requestActive();
 
