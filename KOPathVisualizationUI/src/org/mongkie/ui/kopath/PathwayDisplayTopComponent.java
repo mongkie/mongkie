@@ -321,7 +321,7 @@ public final class PathwayDisplayTopComponent extends TopComponent {
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
             @Override
             public void run() {
-                display.getVisualization().rerun(Visualization.DRAW, Visualization.ANIMATE);
+                display.getVisualization().repaint();
             }
         });
     }

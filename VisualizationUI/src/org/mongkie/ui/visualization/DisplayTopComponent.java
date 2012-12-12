@@ -308,7 +308,7 @@ public final class DisplayTopComponent extends TopComponent
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
             @Override
             public void run() {
-                display.getVisualization().rerun(Visualization.DRAW, Visualization.ANIMATE);
+                display.getVisualization().repaint();
             }
         });
     }

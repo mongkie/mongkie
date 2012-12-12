@@ -325,7 +325,7 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
                 }
                 s.layout(aggrItem);
             }
-        }, DRAW, ANIMATE);
+        }, DRAW);
         return (AggregateItem) aggregates.getTuple(AggregateItem.AGGR_ID, aggregateId);
     }
     
@@ -359,7 +359,7 @@ public class MongkieDisplay extends NetworkDisplay implements Workspace {
                 aggrItem.removeAllItems();
                 aggregates.removeRow(aggrItem.getRow());
             }
-        }, DRAW, ANIMATE);
+        }, DRAW);
     }
     
     @Override

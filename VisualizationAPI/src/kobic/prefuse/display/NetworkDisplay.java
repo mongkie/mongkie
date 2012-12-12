@@ -532,7 +532,7 @@ public abstract class NetworkDisplay extends Display {
     }
 
     public AggregateItem aggregateItems(final TupleSet items, final boolean clearItems, final String label) {
-        return aggregateItems(items, clearItems, label, DRAW, ANIMATE);
+        return aggregateItems(items, clearItems, label, DRAW);
     }
 
     public AggregateItem aggregateItems(final TupleSet items, final boolean clearItems, final String label, String... activities) {
@@ -577,7 +577,7 @@ public abstract class NetworkDisplay extends Display {
 //                }
                 s.layout(aggrItem);
             }
-        }, DRAW, ANIMATE);
+        }, DRAW);
         return (AggregateItem) aggregates.getTuple(AggregateItem.AGGR_ID, aggregateId);
     }
 
@@ -589,7 +589,7 @@ public abstract class NetworkDisplay extends Display {
                 v.getFocusGroup(FOCUS_ITEMS).removeTuple(aggrItem);
                 aggregates.removeTuple(aggrItem);
             }
-        }, DRAW, ANIMATE);
+        }, DRAW);
     }
 
     private DefaultRendererFactory createRendererFactory(Visualization v) {

@@ -133,7 +133,7 @@ public class DefaultProcessor implements Processor<GraphContainer> {
                             Lookup.getDefault().lookup(ColorController.class).setTextColor(item, ColorLib.getColor((Integer) val));
                         }
                     }
-                }, DRAW, ANIMATE);
+                }, DRAW);
             }
         });
     }
