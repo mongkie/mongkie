@@ -39,8 +39,7 @@ import org.openide.util.NbBundle.Messages;
  */
 @ActionID(category = "EnrichmentAnalysis",
 id = "org.mongkie.ui.enrichment.actions.InformationAction")
-@ActionRegistration(displayName = "#CTL_InformationAction",
-iconBase = "org/mongkie/ui/enrichment/resources/information.png")
+@ActionRegistration(displayName = "#CTL_InformationAction", lazy = false)
 @ActionReference(path = "EnrichmentAnalysis/Result/Actions", position = 3)
 @Messages("CTL_InformationAction=Term Information")
 public final class InformationAction extends SingleContextAction<EnrichedTerm> {

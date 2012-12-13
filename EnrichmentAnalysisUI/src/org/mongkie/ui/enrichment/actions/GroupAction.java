@@ -39,8 +39,7 @@ import prefuse.Visualization;
  */
 @ActionID(category = "EnrichmentAnalysis",
 id = "org.mongkie.ui.enrichment.actions.GroupAction")
-@ActionRegistration(displayName = "#CTL_GroupAction",
-iconBase = "org/mongkie/ui/enrichment/resources/group.png", lazy = true)
+@ActionRegistration(displayName = "#CTL_GroupAction", lazy = false)
 @ActionReference(path = "EnrichmentAnalysis/Result/Actions", position = 1)
 @Messages("CTL_GroupAction=Group")
 public final class GroupAction extends MultipleTermAction {

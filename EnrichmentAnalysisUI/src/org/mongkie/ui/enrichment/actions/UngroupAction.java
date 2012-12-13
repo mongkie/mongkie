@@ -37,8 +37,7 @@ import org.openide.util.NbBundle.Messages;
  */
 @ActionID(category = "EnrichmentAnalysis",
 id = "org.mongkie.ui.enrichment.actions.UngroupAction")
-@ActionRegistration(displayName = "#CTL_UngroupAction",
-iconBase = "org/mongkie/ui/enrichment/resources/ungroup.png")
+@ActionRegistration(displayName = "#CTL_UngroupAction", lazy = false)
 @ActionReference(path = "EnrichmentAnalysis/Result/Actions", position = 2)
 @Messages("CTL_UngroupAction=Ungroup")
 public final class UngroupAction extends MultipleContextAction<EnrichedTerm> {

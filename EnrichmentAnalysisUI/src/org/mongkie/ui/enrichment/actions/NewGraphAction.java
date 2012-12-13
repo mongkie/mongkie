@@ -39,8 +39,7 @@ import prefuse.data.Graph;
  */
 @ActionID(category = "EnrichmentAnalysis",
 id = "org.mongkie.ui.enrichment.actions.NewGraphAction")
-@ActionRegistration(displayName = "#CTL_NewGraphAction",
-iconBase = "org/mongkie/ui/enrichment/resources/new.png")
+@ActionRegistration(displayName = "#CTL_NewGraphAction", lazy = false)
 @ActionReference(path = "EnrichmentAnalysis/Result/Actions", position = 0)
 @Messages("CTL_NewGraphAction=New Graph")
 public final class NewGraphAction extends MultipleTermAction {
