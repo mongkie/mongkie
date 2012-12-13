@@ -37,7 +37,6 @@ import org.openide.ErrorManager;
 public class EnrichmentModelImpl extends EnrichmentModel {
 
     private LongTaskExecutor executor;
-    private String geneIdColumn;
 
     public EnrichmentModelImpl(MongkieDisplay display) {
         super(display);
@@ -100,12 +99,13 @@ public class EnrichmentModelImpl extends EnrichmentModel {
 
     @Override
     public String getGeneIdColumn() {
-        return geneIdColumn;
+        return geneIdColumns.get(get());
     }
 
     void setGeneIdColumn(String geneIdColumn) {
-        this.geneIdColumn = geneIdColumn;
+        geneIdColumns.put(get(), geneIdColumn);
     }
+    private final Map<Enrichment, String> geneIdColumns = new HashMap<Enrichment, String>();
 
     @Override
     public EnrichedResultUI getResult() {
