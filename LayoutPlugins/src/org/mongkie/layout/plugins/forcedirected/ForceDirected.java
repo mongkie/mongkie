@@ -18,7 +18,9 @@
 package org.mongkie.layout.plugins.forcedirected;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
 import org.mongkie.layout.spi.LayoutBuilder;
@@ -73,7 +75,7 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
         isBigGraph = false;
     }
     private final ForceDirectedLayout expandingLayout;
-    private final List<NodeItem> expandedNodes = new ArrayList<NodeItem>();
+    private final Set<NodeItem> expandedNodes = new HashSet<NodeItem>();
 
     private long getDuration(int size) {
         long duration = MINIMUM_DURATION * Math.round(size / SIZE_DIVISOR);
