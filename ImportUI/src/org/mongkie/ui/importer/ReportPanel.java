@@ -24,8 +24,6 @@
 package org.mongkie.ui.importer;
 
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.List;
@@ -51,7 +49,7 @@ import prefuse.data.Table;
  */
 public class ReportPanel extends javax.swing.JPanel {
 
-    private GraphContainer container;
+    private final GraphContainer container;
     private static final Object PROC_KEY = new Object();
     private static ImageIcon ICON_INFO, ICON_WARNING, ICON_SEVERE, ICON_CRITICAL;
 
@@ -65,7 +63,8 @@ public class ReportPanel extends javax.swing.JPanel {
     /**
      * Creates new form ReportPanel
      */
-    public ReportPanel() {
+    public ReportPanel(GraphContainer container) {
+        this.container = container;
         try {
             SwingUtilities.invokeAndWait(new Runnable() {
 
@@ -80,7 +79,12 @@ public class ReportPanel extends javax.swing.JPanel {
         } catch (InvocationTargetException ex) {
             Exceptions.printStackTrace(ex);
         }
-
+        // Load informations from the container
+        Report report = container.getReport();
+        report.pruneReport(100);
+        fillIssues(report);
+        fillStates(container);
+        fillLabelColumns(container.getGraph());
 //        autoScaleCheck.addItemListener(new ItemListener() {
 //
 //            @Override
@@ -99,7 +103,7 @@ public class ReportPanel extends javax.swing.JPanel {
             radio.putClientProperty(PROC_KEY, processor);
             processorGroup.add(radio);
             processorPanel.add(radio);
-            radio.setEnabled(processor.isEnabled());
+            radio.setEnabled(processor.isEnabled(container));
         }
     }
 
@@ -326,15 +330,6 @@ public class ReportPanel extends javax.swing.JPanel {
     private org.jdesktop.swingx.JXTitledSeparator reportSeparator;
     private javax.swing.JPanel statePanel;
     // End of variables declaration//GEN-END:variables
-
-    void setData(GraphContainer container) {
-        this.container = container;
-        Report report = container.getReport();
-        report.pruneReport(100);
-        fillIssues(report);
-        fillStates(container);
-        fillLabelColumns(container.getGraph());
-    }
 
     void destroy() {
         issuesScrollPane.setViewportView(null);

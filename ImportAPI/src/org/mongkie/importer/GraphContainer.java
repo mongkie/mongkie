@@ -50,4 +50,8 @@ public interface GraphContainer extends Container<Graph> {
     public boolean isAllowParallelEdge();
 
     public void setAllowParallelEdge(boolean allowParallelEdge);
+    
+    public void setNodeIdColumn(String col);
+    
+    public String getNodeIdColumn();
 }

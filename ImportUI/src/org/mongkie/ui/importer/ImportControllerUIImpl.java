@@ -191,8 +191,7 @@ public class ImportControllerUIImpl implements ImportControllerUI {
             return;
         }
 
-        ReportPanel reportPanel = new ReportPanel();
-        reportPanel.setData(container);
+        ReportPanel reportPanel = new ReportPanel(container);
         DialogDescriptor reportDescriptor = new DialogDescriptor(reportPanel,
                 NbBundle.getMessage(ImportControllerUIImpl.class, "ReportPanel.reportDialog.title"));
         if (!DialogDisplayer.getDefault().notify(reportDescriptor).equals(NotifyDescriptor.OK_OPTION)) {

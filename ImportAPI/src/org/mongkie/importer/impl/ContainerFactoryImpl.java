@@ -48,6 +48,7 @@ public class ContainerFactoryImpl implements ContainerFactory {
         private boolean autoScale;
         private boolean allowSelfLoop;
         private boolean allowParallelEdge;
+        private String nodeIdColumn;
         private Report report;
         protected final List<Hint> processorHints;
 
@@ -119,6 +120,16 @@ public class ContainerFactoryImpl implements ContainerFactory {
         @Override
         public void setAllowParallelEdge(boolean allowParallelEdge) {
             this.allowParallelEdge = allowParallelEdge;
+        }
+
+        @Override
+        public String getNodeIdColumn() {
+            return nodeIdColumn;
+        }
+
+        @Override
+        public void setNodeIdColumn(String col) {
+            this.nodeIdColumn = col;
         }
 
         @Override

@@ -28,14 +28,14 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ServiceProvider(service = Processor.class, position = 200)
-public class AppendProcessor implements Processor<GraphContainer> {
+public class MergeGraphProcessor implements Processor<GraphContainer> {
 
     private MongkieDisplay display;
     private GraphContainer container;
 
     @Override
     public void process() {
-        System.out.println("Append processing...");
+        System.out.println("Merge processing...");
     }
 
     @Override
@@ -55,11 +55,11 @@ public class AppendProcessor implements Processor<GraphContainer> {
 
     @Override
     public String getDisplayName() {
-        return NbBundle.getMessage(AppendProcessor.class, "AppendProcessor.displayName");
+        return NbBundle.getMessage(MergeGraphProcessor.class, "MergeGraphProcessor.displayName");
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(GraphContainer container) {
         return false;
     }
 }

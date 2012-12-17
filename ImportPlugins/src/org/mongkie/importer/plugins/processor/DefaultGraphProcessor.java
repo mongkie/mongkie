@@ -48,7 +48,7 @@ import prefuse.visual.VisualItem;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ServiceProvider(service = Processor.class, position = 100)
-public class DefaultProcessor implements Processor<GraphContainer> {
+public class DefaultGraphProcessor implements Processor<GraphContainer> {
 
     private MongkieDisplay display;
     private GraphContainer container;
@@ -155,11 +155,11 @@ public class DefaultProcessor implements Processor<GraphContainer> {
 
     @Override
     public String getDisplayName() {
-        return NbBundle.getMessage(DefaultProcessor.class, "DefaultProcessor.displayName");
+        return NbBundle.getMessage(DefaultGraphProcessor.class, "DefaultGraphProcessor.displayName");
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isEnabled(GraphContainer container) {
         return true;
     }
 }

@@ -68,7 +68,7 @@ public interface Processor<C extends Container> {
      */
     public String getDisplayName();
 
-    public boolean isEnabled();
+    public boolean isEnabled(C container);
 
     /**
      * Define processor settings user interface.

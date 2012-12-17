@@ -226,6 +226,7 @@ public class ImportControllerImpl implements ImportController {
         //Create GraphContainer
         GraphContainer container = Lookup.getDefault().lookup(ContainerFactory.class).createGraphContainer();
         container.setDirected(directed);
+        container.setNodeIdColumn(nodeId);
         //Report
         Report report = new Report();
         container.setReport(report);
