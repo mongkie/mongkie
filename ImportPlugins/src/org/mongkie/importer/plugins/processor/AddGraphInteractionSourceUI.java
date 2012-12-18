@@ -50,13 +50,15 @@ public class AddGraphInteractionSourceUI extends javax.swing.JPanel
 
     @Override
     public void load(AddGraphInteractionSource processor) {
-        sourceNameTextField.setText(processor.getName());
         keyColComboBox.removeAllItems();
         Table t = processor.getContainer().getGraph().getNodeTable();
         for (int i = 0; i < t.getColumnCount(); i++) {
             keyColComboBox.addItem(t.getColumnName(i));
         }
         keyColComboBox.setSelectedItem(processor.getNodeKeyCol());
+        sourceNameTextField.setText(processor.getName());
+        sourceNameTextField.select(0, sourceNameTextField.getText().length());
+        sourceNameTextField.requestFocusInWindow();
     }
 
     @Override

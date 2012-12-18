@@ -66,7 +66,8 @@ public class AddGraphInteractionSource implements Processor<GraphContainer> {
     @Override
     public void setContainer(GraphContainer container) {
         this.container = container;
-        this.name = container.getSource().substring(0, container.getSource().lastIndexOf('.'));
+        String source = container.getSource();
+        this.name = source.lastIndexOf('.') < 0 ? source : source.substring(0, source.lastIndexOf('.'));
         this.nodeKeyCol = container.getNodeIdColumn();
     }
 
