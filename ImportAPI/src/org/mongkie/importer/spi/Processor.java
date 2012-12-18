@@ -23,7 +23,6 @@ package org.mongkie.importer.spi;
 import javax.swing.JPanel;
 import org.mongkie.importer.Container;
 import org.mongkie.importer.ImportController;
-import org.mongkie.visualization.MongkieDisplay;
 
 /**
  * Interface that define the way data are <b>unloaded</b> from container and
@@ -52,15 +51,8 @@ public interface Processor<C extends Container> {
      * @param container the container where data are
      */
     public void setContainer(C container);
-
-    /**
-     * Sets the destination display for the data in the container. If no display
-     * is provided, the current display will be used.
-     * @param display the display where data are to be pushed
-     */
-    public void setDisplay(MongkieDisplay display);
-
-    public MongkieDisplay getDisplay();
+    
+    public C getContainer();
 
     /**
      * Returns the processor name.
@@ -92,7 +84,7 @@ public interface Processor<C extends Container> {
          *
          * @param processor  the processor that settings is to be set
          */
-        public void setup(P processor);
+        public void load(P processor);
 
         /**
          * Returns the processor settings panel.
@@ -113,7 +105,7 @@ public interface Processor<C extends Container> {
          * written.
          *
          */
-        public void apply(boolean update);
+        public void apply(P processor);
 
         /**
          * Returns <code>true</code> if this UI belongs to the given processor.
@@ -123,16 +115,6 @@ public interface Processor<C extends Container> {
          *                  <code>false</code> otherwise.
          */
         public boolean isUIForProcessor(Processor processor);
-
-        /**
-         * Returns <code>true</code> if the processor this UI represents is valid for
-         * the <code>container</code>. Processors could be specific to some type of data
-         * and this method can provide this information.
-         * @param container the container that is to be processed
-         * @return          <code>true</code> if the processor this UI represents is
-         *                  valid for <code>container</code>.
-         */
-        public boolean isValid(C container);
     }
 
     public static enum Hint {

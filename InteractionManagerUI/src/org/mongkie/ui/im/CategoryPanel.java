@@ -18,7 +18,9 @@
  */
 package org.mongkie.ui.im;
 
+import javax.swing.SwingUtilities;
 import org.mongkie.im.InteractionController;
+import org.mongkie.im.SourceModelChangeListener;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Lookup;
@@ -27,19 +29,39 @@ import org.openide.util.Lookup;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class CategoryPanel extends javax.swing.JPanel {
+public class CategoryPanel extends javax.swing.JPanel implements SourceModelChangeListener {
 
+    private MongkieDisplay d;
     private String category;
 
     /**
      * Creates new form ProcessPanel
      */
     public CategoryPanel(MongkieDisplay d, String category) {
+        this.d = d;
         this.category = category;
         initComponents();
         for (InteractionSource is : Lookup.getDefault().lookup(InteractionController.class).getInteractionSources(category)) {
             add(new SourcePanel(d, is));
         }
+        Lookup.getDefault().lookup(InteractionController.class).addModelChangeListener(CategoryPanel.this);
+    }
+
+    @Override
+    public void modelAdded(final MongkieDisplay d, final InteractionSource is) {
+        if (this.d == d && category.equals(is.getCategory())
+                && category.equals(InteractionController.CATEGORY_OTHERS)) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    add(new SourcePanel(d, is));
+                }
+            });
+        }
+    }
+
+    @Override
+    public void modelRemoved(MongkieDisplay d, InteractionSource is) {
     }
 
     /**

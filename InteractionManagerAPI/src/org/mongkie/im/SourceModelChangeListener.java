@@ -18,37 +18,16 @@
  */
 package org.mongkie.im;
 
-import java.util.List;
 import org.mongkie.im.spi.InteractionSource;
-import prefuse.data.Graph;
+import org.mongkie.visualization.MongkieDisplay;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface InteractionController {
+public interface SourceModelChangeListener {
 
-    public static final String CATEGORY_OTHERS = "Others";
+    public void modelAdded(MongkieDisplay d, InteractionSource is);
 
-    public String[] getCategories();
-
-    public List<InteractionSource> getInteractionSources(String category);
-
-    public <I extends InteractionSource, M extends SourceModel<I>> M getModel(I is);
-
-    public boolean setKeyField(InteractionSource is, String key);
-
-    public <K> void executeLink(InteractionSource<K> is);
-
-    public void executeUnlink(InteractionSource is);
-
-    public <K> void executeExpand(InteractionSource<K> is, K... keys);
-
-    public InteractionSource getInteractionSource(String name);
-
-    public void addInteractionSource(String name, Graph g, String nodeKeyCol);
-    
-    public boolean addModelChangeListener(SourceModelChangeListener l);
-    
-    public boolean removeModelChangeListener(SourceModelChangeListener l);
+    public void modelRemoved(MongkieDisplay d, InteractionSource is);
 }

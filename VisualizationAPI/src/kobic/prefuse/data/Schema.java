@@ -51,6 +51,20 @@ public final class Schema {
         }
     }
 
+    private Schema(int numCols) {
+        this.names = new String[numCols];
+        this.types = new Class[numCols];
+        this.defaults = new Object[numCols];
+    }
+
+    public static Schema valueOf(prefuse.data.Schema ps) {
+        Schema s = new Schema(ps.getColumnCount());
+        for (int i = 0; i < ps.getColumnCount(); i++) {
+            s.addColumn(ps.getColumnName(i), ps.getColumnType(i), ps.getDefault(i));
+        }
+        return s;
+    }
+
     protected void initLookup() {
         lookup = new HashMap();
         for (int i = 0; i < names.length; ++i) {
@@ -220,7 +234,7 @@ public final class Schema {
      * Set the default value for the given field.
      *
      * @param field the name of column to set the default for
-     * @param val the new default value
+     * @param val   the new default value
      */
     public void setDefault(String field, Object val) {
         int idx = getColumnIndex(field);
@@ -231,7 +245,7 @@ public final class Schema {
      * Set the default value for the given field as an int.
      *
      * @param field the name of column to set the default for
-     * @param val the new default value
+     * @param val   the new default value
      */
     public void setDefault(String field, int val) {
         setDefault(field, new Integer(val));
@@ -241,7 +255,7 @@ public final class Schema {
      * Set the default value for the given field as a long.
      *
      * @param field the name of column to set the default for
-     * @param val the new default value
+     * @param val   the new default value
      */
     public void setDefault(String field, long val) {
         setDefault(field, new Long(val));
@@ -251,7 +265,7 @@ public final class Schema {
      * Set the default value for the given field as a float.
      *
      * @param field the name of column to set the default for
-     * @param val the new default value
+     * @param val   the new default value
      */
     public void setDefault(String field, float val) {
         setDefault(field, new Float(val));
@@ -261,7 +275,7 @@ public final class Schema {
      * Set the default value for the given field as a double.
      *
      * @param field the name of column to set the default for
-     * @param val the new default value
+     * @param val   the new default value
      */
     public void setDefault(String field, double val) {
         setDefault(field, new Double(val));
@@ -271,7 +285,7 @@ public final class Schema {
      * Set the default value for the given field as a boolean.
      *
      * @param field the name of column to set the default for
-     * @param val the new default value
+     * @param val   the new default value
      */
     public void setDefault(String field, boolean val) {
         setDefault(field, val ? Boolean.TRUE : Boolean.FALSE);

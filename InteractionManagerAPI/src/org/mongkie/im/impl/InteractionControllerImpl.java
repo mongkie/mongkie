@@ -18,6 +18,8 @@
  */
 package org.mongkie.im.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,16 +29,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import kobic.prefuse.Constants;
 import kobic.prefuse.data.Attribute;
 import kobic.prefuse.data.Schema;
+import kobic.prefuse.data.io.GraphIO;
 import org.mongkie.im.InteractionController;
 import org.mongkie.im.SourceModel;
+import org.mongkie.im.SourceModelChangeListener;
 import org.mongkie.im.spi.Interaction;
 import org.mongkie.im.spi.Interaction.Interactor;
 import org.mongkie.im.spi.InteractionSource;
@@ -48,7 +55,9 @@ import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualization.util.LayoutService.ExpandingLayout;
 import org.mongkie.visualization.workspace.WorkspaceListener;
 import org.openide.ErrorManager;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.Visualization;
 import static prefuse.Visualization.*;
@@ -87,9 +96,27 @@ public class InteractionControllerImpl implements InteractionController {
                                 display.add(m);
                                 models.put(is, m);
                             }
+                            // Initialize models for others
+                            for (InteractionSource is : getInteractionSources(CATEGORY_OTHERS)) {
+                                SourceModelImpl m = new SourceModelImpl(display, is);
+                                display.add(m);
+                                models.put(is, m);
+                            }
                         } else {
                             for (SourceModelImpl m : modelImpls) {
                                 models.put(m.getInteractionSource(), m);
+                            }
+                            // Create models for newly added others
+                            for (InteractionSource is : getInteractionSources(CATEGORY_OTHERS)) {
+                                if (models.keySet().contains(is)) {
+                                    continue;
+                                }
+                                SourceModelImpl m = new SourceModelImpl(display, is);
+                                display.add(m);
+                                models.put(is, m);
+                                for (SourceModelChangeListener l : listeners) {
+                                    l.modelAdded(display, is);
+                                }
                             }
                         }
                     }
@@ -116,7 +143,6 @@ public class InteractionControllerImpl implements InteractionController {
             //Initialize cache per source
             caches.put(is, new Cache());
         }
-
         sourcesByCategory = new LinkedHashMap<String, List<InteractionSource>>();
         for (InteractionSource is : Lookup.getDefault().lookupAll(InteractionSource.class)) {
             String c = is.getCategory();
@@ -128,7 +154,13 @@ public class InteractionControllerImpl implements InteractionController {
             sources.add(is);
         }
         // Others
-        sourcesByCategory.put(CATEGORY_OTHERS, new ArrayList<InteractionSource>());
+        sourcesByCategory.put(CATEGORY_OTHERS, GraphSource.getPersistence().loads());
+        for (InteractionSource is : sourcesByCategory.get(CATEGORY_OTHERS)) {
+            SourceModelImpl m = new SourceModelImpl(d, is);
+            d.add(m);
+            models.put(is, m);
+            caches.put(is, new Cache());
+        }
     }
 
     @Override
@@ -590,4 +622,250 @@ public class InteractionControllerImpl implements InteractionController {
         }
     }
     static final String FIELD_INTERACTION_SOURCE = "*InteractionSource*";
+
+    @Override
+    public InteractionSource getInteractionSource(String name) {
+        for (InteractionSource is : models.keySet()) {
+            if (name.equalsIgnoreCase(is.getName())) {
+                return is;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void addInteractionSource(String name, Graph g, String nodeKeyCol) {
+        GraphSource gs = new GraphSource(name, g, nodeKeyCol);
+        MongkieDisplay d = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
+        SourceModelImpl m = new SourceModelImpl(d, gs);
+        d.add(m);
+        models.put(gs, m);
+        caches.put(gs, new Cache());
+        sourcesByCategory.get(CATEGORY_OTHERS).add(gs);
+        GraphSource.getPersistence().save(gs);
+        for (SourceModelChangeListener l : listeners) {
+            l.modelAdded(d, gs);
+        }
+    }
+
+    @Override
+    public boolean addModelChangeListener(SourceModelChangeListener l) {
+        return !listeners.contains(l) && listeners.add(l);
+    }
+
+    @Override
+    public boolean removeModelChangeListener(SourceModelChangeListener l) {
+        return listeners.remove(l);
+    }
+    private final List<SourceModelChangeListener> listeners = new ArrayList<SourceModelChangeListener>();
+
+    static class GraphSource implements InteractionSource {
+
+        static final class Persistence {
+
+            private static final String GRAPH = "graph";
+            private static final String NODE_KEYCOL = "nodeKeyCol";
+
+            private Persistence() {
+            }
+
+            List<InteractionSource> loads() {
+                List<InteractionSource> sources = new ArrayList<InteractionSource>();
+                Preferences root = getPreferences();
+                try {
+                    for (String name : root.childrenNames()) {
+                        Preferences store = root.node(name);
+                        byte[] bytes = store.getByteArray(GRAPH, null);
+                        if (bytes != null) {
+                            Graph g = GraphIO.readSerializableGraph(new ByteArrayInputStream(bytes));
+                            sources.add(new GraphSource(name, g, store.get(NODE_KEYCOL, g.getNodeKeyField())));
+                        } else {
+                            continue;
+                        }
+                    }
+                } catch (BackingStoreException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+                return sources;
+            }
+
+            boolean save(GraphSource gs) {
+                Preferences store = getPreferences(gs);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                GraphIO.writeSerializableGraph(gs.g, bos);
+                store.putByteArray(GRAPH, bos.toByteArray());
+                store.put(NODE_KEYCOL, gs.nodeKeyCol);
+                return true;
+            }
+
+            private Preferences getPreferences() {
+                return NbPreferences.forModule(InteractionControllerImpl.class).node("GraphSource");
+            }
+
+            private Preferences getPreferences(GraphSource gs) {
+                return getPreferences().node(gs.name);
+            }
+
+            private static class DEFAULT {
+
+                private static final Persistence INSTANCE = new Persistence();
+            }
+        }
+        final Graph g;
+        final Schema is, as;
+        String name;
+        final String nodeKeyCol;
+
+        GraphSource(String name, Graph g, String nodeKeyCol) {
+            this.g = g;
+            g.getNodeTable().index(nodeKeyCol);
+            is = Schema.valueOf(g.getEdgeTable().getSchema());
+            if (g.getEdgeLabelField() != null) {
+                is.setLabelField(g.getEdgeLabelField());
+            }
+            as = Schema.valueOf(g.getNodeTable().getSchema());
+            as.setKeyField(nodeKeyCol);
+            if (g.getNodeLabelField() != null) {
+                as.setLabelField(g.getNodeLabelField());
+            }
+            this.name = name;
+            this.nodeKeyCol = nodeKeyCol;
+        }
+
+        static Persistence getPersistence() {
+            return Persistence.DEFAULT.INSTANCE;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public String getDescription() {
+            return name;
+        }
+
+        @Override
+        public String getCategory() {
+            return CATEGORY_OTHERS;
+        }
+
+        @Override
+        public Schema getInteractionSchema() {
+            return is;
+        }
+
+        @Override
+        public Schema getAnnotationSchema() {
+            return as;
+        }
+
+        @Override
+        public boolean isDirected() {
+            return g.isDirected();
+        }
+
+        @Override
+        public Map<Object, Set<GraphInteraction>> query(Object... keys) throws Exception {
+            Map<Object, Set<GraphInteraction>> results = new HashMap<Object, Set<GraphInteraction>>();
+            for (Object key : keys) {
+                int n = g.getNodeTable().getIndex(nodeKeyCol).get(key);
+                if (n < 0) {
+                    continue;
+                }
+                Set<GraphInteraction> interactions = new LinkedHashSet<GraphInteraction>();
+                Node node = g.getNode(n);
+                for (Iterator<Edge> edges = g.outEdges(node); edges.hasNext();) {
+                    interactions.add(new GraphInteraction(node, edges.next()));
+                }
+                results.put(key, interactions);
+            }
+            return results;
+        }
+
+        @Override
+        public Map<Object, Attribute.Set> annotate(Object... keys) throws Exception {
+            Map<Object, Attribute.Set> results = new HashMap<Object, Attribute.Set>();
+            if (keys.length > 0) {
+                for (Object key : keys) {
+                    int n = g.getNodeTable().getIndex(nodeKeyCol).get(key);
+                    if (n < 0) {
+                        continue;
+                    }
+                    Node node = g.getNode(n);
+                    Attribute.Set attributes = new Attribute.Set();
+                    for (int i = 0; i < node.getColumnCount(); i++) {
+                        attributes.add(new Attribute(node.getColumnName(i), node.get(i)));
+                    }
+                    results.put(key, attributes);
+                }
+            }
+            return results;
+        }
+
+        @Override
+        public Class getKeyType() {
+            return g.getNodeTable().getColumnType(nodeKeyCol);
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 59 * hash + (this.name != null ? this.name.hashCode() : 0);
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final GraphSource other = (GraphSource) obj;
+            if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+                return false;
+            }
+            return true;
+        }
+
+        class GraphInteraction implements Interaction {
+
+            final Node n;
+            final Edge e;
+            final Interactor interactor;
+            final Attribute.Set attributes;
+
+            GraphInteraction(Node n, Edge e) {
+                this.n = n;
+                this.e = e;
+                interactor = new Interactor(e.getTargetNode().get(nodeKeyCol), new Attribute.Set());
+                attributes = new Attribute.Set();
+                for (int i = 0; i < e.getColumnCount(); i++) {
+                    String colName = e.getColumnName(i);
+                    if (colName.equals(g.getEdgeSourceField()) || colName.equals(g.getEdgeTargetField())) {
+                        continue;
+                    }
+                    attributes.add(new Attribute(colName, e.get(i)));
+                }
+            }
+
+            @Override
+            public Object getSourceKey() {
+                return n.get(nodeKeyCol);
+            }
+
+            @Override
+            public Interactor getInteractor() {
+                return interactor;
+            }
+
+            @Override
+            public Attribute.Set getAttributeSet() {
+                return attributes;
+            }
+        }
+    }
 }

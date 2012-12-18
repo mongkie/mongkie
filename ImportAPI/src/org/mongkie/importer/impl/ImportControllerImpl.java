@@ -24,12 +24,11 @@ import java.util.*;
 import kobic.prefuse.data.GraphFactory;
 import kobic.prefuse.data.io.ReaderFactory;
 import org.mongkie.importer.*;
+import org.mongkie.importer.spi.*;
 import org.mongkie.importer.spi.Importer.OptionUI;
 import org.mongkie.importer.spi.Importer.SettingUI;
 import org.mongkie.importer.spi.Importer.WizardUI;
-import org.mongkie.importer.spi.*;
 import org.mongkie.util.io.FileType;
-import org.mongkie.visualization.VisualizationController;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -41,7 +40,6 @@ import prefuse.data.Table;
 import prefuse.data.Tuple;
 import prefuse.data.column.Column;
 import prefuse.data.io.CSVTableReader;
-import prefuse.data.util.Index;
 import prefuse.util.DataLib;
 
 /**
@@ -114,23 +112,6 @@ public class ImportControllerImpl implements ImportController {
             list.addAll(Arrays.asList(b.getFileTypes()));
         }
         return list.toArray(new FileType[0]);
-    }
-
-    @Override
-    public void process(GraphContainer container) {
-        Processor processor = Lookup.getDefault().lookup(Processor.class);
-        if (processor == null) {
-            throw new RuntimeException(
-                    NbBundle.getMessage(ImportControllerImpl.class, "ImportControllerImpl.error.noDefaultProcessor"));
-        }
-        process(container, processor);
-    }
-
-    @Override
-    public void process(GraphContainer container, Processor processor) {
-        processor.setContainer(container);
-        processor.setDisplay(Lookup.getDefault().lookup(VisualizationController.class).getDisplay());
-        processor.process();
     }
 
     @Override

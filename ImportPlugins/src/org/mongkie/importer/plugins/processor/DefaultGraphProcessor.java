@@ -50,7 +50,6 @@ import prefuse.visual.VisualItem;
 @ServiceProvider(service = Processor.class, position = 100)
 public class DefaultGraphProcessor implements Processor<GraphContainer> {
 
-    private MongkieDisplay display;
     private GraphContainer container;
 
     @Override
@@ -64,7 +63,6 @@ public class DefaultGraphProcessor implements Processor<GraphContainer> {
                     DisplayTopComponent tc =
                             Lookup.getDefault().lookup(VisualizationControllerUI.class).openNewDisplayTopComponent(
                             container.getSource(), container.getGraph());
-                    setDisplay(tc.getDisplay());
                 }
             }
         });
@@ -77,7 +75,6 @@ public class DefaultGraphProcessor implements Processor<GraphContainer> {
             @Override
             public void run() {
                 final MongkieDisplay d = tc.getDisplay();
-                setDisplay(d);
                 d.cancelLayoutAction();
                 d.setLoading(false);
                 d.resetGraph(vgc.getGraph(), new DisplayListener() {
@@ -144,13 +141,8 @@ public class DefaultGraphProcessor implements Processor<GraphContainer> {
     }
 
     @Override
-    public void setDisplay(MongkieDisplay display) {
-        this.display = display;
-    }
-
-    @Override
-    public MongkieDisplay getDisplay() {
-        return display;
+    public GraphContainer getContainer() {
+        return container;
     }
 
     @Override

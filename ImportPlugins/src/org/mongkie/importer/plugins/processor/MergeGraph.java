@@ -19,7 +19,6 @@ package org.mongkie.importer.plugins.processor;
 
 import org.mongkie.importer.GraphContainer;
 import org.mongkie.importer.spi.Processor;
-import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -28,9 +27,8 @@ import org.openide.util.lookup.ServiceProvider;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ServiceProvider(service = Processor.class, position = 200)
-public class MergeGraphProcessor implements Processor<GraphContainer> {
+public class MergeGraph implements Processor<GraphContainer> {
 
-    private MongkieDisplay display;
     private GraphContainer container;
 
     @Override
@@ -44,18 +42,13 @@ public class MergeGraphProcessor implements Processor<GraphContainer> {
     }
 
     @Override
-    public void setDisplay(MongkieDisplay display) {
-        this.display = display;
-    }
-
-    @Override
-    public MongkieDisplay getDisplay() {
-        return display;
+    public GraphContainer getContainer() {
+        return container;
     }
 
     @Override
     public String getDisplayName() {
-        return NbBundle.getMessage(MergeGraphProcessor.class, "MergeGraphProcessor.displayName");
+        return NbBundle.getMessage(MergeGraph.class, "MergeGraphProcessor.displayName");
     }
 
     @Override

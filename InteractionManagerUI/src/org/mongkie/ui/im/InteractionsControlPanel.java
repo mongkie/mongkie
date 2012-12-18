@@ -47,7 +47,7 @@ public class InteractionsControlPanel extends AddonUI.ContentPanel {
 
     @Override
     public void refresh() {
-        //TODO: refresh model
+        // refresh before showing the control panel, nothing to do at this time.
     }
 
     /**

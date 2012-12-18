@@ -39,10 +39,6 @@ public interface ImportController {
 
     public FileType[] getFileTypes(Class<? extends FileImporterBuilder> builderClass);
 
-    public void process(GraphContainer container);
-
-    public void process(GraphContainer container, Processor processor);
-
     public Importer.OptionUI getOptionUI(ImporterBuilder builder);
 
     public Importer.SettingUI getSettingUI(ImporterBuilder builder);

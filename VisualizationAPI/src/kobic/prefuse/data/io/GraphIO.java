@@ -41,6 +41,8 @@ public class GraphIO {
             g = new Graph(((SerializableTable) in.readObject()).getTable(),
                     ((SerializableTable) in.readObject()).getTable(),
                     in.readBoolean(), (String) in.readObject(), (String) in.readObject(), (String) in.readObject());
+            g.setNodeLabelField((String) in.readObject());
+            g.setEdgeLabelField((String) in.readObject());
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         } finally {
@@ -83,6 +85,8 @@ public class GraphIO {
             out.writeObject(nodeKey);
             out.writeObject(sourceKey);
             out.writeObject(targetKey);
+            out.writeObject(g.getNodeLabelField());
+            out.writeObject(g.getEdgeLabelField());
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             return false;

@@ -72,7 +72,6 @@ public class ImportControllerUIImpl implements ImportControllerUI {
         controller = Lookup.getDefault().lookup(ImportController.class);
         executor = new LongTaskExecutor(true, "Importer");
         executor.setDefaultErrorHandler(new LongTaskErrorHandler() {
-
             @Override
             public void fatalError(Throwable t) {
                 if (t instanceof OutOfMemoryError) {
@@ -136,7 +135,6 @@ public class ImportControllerUIImpl implements ImportControllerUI {
             final ImportTask task = new ImportTask();
 
             executor.execute(task, new Runnable() {
-
                 @Override
                 public void run() {
                     ProgressTicket ticket = task.getProgressTicket();
@@ -203,22 +201,21 @@ public class ImportControllerUIImpl implements ImportControllerUI {
 
         //Process
         final Processor processor = reportPanel.getProcessor();
+        processor.setContainer(container);
         final Processor.UI processorUI = controller.getProcessorUI(processor);
         final ValidResult result = new ValidResult();
         if (processorUI != null) {
+            result.setValid(false);
             try {
                 SwingUtilities.invokeAndWait(new Runnable() {
-
                     @Override
                     public void run() {
                         JPanel panel = processorUI.getPanel();
-                        processorUI.setup(processor);
-                        final DialogDescriptor processorDescriptor = new DialogDescriptor(panel,
-                                NbBundle.getMessage(ImportControllerUIImpl.class, "ImportControllerUIImpl.processor.settingUI.title", processorUI.getTitle()));
+                        processorUI.load(processor);
+                        final DialogDescriptor processorDescriptor = new DialogDescriptor(panel, processorUI.getTitle());
                         if (panel instanceof ValidationPanel) {
                             ValidationPanel vp = (ValidationPanel) panel;
                             vp.addChangeListener(new ChangeListener() {
-
                                 @Override
                                 public void stateChanged(ChangeEvent e) {
                                     processorDescriptor.setValid(!((ValidationPanel) e.getSource()).isFatalProblem());
@@ -226,11 +223,8 @@ public class ImportControllerUIImpl implements ImportControllerUI {
                             });
                             processorDescriptor.setValid(!vp.isFatalProblem());
                         }
-                        Object option = DialogDisplayer.getDefault().notify(processorDescriptor);
-                        if (option.equals(NotifyDescriptor.CANCEL_OPTION) || option.equals(NotifyDescriptor.CLOSED_OPTION)) {
-                            result.setValid(false);
-                        } else {
-                            processorUI.apply(true); //true
+                        if (DialogDisplayer.getDefault().notify(processorDescriptor).equals(NotifyDescriptor.OK_OPTION)) {
+                            processorUI.apply(processor);
                             result.setValid(true);
                         }
                     }
@@ -242,8 +236,7 @@ public class ImportControllerUIImpl implements ImportControllerUI {
             }
         }
         if (result.isValid()) {
-            controller.process(container, processor);
-
+            processor.process();
             //StatusLine notify
             String source = container.getSource();
             StatusDisplayer.getDefault().setStatusText(
@@ -260,7 +253,6 @@ public class ImportControllerUIImpl implements ImportControllerUI {
         final DialogDescriptor dd = new DialogDescriptor(vp,
                 NbBundle.getMessage(ImportControllerUIImpl.class, "ImportControllerUIImpl.importAttributes.dialog.title"));
         importPanel.addChangeListener(new ChangeListener() {
-
             @Override
             public void stateChanged(ChangeEvent e) {
                 dd.setValid(importPanel.isOk());
@@ -273,7 +265,6 @@ public class ImportControllerUIImpl implements ImportControllerUI {
             final String source = attributeFile.getName();
             final ImportTask task = new ImportTask();
             executor.execute(task, new Runnable() {
-
                 @Override
                 public void run() {
                     ProgressTicket ticket = task.getProgressTicket();
@@ -321,12 +312,12 @@ public class ImportControllerUIImpl implements ImportControllerUI {
             final String[] edgeColumns = (String[]) wizardDescriptor.getProperty(ImportCSVWizardPanel.PROP_EDGETABLE_COLUMNS);
             final boolean edgeHasHeader = (Boolean) wizardDescriptor.getProperty(ImportCSVWizardPanel.PROP_EDGETABLE_HAS_HEADER);
 
-            final String source = (nodesFile == null ? "" : nodesFile.getName())
-                    + (edgesFile == null ? "" : ((nodesFile == null ? "" : " and ") + edgesFile.getName()));
+//            final String source = (nodesFile == null ? "" : nodesFile.getName())
+//                    + (edgesFile == null ? "" : ((nodesFile == null ? "" : " and ") + edgesFile.getName()));
+            final String source = edgesFile == null ? FileUtil.toFileObject(nodesFile).getName() : FileUtil.toFileObject(edgesFile).getName();
 
             final ImportTask task = new ImportTask();
             executor.execute(task, new Runnable() {
-
                 @Override
                 public void run() {
                     ProgressTicket ticket = task.getProgressTicket();
