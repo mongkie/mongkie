@@ -3,7 +3,6 @@ package prefuse.util.display;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
-
 import prefuse.Display;
 import prefuse.util.GraphicsLib;
 import prefuse.visual.VisualItem;
@@ -240,5 +239,14 @@ public class DisplayLib {
             display.zoomAbs(center, scale);
         }
     }
+
+    public static Point2D getDisplayCenter(Display d) {
+        c.setLocation(0, 0);
+        c.setLocation(d.getWidth() / 2.0, d.getHeight() / 2.0);
+        d.getInverseTransform().transform(c, c);
+        return c;
+    }
+    private static Point2D c = new Point2D.Double();
+
 } // end of class DisplayLib
 

@@ -18,9 +18,9 @@
 package kobic.prefuse.data;
 
 import prefuse.data.Graph;
+import static prefuse.data.Graph.*;
 import prefuse.data.Schema;
 import prefuse.data.Table;
-import static prefuse.data.Graph.*;
 
 /**
  *
@@ -29,7 +29,11 @@ import static prefuse.data.Graph.*;
 public class GraphFactory {
 
     public static Graph createDefault() {
-        Graph g = new Graph(false);
+        return createDefault(true);
+    }
+
+    public static Graph createDefault(boolean directed) {
+        Graph g = new Graph(directed);
         g.setNodeLabelField(null);
         g.setEdgeLabelField(null);
         return g;

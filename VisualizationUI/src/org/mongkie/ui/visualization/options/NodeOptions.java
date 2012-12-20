@@ -73,7 +73,7 @@ public class NodeOptions implements Options {
             @Override
             public void stateChanged(ChangeEvent e) {
                 final String col = (String) e.getSource();
-                if (!display.getGraph().getNodeLabelField().equals(col)) {
+                if (col != null && !col.equals(display.getGraph().getNodeLabelField())) {
                     display.getVisualization().process(new Runnable() {
                         @Override
                         public void run() {

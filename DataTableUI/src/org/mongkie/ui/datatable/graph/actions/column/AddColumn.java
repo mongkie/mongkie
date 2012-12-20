@@ -56,6 +56,12 @@ public class AddColumn extends AbstractColumnAction implements PopupAction {
     }
 
     @Override
+    public boolean isEnabled(AbstractDataTable table) {
+        AbstractModel model = table.getModel();
+        return model != null && isEnabled(model);
+    }
+
+    @Override
     public boolean isEnabled(AbstractModel model) {
         return model.getDisplay().getDataEditSupport(model.getDataTable().getDataGroup()).isAddColumnSupported();
     }

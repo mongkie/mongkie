@@ -18,15 +18,21 @@
 package org.mongkie.ui.datatable.graph.actions.node;
 
 import java.awt.Image;
+import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import kobic.prefuse.Constants;
 import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
+import prefuse.Visualization;
 import static prefuse.Visualization.DRAW;
 import prefuse.data.Node;
+import prefuse.util.PrefuseLib;
+import prefuse.util.display.DisplayLib;
+import prefuse.visual.VisualItem;
 
 /**
  *
@@ -36,6 +42,7 @@ import prefuse.data.Node;
 public class AddNode extends AbstractNodeAction {
 
     private final Map<String, Object> tupleData = new LinkedHashMap<String, Object>();
+    private Node node;
 
     void setTupleData(Map<String, Object> tupleData) {
         this.tupleData.clear();
@@ -67,17 +74,25 @@ public class AddNode extends AbstractNodeAction {
     @Override
     public void execute(final AbstractDataTable table) {
         final AbstractModel model = table.getModel();
-        model.getDisplay().getVisualization().process(new Runnable() {
-
+        node = null;
+        Visualization v = model.getDisplay().getVisualization();
+        v.process(new Runnable() {
             @Override
             public void run() {
-                Node n = model.getGraph().addNode();
+                node = model.getGraph().addNode();
                 for (String field : tupleData.keySet()) {
-                    n.set(field, tupleData.get(field));
+                    node.set(field, tupleData.get(field));
                 }
-                table.setSelectedNodes(new org.openide.nodes.Node[]{table.getDataChildFactory().getNodeOf(n.getRow())});
             }
-        }, DRAW);
+        });
+        if (node != null) {
+            VisualItem n = v.getVisualItem(Constants.NODES, node);
+            Point2D c = DisplayLib.getDisplayCenter(model.getDisplay());
+            PrefuseLib.setX(n, null, c.getX());
+            PrefuseLib.setY(n, null, c.getY());
+            table.setSelectedNodes(new org.openide.nodes.Node[]{table.getDataChildFactory().getNodeOf(node.getRow())});
+//            v.rerun(DRAW);
+        }
     }
 
     @Override

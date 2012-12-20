@@ -25,7 +25,6 @@ import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
-import static prefuse.Visualization.DRAW;
 import prefuse.data.Tuple;
 
 /**
@@ -37,6 +36,7 @@ public class AddEdge extends AbstractEdgeAction {
 
     private Tuple source, target;
     private final Map<String, Object> tupleData = new LinkedHashMap<String, Object>();
+    private int edge = -1;
 
     void setSourceAndTarget(Tuple source, Tuple target) {
         this.source = source;
@@ -73,17 +73,19 @@ public class AddEdge extends AbstractEdgeAction {
     @Override
     public void execute(final AbstractDataTable table) {
         final AbstractModel model = table.getModel();
+        edge = -1;
         model.getDisplay().getVisualization().process(new Runnable() {
-
             @Override
             public void run() {
-                int edge = model.getGraph().addEdge(source.getRow(), target.getRow());
+                edge = model.getGraph().addEdge(source.getRow(), target.getRow());
                 for (String field : tupleData.keySet()) {
                     model.getTable().set(edge, field, tupleData.get(field));
                 }
-                table.setSelectedNodes(new org.openide.nodes.Node[]{table.getDataChildFactory().getNodeOf(edge)});
             }
-        }, DRAW);
+        });
+        if (edge >= 0) {
+            table.setSelectedNodes(new org.openide.nodes.Node[]{table.getDataChildFactory().getNodeOf(edge)});
+        }
     }
 
     @Override

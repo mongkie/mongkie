@@ -21,6 +21,7 @@ import java.awt.Image;
 import javax.swing.SwingUtilities;
 import org.mongkie.datatable.spi.GraphAddColumnAction;
 import org.mongkie.datatable.spi.GraphDataTable;
+import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -68,7 +69,11 @@ public class AddNewColumn extends GraphAddColumnAction {
 
             @Override
             public void run() {
-                table.refreshModel(table.getModel().getDisplay());
+                MongkieDisplay d = table.getModel().getDisplay();
+                if (!d.isFired()) {
+                    d.fireGraphChangedEvent();
+                }
+                table.refreshModel(d);
             }
         });
     }
