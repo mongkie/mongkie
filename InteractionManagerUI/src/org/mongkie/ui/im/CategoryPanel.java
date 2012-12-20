@@ -44,12 +44,12 @@ public class CategoryPanel extends javax.swing.JPanel implements SourceModelChan
         for (InteractionSource is : Lookup.getDefault().lookup(InteractionController.class).getInteractionSources(category)) {
             add(new SourcePanel(d, is));
         }
-        Lookup.getDefault().lookup(InteractionController.class).addModelChangeListener(CategoryPanel.this);
+        Lookup.getDefault().lookup(InteractionController.class).addModelChangeListener(d, CategoryPanel.this);
     }
 
     @Override
-    public void modelAdded(final MongkieDisplay d, final InteractionSource is) {
-        if (this.d == d && category.equals(is.getCategory())
+    public void modelAdded(final InteractionSource is) {
+        if (category.equals(is.getCategory())
                 && category.equals(InteractionController.CATEGORY_OTHERS)) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -61,7 +61,7 @@ public class CategoryPanel extends javax.swing.JPanel implements SourceModelChan
     }
 
     @Override
-    public void modelRemoved(MongkieDisplay d, InteractionSource is) {
+    public void modelRemoved(InteractionSource is) {
     }
 
     /**

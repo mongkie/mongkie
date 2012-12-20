@@ -19,7 +19,6 @@
 package org.mongkie.im;
 
 import org.mongkie.im.spi.InteractionSource;
-import org.mongkie.visualization.MongkieDisplay;
 
 /**
  *
@@ -27,7 +26,7 @@ import org.mongkie.visualization.MongkieDisplay;
  */
 public interface SourceModelChangeListener {
 
-    public void modelAdded(MongkieDisplay d, InteractionSource is);
+    public void modelAdded(InteractionSource is);
 
-    public void modelRemoved(MongkieDisplay d, InteractionSource is);
+    public void modelRemoved(InteractionSource is);
 }

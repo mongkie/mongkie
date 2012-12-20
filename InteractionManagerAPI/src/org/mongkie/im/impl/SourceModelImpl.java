@@ -120,6 +120,7 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
             link.cancel();
         }
         listeners.clear();
+        d.removeDisplayListener(this);
     }
 
     LongTaskExecutor getLinkExecutor() {
@@ -230,6 +231,9 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
         setAnnotated(false);
         setKeyField(null);
         clearInteractions();
+        for (SourceModelListener l : listeners) {
+            l.graphDisposing(g);
+        }
     }
 
     @Override

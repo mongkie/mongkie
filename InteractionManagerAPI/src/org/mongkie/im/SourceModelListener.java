@@ -29,5 +29,7 @@ public interface SourceModelListener<I extends InteractionSource> {
 
     public void processQueryEvent(QueryEvent e);
 
+    public void graphDisposing(Graph g);
+
     public void graphChanged(Graph g);
 }

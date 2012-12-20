@@ -26,6 +26,7 @@ import java.awt.event.ItemListener;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import kobic.prefuse.display.NetworkDisplay;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXHyperlink;
 import org.mongkie.im.InteractionController;
@@ -38,13 +39,15 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import prefuse.data.Graph;
 import prefuse.data.Table;
+import static prefuse.data.event.EventConstants.*;
+import prefuse.data.event.TableListener;
 import prefuse.util.TypeLib;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class SourcePanel extends javax.swing.JPanel implements SourceModelListener {
+public final class SourcePanel extends javax.swing.JPanel implements SourceModelListener, TableListener {
 
     private final InteractionSource is;
     private final SourceModel model;
@@ -66,9 +69,12 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
             public void itemStateChanged(ItemEvent e) {
                 switch (e.getStateChange()) {
                     case ItemEvent.DESELECTED:
+                        Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, null);
+                        interactionLinkButton.setEnabled(false);
                         break;
                     case ItemEvent.SELECTED:
                         Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, (String) e.getItem());
+                        interactionLinkButton.setEnabled(true);
                         break;
                     default:
                         break;
@@ -111,7 +117,7 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
         keyLabel = new javax.swing.JLabel();
         columnComboBox = new javax.swing.JComboBox();
         actionMenuButton = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
+        settingButton = new javax.swing.JButton();
 
         setOpaque(false);
         setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 1, 3));
@@ -154,6 +160,7 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
         actionMenuButton.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionMenuButton.text")); // NOI18N
         actionMenuButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionMenuButton.toolTipText")); // NOI18N
         actionMenuButton.setBorderPainted(false);
+        actionMenuButton.setContentAreaFilled(false);
         actionMenuButton.setFocusPainted(false);
         actionMenuButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -162,16 +169,16 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
         });
         add(actionMenuButton);
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings.png"))); // NOI18N
-        jButton1.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.jButton1.text")); // NOI18N
-        jButton1.setBorderPainted(false);
-        jButton1.setContentAreaFilled(false);
-        jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jButton1.setDisabledIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings_disabled.png"))); // NOI18N
-        jButton1.setEnabled(false);
-        jButton1.setFocusPainted(false);
-        jButton1.setFocusable(false);
-        add(jButton1);
+        settingButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings.png"))); // NOI18N
+        settingButton.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.settingButton.text")); // NOI18N
+        settingButton.setBorderPainted(false);
+        settingButton.setContentAreaFilled(false);
+        settingButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        settingButton.setDisabledIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings_disabled.png"))); // NOI18N
+        settingButton.setEnabled(false);
+        settingButton.setFocusPainted(false);
+        settingButton.setFocusable(false);
+        add(settingButton);
     }// </editor-fold>//GEN-END:initComponents
 
     private void interactionLinkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_interactionLinkButtonActionPerformed
@@ -196,8 +203,8 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
     private javax.swing.Box.Filler filler2;
     private javax.swing.JButton interactionLinkButton;
     private javax.swing.JButton interactionNameLink;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel keyLabel;
+    private javax.swing.JButton settingButton;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -243,22 +250,43 @@ public class SourcePanel extends javax.swing.JPanel implements SourceModelListen
     }
 
     @Override
+    public void graphDisposing(Graph g) {
+        g.getNodeTable().removeTableListener(this);
+        refreshColumnComboBox(null);
+    }
+
+    @Override
     public void graphChanged(Graph g) {
         updateInteractionLinkButton();
+        if (g != null) {
+            g.getNodeTable().addTableListener(this);
+        }
+        refreshColumnComboBox(g);
+
+    }
+
+    private void refreshColumnComboBox(Graph g) {
         columnComboBox.removeAllItems();
         if (g != null) {
-            String key = model.getKeyField();
             Table t = g.getNodeTable();
             for (int i = 0; i < t.getColumnCount(); i++) {
                 if (is.getKeyType().equals(TypeLib.getWrapperType(t.getColumnType(i)))) {
                     columnComboBox.addItem(t.getColumnName(i));
                 }
             }
+            String key = model.getKeyField();
             if (key != null) {
                 columnComboBox.setSelectedItem(key);
             } else if (g.getNodeKeyField() != null) {
                 columnComboBox.setSelectedItem(g.getNodeKeyField());
             }
+        }
+    }
+
+    @Override
+    public void tableChanged(Table t, int start, int end, int col, int type) {
+        if (col != ALL_COLUMNS && (type == INSERT || type == DELETE)) {
+            refreshColumnComboBox(((NetworkDisplay) t.getClientProperty(NetworkDisplay.PROP_KEY)).getGraph());
         }
     }
 }

@@ -20,6 +20,7 @@ package org.mongkie.im;
 
 import java.util.List;
 import org.mongkie.im.spi.InteractionSource;
+import org.mongkie.visualization.MongkieDisplay;
 import prefuse.data.Graph;
 
 /**
@@ -48,7 +49,7 @@ public interface InteractionController {
 
     public void addInteractionSource(String name, Graph g, String nodeKeyCol);
     
-    public boolean addModelChangeListener(SourceModelChangeListener l);
+    public boolean addModelChangeListener(MongkieDisplay d, SourceModelChangeListener l);
     
-    public boolean removeModelChangeListener(SourceModelChangeListener l);
+    public boolean removeModelChangeListener(MongkieDisplay d, SourceModelChangeListener l);
 }

@@ -114,8 +114,10 @@ public class InteractionControllerImpl implements InteractionController {
                                 SourceModelImpl m = new SourceModelImpl(display, is);
                                 display.add(m);
                                 models.put(is, m);
-                                for (SourceModelChangeListener l : listeners) {
-                                    l.modelAdded(display, is);
+                                if (listeners.containsKey(display)) {
+                                    for (SourceModelChangeListener l : listeners.get(display)) {
+                                        l.modelAdded(is);
+                                    }
                                 }
                             }
                         }
@@ -643,21 +645,29 @@ public class InteractionControllerImpl implements InteractionController {
         caches.put(gs, new Cache());
         sourcesByCategory.get(CATEGORY_OTHERS).add(gs);
         GraphSource.getPersistence().save(gs);
-        for (SourceModelChangeListener l : listeners) {
-            l.modelAdded(d, gs);
+        if (listeners.containsKey(d)) {
+            for (SourceModelChangeListener l : listeners.get(d)) {
+                l.modelAdded(gs);
+            }
         }
     }
 
     @Override
-    public boolean addModelChangeListener(SourceModelChangeListener l) {
-        return !listeners.contains(l) && listeners.add(l);
+    public boolean addModelChangeListener(MongkieDisplay d, SourceModelChangeListener l) {
+        List<SourceModelChangeListener> ls = listeners.get(d);
+        if (ls == null) {
+            ls = new ArrayList<SourceModelChangeListener>();
+            listeners.put(d, ls);
+        }
+        return !ls.contains(l) && ls.add(l);
     }
 
     @Override
-    public boolean removeModelChangeListener(SourceModelChangeListener l) {
-        return listeners.remove(l);
+    public boolean removeModelChangeListener(MongkieDisplay d, SourceModelChangeListener l) {
+        return listeners.containsKey(d) && listeners.get(d).remove(l);
     }
-    private final List<SourceModelChangeListener> listeners = new ArrayList<SourceModelChangeListener>();
+    private final Map<MongkieDisplay, List<SourceModelChangeListener>> listeners =
+            new HashMap<MongkieDisplay, List<SourceModelChangeListener>>();
 
     static class GraphSource implements InteractionSource {
 

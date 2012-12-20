@@ -32,8 +32,6 @@ import javax.swing.UIManager;
 import static kobic.prefuse.Constants.EDGES;
 import static kobic.prefuse.Constants.NODES;
 import kobic.prefuse.controls.PopupControl;
-import kobic.prefuse.display.DisplayListener;
-import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.DataTableController;
 import org.mongkie.lib.widgets.CollapsiblePanel;
@@ -238,19 +236,6 @@ public final class DisplayTopComponent extends TopComponent
                     }
                     addonsBar.add(b);
                 }
-                //TODO: set enabled each AddonUI?
-                addonsBar.setEnabled(display.getGraph().getNodeCount() > 0);
-                display.addDisplayListener(new DisplayListener() {
-                    @Override
-                    public void graphDisposing(NetworkDisplay d, Graph g) {
-                        addonsBar.setEnabled(false);
-                    }
-
-                    @Override
-                    public void graphChanged(NetworkDisplay d, Graph g) {
-                        addonsBar.setEnabled(d.getGraph().getNodeCount() > 0);
-                    }
-                });
                 propertiesPanel.add(addonsBar, BorderLayout.EAST);
                 add(propertiesPanel, BorderLayout.NORTH);
 
