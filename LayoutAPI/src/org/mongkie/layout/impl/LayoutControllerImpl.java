@@ -159,7 +159,7 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
 
     @Override
     public void graphDisposing(NetworkDisplay d, Graph g) {
-        fireModelChangeEvent(model, null);
+//        fireModelChangeEvent(model, null);
     }
 
     @Override
