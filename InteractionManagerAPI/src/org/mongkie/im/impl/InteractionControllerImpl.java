@@ -262,42 +262,69 @@ public class InteractionControllerImpl implements InteractionController {
 
     private class Expand<K> extends Query<K> {
 
-        private List<K> keys;
+        private Set<K> keys;
         private boolean linked;
 
         public Expand(SourceModelImpl m, String keyField, K... keys) {
             super(m, keyField);
-            this.keys = new ArrayList<K>(Arrays.asList(keys));
+            this.keys = new HashSet<K>(Arrays.asList(keys));
             linked = (keys.length == DataLib.uniqueCount(m.getDisplay().getGraph().nodes(), keyField));
         }
 
         @Override
-        protected List<K> getQueryKeys() {
+        protected Set<K> getQueryKeys() {
             return keys;
         }
 
         @Override
-        protected Set<Interaction<K>> query(InteractionSource<K> is, List<K> keys) throws Exception {
+        protected Set<Interaction<K>> query(InteractionSource<K> is, Set<K> keys) throws Exception {
             Set<Interaction<K>> interactions = super.query(is, keys);
-            List<K> qKeys = new ArrayList<K>();
-            for (Interaction<K> i : interactions) {
-                K targetKey = i.getInteractor().getKey();
-                if (!qKeys.contains(targetKey) //&& DataLib.get(m.getDisplay().getGraph().getNodeTable(), keyField, targetKey) < 0
-                        ) {
-                    qKeys.add(targetKey);
+            Set<K> expandedKeys = new HashSet<K>();
+            if (is.isDirected()) {
+                for (Interaction<K> i : interactions) {
+                    K sourceKey = i.getSourceKey();
+                    if (!keys.contains(sourceKey)) {
+                        expandedKeys.add(sourceKey);
+                    }
+                    K targetKey = i.getTargetKey();
+                    if (!keys.contains(targetKey)) {
+                        expandedKeys.add(targetKey);
+                    }
+                }
+            } else {
+                for (Interaction<K> i : interactions) {
+                    K targetKey = i.getTargetKey();
+                    if (!keys.contains(targetKey)) {
+                        expandedKeys.add(targetKey);
+                    }
                 }
             }
-            interactions.addAll(super.query(is, qKeys));
+            interactions.addAll(super.query(is, expandedKeys));
+            Set<K> existingKeys = getAllNodeKeys();
+            for (Iterator<Interaction<K>> interactionIter = interactions.iterator(); interactionIter.hasNext();) {
+                Interaction<K> i = interactionIter.next();
+                K sourceKey = i.getSourceKey();
+                K targetKey = i.getTargetKey();
+                if ((!existingKeys.contains(sourceKey) && !expandedKeys.contains(sourceKey))
+                        || (!existingKeys.contains(targetKey) && !expandedKeys.contains(targetKey))) {
+                    interactionIter.remove();
+                }
+            }
             return interactions;
         }
 
         @Override
-        protected void addSourceNodesOf(Set<Interaction<K>> interactions, Graph g) {
+        protected void addNodes(Set<Interaction<K>> interactions, Graph g) {
             Visualization v = m.getDisplay().getVisualization();
             for (Interaction i : interactions) {
                 if (DataLib.get(g.getNodeTable(), keyField, i.getSourceKey()) < 0) {
                     Node n = g.addNode(); // Expanded node
                     n.set(keyField, i.getSourceKey());
+                    expandedNodeItems.add((NodeItem) v.getVisualItem(Constants.NODES, n));
+                }
+                if (DataLib.get(g.getNodeTable(), keyField, i.getTargetKey()) < 0) {
+                    Node n = g.addNode(); // Expanded node
+                    n.set(keyField, i.getTargetKey());
                     expandedNodeItems.add((NodeItem) v.getVisualItem(Constants.NODES, n));
                 }
             }
@@ -322,7 +349,7 @@ public class InteractionControllerImpl implements InteractionController {
         }
 
         @Override
-        protected List<K> getQueryKeys() {
+        protected Set<K> getQueryKeys() {
             return getAllNodeKeys();
         }
 
@@ -333,12 +360,8 @@ public class InteractionControllerImpl implements InteractionController {
         }
 
         @Override
-        protected void addSourceNodesOf(Set<Interaction<K>> interactions, Graph g) {
-            for (Interaction i : interactions) {
-                if (DataLib.get(g.getNodeTable(), keyField, i.getSourceKey()) < 0) {
-                    throw new IllegalStateException("Node for the key does not exist: " + i.getSourceKey());
-                }
-            }
+        protected void addNodes(Set<Interaction<K>> interactions, Graph g) {
+            // Nothing to do on linking
         }
     }
 
@@ -363,7 +386,7 @@ public class InteractionControllerImpl implements InteractionController {
             this.progressTicket = progressTicket;
         }
 
-        private void annotateNodesOf(List<K> keys) throws Exception {
+        private void annotateNodes(Set<K> keys) throws Exception {
             final Graph g = m.getDisplay().getGraph();
             final InteractionSource<K> is = m.getInteractionSource();
             addAttributeColumns(g.getNodeTable(), is.getAnnotationSchema(), is.getName());
@@ -403,16 +426,12 @@ public class InteractionControllerImpl implements InteractionController {
         }
         protected final Attribute.Set NO_ATTRIBUTES = new Attribute.Set();
 
-        protected abstract List<K> getQueryKeys();
+        protected abstract Set<K> getQueryKeys();
 
-        protected final List<K> getAllNodeKeys() {
-            List<K> keys = new ArrayList<K>();
+        protected final Set<K> getAllNodeKeys() {
+            Set<K> keys = new HashSet<K>();
             for (Iterator<Node> nodeIter = m.getDisplay().getGraph().nodes(); nodeIter.hasNext();) {
-                Node n = nodeIter.next();
-                K key = (K) n.get(keyField);
-                if (!keys.contains(key)) {
-                    keys.add(key);
-                }
+                keys.add((K) nodeIter.next().get(keyField));
             }
             return keys;
         }
@@ -444,18 +463,19 @@ public class InteractionControllerImpl implements InteractionController {
             return null;
         }
 
-        protected Set<Interaction<K>> query(InteractionSource<K> is, List<K> keys) throws Exception {
+        protected Set<Interaction<K>> query(InteractionSource<K> is, Set<K> keys) throws Exception {
             Map<K, Set<Interaction<K>>> results = caches.get(is).query(keys);
-            keys.removeAll(results.keySet());
-            Map<K, Set<Interaction<K>>> qResults = is.query(keys.toArray((K[]) Array.newInstance(is.getKeyType(), 0)));
+            List<K> _keys = new ArrayList<K>(keys);
+            _keys.removeAll(results.keySet());
+            Map<K, Set<Interaction<K>>> qResults = is.query(_keys.toArray((K[]) Array.newInstance(is.getKeyType(), 0)));
             for (K k : qResults.keySet()) {
                 Set<Interaction<K>> result = qResults.get(k);
                 results.put(k, Collections.unmodifiableSet(result));
                 caches.get(is).put(k, result);
-                keys.remove(k);
+                _keys.remove(k);
             }
             // Caching keys with no interactions
-            for (K k : keys) {
+            for (K k : _keys) {
                 results.put(k, NO_INTERACTIONS);
                 caches.get(is).put(k, NO_INTERACTIONS);
             }
@@ -470,7 +490,7 @@ public class InteractionControllerImpl implements InteractionController {
         }
         protected final Set<Interaction<K>> NO_INTERACTIONS = Collections.unmodifiableSet(new HashSet<Interaction<K>>());
 
-        protected abstract void addSourceNodesOf(Set<Interaction<K>> interactions, Graph g);
+        protected abstract void addNodes(Set<Interaction<K>> interactions, Graph g);
 
         @Override
         public void run() {
@@ -483,19 +503,18 @@ public class InteractionControllerImpl implements InteractionController {
                     @Override
                     public void run() {
                         Graph g = m.getDisplay().getGraph();
-                        addSourceNodesOf(interactions, g);
+                        addNodes(interactions, g);
                         // Add columns for attributes of the interaction
                         if (g.getEdgeTable().getColumn(FIELD_INTERACTION_SOURCE) == null) {
                             g.getEdgeTable().addColumn(FIELD_INTERACTION_SOURCE, String.class, null);
                         }
                         addAttributeColumns(g.getEdgeTable(), is.getInteractionSchema(), null);
                         for (Interaction<K> i : interactions) {
-                            Interactor<K> interactor = i.getInteractor();
                             for (Iterator<Integer> sourceIter =
                                     DataLib.rows(g.getNodeTable(), keyField, i.getSourceKey()); sourceIter.hasNext();) {
                                 Node source = g.getNode(sourceIter.next());
                                 for (Iterator<Integer> targetIter =
-                                        DataLib.rows(g.getNodeTable(), keyField, interactor.getKey()); targetIter.hasNext();) {
+                                        DataLib.rows(g.getNodeTable(), keyField, i.getTargetKey()); targetIter.hasNext();) {
                                     Node target = g.getNode(targetIter.next());
 //                                    if (interactor.hasAttributes()) {
 //                                        for (Attribute a : interactor.getAttributes()) {
@@ -534,7 +553,7 @@ public class InteractionControllerImpl implements InteractionController {
                         }
                     }
                 });
-                annotateNodesOf(getAllNodeKeys());
+                annotateNodes(getAllNodeKeys());
                 queryFinished(true);
                 m.getDisplay().fireGraphChangedEvent();
             } catch (Exception ex) {
@@ -596,7 +615,7 @@ public class InteractionControllerImpl implements InteractionController {
             return true;
         }
 
-        public Map<K, Set<Interaction<K>>> query(List<K> keys) {
+        public Map<K, Set<Interaction<K>>> query(Set<K> keys) {
             Map<K, Set<Interaction<K>>> results = new HashMap<K, Set<Interaction<K>>>();
             for (Iterator<K> keyIter = keys.iterator(); keyIter.hasNext();) {
                 K key = keyIter.next();
@@ -607,7 +626,7 @@ public class InteractionControllerImpl implements InteractionController {
             return results;
         }
 
-        public Map<K, Attribute.Set> annotate(List<K> keys) {
+        public Map<K, Attribute.Set> annotate(Set<K> keys) {
             Map<K, Attribute.Set> results = new HashMap<K, Attribute.Set>();
             for (Iterator<K> keyIter = keys.iterator(); keyIter.hasNext();) {
                 K key = keyIter.next();
@@ -785,9 +804,8 @@ public class InteractionControllerImpl implements InteractionController {
                     continue;
                 }
                 Set<GraphInteraction> interactions = new LinkedHashSet<GraphInteraction>();
-                Node node = g.getNode(n);
-                for (Iterator<Edge> edges = g.outEdges(node); edges.hasNext();) {
-                    interactions.add(new GraphInteraction(node, edges.next()));
+                for (Iterator<Edge> edges = g.edges(g.getNode(n)); edges.hasNext();) {
+                    interactions.add(new GraphInteraction(edges.next()));
                 }
                 results.put(key, interactions);
             }
@@ -843,15 +861,15 @@ public class InteractionControllerImpl implements InteractionController {
 
         class GraphInteraction implements Interaction {
 
-            final Node n;
+            final Object sourceKey, targetKey;
             final Edge e;
             final Interactor interactor;
             final Attribute.Set attributes;
 
-            GraphInteraction(Node n, Edge e) {
-                this.n = n;
+            GraphInteraction(Edge e) {
                 this.e = e;
-                interactor = new Interactor(e.getTargetNode().get(nodeKeyCol), new Attribute.Set());
+                this.sourceKey = e.getSourceNode().get(nodeKeyCol);
+                interactor = new Interactor(targetKey = e.getTargetNode().get(nodeKeyCol), new Attribute.Set());
                 attributes = new Attribute.Set();
                 for (int i = 0; i < e.getColumnCount(); i++) {
                     String colName = e.getColumnName(i);
@@ -864,7 +882,17 @@ public class InteractionControllerImpl implements InteractionController {
 
             @Override
             public Object getSourceKey() {
-                return n.get(nodeKeyCol);
+                return sourceKey;
+            }
+
+            @Override
+            public Object getTargetKey() {
+                return targetKey;
+            }
+
+            @Override
+            public boolean isDirected() {
+                return e.isDirected();
             }
 
             @Override

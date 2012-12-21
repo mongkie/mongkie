@@ -256,6 +256,16 @@ public class MiMI implements InteractionSource<Integer> {
         }
 
         @Override
+        public Integer getTargetKey() {
+            return targetGeneId;
+        }
+
+        @Override
+        public boolean isDirected() {
+            return false;
+        }
+
+        @Override
         public Interactor<Integer> getInteractor() {
             return interactor;
         }

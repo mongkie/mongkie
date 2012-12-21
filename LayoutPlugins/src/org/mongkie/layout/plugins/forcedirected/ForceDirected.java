@@ -20,6 +20,7 @@ package org.mongkie.layout.plugins.forcedirected;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
@@ -92,7 +93,12 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
         d.setGraphLayout(expandingLayout, getDuration(expandedNodes.size()));
         //Set initial location of expanded nodes to the location of source node
         for (NodeItem expanded : expandedNodes) {
-            NodeItem source = (NodeItem) expanded.inNeighbors().next();
+            NodeItem source;
+            try {
+                source = (NodeItem) expanded.inNeighbors().next();
+            } catch (NoSuchElementException ex) {
+                source = (NodeItem) expanded.outNeighbors().next();
+            }
             setX(expanded, null, source.getX());
             setY(expanded, null, source.getY());
         }

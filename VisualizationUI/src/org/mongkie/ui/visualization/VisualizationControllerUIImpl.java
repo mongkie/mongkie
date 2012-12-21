@@ -48,7 +48,7 @@ public class VisualizationControllerUIImpl implements VisualizationControllerUI 
     public org.mongkie.visualization.DisplayTopComponent openNewDisplayTopComponent(String title, Graph g, boolean loading) {
         DisplayTopComponent tc = (DisplayTopComponent) WindowManager.getDefault().findMode(MODE_DISPLAY).getSelectedTopComponent();
         MongkieDisplay currentDisplay = tc != null ? tc.getDisplay() : null;
-        if (currentDisplay != null && currentDisplay.getGraph().getNodeCount() < 1) {
+        if (currentDisplay != null && !currentDisplay.isFired()) {
             if (g != null) {
                 if (isBigGraph(g)) {
                     currentDisplay.cancelLayoutAction();

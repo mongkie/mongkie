@@ -136,7 +136,7 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
 
     @Override
     public void executeLayout() {
-        if (model.getSelectedLayout() != null) {
+        if (model.getSelectedLayout() != null && model.getDisplay().getGraph().getNodeCount() > 0) {
             LayoutRun run = new LayoutRun(model.getSelectedLayout());
             model.getExecutor().execute(run, run);
         }
@@ -159,15 +159,12 @@ public class LayoutControllerImpl implements LayoutController, DisplayListener {
 
     @Override
     public void graphDisposing(NetworkDisplay d, Graph g) {
+        fireModelChangeEvent(model, null);
     }
 
     @Override
     public void graphChanged(NetworkDisplay d, Graph g) {
-        if (g.getNodeCount() > 0) {
-            fireModelChangeEvent(null, model);
-        } else {
-            fireModelChangeEvent(model, null);
-        }
+        fireModelChangeEvent(null, model);
     }
 
     private static class LayoutRun implements LongTask, Runnable {

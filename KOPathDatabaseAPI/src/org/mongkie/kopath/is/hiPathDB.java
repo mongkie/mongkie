@@ -89,6 +89,16 @@ public class hiPathDB implements InteractionSource<Integer> {
         }
 
         @Override
+        public Integer getTargetKey() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public boolean isDirected() {
+            return true;
+        }
+
+        @Override
         public Interactor<Integer> getInteractor() {
             throw new UnsupportedOperationException("Not supported yet.");
         }

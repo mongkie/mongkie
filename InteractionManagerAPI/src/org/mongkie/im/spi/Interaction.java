@@ -29,6 +29,10 @@ public interface Interaction<K> {
 
     public K getSourceKey();
 
+    public K getTargetKey();
+    
+    public boolean isDirected();
+
     public Interactor<K> getInteractor();
 
     public Attribute.Set getAttributeSet();

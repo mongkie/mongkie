@@ -70,7 +70,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
                 switch (e.getStateChange()) {
                     case ItemEvent.DESELECTED:
                         Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, null);
-                        interactionLinkButton.setEnabled(false);
+                        // interactionLinkButton.setEnabled(false);
                         break;
                     case ItemEvent.SELECTED:
                         Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, (String) e.getItem());

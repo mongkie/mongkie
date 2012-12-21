@@ -195,7 +195,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         }
 
         Layout l = (model != null) ? model.getSelectedLayout() : null;
-        boolean enabled = l != null && model.getDisplay().getGraph().getNodeCount() > 0;
+        boolean enabled = l != null && model.getDisplay().isFired();
         runButton.setEnabled(enabled);
         infoLabel.setEnabled(enabled);
         propertySheet.setEnabled(enabled);
@@ -203,7 +203,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
         resetButton.setEnabled(presetsButton.isEnabled());
         selectionOnlyButton.setEnabled(enabled && !model.isRunning());
 
-        layoutCombobox.setEnabled(model != null && !model.isRunning() && model.getDisplay().getGraph().getNodeCount() > 0);
+        layoutCombobox.setEnabled(model != null && !model.isRunning() && model.getDisplay().isFired());
     }
 
     @Override

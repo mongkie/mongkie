@@ -20,6 +20,7 @@ package org.mongkie.im.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -198,21 +199,21 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
     }
 
     boolean addInteraction(Interaction i, Edge e) {
-        List<Edge> edges = interactionsMap.get(i);
+        Set<Edge> edges = interactionsMap.get(i);
         if (edges == null) {
-            edges = new ArrayList<Edge>();
+            edges = new HashSet<Edge>();
             interactionsMap.put(i, edges);
         }
         return edges.add(e);
     }
 
-    List<Edge> removeInteraction(Interaction i) {
+    Set<Edge> removeInteraction(Interaction i) {
         return interactionsMap.remove(i);
     }
 
-    List<Edge> clearInteractions() {
-        List<Edge> allEdges = new ArrayList<Edge>();
-        for (List<Edge> edges : interactionsMap.values()) {
+    Set<Edge> clearInteractions() {
+        Set<Edge> allEdges = new HashSet<Edge>();
+        for (Set<Edge> edges : interactionsMap.values()) {
             allEdges.addAll(edges);
             edges.clear();
         }
@@ -223,7 +224,7 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
     Set<Interaction> getInteractions() {
         return interactionsMap.keySet();
     }
-    private final Map<Interaction, List<Edge>> interactionsMap = new HashMap<Interaction, List<Edge>>();
+    private final Map<Interaction, Set<Edge>> interactionsMap = new HashMap<Interaction, Set<Edge>>();
 
     @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {
