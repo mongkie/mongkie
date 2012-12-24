@@ -71,6 +71,7 @@ public class JPopupButton extends JButton {
     public void clearItems() {
         items.clear();
         selectedItem = null;
+        fireChangeEvent();
     }
 
     public void addItem(Object object, Icon icon) {
@@ -101,7 +102,7 @@ public class JPopupButton extends JButton {
 
     private void fireChangeEvent() {
         if (listener != null) {
-            listener.stateChanged(new ChangeEvent(selectedItem.object));
+            listener.stateChanged(selectedItem != null ? new ChangeEvent(selectedItem.object) : null);
         }
     }
 

@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.PopupMenuListener;
 import static kobic.prefuse.Constants.EDGES;
 import static kobic.prefuse.Constants.NODES;
 import kobic.prefuse.controls.PopupControl;
@@ -165,6 +166,9 @@ public final class DisplayTopComponent extends TopComponent
                         for (NodePopupMenuItemFactory f : Lookup.getDefault().lookupAll(NodePopupMenuItemFactory.class)) {
                             for (JMenuItem mi : f.createMenuItems(this)) {
                                 popup.add(mi);
+                            }
+                            if (f instanceof PopupMenuListener) {
+                                popup.addPopupMenuListener((PopupMenuListener) f);
                             }
                         }
                     }

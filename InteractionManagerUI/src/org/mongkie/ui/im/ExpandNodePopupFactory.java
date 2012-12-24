@@ -23,9 +23,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import kobic.prefuse.controls.PopupControl;
 import org.mongkie.im.InteractionController;
 import org.mongkie.im.spi.InteractionSource;
@@ -54,7 +57,8 @@ public class ExpandNodePopupFactory extends NodePopupMenuItemFactory {
         final InteractionController ic = Lookup.getDefault().lookup(InteractionController.class);
         for (String category : ic.getCategories()) {
             for (final InteractionSource is : ic.getInteractionSources(category)) {
-                m.add(new AbstractAction(is.getName()) {
+                final Action a;
+                m.add(a = new AbstractAction(is.getName()) {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         TupleSet focusedTupleSet = control.getDisplay().getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
@@ -69,6 +73,21 @@ public class ExpandNodePopupFactory extends NodePopupMenuItemFactory {
                         } else {
                             ic.executeExpand(is, clickedItem.get(ic.getModel(is).getKeyField()));
                         }
+                    }
+                });
+                m.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+
+                    @Override
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                        a.setEnabled(ic.getModel(is).getKeyField() != null);
+                    }
+
+                    @Override
+                    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                    }
+
+                    @Override
+                    public void popupMenuCanceled(PopupMenuEvent e) {
                     }
                 });
             }

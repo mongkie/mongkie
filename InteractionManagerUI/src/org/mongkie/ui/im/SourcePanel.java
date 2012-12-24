@@ -70,15 +70,14 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
                 switch (e.getStateChange()) {
                     case ItemEvent.DESELECTED:
                         Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, null);
-                        // interactionLinkButton.setEnabled(false);
                         break;
                     case ItemEvent.SELECTED:
                         Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, (String) e.getItem());
-                        interactionLinkButton.setEnabled(true);
                         break;
                     default:
                         break;
                 }
+                updateInteractionLinkButton();
             }
         });
         partiallyLinkedMenu = new JPopupMenu();
@@ -237,7 +236,9 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
     }
 
     private void updateInteractionLinkButton() {
-        if (model.isLinked()) {
+        if (model.getKeyField() == null) {
+            interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.disabled.toolTipText"));
+        } else if (model.isLinked()) {
             interactionLinkButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/check.png", false));
             interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.linked.toolTipText"));
         } else if (model.isPartiallyLinked()) {
@@ -281,6 +282,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
                 columnComboBox.setSelectedItem(g.getNodeKeyField());
             }
         }
+        updateInteractionLinkButton();
     }
 
     @Override

@@ -73,7 +73,7 @@ public abstract class DecoratorLabelRenderer extends LabelRenderer {
     }
 
     public void setLabelField(String field) {
-        if (field.equals(getTextField())) {
+        if (field != null && field.equals(getTextField())) {
             return;
         }
         super.setTextField(field);

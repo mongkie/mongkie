@@ -72,17 +72,17 @@ public class NodeOptions implements Options {
         lableColumnButton.setChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                final String col = (String) e.getSource();
-                if (col != null && !col.equals(display.getGraph().getNodeLabelField())) {
-                    display.getVisualization().process(new Runnable() {
-                        @Override
-                        public void run() {
+                final String col = e != null ? (String) e.getSource() : null;
+                display.getVisualization().process(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (col == null || !col.equals(display.getGraph().getNodeLabelField())) {
                             display.getGraph().setNodeLabelField(col);
                             display.getNodeLabelRenderer().setLabelField(col);
                         }
-                    });
-                    display.getVisualization().repaint();
-                }
+                    }
+                });
+                display.getVisualization().repaint();
             }
         });
         display.addDisplayListener(new DisplayListener() {
