@@ -21,6 +21,7 @@ package kobic.prefuse.data;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import static prefuse.data.Graph.*;
 
 /**
  *
@@ -60,7 +61,10 @@ public final class Schema {
     public static Schema valueOf(prefuse.data.Schema ps) {
         Schema s = new Schema(ps.getColumnCount());
         for (int i = 0; i < ps.getColumnCount(); i++) {
-            s.addColumn(ps.getColumnName(i), ps.getColumnType(i), ps.getDefault(i));
+            String col = ps.getColumnName(i);
+            if (!col.equals(DEFAULT_SOURCE_KEY) && !col.equals(DEFAULT_TARGET_KEY)) {
+                s.addColumn(col, ps.getColumnType(i), ps.getDefault(i));
+            }
         }
         return s;
     }

@@ -354,6 +354,19 @@ public class InteractionControllerImpl implements InteractionController {
         }
 
         @Override
+        protected Set<Interaction<K>> query(InteractionSource<K> is, Set<K> keys) throws Exception {
+            Set<Interaction<K>> interactions = super.query(is, keys);
+            for (Iterator<Interaction<K>> interactionIter = interactions.iterator(); interactionIter.hasNext();) {
+                Interaction<K> i = interactionIter.next();
+                // Keys are keys of all nodes
+                if (!keys.contains(i.getSourceKey()) || !keys.contains(i.getTargetKey())) {
+                    interactionIter.remove();
+                }
+            }
+            return interactions;
+        }
+
+        @Override
         protected void queryFinished(boolean success) {
             m.setLinked(success);
             m.getDisplay().getVisualization().rerun(DRAW);
@@ -872,11 +885,11 @@ public class InteractionControllerImpl implements InteractionController {
                 interactor = new Interactor(targetKey = e.getTargetNode().get(nodeKeyCol), new Attribute.Set());
                 attributes = new Attribute.Set();
                 for (int i = 0; i < e.getColumnCount(); i++) {
-                    String colName = e.getColumnName(i);
-                    if (colName.equals(g.getEdgeSourceField()) || colName.equals(g.getEdgeTargetField())) {
+                    String col = e.getColumnName(i);
+                    if (is.getColumnIndex(col) < 0) {
                         continue;
                     }
-                    attributes.add(new Attribute(colName, e.get(i)));
+                    attributes.add(new Attribute(col, e.get(i)));
                 }
             }
 
@@ -903,6 +916,28 @@ public class InteractionControllerImpl implements InteractionController {
             @Override
             public Attribute.Set getAttributeSet() {
                 return attributes;
+            }
+
+            @Override
+            public int hashCode() {
+                int hash = 7;
+                hash = 97 * hash + (this.e != null ? this.e.hashCode() : 0);
+                return hash;
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj == null) {
+                    return false;
+                }
+                if (getClass() != obj.getClass()) {
+                    return false;
+                }
+                final GraphInteraction other = (GraphInteraction) obj;
+                if (this.e != other.e && (this.e == null || !this.e.equals(other.e))) {
+                    return false;
+                }
+                return true;
             }
         }
     }
