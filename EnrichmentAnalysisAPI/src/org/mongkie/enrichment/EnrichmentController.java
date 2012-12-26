@@ -35,11 +35,13 @@ public abstract class EnrichmentController<M extends EnrichmentModel>
         setModelData(e);
     }
 
-    public abstract void analyze(String geneIdColumn, String... genes);
+    public abstract void analyze(String... genes);
 
     public abstract void cancelAnalyzing();
 
     public abstract Set<Node> findNodesInDisplayBelongTo(EnrichedTerm term);
 
     public abstract void clearResult();
+    
+    public abstract void setGeneIDColumn(String geneIdCol);
 }

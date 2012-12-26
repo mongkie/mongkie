@@ -72,7 +72,6 @@ public final class EnrichmentChooserTopComponent extends TopComponent
     private static final String NO_SELECTION =
             NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.choose.displayText");
     private EnrichmentModel model;
-    private DefaultComboBoxModel geneIdColumnComboBoxModel = new DefaultComboBoxModel();
 
     public EnrichmentChooserTopComponent() {
         initComponents();
@@ -96,8 +95,6 @@ public final class EnrichmentChooserTopComponent extends TopComponent
             enrichmentComboBoxModel.addElement(builder);
         }
         enrichmentComboBox.setModel(enrichmentComboBoxModel);
-
-        geneIdColumnComboBox.setModel(geneIdColumnComboBoxModel);
     }
 
     private void addEventListeners() {
@@ -144,6 +141,14 @@ public final class EnrichmentChooserTopComponent extends TopComponent
                 }
             }
         });
+        geneIdColumnComboBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (model != null) {
+                    Lookup.getDefault().lookup(EnrichmentController.class).setGeneIDColumn((String) e.getItem());
+                }
+            }
+        });
     }
 
     private void setSelectedEnrichment(EnrichmentBuilder builder) {
@@ -184,18 +189,17 @@ public final class EnrichmentChooserTopComponent extends TopComponent
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                geneIdColumnComboBoxModel.removeAllElements();
+                geneIdColumnComboBox.removeAllItems();
                 if (model != null) {
                     Table nodeTable = model.getDisplay().getGraph().getNodeTable();
+                    String geneIdCol = model.getGeneIDColumn();
                     for (int i = 0; i < nodeTable.getColumnCount(); i++) {
                         if (nodeTable.getColumn(i).canGetString()) {
-                            geneIdColumnComboBoxModel.addElement(nodeTable.getColumnName(i));
+                            geneIdColumnComboBox.addItem(nodeTable.getColumnName(i));
                         }
                     }
-                    String geneIdColumn = model.getGeneIDColumn();
-                    if (geneIdColumn != null) {
-                        geneIdColumnComboBoxModel.setSelectedItem(geneIdColumn);
-                    }
+                    geneIdColumnComboBox.setSelectedItem(
+                            model.get() == null || nodeTable.getColumnNumber(geneIdCol) < 0 ? null : geneIdCol);
                 }
             }
         });
@@ -249,24 +253,23 @@ public final class EnrichmentChooserTopComponent extends TopComponent
             settings.apply(en);
         }
 
-        Object column = geneIdColumnComboBoxModel.getSelectedItem();
-        if (column == null) {
+        Object geneIdCol = model.getGeneIDColumn();
+        if (geneIdCol == null) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message("Select a ID column of query genes.", NotifyDescriptor.ERROR_MESSAGE));
             return;
         }
 
-        String geneIdColumn = (String) column;
-        Lookup.getDefault().lookup(EnrichmentController.class).analyze(geneIdColumn, getGeneIdsFromSelectedColumn(geneIdColumn));
+        Lookup.getDefault().lookup(EnrichmentController.class).analyze(getGeneIdsFromSelectedColumn());
     }
 
-    private String[] getGeneIdsFromSelectedColumn(String column) {
+    private String[] getGeneIdsFromSelectedColumn() {
         Set<String> genes = new HashSet<String>();
 //        for (Iterator<Tuple> nodeIter = model.getDisplay().getGraph().getNodeTable().tuples(); nodeIter.hasNext();) {
         for (Iterator<Tuple> nodeIter = fromSelectionButton.isSelected()
                 ? model.getDisplay().getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS).tuples()
                 : model.getDisplay().getVisualization().items(NODES);
                 nodeIter.hasNext();) {
-            String gene = nodeIter.next().getString(column);
+            String gene = nodeIter.next().getString(model.getGeneIDColumn());
             if (gene == null || (gene = gene.trim()).isEmpty()) {
                 continue;
             }

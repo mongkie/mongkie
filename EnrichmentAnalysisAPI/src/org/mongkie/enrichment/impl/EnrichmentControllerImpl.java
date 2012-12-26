@@ -52,9 +52,13 @@ public class EnrichmentControllerImpl extends EnrichmentController<EnrichmentMod
     private GroupingSupport<EnrichedTerm> gs = new GroupingSupport<EnrichedTerm>(this);
 
     @Override
-    public void analyze(String geneIdColumn, final String... genes) {
+    public void setGeneIDColumn(String geneIdCol) {
+        model.setGeneIDColumn(geneIdCol);
+    }
+
+    @Override
+    public void analyze(final String... genes) {
         final Enrichment en = model.get();
-        model.setGeneIDColumn(geneIdColumn);
         final EnrichmentTask task = new EnrichmentTask(en);
         model.getExecutor().execute(task, new Runnable() {
             @Override
