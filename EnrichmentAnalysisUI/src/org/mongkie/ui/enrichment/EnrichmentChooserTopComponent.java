@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.SwingUtilities;
 import static kobic.prefuse.Constants.NODES;
+import kobic.prefuse.display.DisplayListener;
 import org.mongkie.enrichment.EnrichmentController;
 import org.mongkie.enrichment.EnrichmentModel;
 import org.mongkie.enrichment.EnrichmentModelListener;
@@ -33,6 +34,7 @@ import org.mongkie.enrichment.spi.Enrichment;
 import org.mongkie.enrichment.spi.EnrichmentBuilder;
 import static org.mongkie.visualization.Config.MODE_ACTION;
 import static org.mongkie.visualization.Config.ROLE_NETWORK;
+import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.workspace.ModelChangeListener;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.DialogDisplayer;
@@ -44,8 +46,11 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import prefuse.Visualization;
+import prefuse.data.Graph;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
+import static prefuse.data.event.EventConstants.*;
+import prefuse.data.event.TableListener;
 
 /**
  *
@@ -61,7 +66,8 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @ActionReference(path = "Menu/Window", position = 70)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_EnrichmentChooserAction",
 preferredID = "EnrichmentChooserTopComponent")
-public final class EnrichmentChooserTopComponent extends TopComponent implements EnrichmentModelListener {
+public final class EnrichmentChooserTopComponent extends TopComponent
+        implements EnrichmentModelListener, DisplayListener<MongkieDisplay>, TableListener {
 
     private static final String NO_SELECTION =
             NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.choose.displayText");
@@ -100,10 +106,12 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
             public void modelChanged(EnrichmentModel o, EnrichmentModel n) {
                 if (o != null) {
                     o.removeModelListener(EnrichmentChooserTopComponent.this);
+                    o.getDisplay().removeDisplayListener(EnrichmentChooserTopComponent.this);
                 }
                 model = n;
                 if (model != null) {
                     model.addModelListener(EnrichmentChooserTopComponent.this);
+                    model.getDisplay().addDisplayListener(EnrichmentChooserTopComponent.this);
                 }
                 refreshModel();
             }
@@ -152,6 +160,26 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
         refreshResult();
     }
 
+    @Override
+    public void graphDisposing(MongkieDisplay d, Graph g) {
+        g.getNodeTable().removeTableListener(this);
+    }
+
+    @Override
+    public void graphChanged(MongkieDisplay d, Graph g) {
+        if (g != null) {
+            g.getNodeTable().addTableListener(this);
+        }
+        refreshGeneIdColumnComboBox();
+    }
+
+    @Override
+    public void tableChanged(Table t, int start, int end, int col, int type) {
+        if (col != ALL_COLUMNS && (type == INSERT || type == DELETE)) {
+            refreshGeneIdColumnComboBox();
+        }
+    }
+
     private void refreshGeneIdColumnComboBox() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -164,7 +192,7 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
                             geneIdColumnComboBoxModel.addElement(nodeTable.getColumnName(i));
                         }
                     }
-                    String geneIdColumn = model.getGeneIdColumn();
+                    String geneIdColumn = model.getGeneIDColumn();
                     if (geneIdColumn != null) {
                         geneIdColumnComboBoxModel.setSelectedItem(geneIdColumn);
                     }
@@ -189,7 +217,7 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
             runButton.setToolTipText(NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.cancelButton.toolTipText"));
         }
 
-        boolean enabled = model != null && model.get() != null && model.getDisplay().getGraph().getNodeCount() > 0;
+        boolean enabled = model != null && model.get() != null && model.getDisplay().isFired();
         runButton.setEnabled(enabled);
         infoLabel.setEnabled(enabled);
         wholeNetworkButton.setEnabled(enabled && !model.isRunning());
@@ -200,7 +228,7 @@ public final class EnrichmentChooserTopComponent extends TopComponent implements
             settings.setEnabled(!model.isRunning());
         }
 
-        enrichmentComboBox.setEnabled(model != null && !model.isRunning() && model.getDisplay().getGraph().getNodeCount() > 0);
+        enrichmentComboBox.setEnabled(model != null && !model.isRunning() && model.getDisplay().isFired());
     }
 
     private void refreshResult() {

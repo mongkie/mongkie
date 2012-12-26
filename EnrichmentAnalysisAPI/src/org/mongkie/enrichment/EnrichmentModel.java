@@ -33,7 +33,7 @@ public abstract class EnrichmentModel
         super(display);
     }
 
-    public abstract String getGeneIdColumn();
+    public abstract String getGeneIDColumn();
 
     public abstract EnrichedResultUI getResult();
 

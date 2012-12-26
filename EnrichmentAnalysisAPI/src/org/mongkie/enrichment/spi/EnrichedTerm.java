@@ -36,4 +36,6 @@ public interface EnrichedTerm {
     public double getP();
 
     public Color getColor();
+    
+    public String getGeneIDColumn();
 }

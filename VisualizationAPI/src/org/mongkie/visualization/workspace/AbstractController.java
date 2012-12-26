@@ -82,7 +82,7 @@ public abstract class AbstractController<M extends AbstractModel, V> implements 
     // TODO: Must be considered with Graph.graphChanged() when graph edited(expansion, deletion)
     @Override
     public void graphChanged(NetworkDisplay d, Graph g) {
-        if (g.getNodeCount() > 0) {
+        if (d.isFired()) {
             fireModelChangeEvent(null, model);
         } else {
             fireModelChangeEvent(model, null);

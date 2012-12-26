@@ -30,10 +30,12 @@ public class EnrichedGoId implements EnrichedTerm {
 
     private final GoId goId;
     private final EnrichedResult result;
+    private final String geneIdCol;
 
-    public EnrichedGoId(GoId goId, EnrichedResult result) {
+    public EnrichedGoId(GoId goId, EnrichedResult result, String geneIdCol) {
         this.goId = goId;
         this.result = result;
+        this.geneIdCol = geneIdCol;
     }
 
     public GoId getGoId() {
@@ -106,4 +108,9 @@ public class EnrichedGoId implements EnrichedTerm {
         this.color = color;
     }
     private Color color = null;
+
+    @Override
+    public String getGeneIDColumn() {
+        return geneIdCol;
+    }
 }

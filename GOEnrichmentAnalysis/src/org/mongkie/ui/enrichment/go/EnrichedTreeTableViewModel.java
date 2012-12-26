@@ -14,8 +14,11 @@ import java.util.Set;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
+import org.mongkie.enrichment.EnrichmentController;
+import org.mongkie.enrichment.EnrichmentModel;
 import org.mongkie.gobean.EnrichedResult;
 import org.mongkie.ui.enrichment.go.util.UIUtilities;
+import org.openide.util.Lookup;
 
 public class EnrichedTreeTableViewModel extends AbstractTreeTableModel implements TableModel {
     
@@ -25,9 +28,12 @@ public class EnrichedTreeTableViewModel extends AbstractTreeTableModel implement
     private Map<GoId, EnrichedGoId> goId2EnrichedGoId;
     private List<EnrichedGoId> enrichedGoIds;
     private final Set<TableModelListener> listeners = Collections.synchronizedSet(new HashSet<TableModelListener>());
+    private final String geneIdCol;
     
     public EnrichedTreeTableViewModel(EnrichedResult result, List<GoId> selectedGoIds) {
-        super(new EnrichedGoId(GoBranch.GENE_ONTOLOGY.getGoId(), result));
+        super(new EnrichedGoId(GoBranch.GENE_ONTOLOGY.getGoId(), result,
+                ((EnrichmentModel) Lookup.getDefault().lookup(EnrichmentController.class).getModel()).getGeneIDColumn()));
+        this.geneIdCol = ((EnrichedGoId) getRoot()).getGeneIDColumn();
         this.result = result;
         this.goId2EnrichedGoId = makeGoId2EnrichedGoId(result.getChildCountMap().keySet());
         this.enrichedGoIds = selectEnrichedGoIds(selectedGoIds);
@@ -36,7 +42,7 @@ public class EnrichedTreeTableViewModel extends AbstractTreeTableModel implement
     private Map<GoId, EnrichedGoId> makeGoId2EnrichedGoId(Set<GoId> allGoIds) {
         Map<GoId, EnrichedGoId> terms = new HashMap<GoId, EnrichedGoId>();
         for (GoId goId : allGoIds) {
-            terms.put(goId, new EnrichedGoId(goId, result));
+            terms.put(goId, new EnrichedGoId(goId, result, geneIdCol));
         }
         return terms;
     }

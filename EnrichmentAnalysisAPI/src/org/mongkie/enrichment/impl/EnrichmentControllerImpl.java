@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.mongkie.enrichment.EnrichmentController;
@@ -55,7 +54,7 @@ public class EnrichmentControllerImpl extends EnrichmentController<EnrichmentMod
     @Override
     public void analyze(String geneIdColumn, final String... genes) {
         final Enrichment en = model.get();
-        model.setGeneIdColumn(geneIdColumn);
+        model.setGeneIDColumn(geneIdColumn);
         final EnrichmentTask task = new EnrichmentTask(en);
         model.getExecutor().execute(task, new Runnable() {
             @Override
@@ -88,19 +87,18 @@ public class EnrichmentControllerImpl extends EnrichmentController<EnrichmentMod
     }
 
     @Override
-    public Set<Node> findNodesInDisplayBelongTo(EnrichedTerm term) {
+    public Set<Node> findNodesInDisplayBelongTo(final EnrichedTerm term) {
         if (termToNodes.containsKey(term)) {
             return termToNodes.get(term);
         }
 
         Set<Node> nodes = new HashSet<Node>();
-        final List<String> enrichedGeneIds = Arrays.asList(term.getEnrichedGeneIds());
-        final String geneIdColumn = model.getGeneIdColumn();
+        final Set<String> enrichedGeneIds = new HashSet<String>(Arrays.asList(term.getEnrichedGeneIds()));
         Graph g = model.getDisplay().getGraph();
         for (Iterator<Tuple> nodeIter = g.getNodeTable().tuples(new AbstractPredicate() {
             @Override
             public boolean getBoolean(Tuple t) {
-                String ids = t.getString(geneIdColumn);
+                String ids = t.getString(term.getGeneIDColumn());
                 if (ids != null) {
                     for (String id : ids.split(",")) {
                         if (enrichedGeneIds.contains(id.trim())) {

@@ -98,14 +98,14 @@ public class EnrichmentModelImpl extends EnrichmentModel {
     }
 
     @Override
-    public String getGeneIdColumn() {
-        return geneIdColumns.get(get());
+    public String getGeneIDColumn() {
+        return geneIdCols.get(get());
     }
 
-    void setGeneIdColumn(String geneIdColumn) {
-        geneIdColumns.put(get(), geneIdColumn);
+    void setGeneIDColumn(String geneIdCol) {
+        geneIdCols.put(get(), geneIdCol);
     }
-    private final Map<Enrichment, String> geneIdColumns = new HashMap<Enrichment, String>();
+    private final Map<Enrichment, String> geneIdCols = new HashMap<Enrichment, String>();
 
     @Override
     public EnrichedResultUI getResult() {
