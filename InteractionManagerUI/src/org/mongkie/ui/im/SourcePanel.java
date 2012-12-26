@@ -67,16 +67,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         columnComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                switch (e.getStateChange()) {
-                    case ItemEvent.DESELECTED:
-                        Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, null);
-                        break;
-                    case ItemEvent.SELECTED:
-                        Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, (String) e.getItem());
-                        break;
-                    default:
-                        break;
-                }
+                Lookup.getDefault().lookup(InteractionController.class).setKeyField(is, (String) e.getItem());
                 updateInteractionLinkButton();
             }
         });
@@ -270,16 +261,14 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         columnComboBox.removeAllItems();
         if (g != null) {
             Table t = g.getNodeTable();
+            String key = model.getKeyField();
             for (int i = 0; i < t.getColumnCount(); i++) {
                 if (is.getKeyType().equals(TypeLib.getWrapperType(t.getColumnType(i)))) {
                     columnComboBox.addItem(t.getColumnName(i));
                 }
             }
-            String key = model.getKeyField();
             if (key != null) {
                 columnComboBox.setSelectedItem(key);
-            } else if (g.getNodeKeyField() != null) {
-                columnComboBox.setSelectedItem(g.getNodeKeyField());
             }
         }
         updateInteractionLinkButton();
