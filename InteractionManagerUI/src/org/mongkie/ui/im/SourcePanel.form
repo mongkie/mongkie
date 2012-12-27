@@ -2,6 +2,12 @@
 
 <Form version="1.8" maxVersion="1.8" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <Properties>
+    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+      <Dimension value="[32767, 28]"/>
+    </Property>
+    <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+      <Dimension value="[305, 28]"/>
+    </Property>
     <Property name="opaque" type="boolean" value="false"/>
   </Properties>
   <AuxValues>
@@ -20,7 +26,7 @@
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout">
     <Property name="alignment" type="int" value="3"/>
     <Property name="horizontalGap" type="int" value="1"/>
-    <Property name="verticalGap" type="int" value="3"/>
+    <Property name="verticalGap" type="int" value="0"/>
   </Layout>
   <SubComponents>
     <Component class="javax.swing.Box$Filler" name="filler2">

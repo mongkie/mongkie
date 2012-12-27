@@ -20,6 +20,7 @@ package org.mongkie.ui.im;
 
 import javax.swing.SwingUtilities;
 import org.mongkie.im.InteractionController;
+import org.mongkie.im.SourceModel;
 import org.mongkie.im.SourceModelChangeListener;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.visualization.MongkieDisplay;
@@ -41,27 +42,29 @@ public class CategoryPanel extends javax.swing.JPanel implements SourceModelChan
         this.d = d;
         this.category = category;
         initComponents();
+        add(topFiller);
         for (InteractionSource is : Lookup.getDefault().lookup(InteractionController.class).getInteractionSources(category)) {
             add(new SourcePanel(d, is));
         }
+        add(bottomFiller);
         Lookup.getDefault().lookup(InteractionController.class).addModelChangeListener(d, CategoryPanel.this);
     }
 
     @Override
-    public void modelAdded(final InteractionSource is) {
-        if (category.equals(is.getCategory())
+    public void modelAdded(final SourceModel model) {
+        if (category.equals(model.getInteractionSource().getCategory())
                 && category.equals(InteractionController.CATEGORY_OTHERS)) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    add(new SourcePanel(d, is));
+                    add(new SourcePanel(d, model.getInteractionSource()), getComponentCount() - 2);
                 }
             });
         }
     }
 
     @Override
-    public void modelRemoved(InteractionSource is) {
+    public void modelRemoved(SourceModel model) {
     }
 
     /**
@@ -73,9 +76,14 @@ public class CategoryPanel extends javax.swing.JPanel implements SourceModelChan
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        topFiller = new javax.swing.Box.Filler(new java.awt.Dimension(0, 4), new java.awt.Dimension(0, 4), new java.awt.Dimension(32767, 4));
+        bottomFiller = new javax.swing.Box.Filler(new java.awt.Dimension(0, 4), new java.awt.Dimension(0, 4), new java.awt.Dimension(32767, 4));
+
         setOpaque(false);
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.PAGE_AXIS));
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler bottomFiller;
+    private javax.swing.Box.Filler topFiller;
     // End of variables declaration//GEN-END:variables
 }

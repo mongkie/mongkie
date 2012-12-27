@@ -57,6 +57,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
      */
     public SourcePanel(MongkieDisplay d, final InteractionSource is) {
         initComponents();
+        setAlignmentY(TOP_ALIGNMENT);
         querying = new JXBusyLabel(
                 new Dimension(interactionLinkButton.getPreferredSize().width, interactionLinkButton.getPreferredSize().height));
         querying.setToolTipText("Querying interactions...");
@@ -109,8 +110,10 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         actionMenuButton = new javax.swing.JButton();
         settingButton = new javax.swing.JButton();
 
+        setMaximumSize(new java.awt.Dimension(32767, 28));
+        setMinimumSize(new java.awt.Dimension(305, 28));
         setOpaque(false);
-        setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 1, 3));
+        setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING, 1, 0));
         add(filler2);
 
         interactionLinkButton.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
