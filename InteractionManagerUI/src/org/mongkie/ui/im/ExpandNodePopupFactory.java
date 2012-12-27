@@ -71,7 +71,7 @@ public class ExpandNodePopupFactory extends NodePopupMenuItemFactory implements 
         ic.addModelChangeListener(control.getDisplay(), this);
         for (String category : ic.getCategories()) {
             for (InteractionSource is : ic.getInteractionSources(category)) {
-                addMenuActionFor(is);
+                addExapndAction(is);
             }
         }
         menu.getPopupMenu().setBorder(BorderFactory.createLineBorder(ColorLib.getColor(0, 0, 0, 100)));
@@ -80,7 +80,7 @@ public class ExpandNodePopupFactory extends NodePopupMenuItemFactory implements 
         return menuItems;
     }
 
-    private void addMenuActionFor(final InteractionSource is) {
+    private void addExapndAction(final InteractionSource is) {
         final InteractionController ic = Lookup.getDefault().lookup(InteractionController.class);
         final Action a = new AbstractAction(is.getName()) {
             @Override
@@ -123,7 +123,7 @@ public class ExpandNodePopupFactory extends NodePopupMenuItemFactory implements 
 
     @Override
     public void modelAdded(SourceModel model) {
-        addMenuActionFor(model.getInteractionSource());
+        addExapndAction(model.getInteractionSource());
     }
 
     @Override
