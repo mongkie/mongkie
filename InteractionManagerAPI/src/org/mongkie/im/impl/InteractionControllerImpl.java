@@ -703,6 +703,11 @@ public class InteractionControllerImpl implements InteractionController {
 
     static class GraphSource implements InteractionSource {
 
+        @Override
+        public SettingUI getSettingUI() {
+            return null;
+        }
+
         static final class Persistence {
 
             private static final String GRAPH = "graph";

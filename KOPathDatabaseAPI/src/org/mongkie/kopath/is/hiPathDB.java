@@ -80,6 +80,11 @@ public class hiPathDB implements InteractionSource<Integer> {
     public Class<Integer> getKeyType() {
         return Integer.class;
     }
+
+    @Override
+    public SettingUI getSettingUI() {
+        return null;
+    }
     
     public class BinaryInteraction implements Interaction<Integer> {
 

@@ -17,10 +17,11 @@
  */
 package org.mongkie.layout.plugins.forcedirected;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
@@ -55,76 +56,6 @@ import prefuse.visual.VisualItem;
 public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedLayout>
         implements DeterminateTask, ExpandingLayout {
 
-    // Start of layout logics for the expanding graph
-    private static final long MINIMUM_DURATION = 2000;
-    private static final int SIZE_DIVISOR = 100;
-
-    public ForceDirected() {
-        super(null);
-        expandingLayout = new ForceDirectedLayout(GRAPH, new ForceSimulator(new RungeKuttaIntegrator()), false) {
-            @Override
-            protected boolean isEnabled(VisualItem item) {
-                return (item instanceof NodeItem)
-                        ? expandedNodes.contains((NodeItem) item) : super.isEnabled(item);
-            }
-        };
-        ForceSimulator forceSimulator = expandingLayout.getForceSimulator();
-        forceSimulator.addForce(new NBodyForce(
-                NBodyForce.DEFAULT_GRAV_CONSTANT * 4, NBodyForce.DEFAULT_MAX_DISTANCE, NBodyForce.DEFAULT_THETA));
-        forceSimulator.addForce(new DragForce());
-        forceSimulator.addForce(new SpringForce());
-        isBigGraph = false;
-    }
-    private final ForceDirectedLayout expandingLayout;
-    private final Set<NodeItem> expandedNodes = new HashSet<NodeItem>();
-
-    private long getDuration(int size) {
-        long duration = MINIMUM_DURATION * Math.round(size / SIZE_DIVISOR);
-        return duration < 1 ? MINIMUM_DURATION : duration;
-    }
-
-    @Override
-    public void layout(MongkieDisplay d, List<NodeItem> expandedNodes) {
-        if (expandedNodes.isEmpty()) {
-            return;
-        }
-        expandingLayout.setVisualization(d.getVisualization());
-        expandingLayout.setEnabled(true);
-        d.setGraphLayout(expandingLayout, getDuration(expandedNodes.size()));
-        //Set initial location of expanded nodes to the location of source node
-        for (NodeItem expanded : expandedNodes) {
-            NodeItem source;
-            try {
-                source = (NodeItem) expanded.inNeighbors().next();
-            } catch (NoSuchElementException ex) {
-                source = (NodeItem) expanded.outNeighbors().next();
-            }
-            setX(expanded, null, source.getX());
-            setY(expanded, null, source.getY());
-        }
-        this.expandedNodes.addAll(expandedNodes);
-        d.getLayoutAction().addActivityListener(l);
-        d.rerunLayoutAction();
-    }
-    private final ActivityListener l = new ActivityAdapter() {
-        @Override
-        public void activityFinished(Activity a) {
-            expandedNodes.clear();
-            expandingLayout.setEnabled(false);
-            a.removeActivityListener(l);
-        }
-
-        @Override
-        public void activityCancelled(Activity a) {
-            activityFinished(a);
-        }
-    };
-
-    @Override
-    public void layout(MongkieDisplay d) {
-        throw new UnsupportedOperationException("Not supported operation.");
-    }
-    // End of layout logics for the expanding graph
     private float gravConst = NBodyForce.DEFAULT_GRAV_CONSTANT;
     private float distance = NBodyForce.DEFAULT_DISTANCE;
     private float theta = NBodyForce.DEFAULT_THETA;
@@ -451,4 +382,90 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
     public boolean supportsSelectionOnly() {
         return false;
     }
+
+    // Start of layout logics for the expanding graph
+    public ForceDirected() {
+        super(null);
+        expandingLayout = new ForceDirectedLayout(GRAPH, new ForceSimulator(new RungeKuttaIntegrator()), false) {
+            @Override
+            protected boolean isEnabled(VisualItem item) {
+                return (item instanceof NodeItem)
+                        ? expandedNodes.contains((NodeItem) item) : super.isEnabled(item);
+            }
+        };
+        ForceSimulator forceSimulator = expandingLayout.getForceSimulator();
+        forceSimulator.addForce(new NBodyForce(
+                NBodyForce.DEFAULT_GRAV_CONSTANT * 4, NBodyForce.DEFAULT_MAX_DISTANCE, NBodyForce.DEFAULT_THETA));
+        forceSimulator.addForce(new DragForce());
+        forceSimulator.addForce(new SpringForce());
+        isBigGraph = false;
+    }
+    private final ForceDirectedLayout expandingLayout;
+    private final Set<NodeItem> expandedNodes = new HashSet<NodeItem>();
+
+    private long getDuration(int size) {
+        long duration = MINIMUM_DURATION * Math.round(size / SIZE_DIVISOR);
+        return duration < 1 ? MINIMUM_DURATION : duration;
+    }
+
+    @Override
+    public void layout(MongkieDisplay d, List<NodeItem> expandedNodes) {
+        if (expandedNodes.isEmpty()) {
+            return;
+        }
+        this.expandedNodes.addAll(expandedNodes);
+        expandingLayout.setVisualization(d.getVisualization());
+        expandingLayout.setEnabled(true);
+        d.setGraphLayout(expandingLayout, getDuration(expandedNodes.size()));
+        Point2D anchor = getLayoutAnchor();
+        for (NodeItem expanded : this.expandedNodes) {
+            NodeItem referer = null;
+            for (Iterator<NodeItem> iter = expanded.inNeighbors(); iter.hasNext();) {
+                NodeItem n = iter.next();
+                if (!this.expandedNodes.contains(n)) {
+                    referer = n;
+                    break;
+                }
+            }
+            if (referer == null) {
+                for (Iterator<NodeItem> iter = expanded.outNeighbors(); iter.hasNext();) {
+                    NodeItem n = iter.next();
+                    if (!this.expandedNodes.contains(n)) {
+                        referer = n;
+                        break;
+                    }
+                }
+            }
+            if (referer == null) {
+                setX(expanded, null, anchor.getX());
+                setY(expanded, null, anchor.getY());
+            } else {
+                setX(expanded, referer, referer.getX());
+                setY(expanded, referer, referer.getY());
+            }
+        }
+        d.getLayoutAction().addActivityListener(l);
+        d.rerunLayoutAction();
+    }
+    private final ActivityListener l = new ActivityAdapter() {
+        @Override
+        public void activityFinished(Activity a) {
+            expandedNodes.clear();
+            expandingLayout.setEnabled(false);
+            a.removeActivityListener(l);
+        }
+
+        @Override
+        public void activityCancelled(Activity a) {
+            activityFinished(a);
+        }
+    };
+
+    @Override
+    public void layout(MongkieDisplay d) {
+        throw new UnsupportedOperationException("Not supported operation.");
+    }
+    private static final long MINIMUM_DURATION = 2000;
+    private static final int SIZE_DIVISOR = 100;
+    // End of layout logics for the expanding graph
 }

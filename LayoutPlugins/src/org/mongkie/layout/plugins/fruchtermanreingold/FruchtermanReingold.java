@@ -171,19 +171,21 @@ public class FruchtermanReingold extends AbstractLayout {
 
         for (Iterator<EdgeItem> iter = edges.tuples(); iter.hasNext();) {
             EdgeItem E = iter.next();
-            NodeItem Nf = E.getSourceItem();
-            NodeItem Nt = E.getTargetItem();
-            float xDist = (float) (Nf.getX() - Nt.getX());
-            float yDist = (float) (Nf.getY() - Nt.getY());
-            float dist = (float) Math.sqrt(xDist * xDist + yDist * yDist);
-            float attractiveF = dist * dist / k;
-            if (dist > 0) {
-                ForceVector sourceForce = ForceVector.get(Nf);
-                ForceVector targetForce = ForceVector.get(Nt);
-                sourceForce.dx -= xDist / dist * attractiveF;
-                sourceForce.dy -= yDist / dist * attractiveF;
-                targetForce.dx += xDist / dist * attractiveF;
-                targetForce.dy += yDist / dist * attractiveF;
+            NodeItem source = E.getSourceItem();
+            NodeItem target = E.getTargetItem();
+            if (source != target) {
+                float xDist = (float) (source.getX() - target.getX());
+                float yDist = (float) (source.getY() - target.getY());
+                float dist = (float) Math.sqrt(xDist * xDist + yDist * yDist);
+                float attractiveF = dist * dist / k;
+                if (dist > 0) {
+                    ForceVector sourceForce = ForceVector.get(source);
+                    ForceVector targetForce = ForceVector.get(target);
+                    sourceForce.dx -= xDist / dist * attractiveF;
+                    sourceForce.dy -= yDist / dist * attractiveF;
+                    targetForce.dx += xDist / dist * attractiveF;
+                    targetForce.dy += yDist / dist * attractiveF;
+                }
             }
         }
 
@@ -207,17 +209,24 @@ public class FruchtermanReingold extends AbstractLayout {
 
         for (Iterator<NodeItem> iter = nodes.tuples(); iter.hasNext();) {
             NodeItem N = iter.next();
+            if (!isEnabled(N)) {
+                continue;
+            }
             ForceVector force = ForceVector.get(N);
             float xDist = force.dx;
             float yDist = force.dy;
             float dist = (float) Math.sqrt(force.dx * force.dx + force.dy * force.dy);
-            if (dist > 0 && !N.isFixed()) {
+            if (dist > 0) {
                 float limitedDist = Math.min(maxDisplace * ((float) _speed / SPEED_DIVISOR), dist);
                 setX(N, N.getX() + xDist / dist * limitedDist);
                 setY(N, N.getY() + yDist / dist * limitedDist);
             }
         }
         display.getVisualization().repaint();
+    }
+
+    protected boolean isEnabled(NodeItem n) {
+        return !n.isFixed();
     }
 
     @Override
@@ -236,10 +245,10 @@ public class FruchtermanReingold extends AbstractLayout {
 
     private static class ForceVector implements Cloneable {
 
-        float dx = 0;
-        float dy = 0;
-        float old_dx = 0;
-        float old_dy = 0;
+        float dx = 0f;
+        float dy = 0f;
+        float old_dx = 0f;
+        float old_dy = 0f;
         float freeze = 0f;
         private static final String COLUMN = "_fruchtermanReingoldForceVector";
         static final Schema SCHEMA = new Schema();

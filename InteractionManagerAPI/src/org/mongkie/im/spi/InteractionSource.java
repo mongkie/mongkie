@@ -20,6 +20,7 @@ package org.mongkie.im.spi;
 
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JPanel;
 import kobic.prefuse.data.Attribute;
 import kobic.prefuse.data.Schema;
 
@@ -46,4 +47,15 @@ public interface InteractionSource<K> {
     public Map<K, Attribute.Set> annotate(K... keys) throws Exception;
 
     public Class<K> getKeyType();
+
+    public SettingUI getSettingUI();
+
+    public static interface SettingUI<I extends InteractionSource> {
+
+        public JPanel getPanel();
+
+        public void load(I is);
+
+        public void apply(I is);
+    }
 }
