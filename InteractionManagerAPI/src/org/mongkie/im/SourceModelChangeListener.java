@@ -18,15 +18,13 @@
  */
 package org.mongkie.im;
 
-import org.mongkie.im.spi.InteractionSource;
-
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public interface SourceModelChangeListener {
 
-    public void modelAdded(InteractionSource is);
+    public void modelAdded(SourceModel model);
 
-    public void modelRemoved(InteractionSource is);
+    public void modelRemoved(SourceModel model);
 }

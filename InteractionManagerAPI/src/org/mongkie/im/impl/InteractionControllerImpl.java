@@ -116,7 +116,7 @@ public class InteractionControllerImpl implements InteractionController {
                                 models.put(is, m);
                                 if (listeners.containsKey(display)) {
                                     for (SourceModelChangeListener l : listeners.get(display)) {
-                                        l.modelAdded(is);
+                                        l.modelAdded(m);
                                     }
                                 }
                             }
@@ -679,7 +679,7 @@ public class InteractionControllerImpl implements InteractionController {
         GraphSource.getPersistence().save(gs);
         if (listeners.containsKey(d)) {
             for (SourceModelChangeListener l : listeners.get(d)) {
-                l.modelAdded(gs);
+                l.modelAdded(m);
             }
         }
     }
