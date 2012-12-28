@@ -122,7 +122,6 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         interactionLinkButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.interactionLinkButton.toolTipText")); // NOI18N
         interactionLinkButton.setBorderPainted(false);
         interactionLinkButton.setContentAreaFilled(false);
-        interactionLinkButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         interactionLinkButton.setFocusPainted(false);
         interactionLinkButton.setPreferredSize(new java.awt.Dimension(18, 18));
         interactionLinkButton.addActionListener(new java.awt.event.ActionListener() {
@@ -168,7 +167,6 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         settingButton.setContentAreaFilled(false);
         settingButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         settingButton.setDisabledIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings_disabled.png"))); // NOI18N
-        settingButton.setEnabled(false);
         settingButton.setFocusPainted(false);
         settingButton.setFocusable(false);
         add(settingButton);
