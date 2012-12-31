@@ -77,24 +77,18 @@ public abstract class VisualStyle<I extends VisualItem> {
             throw new IllegalArgumentException("Unknown visual field: " + field);
         }
         boolean redraw = false;
-        I first = null;
+        I it = null;
         while (items.hasNext()) {
-            if (first == null) {
-                first = items.next();
-                if (apply(field, first)) {
-                    redraw = true;
-                }
-            } else {
-                if (apply(field, items.next())) {
-                    redraw = true;
-                }
+            it = items.next();
+            if (apply(field, it)) {
+                redraw = true;
             }
         }
-        if (first != null) {
+        if (it != null) {
             if (redraw) {
-                first.getVisualization().rerun(Visualization.DRAW);
+                it.getVisualization().rerun(Visualization.DRAW);
             } else {
-                first.getVisualization().repaint();
+                it.getVisualization().repaint();
             }
         }
     }
