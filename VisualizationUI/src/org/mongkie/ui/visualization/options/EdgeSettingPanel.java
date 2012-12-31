@@ -28,13 +28,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
-import java.util.Iterator;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import kobic.prefuse.Config;
 import static kobic.prefuse.Constants.EDGES;
 import kobic.prefuse.EdgeArrow;
 import kobic.prefuse.EdgeStroke;
@@ -42,16 +40,12 @@ import org.mongkie.lib.widgets.JColorButton;
 import org.mongkie.lib.widgets.StrokeChooserPanel.StrokeSample;
 import static org.mongkie.lib.widgets.WidgetUtilities.*;
 import org.mongkie.visualization.MongkieDisplay;
-import org.mongkie.visualization.color.ColorController;
+import org.mongkie.visualization.util.VisualStyle;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.util.Lookup;
 import org.openide.windows.WindowManager;
-import static prefuse.Visualization.DRAW;
 import prefuse.util.ColorLib;
-import prefuse.util.PrefuseLib;
-import prefuse.visual.EdgeItem;
 import prefuse.visual.VisualItem;
 
 /**
@@ -63,13 +57,15 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
     private final MongkieDisplay display;
     private boolean resetting = false;
     private final PropertyEditor fontChooser = PropertyEditorManager.findEditor(Font.class);
-    private Font currentFont = Config.FONT_DEFAULT_EDGETEXT;
+    private VisualStyle.Edge visuals;
 
     /**
      * Creates new form EdgeSettingPanel
      */
     public EdgeSettingPanel(final MongkieDisplay display) {
         this.display = display;
+        visuals = VisualStyle.createEdgeStyle();
+
         initComponents();
 
         lineChooser.setRenderer(new StrokeSample(null) {
@@ -81,12 +77,13 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         for (EdgeStroke s : EdgeStroke.values()) {
             lineChooser.addItem(s);
         }
-        lineChooser.setSelectedItem(EdgeStroke.SOLID);
+        lineChooser.setSelectedItem(EdgeStroke.get((BasicStroke) visuals.get(VisualItem.STROKE)));
         lineChooser.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    setLineStyle((EdgeStroke) e.getItem());
+                if (!resetting) {
+                    visuals.set(VisualItem.STROKE, ((EdgeStroke) lineChooser.getSelectedItem()).getStroke());
+                    visuals.apply(VisualItem.STROKE, display.getVisualization().items(EDGES));
                 }
             }
         });
@@ -95,39 +92,42 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         for (EdgeArrow a : EdgeArrow.values()) {
             arrowChooser.addItem(a);
         }
-        arrowChooser.setSelectedItem(EdgeArrow.ARROW);
+        arrowChooser.setSelectedItem(EdgeArrow.get((Integer) visuals.get(VisualItem.SHAPE)));
         arrowChooser.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    setArrowType((EdgeArrow) e.getItem());
+                if (!resetting) {
+                    visuals.set(VisualItem.SHAPE, ((EdgeArrow) arrowChooser.getSelectedItem()).getCode());
+                    visuals.apply(VisualItem.SHAPE, display.getVisualization().items(EDGES));
                 }
             }
         });
 
+        sizeSpinner.setValue(visuals.get(VisualItem.SIZE));
         sizeSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                setLineWidth(((Double) sizeSpinner.getValue()).doubleValue());
+                if (!resetting) {
+                    visuals.set(VisualItem.SIZE, ((Double) sizeSpinner.getValue()).doubleValue());
+                    visuals.apply(VisualItem.SIZE, display.getVisualization().items(EDGES));
+                }
             }
         });
 
         fontButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                fontChooser.setValue(getCurrentFont());
+                fontChooser.setValue((Font) visuals.get(VisualItem.FONT));
                 DialogDescriptor dd = new DialogDescriptor(fontChooser.getCustomEditor(), "Edge Font");
                 DialogDisplayer.getDefault().createDialog(dd).setVisible(true);
                 if (dd.getValue() == DialogDescriptor.OK_OPTION) {
-                    setCurrentFont((Font) fontChooser.getValue());
+                    if (!resetting) {
+                        Font f = (Font) fontChooser.getValue();
+                        visuals.set(VisualItem.FONT, f);
+                        visuals.apply(VisualItem.FONT, display.getVisualization().items(EDGES));
+                        updateFontButton(f);
+                    }
                 }
-            }
-        });
-
-        hideLabelCheckBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setLabelVisible(!hideLabelCheckBox.isSelected());
             }
         });
 
@@ -135,99 +135,33 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if (resetting) {
-                            return;
+                        if (!resetting) {
+                            visuals.set(VisualItem.STROKECOLOR, ColorLib.color(((JColorButton) colorButton).getColor()));
+                            visuals.apply(VisualItem.STROKECOLOR, display.getVisualization().items(EDGES));
                         }
-                        display.getVisualization().process(new Runnable() {
-                            @Override
-                            public void run() {
-                                Color c = ((JColorButton) colorButton).getColor();
-                                for (Iterator<EdgeItem> edgesIter = display.getVisualization().items(EDGES); edgesIter.hasNext();) {
-                                    EdgeItem e = edgesIter.next();
-                                    Lookup.getDefault().lookup(ColorController.class).getModel().getEdgeColorProvider().addFillColor(e, c);
-                                    Lookup.getDefault().lookup(ColorController.class).getModel().getEdgeColorProvider().addStrokeColor(e, c);
-                                }
-                            }
-                        }, DRAW);
                     }
                 });
         ((JColorButton) fontColorButton).addPropertyChangeListener(JColorButton.EVENT_COLOR,
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if (resetting) {
-                            return;
+                        if (!resetting) {
+                            visuals.set(VisualItem.TEXTCOLOR, ColorLib.color(((JColorButton) fontColorButton).getColor()));
+                            visuals.apply(VisualItem.TEXTCOLOR, display.getVisualization().items(EDGES));
                         }
-                        display.getVisualization().process(new Runnable() {
-                            @Override
-                            public void run() {
-                                Color c = ((JColorButton) fontColorButton).getColor();
-                                for (Iterator<EdgeItem> edgesIter = display.getVisualization().items(EDGES); edgesIter.hasNext();) {
-                                    Lookup.getDefault().lookup(ColorController.class).getModel().getEdgeColorProvider().addTextColor(edgesIter.next(), c);
-                                }
-                            }
-                        }, DRAW);
                     }
                 });
-    }
 
-    private void setLineStyle(EdgeStroke s) {
-        for (Iterator<EdgeItem> edgesIter = display.getVisualization().items(EDGES); edgesIter.hasNext();) {
-            EdgeItem e = edgesIter.next();
-            BasicStroke stroke = s.getStroke();
-            if (e.getStroke().equals(stroke)) {
-                continue;
+        hideLabelCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setLabelVisible(!hideLabelCheckBox.isSelected());
             }
-            e.setStroke(stroke);
-        }
-        if (!resetting) {
-            display.getVisualization().repaint();
-        }
+        });
     }
 
-    private void setArrowType(EdgeArrow a) {
-        for (Iterator<EdgeItem> edgesIter = display.getVisualization().items(EDGES); edgesIter.hasNext();) {
-            EdgeItem e = edgesIter.next();
-            int code = a.getCode();
-            if (e.getShape() == code) {
-                continue;
-            }
-            e.setShape(code);
-        }
-        if (!resetting) {
-            display.getVisualization().repaint();
-        }
-    }
-
-    private void setLineWidth(double width) {
-        for (Iterator<EdgeItem> edgesIter = display.getVisualization().items(EDGES); edgesIter.hasNext();) {
-            EdgeItem e = edgesIter.next();
-            if (e.getSize() == width) {
-                continue;
-            }
-            PrefuseLib.updateDouble(e, VisualItem.SIZE, width);
-        }
-        if (!resetting) {
-            display.getVisualization().repaint();
-        }
-    }
-
-    private void setCurrentFont(Font f) {
+    private void updateFontButton(Font f) {
         fontButton.setText(f.getFontName() + ", " + f.getSize());
-        for (Iterator<EdgeItem> edgesIter = display.getVisualization().items(EDGES); edgesIter.hasNext();) {
-            EdgeItem e = edgesIter.next();
-            if (!e.getFont().equals(f)) {
-                PrefuseLib.update(e, VisualItem.FONT, f);
-            }
-        }
-        currentFont = f;
-        if (!resetting) {
-            display.getVisualization().repaint();
-        }
-    }
-
-    private Font getCurrentFont() {
-        return currentFont;
     }
 
     private void setLabelVisible(boolean visible) {
@@ -240,26 +174,19 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         } else {
             display.getVisualization().repaint();
         }
-
     }
 
     private void resetOptions() {
         resetting = true;
-        display.getVisualization().process(new Runnable() {
-            @Override
-            public void run() {
-                lineChooser.setSelectedItem(EdgeStroke.SOLID);
-                arrowChooser.setSelectedItem(EdgeArrow.ARROW);
-                sizeSpinner.setValue(1.0D);
-                setCurrentFont(Config.FONT_DEFAULT_EDGETEXT);
-                setLabelVisible(true);
-                Lookup.getDefault().lookup(ColorController.class).getModel().getEdgeColorProvider().clearFillColors();
-                Lookup.getDefault().lookup(ColorController.class).getModel().getEdgeColorProvider().clearTextColors();
-                Lookup.getDefault().lookup(ColorController.class).getModel().getEdgeColorProvider().clearStrokeColors();
-                ((JColorButton) colorButton).setColor(ColorLib.getColor(Config.COLOR_DEFAULT_EDGE_STROKE));
-                ((JColorButton) fontColorButton).setColor(ColorLib.getColor(Config.COLOR_DEFAULT_EDGE_TEXT));
-            }
-        }, DRAW);
+        visuals.reset();
+        lineChooser.setSelectedItem(EdgeStroke.get((BasicStroke) visuals.get(VisualItem.STROKE)));
+        arrowChooser.setSelectedItem(EdgeArrow.get((Integer) visuals.get(VisualItem.SHAPE)));
+        sizeSpinner.setValue(visuals.get(VisualItem.SIZE));
+        updateFontButton((Font) visuals.get(VisualItem.FONT));
+        ((JColorButton) colorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.STROKECOLOR)));
+        ((JColorButton) fontColorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.TEXTCOLOR)));
+        setLabelVisible(true);
+        visuals.apply(display.getVisualization().items(EDGES));
         resetting = false;
     }
 
@@ -280,10 +207,10 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
         widthLabel = new javax.swing.JLabel();
         sizeSpinner = new javax.swing.JSpinner();
         colorLabel = new javax.swing.JLabel();
-        colorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor(Config.COLOR_DEFAULT_EDGE_STROKE));
+        colorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) visuals.get(VisualItem.STROKECOLOR)));
         fontLabel = new javax.swing.JLabel();
         fontButton = new javax.swing.JButton();
-        fontColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor(Config.COLOR_DEFAULT_EDGE_TEXT));
+        fontColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) visuals.get(VisualItem.TEXTCOLOR)));
         resetAllButton = new javax.swing.JButton();
         hideLabelCheckBox = new javax.swing.JCheckBox();
 
@@ -306,8 +233,8 @@ public class EdgeSettingPanel extends javax.swing.JPanel {
 
         fontLabel.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.fontLabel.text")); // NOI18N
 
-        fontButton.setFont(fontButton.getFont().deriveFont(fontButton.getFont().getSize()-1f));
-        fontButton.setText(Config.FONT_DEFAULT_EDGETEXT.getFontName() + ", " + Config.FONT_DEFAULT_EDGETEXT.getSize());
+        fontButton.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        fontButton.setText(((Font) visuals.get(VisualItem.FONT)).getFontName() + ", " + ((Font) visuals.get(VisualItem.FONT)).getSize());
         fontButton.setBorderPainted(false);
 
         fontColorButton.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.fontColorButton.text")); // NOI18N

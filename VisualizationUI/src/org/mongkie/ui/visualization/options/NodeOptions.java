@@ -30,7 +30,6 @@ import org.mongkie.ui.visualization.options.spi.Options;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
-import prefuse.Visualization;
 import prefuse.data.Graph;
 import prefuse.data.Table;
 import prefuse.data.event.EventConstants;
@@ -64,7 +63,7 @@ public class NodeOptions implements Options {
     }
 
     @Override
-    public List<JComponent> getTools(final MongkieDisplay display) {
+    public List<JComponent> createTools(final MongkieDisplay display) {
         List<JComponent> tools = new ArrayList<JComponent>();
         final JPopupButton lableColumnButton = new JPopupButton();
         lableColumnButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/fontdown.png", false));
@@ -128,7 +127,7 @@ public class NodeOptions implements Options {
     }
 
     @Override
-    public JPanel getSettingPanel(MongkieDisplay display) {
+    public JPanel createSettingPanel(MongkieDisplay display) {
         return new NodeSettingPanel(display);
     }
 

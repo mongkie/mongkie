@@ -37,12 +37,12 @@ public class GroupOptions implements Options {
     }
 
     @Override
-    public List<JComponent> getTools(MongkieDisplay display) {
+    public List<JComponent> createTools(MongkieDisplay display) {
         return null;
     }
 
     @Override
-    public JPanel getSettingPanel(MongkieDisplay display) {
+    public JPanel createSettingPanel(MongkieDisplay display) {
         return new GroupSettingPanel(display);
     }
 

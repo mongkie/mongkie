@@ -45,7 +45,7 @@ public class SomeActions implements Options {
     }
 
     @Override
-    public List<JComponent> getTools(final MongkieDisplay display) {
+    public List<JComponent> createTools(final MongkieDisplay display) {
         List<JComponent> tools = new ArrayList<JComponent>();
         JButton button = new JButton(new AbstractAction("DO") {
 
@@ -106,7 +106,7 @@ public class SomeActions implements Options {
     }
 
     @Override
-    public JPanel getSettingPanel(MongkieDisplay display) {
+    public JPanel createSettingPanel(MongkieDisplay display) {
         return null;
     }
 

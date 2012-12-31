@@ -30,9 +30,9 @@ public interface Options {
 
     public String getName();
 
-    public List<JComponent> getTools(MongkieDisplay display);
+    public List<JComponent> createTools(MongkieDisplay display);
 
-    public JPanel getSettingPanel(MongkieDisplay display);
+    public JPanel createSettingPanel(MongkieDisplay display);
 
     public boolean hasTools();
 

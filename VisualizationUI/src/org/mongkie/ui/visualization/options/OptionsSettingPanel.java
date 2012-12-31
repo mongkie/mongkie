@@ -42,7 +42,7 @@ public class OptionsSettingPanel extends javax.swing.JPanel {
 
         for (Options o : Lookup.getDefault().lookupAll(Options.class)) {
             if (o.hasSettingPanel()) {
-                JComponent c = o.getSettingPanel(display);
+                JComponent c = o.createSettingPanel(display);
                 if (WidgetUtilities.isAquaLookAndFeel()) {
                     c.setBackground(UIManager.getColor("NbExplorerView.background"));
                 }

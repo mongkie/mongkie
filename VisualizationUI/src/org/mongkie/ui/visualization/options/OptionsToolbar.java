@@ -40,7 +40,7 @@ public class OptionsToolbar extends JToolBar {
         for (Options o : Lookup.getDefault().lookupAll(Options.class)) {
             if (o.hasTools()) {
                 addSeparator();
-                for (JComponent c : o.getTools(display)) {
+                for (JComponent c : o.createTools(display)) {
                     c.setFocusable(false);
                     add(c);
                 }
