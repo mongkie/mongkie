@@ -28,20 +28,27 @@ import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.lib.widgets.JPopupButton;
 import org.mongkie.ui.visualization.options.spi.Options;
 import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.util.VisualStyle;
+import org.mongkie.visualization.util.VisualStyle.UI;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
 import prefuse.data.Graph;
 import prefuse.data.Table;
 import prefuse.data.event.EventConstants;
 import prefuse.data.event.TableListener;
 import prefuse.util.DataLib;
+import prefuse.visual.NodeItem;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = Options.class, position = 200)
-public class NodeOptions implements Options {
+@ServiceProviders({
+    @ServiceProvider(service = Options.class, position = 2),
+    @ServiceProvider(service = VisualStyle.Node.UIFactory.class)
+})
+public class NodeOptions implements Options, VisualStyle.Node.UIFactory {
 
     @Override
     public String getName() {
@@ -139,5 +146,10 @@ public class NodeOptions implements Options {
     @Override
     public boolean hasSettingPanel() {
         return true;
+    }
+
+    @Override
+    public UI<NodeItem> createUI(MongkieDisplay display) {
+        return new NodeSettingPanel(display);
     }
 }

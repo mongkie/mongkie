@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.swing.JComponent;
 import kobic.prefuse.Config;
 import kobic.prefuse.EdgeArrow;
 import kobic.prefuse.EdgeStroke;
@@ -52,12 +53,22 @@ import prefuse.visual.VisualItem;
  */
 public abstract class VisualStyle<I extends VisualItem> {
 
+    public static final Set<String> FIELDS = new HashSet<String>(
+            Arrays.asList(new String[]{
+                VisualItem.SHAPE,
+                VisualItem.SIZE,
+                VisualItem.FONT,
+                VisualItem.STROKE,
+                VisualItem.FILLCOLOR,
+                VisualItem.STROKECOLOR,
+                VisualItem.TEXTCOLOR}));
+
     public void apply(Iterator<I> items) {
         boolean redraw = false;
         I it = null;
         while (items.hasNext()) {
             it = items.next();
-            for (String field : getVisualFields()) {
+            for (String field : FIELDS) {
                 if (apply(field, it)) {
                     redraw = true;
                 }
@@ -73,7 +84,7 @@ public abstract class VisualStyle<I extends VisualItem> {
     }
 
     public void apply(String field, Iterator<I> items) {
-        if (!getVisualFields().contains(field)) {
+        if (!FIELDS.contains(field)) {
             throw new IllegalArgumentException("Unknown visual field: " + field);
         }
         boolean redraw = false;
@@ -93,12 +104,17 @@ public abstract class VisualStyle<I extends VisualItem> {
         }
     }
 
+    public void apply(String field, Object value, Iterator<I> items) {
+        set(field, value);
+        apply(field, items);
+    }
+
     public void apply(I... items) {
         if (items.length < 1) {
             return;
         }
         boolean redraw = false;
-        for (String field : getVisualFields()) {
+        for (String field : FIELDS) {
             for (I n : items) {
                 if (apply(field, n)) {
                     redraw = true;
@@ -116,7 +132,7 @@ public abstract class VisualStyle<I extends VisualItem> {
         if (items.length < 1) {
             return;
         }
-        if (!getVisualFields().contains(field)) {
+        if (!FIELDS.contains(field)) {
             throw new IllegalArgumentException("Unknown visual field: " + field);
         }
         boolean redraw = false;
@@ -132,7 +148,10 @@ public abstract class VisualStyle<I extends VisualItem> {
         }
     }
 
-    protected abstract Set<String> getVisualFields();
+    public void apply(String field, Object value, I... items) {
+        set(field, value);
+        apply(field, items);
+    }
 
     protected abstract boolean apply(String field, I item);
 
@@ -157,14 +176,6 @@ public abstract class VisualStyle<I extends VisualItem> {
         private int fillColor, strokeColor;
         private transient Font labelFont;
         private int labelColor;
-        private static final Set<String> FIELDS = new HashSet<String>(
-                Arrays.asList(new String[]{
-                    VisualItem.SHAPE,
-                    VisualItem.SIZE,
-                    VisualItem.FONT,
-                    VisualItem.FILLCOLOR,
-                    VisualItem.STROKECOLOR,
-                    VisualItem.TEXTCOLOR}));
 
         private void writeObject(ObjectOutputStream out) throws IOException {
             out.defaultWriteObject();
@@ -195,12 +206,10 @@ public abstract class VisualStyle<I extends VisualItem> {
         }
 
         @Override
-        protected Set<String> getVisualFields() {
-            return FIELDS;
-        }
-
-        @Override
         protected boolean apply(String field, NodeItem n) {
+            if (field.equals(VisualItem.STROKE)) {
+                return false;
+            }
             if (field.equals(VisualItem.SHAPE) && n.getShape() != shape) {
                 n.setShape(shape);
             } else if (field.equals(VisualItem.SIZE) && n.getSize() != size) {
@@ -260,6 +269,11 @@ public abstract class VisualStyle<I extends VisualItem> {
             }
             throw new IllegalArgumentException("Unkown visual field: " + field);
         }
+
+        public interface UIFactory {
+
+            public UI<NodeItem> createUI(MongkieDisplay display);
+        }
     }
 
     public static class Edge extends VisualStyle<EdgeItem> implements Serializable {
@@ -270,14 +284,6 @@ public abstract class VisualStyle<I extends VisualItem> {
         private int arrow;
         private transient Font labelFont;
         private int labelColor;
-        private static final Set<String> FIELDS = new HashSet<String>(
-                Arrays.asList(new String[]{
-                    VisualItem.STROKE,
-                    VisualItem.SHAPE,
-                    VisualItem.SIZE,
-                    VisualItem.FONT,
-                    VisualItem.STROKECOLOR,
-                    VisualItem.TEXTCOLOR}));
 
         private void writeObject(ObjectOutputStream out) throws IOException {
             out.defaultWriteObject();
@@ -310,12 +316,10 @@ public abstract class VisualStyle<I extends VisualItem> {
         }
 
         @Override
-        protected Set<String> getVisualFields() {
-            return FIELDS;
-        }
-
-        @Override
         protected boolean apply(String field, EdgeItem e) {
+            if (field.equals(VisualItem.FILLCOLOR)) {
+                return false;
+            }
             if (field.equals(VisualItem.STROKE) && !stroke.equals(e.getStroke())) {
                 e.setStroke(stroke);
             } else if (field.equals(VisualItem.SHAPE) && e.getShape() != arrow) {
@@ -324,7 +328,7 @@ public abstract class VisualStyle<I extends VisualItem> {
                 PrefuseLib.updateDouble(e, VisualItem.SIZE, width);
             } else if (field.equals(VisualItem.FONT) && !e.getFont().equals(labelFont)) {
                 PrefuseLib.update(e, VisualItem.FONT, labelFont);
-            } else if (field.equals(VisualItem.STROKECOLOR) && e.getFillColor() != strokeColor) {
+            } else if (field.equals(VisualItem.STROKECOLOR) && e.getStrokeColor() != strokeColor) {
                 ColorProvider<EdgeItem> colors = Lookup.getDefault().lookup(ColorController.class).getModel((MongkieDisplay) e.getVisualization().getDisplay(0)).getEdgeColorProvider();
                 colors.addFillColor(e, ColorLib.getColor(strokeColor));
                 colors.addStrokeColor(e, ColorLib.getColor(strokeColor));
@@ -374,5 +378,17 @@ public abstract class VisualStyle<I extends VisualItem> {
             }
             throw new IllegalArgumentException("Unkown visual field: " + field);
         }
+
+        public interface UIFactory {
+
+            public UI<EdgeItem> createUI(MongkieDisplay display);
+        }
+    }
+
+    public interface UI<I extends VisualItem> {
+
+        public void reset(Iterable<I> items, VisualStyle<I> visuals);
+
+        public JComponent getComponent();
     }
 }

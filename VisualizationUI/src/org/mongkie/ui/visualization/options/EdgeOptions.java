@@ -22,14 +22,20 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.mongkie.ui.visualization.options.spi.Options;
 import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.util.VisualStyle;
 import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
+import prefuse.visual.EdgeItem;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = Options.class, position = 300)
-public class EdgeOptions implements Options {
+@ServiceProviders({
+    @ServiceProvider(service = Options.class, position = 3),
+    @ServiceProvider(service = VisualStyle.Edge.UIFactory.class)
+})
+public class EdgeOptions implements Options, VisualStyle.Edge.UIFactory {
 
     @Override
     public String getName() {
@@ -54,5 +60,10 @@ public class EdgeOptions implements Options {
     @Override
     public boolean hasSettingPanel() {
         return true;
+    }
+
+    @Override
+    public VisualStyle.UI<EdgeItem> createUI(MongkieDisplay display) {
+        return new EdgeSettingPanel(display);
     }
 }

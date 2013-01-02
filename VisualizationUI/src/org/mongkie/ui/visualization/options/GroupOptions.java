@@ -28,7 +28,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = Options.class, position = 400)
+@ServiceProvider(service = Options.class, position = 4)
 public class GroupOptions implements Options {
 
     @Override

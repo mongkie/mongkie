@@ -28,7 +28,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = Options.class, position = 100)
+@ServiceProvider(service = Options.class, position = 1)
 public class GlobalOptions implements Options {
 
     @Override

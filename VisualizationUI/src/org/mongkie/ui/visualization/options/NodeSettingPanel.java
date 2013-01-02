@@ -26,6 +26,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
+import java.util.Iterator;
+import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import static kobic.prefuse.Constants.NODES;
@@ -38,25 +40,29 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.windows.WindowManager;
 import prefuse.util.ColorLib;
+import prefuse.util.FontLib;
+import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class NodeSettingPanel extends javax.swing.JPanel {
+public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.UI<NodeItem>, Iterable<NodeItem> {
 
     private final MongkieDisplay display;
-    private boolean reset = false;
+    private boolean eventEnabled = true;
     private final PropertyEditor fontChooser = PropertyEditorManager.findEditor(Font.class);
-    private VisualStyle.Node visuals;
+    private VisualStyle<NodeItem> visuals;
+    private Iterable<NodeItem> nodes;
 
     /**
      * Creates new form NodeSettingPanel
      */
-    public NodeSettingPanel(final MongkieDisplay display) {
+    NodeSettingPanel(MongkieDisplay display) {
         this.display = display;
         visuals = VisualStyle.createNodeStyle();
+        nodes = NodeSettingPanel.this;
 
         initComponents();
 
@@ -67,9 +73,10 @@ public class NodeSettingPanel extends javax.swing.JPanel {
         shapeChooser.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (!reset) {
-                    visuals.set(VisualItem.SHAPE, ((NodeShape) shapeChooser.getSelectedItem()).getCode());
-                    visuals.apply(VisualItem.SHAPE, display.getVisualization().items(NODES));
+                if (eventEnabled) {
+                    visuals.apply(VisualItem.SHAPE,
+                            ((NodeShape) shapeChooser.getSelectedItem()).getCode(),
+                            nodes.iterator());
                 }
             }
         });
@@ -78,9 +85,10 @@ public class NodeSettingPanel extends javax.swing.JPanel {
         sizeSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                if (!reset) {
-                    visuals.set(VisualItem.SIZE, ((Double) sizeSpinner.getValue()).doubleValue());
-                    visuals.apply(VisualItem.SIZE, display.getVisualization().items(NODES));
+                if (eventEnabled) {
+                    visuals.apply(VisualItem.SIZE,
+                            ((Double) sizeSpinner.getValue()).doubleValue(),
+                            nodes.iterator());
                 }
             }
         });
@@ -92,10 +100,9 @@ public class NodeSettingPanel extends javax.swing.JPanel {
                 DialogDescriptor dd = new DialogDescriptor(fontChooser.getCustomEditor(), "Node Font");
                 DialogDisplayer.getDefault().createDialog(dd).setVisible(true);
                 if (dd.getValue() == DialogDescriptor.OK_OPTION) {
-                    if (!reset) {
+                    if (eventEnabled) {
                         Font f = (Font) fontChooser.getValue();
-                        visuals.set(VisualItem.FONT, f);
-                        visuals.apply(VisualItem.FONT, display.getVisualization().items(NODES));
+                        visuals.apply(VisualItem.FONT, f, nodes.iterator());
                         updateFontButton(f);
                     }
                 }
@@ -105,9 +112,10 @@ public class NodeSettingPanel extends javax.swing.JPanel {
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if (!reset) {
-                            visuals.set(VisualItem.FILLCOLOR, ColorLib.color(((JColorButton) fillColorButton).getColor()));
-                            visuals.apply(VisualItem.FILLCOLOR, display.getVisualization().items(NODES));
+                        if (eventEnabled) {
+                            visuals.apply(VisualItem.FILLCOLOR,
+                                    ColorLib.color(((JColorButton) fillColorButton).getColor()),
+                                    nodes.iterator());
                         }
                     }
                 });
@@ -115,9 +123,10 @@ public class NodeSettingPanel extends javax.swing.JPanel {
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if (!reset) {
-                            visuals.set(VisualItem.TEXTCOLOR, ColorLib.color(((JColorButton) fontColorButton).getColor()));
-                            visuals.apply(VisualItem.TEXTCOLOR, display.getVisualization().items(NODES));
+                        if (eventEnabled) {
+                            visuals.apply(VisualItem.TEXTCOLOR,
+                                    ColorLib.color(((JColorButton) fontColorButton).getColor()),
+                                    nodes.iterator());
                         }
                     }
                 });
@@ -125,29 +134,48 @@ public class NodeSettingPanel extends javax.swing.JPanel {
                 new PropertyChangeListener() {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if (!reset) {
-                            visuals.set(VisualItem.STROKECOLOR, ColorLib.color(((JColorButton) borderColorButton).getColor()));
-                            visuals.apply(VisualItem.STROKECOLOR, display.getVisualization().items(NODES));
+                        if (eventEnabled) {
+                            visuals.apply(VisualItem.STROKECOLOR,
+                                    ColorLib.color(((JColorButton) borderColorButton).getColor()),
+                                    nodes.iterator());
                         }
                     }
                 });
     }
 
     private void updateFontButton(Font f) {
+        fontFamilyButton.setFont(FontLib.getFont(f.getName(), f.getStyle(), 13));
         fontFamilyButton.setText(f.getFontName() + ", " + f.getSize());
     }
 
-    private void resetOptions() {
-        reset = true;
+    private void reset() {
         visuals.reset();
+        reset(nodes, visuals);
+        visuals.apply(iterator());
+    }
+
+    @Override
+    public void reset(Iterable<NodeItem> items, VisualStyle<NodeItem> visuals) {
+        this.nodes = items;
+        this.visuals = visuals;
+        eventEnabled = false;
         shapeChooser.setSelectedItem(NodeShape.get((Integer) visuals.get(VisualItem.SHAPE)));
         sizeSpinner.setValue(visuals.get(VisualItem.SIZE));
         updateFontButton((Font) visuals.get(VisualItem.FONT));
         ((JColorButton) fillColorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.FILLCOLOR)));
         ((JColorButton) fontColorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.TEXTCOLOR)));
         ((JColorButton) borderColorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.STROKECOLOR)));
-        visuals.apply(display.getVisualization().items(NODES));
-        reset = false;
+        eventEnabled = true;
+    }
+
+    @Override
+    public JComponent getComponent() {
+        return this;
+    }
+
+    @Override
+    public Iterator<NodeItem> iterator() {
+        return display.getVisualization().items(NODES);
     }
 
     /**
@@ -179,7 +207,7 @@ public class NodeSettingPanel extends javax.swing.JPanel {
 
         fontLabel.setText(org.openide.util.NbBundle.getMessage(NodeSettingPanel.class, "NodeSettingPanel.fontLabel.text")); // NOI18N
 
-        fontFamilyButton.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        fontFamilyButton.setFont(FontLib.getFont(((Font) visuals.get(VisualItem.FONT)).getName(), ((Font) visuals.get(VisualItem.FONT)).getStyle(), 13));
         fontFamilyButton.setText(((Font) visuals.get(VisualItem.FONT)).getFontName() + ", " + ((Font) visuals.get(VisualItem.FONT)).getSize());
         fontFamilyButton.setBorderPainted(false);
 
@@ -270,7 +298,7 @@ public class NodeSettingPanel extends javax.swing.JPanel {
     private void resetAllButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetAllButtonActionPerformed
         if (DialogDisplayer.getDefault().notify(
                 new NotifyDescriptor.Confirmation("All node options will be reset. Continue?", NotifyDescriptor.OK_CANCEL_OPTION)) == NotifyDescriptor.OK_OPTION) {
-            resetOptions();
+            reset();
         }
     }//GEN-LAST:event_resetAllButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
