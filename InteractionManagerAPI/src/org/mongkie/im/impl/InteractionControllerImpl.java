@@ -53,6 +53,7 @@ import org.mongkie.longtask.progress.ProgressTicket;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualization.util.LayoutService.ExpandingLayout;
+import org.mongkie.visualization.util.VisualStyle;
 import org.mongkie.visualization.workspace.WorkspaceListener;
 import org.openide.ErrorManager;
 import org.openide.util.Exceptions;
@@ -69,6 +70,7 @@ import prefuse.data.column.Column;
 import prefuse.util.DataLib;
 import prefuse.util.StringLib;
 import prefuse.util.TypeLib;
+import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
 
 /**
@@ -142,7 +144,7 @@ public class InteractionControllerImpl implements InteractionController {
             SourceModelImpl m = new SourceModelImpl(d, is);
             d.add(m);
             models.put(is, m);
-            //Initialize cache per source
+            // Initialize cache per source
             caches.put(is, new Cache());
         }
         sourcesByCategory = new LinkedHashMap<String, List<InteractionSource>>();
@@ -163,6 +165,16 @@ public class InteractionControllerImpl implements InteractionController {
             models.put(is, m);
             caches.put(is, new Cache());
         }
+    }
+
+    @Override
+    public VisualStyle<EdgeItem> getEdgeVisualStyle(InteractionSource is) {
+        return ((SourceModelImpl) getModel(is)).getEdgeVisualStyle();
+    }
+
+    @Override
+    public VisualStyle<NodeItem> getNodeVisualStyle(InteractionSource is) {
+        return ((SourceModelImpl) getModel(is)).getNodeVisualStyle();
     }
 
     @Override
@@ -655,7 +667,6 @@ public class InteractionControllerImpl implements InteractionController {
             attributeLookup.clear();
         }
     }
-    static final String FIELD_INTERACTION_SOURCE = "*InteractionSource*";
 
     @Override
     public InteractionSource getInteractionSource(String name) {

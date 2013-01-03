@@ -23,6 +23,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.List;
+import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -35,6 +37,10 @@ import org.mongkie.im.SourceModel;
 import org.mongkie.im.SourceModelListener;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.util.VisualStyle;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import prefuse.data.Graph;
@@ -42,6 +48,7 @@ import prefuse.data.Table;
 import static prefuse.data.event.EventConstants.*;
 import prefuse.data.event.TableListener;
 import prefuse.util.TypeLib;
+import prefuse.visual.EdgeItem;
 
 /**
  *
@@ -51,6 +58,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
 
     private final InteractionSource is;
     private final SourceModel model;
+    private final SettingsPanel settings;
 
     /**
      * Creates new form ProcessPanel
@@ -63,6 +71,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         querying.setToolTipText("Querying interactions...");
         ((JXHyperlink) interactionNameLink).setText(is.getName());
         this.is = is;
+        settings = new SettingsPanel(d, is);
         model = Lookup.getDefault().lookup(InteractionController.class).getModel(is);
         model.addModelListener(SourcePanel.this);
         columnComboBox.addItemListener(new ItemListener() {
@@ -163,12 +172,17 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
 
         settingButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings.png"))); // NOI18N
         settingButton.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.settingButton.text")); // NOI18N
+        settingButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.settingButton.toolTipText")); // NOI18N
         settingButton.setBorderPainted(false);
         settingButton.setContentAreaFilled(false);
         settingButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        settingButton.setDisabledIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings_disabled.png"))); // NOI18N
         settingButton.setFocusPainted(false);
         settingButton.setFocusable(false);
+        settingButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                settingButtonActionPerformed(evt);
+            }
+        });
         add(settingButton);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -187,6 +201,28 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
     private void actionMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionMenuButtonActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_actionMenuButtonActionPerformed
+
+    private void settingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingButtonActionPerformed
+        VisualStyle<EdgeItem> edgeModelStyle = Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is);
+        // Initialize the UI style using the model's style
+        VisualStyle<EdgeItem> edgeUIStyle = settings.getEdgeStyleUI().loadVisualStyle(edgeModelStyle, false);
+        // Store current styles of visual items to revert when the UI is canceled
+        Map<VisualStyle<EdgeItem>, List<EdgeItem>> edgeOldStyles = VisualStyle.valuesOf(settings.getEdgeStyleUI().getVisualItems());
+        if (DialogDisplayer.getDefault().notify(new DialogDescriptor(settings, is.getName() + " Settings"))
+                .equals(NotifyDescriptor.OK_OPTION)) {
+            // TODO: Final apply action is required ONLY IF UI style is not changed from model style
+            // but, current styles of visual items are different with model style since they are changed from elsewhere.
+            edgeUIStyle.apply(settings.getEdgeStyleUI().getVisualItems());
+            // Load the UI style into the model's style
+            edgeModelStyle.load(edgeUIStyle);
+        } else {
+            // Revert any styles changed in the UI
+            for (VisualStyle<EdgeItem> style : edgeOldStyles.keySet()) {
+                style.apply(edgeOldStyles.get(style).toArray(new EdgeItem[]{}));
+            }
+        }
+        edgeOldStyles.clear();
+    }//GEN-LAST:event_settingButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton actionMenuButton;
     private javax.swing.JComboBox columnComboBox;

@@ -55,21 +55,31 @@ import prefuse.visual.VisualItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.UI<EdgeItem>, Iterable<EdgeItem> {
+public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.UI<EdgeItem> {
 
     private final MongkieDisplay display;
     private boolean eventEnabled = true;
     private final PropertyEditor fontChooser = PropertyEditorManager.findEditor(Font.class);
-    private VisualStyle<EdgeItem> visuals;
-    private Iterable<EdgeItem> edges;
+    private final VisualStyle<EdgeItem> style;
+    private final Iterable<EdgeItem> edges;
+
+    EdgeSettingPanel(final MongkieDisplay display) {
+        this(display, VisualStyle.createEdgeStyle(),
+                new Iterable<EdgeItem>() {
+                    @Override
+                    public Iterator<EdgeItem> iterator() {
+                        return display.getVisualization().items(EDGES);
+                    }
+                });
+    }
 
     /**
      * Creates new form EdgeSettingPanel
      */
-    EdgeSettingPanel(MongkieDisplay display) {
+    EdgeSettingPanel(MongkieDisplay display, VisualStyle<EdgeItem> style, Iterable<EdgeItem> edges) {
         this.display = display;
-        visuals = VisualStyle.createEdgeStyle();
-        edges = EdgeSettingPanel.this;
+        this.style = style;
+        this.edges = edges;
 
         initComponents();
 
@@ -82,14 +92,14 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         for (EdgeStroke s : EdgeStroke.values()) {
             lineChooser.addItem(s);
         }
-        lineChooser.setSelectedItem(EdgeStroke.get((BasicStroke) visuals.get(VisualItem.STROKE)));
+        lineChooser.setSelectedItem(EdgeStroke.get((BasicStroke) style.get(VisualItem.STROKE)));
         lineChooser.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (eventEnabled) {
-                    visuals.apply(VisualItem.STROKE,
+                    getVisualStyle().apply(VisualItem.STROKE,
                             ((EdgeStroke) lineChooser.getSelectedItem()).getStroke(),
-                            edges.iterator());
+                            getVisualItems());
                 }
             }
         });
@@ -98,26 +108,26 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         for (EdgeArrow a : EdgeArrow.values()) {
             arrowChooser.addItem(a);
         }
-        arrowChooser.setSelectedItem(EdgeArrow.get((Integer) visuals.get(VisualItem.SHAPE)));
+        arrowChooser.setSelectedItem(EdgeArrow.get((Integer) style.get(VisualItem.SHAPE)));
         arrowChooser.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (eventEnabled) {
-                    visuals.apply(VisualItem.SHAPE,
+                    getVisualStyle().apply(VisualItem.SHAPE,
                             ((EdgeArrow) arrowChooser.getSelectedItem()).getCode(),
-                            edges.iterator());
+                            getVisualItems());
                 }
             }
         });
 
-        sizeSpinner.setValue(visuals.get(VisualItem.SIZE));
+        sizeSpinner.setValue(style.get(VisualItem.SIZE));
         sizeSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (eventEnabled) {
-                    visuals.apply(VisualItem.SIZE,
+                    getVisualStyle().apply(VisualItem.SIZE,
                             ((Double) sizeSpinner.getValue()).doubleValue(),
-                            edges.iterator());
+                            getVisualItems());
                 }
             }
         });
@@ -125,13 +135,13 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         fontButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                fontChooser.setValue((Font) visuals.get(VisualItem.FONT));
+                fontChooser.setValue((Font) getVisualStyle().get(VisualItem.FONT));
                 DialogDescriptor dd = new DialogDescriptor(fontChooser.getCustomEditor(), "Edge Font");
                 DialogDisplayer.getDefault().createDialog(dd).setVisible(true);
                 if (dd.getValue() == DialogDescriptor.OK_OPTION) {
                     if (eventEnabled) {
                         Font f = (Font) fontChooser.getValue();
-                        visuals.apply(VisualItem.FONT, f, edges.iterator());
+                        getVisualStyle().apply(VisualItem.FONT, f, getVisualItems());
                         updateFontButton(f);
                     }
                 }
@@ -143,9 +153,9 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (eventEnabled) {
-                            visuals.apply(VisualItem.STROKECOLOR,
+                            getVisualStyle().apply(VisualItem.STROKECOLOR,
                                     ColorLib.color(((JColorButton) colorButton).getColor()),
-                                    edges.iterator());
+                                    getVisualItems());
                         }
                     }
                 });
@@ -154,9 +164,9 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (eventEnabled) {
-                            visuals.apply(VisualItem.TEXTCOLOR,
+                            getVisualStyle().apply(VisualItem.TEXTCOLOR,
                                     ColorLib.color(((JColorButton) fontColorButton).getColor()),
-                                    edges.iterator());
+                                    getVisualItems());
                         }
                     }
                 });
@@ -187,24 +197,29 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     }
 
     private void reset() {
-        visuals.reset();
-        reset(edges, visuals);
-        visuals.apply(iterator());
+        style.reset();
+        // Reload the style
+        loadVisualStyle(style, true);
     }
 
     @Override
-    public void reset(Iterable<EdgeItem> items, VisualStyle<EdgeItem> visuals) {
-        this.edges = items;
-        this.visuals = visuals;
-        eventEnabled = true;
-        lineChooser.setSelectedItem(EdgeStroke.get((BasicStroke) visuals.get(VisualItem.STROKE)));
-        arrowChooser.setSelectedItem(EdgeArrow.get((Integer) visuals.get(VisualItem.SHAPE)));
-        sizeSpinner.setValue(visuals.get(VisualItem.SIZE));
-        updateFontButton((Font) visuals.get(VisualItem.FONT));
-        ((JColorButton) colorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.STROKECOLOR)));
-        ((JColorButton) fontColorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.TEXTCOLOR)));
-        setLabelVisible(true);
+    public VisualStyle<EdgeItem> loadVisualStyle(VisualStyle<EdgeItem> style, boolean apply) {
+        this.style.load(style);
+        // Update UI
         eventEnabled = false;
+        lineChooser.setSelectedItem(EdgeStroke.get((BasicStroke) this.style.get(VisualItem.STROKE)));
+        arrowChooser.setSelectedItem(EdgeArrow.get((Integer) this.style.get(VisualItem.SHAPE)));
+        sizeSpinner.setValue(this.style.get(VisualItem.SIZE));
+        updateFontButton((Font) this.style.get(VisualItem.FONT));
+        ((JColorButton) colorButton).setColor(ColorLib.getColor((Integer) this.style.get(VisualItem.STROKECOLOR)));
+        ((JColorButton) fontColorButton).setColor(ColorLib.getColor((Integer) this.style.get(VisualItem.TEXTCOLOR)));
+        setLabelVisible(true);
+        eventEnabled = true;
+        if (apply) {
+            // Apply the new style to visual items
+            this.style.apply(getVisualItems());
+        }
+        return this.style;
     }
 
     @Override
@@ -213,8 +228,13 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     }
 
     @Override
-    public Iterator<EdgeItem> iterator() {
-        return display.getVisualization().items(EDGES);
+    public VisualStyle<EdgeItem> getVisualStyle() {
+        return style;
+    }
+
+    @Override
+    public Iterator<EdgeItem> getVisualItems() {
+        return edges.iterator();
     }
 
     /**
@@ -234,10 +254,10 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         widthLabel = new javax.swing.JLabel();
         sizeSpinner = new javax.swing.JSpinner();
         colorLabel = new javax.swing.JLabel();
-        colorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) visuals.get(VisualItem.STROKECOLOR)));
+        colorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) style.get(VisualItem.STROKECOLOR)));
         fontLabel = new javax.swing.JLabel();
         fontButton = new javax.swing.JButton();
-        fontColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) visuals.get(VisualItem.TEXTCOLOR)));
+        fontColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) style.get(VisualItem.TEXTCOLOR)));
         resetAllButton = new javax.swing.JButton();
         hideLabelCheckBox = new javax.swing.JCheckBox();
 
@@ -260,8 +280,8 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
 
         fontLabel.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.fontLabel.text")); // NOI18N
 
-        fontButton.setFont(FontLib.getFont(((Font) visuals.get(VisualItem.FONT)).getName(), ((Font) visuals.get(VisualItem.FONT)).getStyle(), 13));
-        fontButton.setText(((Font) visuals.get(VisualItem.FONT)).getFontName() + ", " + ((Font) visuals.get(VisualItem.FONT)).getSize());
+        fontButton.setFont(FontLib.getFont(((Font) style.get(VisualItem.FONT)).getName(), ((Font) style.get(VisualItem.FONT)).getStyle(), 13));
+        fontButton.setText(((Font) style.get(VisualItem.FONT)).getFontName() + ", " + ((Font) style.get(VisualItem.FONT)).getSize());
         fontButton.setBorderPainted(false);
 
         fontColorButton.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.fontColorButton.text")); // NOI18N

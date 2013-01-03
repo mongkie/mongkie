@@ -21,7 +21,10 @@ package org.mongkie.im;
 import java.util.List;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.util.VisualStyle;
 import prefuse.data.Graph;
+import prefuse.visual.EdgeItem;
+import prefuse.visual.NodeItem;
 
 /**
  *
@@ -30,6 +33,7 @@ import prefuse.data.Graph;
 public interface InteractionController {
 
     public static final String CATEGORY_OTHERS = "Others";
+    public static final String FIELD_INTERACTION_SOURCE = "*InteractionSource*";
 
     public String[] getCategories();
 
@@ -48,8 +52,12 @@ public interface InteractionController {
     public InteractionSource getInteractionSource(String name);
 
     public void addInteractionSource(String name, Graph g, String nodeKeyCol);
-    
+
     public boolean addModelChangeListener(MongkieDisplay d, SourceModelChangeListener l);
-    
+
     public boolean removeModelChangeListener(MongkieDisplay d, SourceModelChangeListener l);
+
+    public VisualStyle<EdgeItem> getEdgeVisualStyle(InteractionSource is);
+
+    public VisualStyle<NodeItem> getNodeVisualStyle(InteractionSource is);
 }

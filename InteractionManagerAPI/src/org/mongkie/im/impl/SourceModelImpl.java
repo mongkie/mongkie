@@ -39,9 +39,12 @@ import org.mongkie.longtask.LongTaskErrorHandler;
 import org.mongkie.longtask.LongTaskExecutor;
 import org.mongkie.longtask.LongTaskListener;
 import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.util.VisualStyle;
 import prefuse.data.Edge;
 import prefuse.data.Graph;
 import prefuse.util.DataLib;
+import prefuse.visual.EdgeItem;
+import prefuse.visual.NodeItem;
 
 /**
  *
@@ -55,10 +58,14 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
     private transient boolean linked = false, annotated = false;
     private final MongkieDisplay d;
     private String key;
+    private final VisualStyle<NodeItem> nodeVisualStyle;
+    private final VisualStyle<EdgeItem> edgeVisualStyle;
 
     SourceModelImpl(MongkieDisplay d, final InteractionSource is) {
         this.is = is;
         this.d = d;
+        nodeVisualStyle = VisualStyle.createNodeStyle();
+        edgeVisualStyle = VisualStyle.createEdgeStyle();
         d.addDisplayListener(SourceModelImpl.this);
         link = new LongTaskExecutor(true, is.getName() + " Link");
         link.setLongTaskListener(new LongTaskListener() {
@@ -104,6 +111,14 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
                 Logger.getLogger("").log(Level.SEVERE, "", t.getCause() != null ? t.getCause() : t);
             }
         });
+    }
+
+    VisualStyle<NodeItem> getNodeVisualStyle() {
+        return nodeVisualStyle;
+    }
+
+    VisualStyle<EdgeItem> getEdgeVisualStyle() {
+        return edgeVisualStyle;
     }
 
     @Override

@@ -5,7 +5,6 @@
 package prefuse.util;
 
 import java.util.*;
-
 import prefuse.data.Schema;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
@@ -14,6 +13,7 @@ import prefuse.data.column.ColumnMetadata;
 import prefuse.data.expression.Predicate;
 import prefuse.data.tuple.TupleSet;
 import prefuse.util.collections.DefaultLiteralComparator;
+import prefuse.util.collections.IntIterator;
 
 /**
  * Functions for processing an iterator of tuples, including the creation of
@@ -257,7 +257,7 @@ public class DataLib {
         return uniques;
     }
 
-    public static Iterator<Integer> rows(Table table, String column, Object val) {
+    public static IntIterator rows(Table table, String column, Object val) {
         Class type = table.getColumnType(column);
         if (type.isPrimitive()) {
             if (type.equals(int.class)) {

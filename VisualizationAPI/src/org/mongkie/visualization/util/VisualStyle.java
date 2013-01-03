@@ -24,17 +24,21 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
 import kobic.prefuse.Config;
 import kobic.prefuse.EdgeArrow;
 import kobic.prefuse.EdgeStroke;
 import kobic.prefuse.NodeShape;
-import kobic.prefuse.data.io.SerializableBasicStroke;
 import kobic.prefuse.data.io.SerializableFont;
+import kobic.prefuse.data.io.SerializableTable.SerializableBasicStroke;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.color.ColorController;
 import org.mongkie.visualization.color.ColorProvider;
@@ -161,6 +165,45 @@ public abstract class VisualStyle<I extends VisualItem> {
 
     public abstract void set(String field, Object value);
 
+    public VisualStyle<I> load(VisualStyle<I> other) {
+        for (String field : FIELDS) {
+            try {
+                set(field, other.get(field));
+            } catch (IllegalArgumentException ex) {
+                // Ignore unknown fields
+            }
+        }
+        return this;
+    }
+
+    public static <I extends VisualItem> Map<VisualStyle<I>, List<I>> valuesOf(Iterator<I> items) {
+        Map<VisualStyle<I>, List<I>> styles = new HashMap<VisualStyle<I>, List<I>>();
+        while (items.hasNext()) {
+            I item = items.next();
+            VisualStyle<I> style;
+            if (item instanceof NodeItem) {
+                style = (VisualStyle<I>) createNodeStyle();
+            } else if (item instanceof EdgeItem) {
+                style = (VisualStyle<I>) createEdgeStyle();
+            } else {
+                continue;
+            }
+            for (String field : FIELDS) {
+                try {
+                    style.set(field, item.get(field));
+                } catch (IllegalArgumentException ex) {
+                    // Ignore unknown fields
+                }
+            }
+            List<I> itemList = styles.get(style);
+            if (itemList == null) {
+                styles.put(style, itemList = new ArrayList<I>());
+            }
+            itemList.add(item);
+        }
+        return styles;
+    }
+
     public static Node createNodeStyle() {
         return new Node();
     }
@@ -198,6 +241,55 @@ public abstract class VisualStyle<I extends VisualItem> {
             strokeColor = Config.COLOR_DEFAULT_NODE_STROKE;
             labelFont = Config.FONT_DEFAULT_NODETEXT;
             labelColor = Config.COLOR_DEFAULT_NODE_TEXT;
+        }
+
+        @Override
+        protected Node clone() throws CloneNotSupportedException {
+            Node style = new Node();
+            style.load(this);
+            return style;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 7;
+            hash = 83 * hash + this.shape;
+            hash = 83 * hash + (int) (Double.doubleToLongBits(this.size) ^ (Double.doubleToLongBits(this.size) >>> 32));
+            hash = 83 * hash + this.fillColor;
+            hash = 83 * hash + this.strokeColor;
+            hash = 83 * hash + (this.labelFont != null ? this.labelFont.hashCode() : 0);
+            hash = 83 * hash + this.labelColor;
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Node other = (Node) obj;
+            if (this.shape != other.shape) {
+                return false;
+            }
+            if (Double.doubleToLongBits(this.size) != Double.doubleToLongBits(other.size)) {
+                return false;
+            }
+            if (this.fillColor != other.fillColor) {
+                return false;
+            }
+            if (this.strokeColor != other.strokeColor) {
+                return false;
+            }
+            if (this.labelFont != other.labelFont && (this.labelFont == null || !this.labelFont.equals(other.labelFont))) {
+                return false;
+            }
+            if (this.labelColor != other.labelColor) {
+                return false;
+            }
+            return true;
         }
 
         @Override
@@ -272,7 +364,7 @@ public abstract class VisualStyle<I extends VisualItem> {
 
         public interface UIFactory {
 
-            public UI<NodeItem> createUI(MongkieDisplay display);
+            public UI<NodeItem> createUI(MongkieDisplay display, VisualStyle<NodeItem> style, Iterable<NodeItem> nodes);
         }
     }
 
@@ -308,6 +400,55 @@ public abstract class VisualStyle<I extends VisualItem> {
             arrow = EdgeArrow.ARROW.getCode();
             labelFont = Config.FONT_DEFAULT_EDGETEXT;
             labelColor = Config.COLOR_DEFAULT_EDGE_TEXT;
+        }
+
+        @Override
+        protected Edge clone() throws CloneNotSupportedException {
+            Edge style = new Edge();
+            style.load(this);
+            return style;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 17 * hash + (this.stroke != null ? this.stroke.hashCode() : 0);
+            hash = 17 * hash + (int) (Double.doubleToLongBits(this.width) ^ (Double.doubleToLongBits(this.width) >>> 32));
+            hash = 17 * hash + this.strokeColor;
+            hash = 17 * hash + this.arrow;
+            hash = 17 * hash + (this.labelFont != null ? this.labelFont.hashCode() : 0);
+            hash = 17 * hash + this.labelColor;
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Edge other = (Edge) obj;
+            if (this.stroke != other.stroke && (this.stroke == null || !this.stroke.equals(other.stroke))) {
+                return false;
+            }
+            if (Double.doubleToLongBits(this.width) != Double.doubleToLongBits(other.width)) {
+                return false;
+            }
+            if (this.strokeColor != other.strokeColor) {
+                return false;
+            }
+            if (this.arrow != other.arrow) {
+                return false;
+            }
+            if (this.labelFont != other.labelFont && (this.labelFont == null || !this.labelFont.equals(other.labelFont))) {
+                return false;
+            }
+            if (this.labelColor != other.labelColor) {
+                return false;
+            }
+            return true;
         }
 
         @Override
@@ -381,14 +522,18 @@ public abstract class VisualStyle<I extends VisualItem> {
 
         public interface UIFactory {
 
-            public UI<EdgeItem> createUI(MongkieDisplay display);
+            public UI<EdgeItem> createUI(MongkieDisplay display, VisualStyle<EdgeItem> style, Iterable<EdgeItem> edges);
         }
     }
 
     public interface UI<I extends VisualItem> {
 
-        public void reset(Iterable<I> items, VisualStyle<I> visuals);
+        public VisualStyle<I> loadVisualStyle(VisualStyle<I> style, boolean apply);
+
+        public VisualStyle<I> getVisualStyle();
 
         public JComponent getComponent();
+
+        public Iterator<I> getVisualItems();
     }
 }

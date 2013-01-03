@@ -32,6 +32,7 @@ import prefuse.data.Table;
 import prefuse.data.Tuple;
 import prefuse.util.FontLib;
 import prefuse.util.PrefuseLib;
+import prefuse.util.StrokeLib;
 import prefuse.visual.AggregateItem;
 import prefuse.visual.AggregateTable;
 import prefuse.visual.VisualItem;
@@ -160,5 +161,37 @@ public class SerializableTable implements Serializable {
             return FontLib.getFont(f.getName(), f.getStyle(), f.getSize());
         }
         return serializable;
+    }
+
+    public static class SerializableBasicStroke implements Serializable {
+
+        private transient BasicStroke s;
+
+        public SerializableBasicStroke(BasicStroke s) {
+            this.s = s;
+        }
+
+        public BasicStroke getStroke() {
+            return s;
+        }
+
+        private void writeObject(ObjectOutputStream out) throws IOException {
+            out.writeFloat(s.getLineWidth());
+            out.writeInt(s.getEndCap());
+            out.writeInt(s.getLineJoin());
+            out.writeFloat(s.getMiterLimit());
+            out.writeObject(s.getDashArray());
+            out.writeFloat(s.getDashPhase());
+        }
+
+        private void readObject(ObjectInputStream in) throws ClassNotFoundException, IOException {
+            this.s = StrokeLib.getStroke(
+                    in.readFloat(),
+                    in.readInt(),
+                    in.readInt(),
+                    in.readFloat(),
+                    (float[]) in.readObject(),
+                    in.readFloat());
+        }
     }
 }

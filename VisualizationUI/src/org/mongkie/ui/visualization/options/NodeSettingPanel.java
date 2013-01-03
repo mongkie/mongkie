@@ -48,47 +48,57 @@ import prefuse.visual.VisualItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.UI<NodeItem>, Iterable<NodeItem> {
+public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.UI<NodeItem> {
 
     private final MongkieDisplay display;
     private boolean eventEnabled = true;
     private final PropertyEditor fontChooser = PropertyEditorManager.findEditor(Font.class);
-    private VisualStyle<NodeItem> visuals;
+    private final VisualStyle<NodeItem> style;
     private Iterable<NodeItem> nodes;
+
+    NodeSettingPanel(final MongkieDisplay display) {
+        this(display, VisualStyle.createNodeStyle(),
+                new Iterable<NodeItem>() {
+                    @Override
+                    public Iterator<NodeItem> iterator() {
+                        return display.getVisualization().items(NODES);
+                    }
+                });
+    }
 
     /**
      * Creates new form NodeSettingPanel
      */
-    NodeSettingPanel(MongkieDisplay display) {
+    NodeSettingPanel(MongkieDisplay display, VisualStyle<NodeItem> style, Iterable<NodeItem> nodes) {
         this.display = display;
-        visuals = VisualStyle.createNodeStyle();
-        nodes = NodeSettingPanel.this;
+        this.style = style;
+        this.nodes = nodes;
 
         initComponents();
 
         for (NodeShape s : NodeShape.values()) {
             shapeChooser.addItem(s);
         }
-        shapeChooser.setSelectedItem(NodeShape.get((Integer) visuals.get(VisualItem.SHAPE)));
+        shapeChooser.setSelectedItem(NodeShape.get((Integer) style.get(VisualItem.SHAPE)));
         shapeChooser.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (eventEnabled) {
-                    visuals.apply(VisualItem.SHAPE,
+                    getVisualStyle().apply(VisualItem.SHAPE,
                             ((NodeShape) shapeChooser.getSelectedItem()).getCode(),
-                            nodes.iterator());
+                            getVisualItems());
                 }
             }
         });
 
-        sizeSpinner.setValue(visuals.get(VisualItem.SIZE));
+        sizeSpinner.setValue(style.get(VisualItem.SIZE));
         sizeSpinner.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 if (eventEnabled) {
-                    visuals.apply(VisualItem.SIZE,
+                    getVisualStyle().apply(VisualItem.SIZE,
                             ((Double) sizeSpinner.getValue()).doubleValue(),
-                            nodes.iterator());
+                            getVisualItems());
                 }
             }
         });
@@ -96,13 +106,13 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         fontFamilyButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                fontChooser.setValue(visuals.get(VisualItem.FONT));
+                fontChooser.setValue(getVisualStyle().get(VisualItem.FONT));
                 DialogDescriptor dd = new DialogDescriptor(fontChooser.getCustomEditor(), "Node Font");
                 DialogDisplayer.getDefault().createDialog(dd).setVisible(true);
                 if (dd.getValue() == DialogDescriptor.OK_OPTION) {
                     if (eventEnabled) {
                         Font f = (Font) fontChooser.getValue();
-                        visuals.apply(VisualItem.FONT, f, nodes.iterator());
+                        getVisualStyle().apply(VisualItem.FONT, f, getVisualItems());
                         updateFontButton(f);
                     }
                 }
@@ -113,9 +123,9 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (eventEnabled) {
-                            visuals.apply(VisualItem.FILLCOLOR,
+                            getVisualStyle().apply(VisualItem.FILLCOLOR,
                                     ColorLib.color(((JColorButton) fillColorButton).getColor()),
-                                    nodes.iterator());
+                                    getVisualItems());
                         }
                     }
                 });
@@ -124,9 +134,9 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (eventEnabled) {
-                            visuals.apply(VisualItem.TEXTCOLOR,
+                            getVisualStyle().apply(VisualItem.TEXTCOLOR,
                                     ColorLib.color(((JColorButton) fontColorButton).getColor()),
-                                    nodes.iterator());
+                                    getVisualItems());
                         }
                     }
                 });
@@ -135,9 +145,9 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (eventEnabled) {
-                            visuals.apply(VisualItem.STROKECOLOR,
+                            getVisualStyle().apply(VisualItem.STROKECOLOR,
                                     ColorLib.color(((JColorButton) borderColorButton).getColor()),
-                                    nodes.iterator());
+                                    getVisualItems());
                         }
                     }
                 });
@@ -149,23 +159,28 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     }
 
     private void reset() {
-        visuals.reset();
-        reset(nodes, visuals);
-        visuals.apply(iterator());
+        style.reset();
+        // Reload the style
+        loadVisualStyle(style, true);
     }
 
     @Override
-    public void reset(Iterable<NodeItem> items, VisualStyle<NodeItem> visuals) {
-        this.nodes = items;
-        this.visuals = visuals;
+    public VisualStyle<NodeItem> loadVisualStyle(VisualStyle<NodeItem> style, boolean apply) {
+        this.style.load(style);
+        // Update UI
         eventEnabled = false;
-        shapeChooser.setSelectedItem(NodeShape.get((Integer) visuals.get(VisualItem.SHAPE)));
-        sizeSpinner.setValue(visuals.get(VisualItem.SIZE));
-        updateFontButton((Font) visuals.get(VisualItem.FONT));
-        ((JColorButton) fillColorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.FILLCOLOR)));
-        ((JColorButton) fontColorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.TEXTCOLOR)));
-        ((JColorButton) borderColorButton).setColor(ColorLib.getColor((Integer) visuals.get(VisualItem.STROKECOLOR)));
+        shapeChooser.setSelectedItem(NodeShape.get((Integer) this.style.get(VisualItem.SHAPE)));
+        sizeSpinner.setValue(this.style.get(VisualItem.SIZE));
+        updateFontButton((Font) this.style.get(VisualItem.FONT));
+        ((JColorButton) fillColorButton).setColor(ColorLib.getColor((Integer) this.style.get(VisualItem.FILLCOLOR)));
+        ((JColorButton) fontColorButton).setColor(ColorLib.getColor((Integer) this.style.get(VisualItem.TEXTCOLOR)));
+        ((JColorButton) borderColorButton).setColor(ColorLib.getColor((Integer) this.style.get(VisualItem.STROKECOLOR)));
         eventEnabled = true;
+        if (apply) {
+            // Apply the new style to visual items
+            this.style.apply(getVisualItems());
+        }
+        return this.style;
     }
 
     @Override
@@ -174,8 +189,13 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     }
 
     @Override
-    public Iterator<NodeItem> iterator() {
-        return display.getVisualization().items(NODES);
+    public VisualStyle<NodeItem> getVisualStyle() {
+        return style;
+    }
+
+    @Override
+    public Iterator<NodeItem> getVisualItems() {
+        return nodes.iterator();
     }
 
     /**
@@ -192,11 +212,11 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         shapeChooser = new javax.swing.JComboBox();
         fontLabel = new javax.swing.JLabel();
         fontFamilyButton = new javax.swing.JButton();
-        fontColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) visuals.get(VisualItem.TEXTCOLOR)));
+        fontColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) style.get(VisualItem.TEXTCOLOR)));
         fillColorLabel = new javax.swing.JLabel();
-        fillColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) visuals.get(VisualItem.FILLCOLOR)));
+        fillColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) style.get(VisualItem.FILLCOLOR)));
         borderColorLabel = new javax.swing.JLabel();
-        borderColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) visuals.get(VisualItem.STROKECOLOR)));
+        borderColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) style.get(VisualItem.STROKECOLOR)));
         sizeLabel = new javax.swing.JLabel();
         sizeSpinner = new javax.swing.JSpinner();
         resetAllButton = new javax.swing.JButton();
@@ -207,8 +227,8 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
 
         fontLabel.setText(org.openide.util.NbBundle.getMessage(NodeSettingPanel.class, "NodeSettingPanel.fontLabel.text")); // NOI18N
 
-        fontFamilyButton.setFont(FontLib.getFont(((Font) visuals.get(VisualItem.FONT)).getName(), ((Font) visuals.get(VisualItem.FONT)).getStyle(), 13));
-        fontFamilyButton.setText(((Font) visuals.get(VisualItem.FONT)).getFontName() + ", " + ((Font) visuals.get(VisualItem.FONT)).getSize());
+        fontFamilyButton.setFont(FontLib.getFont(((Font) style.get(VisualItem.FONT)).getName(), ((Font) style.get(VisualItem.FONT)).getStyle(), 13));
+        fontFamilyButton.setText(((Font) style.get(VisualItem.FONT)).getFontName() + ", " + ((Font) style.get(VisualItem.FONT)).getSize());
         fontFamilyButton.setBorderPainted(false);
 
         fontColorButton.setText(org.openide.util.NbBundle.getMessage(NodeSettingPanel.class, "NodeSettingPanel.fontColorButton.text")); // NOI18N
