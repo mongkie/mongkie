@@ -230,7 +230,7 @@ public abstract class VisualStyle<I extends VisualItem> {
             labelFont = ((SerializableFont) in.readObject()).getFont();
         }
 
-        private Node() {
+        public Node() {
             init();
         }
 
@@ -364,7 +364,7 @@ public abstract class VisualStyle<I extends VisualItem> {
 
         public interface UIFactory {
 
-            public UI<NodeItem> createUI(MongkieDisplay display, VisualStyle<NodeItem> style, Iterable<NodeItem> nodes);
+            public UI<NodeItem> createUI(MongkieDisplay display, Iterable<NodeItem> nodes);
         }
     }
 
@@ -389,7 +389,7 @@ public abstract class VisualStyle<I extends VisualItem> {
             stroke = ((SerializableBasicStroke) in.readObject()).getStroke();
         }
 
-        private Edge() {
+        public Edge() {
             init();
         }
 
@@ -522,7 +522,7 @@ public abstract class VisualStyle<I extends VisualItem> {
 
         public interface UIFactory {
 
-            public UI<EdgeItem> createUI(MongkieDisplay display, VisualStyle<EdgeItem> style, Iterable<EdgeItem> edges);
+            public UI<EdgeItem> createUI(MongkieDisplay display, Iterable<EdgeItem> edges);
         }
     }
 
@@ -535,5 +535,7 @@ public abstract class VisualStyle<I extends VisualItem> {
         public JComponent getComponent();
 
         public Iterator<I> getVisualItems();
+
+        public boolean apply();
     }
 }

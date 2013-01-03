@@ -31,7 +31,7 @@ import prefuse.visual.NodeItem;
 public class NodeStyleUIFactory implements VisualStyle.Node.UIFactory {
 
     @Override
-    public VisualStyle.UI<NodeItem> createUI(MongkieDisplay display, VisualStyle<NodeItem> style, Iterable<NodeItem> nodes) {
-        return new NodeSettingPanel(display, style, nodes);
+    public VisualStyle.UI<NodeItem> createUI(MongkieDisplay display, Iterable<NodeItem> nodes) {
+        return new NodeSettingPanel(display, nodes);
     }
 }

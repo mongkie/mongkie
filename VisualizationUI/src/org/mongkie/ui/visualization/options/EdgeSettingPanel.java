@@ -62,23 +62,32 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     private final PropertyEditor fontChooser = PropertyEditorManager.findEditor(Font.class);
     private final VisualStyle<EdgeItem> style;
     private final Iterable<EdgeItem> edges;
+    private boolean applied = false;
 
     EdgeSettingPanel(final MongkieDisplay display) {
-        this(display, VisualStyle.createEdgeStyle(),
-                new Iterable<EdgeItem>() {
-                    @Override
-                    public Iterator<EdgeItem> iterator() {
-                        return display.getVisualization().items(EDGES);
-                    }
-                });
+        this(display, new Iterable<EdgeItem>() {
+            @Override
+            public Iterator<EdgeItem> iterator() {
+                return display.getVisualization().items(EDGES);
+            }
+        });
     }
 
     /**
      * Creates new form EdgeSettingPanel
      */
-    EdgeSettingPanel(MongkieDisplay display, VisualStyle<EdgeItem> style, Iterable<EdgeItem> edges) {
+    EdgeSettingPanel(MongkieDisplay display, Iterable<EdgeItem> edges) {
         this.display = display;
-        this.style = style;
+        this.style = new VisualStyle.Edge() {
+            @Override
+            protected boolean apply(String field, EdgeItem e) {
+                boolean ok = super.apply(field, e);
+                if (ok) {
+                    applied = true;
+                }
+                return ok;
+            }
+        };
         this.edges = edges;
 
         initComponents();
@@ -219,6 +228,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
             // Apply the new style to visual items
             this.style.apply(getVisualItems());
         }
+        applied = apply;
         return this.style;
     }
 
@@ -235,6 +245,15 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     @Override
     public Iterator<EdgeItem> getVisualItems() {
         return edges.iterator();
+    }
+
+    @Override
+    public boolean apply() {
+        if (!applied) {
+            style.apply(getVisualItems());
+            return true;
+        }
+        return false;
     }
 
     /**

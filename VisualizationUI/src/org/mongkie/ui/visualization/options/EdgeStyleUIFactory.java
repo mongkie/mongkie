@@ -32,7 +32,7 @@ import prefuse.visual.EdgeItem;
 public class EdgeStyleUIFactory implements VisualStyle.Edge.UIFactory {
 
     @Override
-    public UI<EdgeItem> createUI(MongkieDisplay display, VisualStyle<EdgeItem> style, Iterable<EdgeItem> edges) {
-        return new EdgeSettingPanel(display, style, edges);
+    public UI<EdgeItem> createUI(MongkieDisplay display, Iterable<EdgeItem> edges) {
+        return new EdgeSettingPanel(display, edges);
     }
 }

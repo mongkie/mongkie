@@ -55,23 +55,32 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     private final PropertyEditor fontChooser = PropertyEditorManager.findEditor(Font.class);
     private final VisualStyle<NodeItem> style;
     private Iterable<NodeItem> nodes;
+    private boolean applied = false;
 
     NodeSettingPanel(final MongkieDisplay display) {
-        this(display, VisualStyle.createNodeStyle(),
-                new Iterable<NodeItem>() {
-                    @Override
-                    public Iterator<NodeItem> iterator() {
-                        return display.getVisualization().items(NODES);
-                    }
-                });
+        this(display, new Iterable<NodeItem>() {
+            @Override
+            public Iterator<NodeItem> iterator() {
+                return display.getVisualization().items(NODES);
+            }
+        });
     }
 
     /**
      * Creates new form NodeSettingPanel
      */
-    NodeSettingPanel(MongkieDisplay display, VisualStyle<NodeItem> style, Iterable<NodeItem> nodes) {
+    NodeSettingPanel(MongkieDisplay display, Iterable<NodeItem> nodes) {
         this.display = display;
-        this.style = style;
+        this.style = new VisualStyle.Node() {
+            @Override
+            protected boolean apply(String field, NodeItem n) {
+                boolean ok = super.apply(field, n);
+                if (ok) {
+                    applied = true;
+                }
+                return ok;
+            }
+        };
         this.nodes = nodes;
 
         initComponents();
@@ -180,6 +189,7 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
             // Apply the new style to visual items
             this.style.apply(getVisualItems());
         }
+        applied = apply;
         return this.style;
     }
 
@@ -196,6 +206,15 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     @Override
     public Iterator<NodeItem> getVisualItems() {
         return nodes.iterator();
+    }
+
+    @Override
+    public boolean apply() {
+        if (!applied) {
+            style.apply(getVisualItems());
+            return true;
+        }
+        return false;
     }
 
     /**

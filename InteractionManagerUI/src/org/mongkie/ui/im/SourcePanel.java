@@ -210,11 +210,10 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         Map<VisualStyle<EdgeItem>, List<EdgeItem>> edgeOldStyles = VisualStyle.valuesOf(settings.getEdgeStyleUI().getVisualItems());
         if (DialogDisplayer.getDefault().notify(new DialogDescriptor(settings, is.getName() + " Settings"))
                 .equals(NotifyDescriptor.OK_OPTION)) {
-            // TODO: Final apply action is required ONLY IF UI style is not changed from model style
-            // but, current styles of visual items are different with model style since they are changed from elsewhere.
-            edgeUIStyle.apply(settings.getEdgeStyleUI().getVisualItems());
             // Load the UI style into the model's style
             edgeModelStyle.load(edgeUIStyle);
+            // Then, apply the style to the visual items
+            settings.getEdgeStyleUI().apply();
         } else {
             // Revert any styles changed in the UI
             for (VisualStyle<EdgeItem> style : edgeOldStyles.keySet()) {

@@ -42,7 +42,7 @@ public class SettingsPanel extends javax.swing.JPanel {
      */
     SettingsPanel(final MongkieDisplay d, final InteractionSource is) {
         initComponents();
-        edgeStyleUI = Lookup.getDefault().lookup(VisualStyle.Edge.UIFactory.class).createUI(d, VisualStyle.createEdgeStyle(),
+        edgeStyleUI = Lookup.getDefault().lookup(VisualStyle.Edge.UIFactory.class).createUI(d,
                 new Iterable<EdgeItem>() {
                     @Override
                     public Iterator<EdgeItem> iterator() {
