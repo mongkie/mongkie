@@ -23,8 +23,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.List;
-import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -37,7 +35,6 @@ import org.mongkie.im.SourceModel;
 import org.mongkie.im.SourceModelListener;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.visualization.MongkieDisplay;
-import org.mongkie.visualization.util.VisualStyle;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -48,7 +45,6 @@ import prefuse.data.Table;
 import static prefuse.data.event.EventConstants.*;
 import prefuse.data.event.TableListener;
 import prefuse.util.TypeLib;
-import prefuse.visual.EdgeItem;
 
 /**
  *
@@ -203,24 +199,13 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
     }//GEN-LAST:event_actionMenuButtonActionPerformed
 
     private void settingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingButtonActionPerformed
-        VisualStyle<EdgeItem> edgeModelStyle = Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is);
-        // Initialize the UI style using the model's style
-        VisualStyle<EdgeItem> edgeUIStyle = settings.getEdgeStyleUI().loadVisualStyle(edgeModelStyle, false);
-        // Store current styles of visual items to revert when the UI is canceled
-        Map<VisualStyle<EdgeItem>, List<EdgeItem>> edgeOldStyles = VisualStyle.valuesOf(settings.getEdgeStyleUI().getVisualItems());
+        settings.load();
         if (DialogDisplayer.getDefault().notify(new DialogDescriptor(settings, is.getName() + " Settings"))
                 .equals(NotifyDescriptor.OK_OPTION)) {
-            // Load the UI style into the model's style
-            edgeModelStyle.load(edgeUIStyle);
-            // Then, apply the style to the visual items
-            settings.getEdgeStyleUI().apply();
+            settings.apply(true);
         } else {
-            // Revert any styles changed in the UI
-            for (VisualStyle<EdgeItem> style : edgeOldStyles.keySet()) {
-                style.apply(edgeOldStyles.get(style).toArray(new EdgeItem[]{}));
-            }
+            settings.apply(false);
         }
-        edgeOldStyles.clear();
     }//GEN-LAST:event_settingButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton actionMenuButton;

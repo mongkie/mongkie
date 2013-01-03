@@ -19,6 +19,8 @@
 package org.mongkie.ui.im;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.mongkie.im.InteractionController;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.visualization.MongkieDisplay;
@@ -28,6 +30,7 @@ import org.openide.util.Lookup;
 import prefuse.data.Table;
 import prefuse.util.DataLib;
 import prefuse.visual.EdgeItem;
+import prefuse.visual.VisualItem;
 
 /**
  *
@@ -35,26 +38,74 @@ import prefuse.visual.EdgeItem;
  */
 public class SettingsPanel extends javax.swing.JPanel {
 
+    private final InteractionSource is;
     private final VisualStyle.UI<EdgeItem> edgeStyleUI;
+    private final InteractionSource.SettingUI settings;
+    private Map<VisualStyle<EdgeItem>, List<EdgeItem>> edgeOldStyles;
+    private static final Iterator<VisualItem> NULL_ITEMS = new Iterator<VisualItem>() {
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public VisualItem next() {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public void remove() {
+        }
+    };
 
     /**
      * Creates new form SettingsPanel
      */
     SettingsPanel(final MongkieDisplay d, final InteractionSource is) {
         initComponents();
+        this.is = is;
+        settings = is.getSettingUI();
+        if (settings != null) {
+            tabbedPane.addTab("Settings", ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/settings.png", false), settings.getPanel());
+        }
         edgeStyleUI = Lookup.getDefault().lookup(VisualStyle.Edge.UIFactory.class).createUI(d,
                 new Iterable<EdgeItem>() {
                     @Override
                     public Iterator<EdgeItem> iterator() {
                         Table edges = d.getVisualGraph().getEdgeTable();
-                        return edges.tuples(DataLib.rows(edges, InteractionController.FIELD_INTERACTION_SOURCE, is.getName()));
+                        return edges.getColumnNumber(InteractionController.FIELD_INTERACTION_SOURCE) < 0 ? NULL_ITEMS
+                                : edges.tuples(DataLib.rows(edges, InteractionController.FIELD_INTERACTION_SOURCE, is.getName()));
                     }
                 });
         tabbedPane.addTab("Visual Styles", ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/styleedit.png", false), edgeStyleUI.getComponent());
     }
 
-    VisualStyle.UI<EdgeItem> getEdgeStyleUI() {
-        return edgeStyleUI;
+    void load() {
+        if (settings != null) {
+            settings.load(is);
+        }
+        // Initialize the UI style using the model's style
+        edgeStyleUI.loadVisualStyle(Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is), false);
+        // Store current styles of visual items to revert when the UI is canceled
+        edgeOldStyles = VisualStyle.valuesOf(edgeStyleUI.getVisualItems());
+    }
+
+    void apply(boolean ok) {
+        if (settings != null && ok) {
+            settings.apply(is);
+        }
+        if (ok) {
+            // Load the UI style into the model's style
+            Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is).load(edgeStyleUI.getVisualStyle());
+            // Then, apply the style to the visual items
+            edgeStyleUI.apply();
+        } else { // cancel
+            // Revert any styles changed in the UI
+            for (VisualStyle<EdgeItem> style : edgeOldStyles.keySet()) {
+                style.apply(edgeOldStyles.get(style).toArray(new EdgeItem[]{}));
+            }
+        }
+        edgeOldStyles.clear();
     }
 
     /**

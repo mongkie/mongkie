@@ -169,8 +169,12 @@ public class MiMI implements InteractionSource<Integer> {
 
     @Override
     public SettingUI getSettingUI() {
-        return null;
+        if (settings == null) {
+            settings = new MiMISettingUI();
+        }
+        return settings;
     }
+    private MiMISettingUI settings;
 
     public class PPI implements org.mongkie.im.spi.Interaction<Integer> {
 
