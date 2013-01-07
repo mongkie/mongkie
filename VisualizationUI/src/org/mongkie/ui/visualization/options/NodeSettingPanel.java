@@ -74,11 +74,9 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         this.style = new VisualStyle.Node() {
             @Override
             protected boolean apply(String field, NodeItem n) {
-                boolean ok = super.apply(field, n);
-                if (ok) {
-                    applied = true;
-                }
-                return ok;
+                boolean redraw = super.apply(field, n);
+                applied = true;
+                return redraw;
             }
         };
         this.nodes = nodes;
@@ -175,7 +173,7 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
 
     @Override
     public VisualStyle<NodeItem> loadVisualStyle(VisualStyle<NodeItem> style, boolean apply) {
-        this.style.load(style);
+        this.style.reset(style);
         // Update UI
         eventEnabled = false;
         shapeChooser.setSelectedItem(NodeShape.get((Integer) this.style.get(VisualItem.SHAPE)));

@@ -39,6 +39,7 @@ import kobic.prefuse.EdgeStroke;
 import kobic.prefuse.NodeShape;
 import kobic.prefuse.data.io.SerializableFont;
 import kobic.prefuse.data.io.SerializableTable.SerializableBasicStroke;
+import org.mongkie.util.Persistence;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.color.ColorController;
 import org.mongkie.visualization.color.ColorProvider;
@@ -55,7 +56,7 @@ import prefuse.visual.VisualItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class VisualStyle<I extends VisualItem> {
+public abstract class VisualStyle<I extends VisualItem> implements Persistence.Value {
 
     public static final Set<String> FIELDS = new HashSet<String>(
             Arrays.asList(new String[]{
@@ -66,24 +67,29 @@ public abstract class VisualStyle<I extends VisualItem> {
                 VisualItem.FILLCOLOR,
                 VisualItem.STROKECOLOR,
                 VisualItem.TEXTCOLOR}));
+    private String name = "NA";
 
     public void apply(Iterator<I> items) {
-        boolean redraw = false;
-        I it = null;
-        while (items.hasNext()) {
-            it = items.next();
-            for (String field : FIELDS) {
-                if (apply(field, it)) {
-                    redraw = true;
-                }
-            }
+        if (!items.hasNext()) {
+            return;
         }
-        if (it != null) {
-            if (redraw) {
-                it.getVisualization().rerun(Visualization.DRAW);
-            } else {
-                it.getVisualization().repaint();
-            }
+        boolean redraw = false;
+        I it = items.next();
+        Visualization v = it.getVisualization();
+        synchronized (v) {
+            do {
+                for (String field : FIELDS) {
+                    if (apply(field, it)) {
+                        redraw = true;
+                    }
+                }
+                it = items.hasNext() ? items.next() : null;
+            } while (it != null);
+        }
+        if (redraw) {
+            v.rerun(Visualization.DRAW);
+        } else {
+            v.repaint();
         }
     }
 
@@ -91,20 +97,24 @@ public abstract class VisualStyle<I extends VisualItem> {
         if (!FIELDS.contains(field)) {
             throw new IllegalArgumentException("Unknown visual field: " + field);
         }
-        boolean redraw = false;
-        I it = null;
-        while (items.hasNext()) {
-            it = items.next();
-            if (apply(field, it)) {
-                redraw = true;
-            }
+        if (!items.hasNext()) {
+            return;
         }
-        if (it != null) {
-            if (redraw) {
-                it.getVisualization().rerun(Visualization.DRAW);
-            } else {
-                it.getVisualization().repaint();
-            }
+        boolean redraw = false;
+        I it = items.next();
+        Visualization v = it.getVisualization();
+        synchronized (v) {
+            do {
+                if (apply(field, it)) {
+                    redraw = true;
+                }
+                it = items.hasNext() ? items.next() : null;
+            } while (it != null);
+        }
+        if (redraw) {
+            v.rerun(Visualization.DRAW);
+        } else {
+            v.repaint();
         }
     }
 
@@ -118,17 +128,20 @@ public abstract class VisualStyle<I extends VisualItem> {
             return;
         }
         boolean redraw = false;
-        for (String field : FIELDS) {
-            for (I n : items) {
-                if (apply(field, n)) {
-                    redraw = true;
+        Visualization v = items[0].getVisualization();
+        synchronized (v) {
+            for (String field : FIELDS) {
+                for (I n : items) {
+                    if (apply(field, n)) {
+                        redraw = true;
+                    }
                 }
             }
         }
         if (redraw) {
-            items[0].getVisualization().rerun(Visualization.DRAW);
+            v.rerun(Visualization.DRAW);
         } else {
-            items[0].getVisualization().repaint();
+            v.repaint();
         }
     }
 
@@ -140,15 +153,18 @@ public abstract class VisualStyle<I extends VisualItem> {
             throw new IllegalArgumentException("Unknown visual field: " + field);
         }
         boolean redraw = false;
-        for (I n : items) {
-            if (apply(field, n)) {
-                redraw = true;
+        Visualization v = items[0].getVisualization();
+        synchronized (v) {
+            for (I n : items) {
+                if (apply(field, n)) {
+                    redraw = true;
+                }
             }
         }
         if (redraw) {
-            items[0].getVisualization().rerun(Visualization.DRAW);
+            v.rerun(Visualization.DRAW);
         } else {
-            items[0].getVisualization().repaint();
+            v.repaint();
         }
     }
 
@@ -165,7 +181,7 @@ public abstract class VisualStyle<I extends VisualItem> {
 
     public abstract void set(String field, Object value);
 
-    public VisualStyle<I> load(VisualStyle<I> other) {
+    public VisualStyle<I> reset(VisualStyle<I> other) {
         for (String field : FIELDS) {
             try {
                 set(field, other.get(field));
@@ -212,6 +228,18 @@ public abstract class VisualStyle<I extends VisualItem> {
         return new Edge();
     }
 
+    @Override
+    protected abstract VisualStyle<I> clone() throws CloneNotSupportedException;
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public static class Node extends VisualStyle<NodeItem> implements Serializable {
 
         private int shape;
@@ -246,7 +274,7 @@ public abstract class VisualStyle<I extends VisualItem> {
         @Override
         protected Node clone() throws CloneNotSupportedException {
             Node style = new Node();
-            style.load(this);
+            style.reset(this);
             return style;
         }
 
@@ -405,7 +433,7 @@ public abstract class VisualStyle<I extends VisualItem> {
         @Override
         protected Edge clone() throws CloneNotSupportedException {
             Edge style = new Edge();
-            style.load(this);
+            style.reset(this);
             return style;
         }
 

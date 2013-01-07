@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import kobic.prefuse.Constants;
 import kobic.prefuse.data.Attribute;
@@ -50,15 +49,14 @@ import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.progress.Progress;
 import org.mongkie.longtask.progress.ProgressTicket;
+import org.mongkie.util.Persistence;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualization.util.LayoutService.ExpandingLayout;
 import org.mongkie.visualization.util.VisualStyle;
 import org.mongkie.visualization.workspace.WorkspaceListener;
 import org.openide.ErrorManager;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.Visualization;
 import static prefuse.Visualization.*;
@@ -158,7 +156,7 @@ public class InteractionControllerImpl implements InteractionController {
             sources.add(is);
         }
         // Others
-        sourcesByCategory.put(CATEGORY_OTHERS, GraphSource.getPersistence().loads());
+        sourcesByCategory.put(CATEGORY_OTHERS, new ArrayList<InteractionSource>(GraphSource.getPersistence().getValues()));
         for (InteractionSource is : sourcesByCategory.get(CATEGORY_OTHERS)) {
             SourceModelImpl m = new SourceModelImpl(d, is);
             d.add(m);
@@ -175,6 +173,28 @@ public class InteractionControllerImpl implements InteractionController {
     @Override
     public VisualStyle<NodeItem> getNodeVisualStyle(InteractionSource is) {
         return ((SourceModelImpl) getModel(is)).getNodeVisualStyle();
+    }
+
+    @Override
+    public Iterator<EdgeItem> getEdgeItems(InteractionSource is) {
+        final SourceModelImpl model = models.get(is);
+        final Iterator<Edge> edges = model.getEdges().iterator();
+        return new Iterator<EdgeItem>() {
+            @Override
+            public boolean hasNext() {
+                return edges.hasNext();
+            }
+
+            @Override
+            public EdgeItem next() {
+                return (EdgeItem) model.getDisplay().getVisualization().getVisualItem(Constants.EDGES, edges.next());
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Not supported operation.");
+            }
+        };
     }
 
     @Override
@@ -712,61 +732,47 @@ public class InteractionControllerImpl implements InteractionController {
     private final Map<MongkieDisplay, List<SourceModelChangeListener>> listeners =
             new HashMap<MongkieDisplay, List<SourceModelChangeListener>>();
 
-    static class GraphSource implements InteractionSource {
+    static class GraphSource implements InteractionSource, Persistence.Value {
 
         @Override
         public SettingUI getSettingUI() {
             return null;
         }
 
-        static final class Persistence {
+        static final class PersistenceImpl extends Persistence.Values<GraphSource> {
 
             private static final String GRAPH = "graph";
             private static final String NODE_KEYCOL = "nodeKeyCol";
 
-            private Persistence() {
+            private PersistenceImpl() {
             }
 
-            List<InteractionSource> loads() {
-                List<InteractionSource> sources = new ArrayList<InteractionSource>();
-                Preferences root = getPreferences();
-                try {
-                    for (String name : root.childrenNames()) {
-                        Preferences store = root.node(name);
-                        byte[] bytes = store.getByteArray(GRAPH, null);
-                        if (bytes != null) {
-                            Graph g = GraphIO.readSerializableGraph(new ByteArrayInputStream(bytes));
-                            sources.add(new GraphSource(name, g, store.get(NODE_KEYCOL, g.getNodeKeyField())));
-                        } else {
-                            continue;
-                        }
-                    }
-                } catch (BackingStoreException ex) {
-                    Exceptions.printStackTrace(ex);
+            @Override
+            protected GraphSource load(Preferences node) {
+                byte[] bytes = node.getByteArray(GRAPH, null);
+                if (bytes != null) {
+                    Graph g = GraphIO.readSerializableGraph(new ByteArrayInputStream(bytes));
+                    return new GraphSource(node.name(), g, node.get(NODE_KEYCOL, g.getNodeKeyField()));
                 }
-                return sources;
+                return null;
             }
 
-            boolean save(GraphSource gs) {
-                Preferences store = getPreferences(gs);
+            @Override
+            protected void store(Preferences node, GraphSource gs) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 GraphIO.writeSerializableGraph(gs.g, bos);
-                store.putByteArray(GRAPH, bos.toByteArray());
-                store.put(NODE_KEYCOL, gs.nodeKeyCol);
-                return true;
+                node.putByteArray(GRAPH, bos.toByteArray());
+                node.put(NODE_KEYCOL, gs.nodeKeyCol);
             }
 
-            private Preferences getPreferences() {
-                return NbPreferences.forModule(InteractionControllerImpl.class).node("GraphSource");
+            @Override
+            protected String getRootName() {
+                return "GraphSources";
             }
 
-            private Preferences getPreferences(GraphSource gs) {
-                return getPreferences().node(gs.name);
-            }
+            private static class Holder {
 
-            private static class DEFAULT {
-
-                private static final Persistence INSTANCE = new Persistence();
+                private static final PersistenceImpl INSTANCE = new PersistenceImpl();
             }
         }
         final Graph g;
@@ -790,8 +796,8 @@ public class InteractionControllerImpl implements InteractionController {
             this.nodeKeyCol = nodeKeyCol;
         }
 
-        static Persistence getPersistence() {
-            return Persistence.DEFAULT.INSTANCE;
+        static PersistenceImpl getPersistence() {
+            return PersistenceImpl.Holder.INSTANCE;
         }
 
         @Override

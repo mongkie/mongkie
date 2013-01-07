@@ -213,33 +213,54 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
         return key;
     }
 
-    boolean addInteraction(Interaction i, Edge e) {
-        Set<Edge> edges = interactionsMap.get(i);
+    void addInteraction(Interaction i, Edge e) {
+        Set<Edge> edges = interaction2Edges.get(i);
         if (edges == null) {
             edges = new HashSet<Edge>();
-            interactionsMap.put(i, edges);
+            interaction2Edges.put(i, edges);
         }
-        return edges.add(e);
+        edges.add(e);
+        edge2Interaction.put(e, i);
     }
 
     Set<Edge> removeInteraction(Interaction i) {
-        return interactionsMap.remove(i);
+        Set<Edge> edges = interaction2Edges.remove(i);
+        if (edges != null) {
+            for (Edge e : edges) {
+                edge2Interaction.remove(e);
+            }
+        }
+        return edges;
     }
 
     Set<Edge> clearInteractions() {
-        Set<Edge> allEdges = new HashSet<Edge>();
-        for (Set<Edge> edges : interactionsMap.values()) {
-            allEdges.addAll(edges);
-            edges.clear();
+        Set<Edge> edges = new HashSet<Edge>();
+        for (Set<Edge> _edges : interaction2Edges.values()) {
+            edges.addAll(_edges);
+            _edges.clear();
         }
-        interactionsMap.clear();
-        return allEdges;
+        interaction2Edges.clear();
+        edge2Interaction.clear();
+        return edges;
     }
 
     Set<Interaction> getInteractions() {
-        return interactionsMap.keySet();
+        return interaction2Edges.keySet();
     }
-    private final Map<Interaction, Set<Edge>> interactionsMap = new HashMap<Interaction, Set<Edge>>();
+
+    Set<Edge> getEdges(Interaction i) {
+        return interaction2Edges.get(i);
+    }
+
+    Set<Edge> getEdges() {
+        return edge2Interaction.keySet();
+    }
+
+    Interaction getInteraction(Edge e) {
+        return edge2Interaction.get(e);
+    }
+    private final Map<Interaction, Set<Edge>> interaction2Edges = new HashMap<Interaction, Set<Edge>>();
+    private final Map<Edge, Interaction> edge2Interaction = new HashMap<Edge, Interaction>();
 
     @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {

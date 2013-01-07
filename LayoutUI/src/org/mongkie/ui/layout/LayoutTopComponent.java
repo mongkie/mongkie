@@ -30,7 +30,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JMenuItem;
@@ -43,7 +43,7 @@ import org.mongkie.layout.spi.Layout;
 import org.mongkie.layout.spi.LayoutBuilder;
 import org.mongkie.layout.spi.LayoutBuilder.UI;
 import org.mongkie.lib.widgets.richtooltip.RichTooltip;
-import org.mongkie.ui.layout.LayoutPersistenceImpl.Preset;
+import org.mongkie.ui.layout.LayoutPresetStoreImpl.Preset;
 import static org.mongkie.visualization.Config.MODE_CONTROL;
 import static org.mongkie.visualization.Config.ROLE_NETWORK;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -459,14 +459,14 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
 
     private void presetsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_presetsButtonActionPerformed
         JPopupMenu menu = new JPopupMenu();
-        List<Preset> presets = LayoutPersistenceImpl.getDefault().getPresets(model.getSelectedLayout());
+        Set<Preset> presets = LayoutPresetStoreImpl.getInstance().getValues(model.getSelectedLayout());
         if (presets != null && !presets.isEmpty()) {
             for (final Preset p : presets) {
                 JMenuItem item = new JMenuItem(p.getName());
                 item.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        LayoutPersistenceImpl.getDefault().loadPreset(model.getSelectedLayout(), p);
+                        LayoutPresetStoreImpl.getInstance().load(model.getSelectedLayout(), p);
                         refreshProperties();
                         StatusDisplayer.getDefault().setStatusText(
                                 NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.status.presetLoaded", model.getSelectedLayout().getBuilder().getName(), p.getName()));
@@ -488,7 +488,7 @@ public final class LayoutTopComponent extends TopComponent implements PropertyCh
                 if (DialogDisplayer.getDefault().notify(question) == NotifyDescriptor.OK_OPTION) {
                     String name = question.getInputText();
                     if (name != null && !name.isEmpty()
-                            && LayoutPersistenceImpl.getDefault().savePreset(model.getSelectedLayout(), name)) {
+                            && LayoutPresetStoreImpl.getInstance().save(model.getSelectedLayout(), name)) {
                         StatusDisplayer.getDefault().setStatusText(
                                 NbBundle.getMessage(LayoutTopComponent.class, "LayoutTopComponent.status.presetSaved", model.getSelectedLayout().getBuilder().getName(), name));
                         NbPreferences.forModule(LayoutTopComponent.class).put("LayoutTopComponent.lastPresetName", name);

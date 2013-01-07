@@ -18,6 +18,7 @@
  */
 package org.mongkie.im;
 
+import java.util.Iterator;
 import java.util.List;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.visualization.MongkieDisplay;
@@ -60,4 +61,6 @@ public interface InteractionController {
     public VisualStyle<EdgeItem> getEdgeVisualStyle(InteractionSource is);
 
     public VisualStyle<NodeItem> getNodeVisualStyle(InteractionSource is);
+
+    public Iterator<EdgeItem> getEdgeItems(InteractionSource is);
 }

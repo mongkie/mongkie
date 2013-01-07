@@ -27,10 +27,7 @@ import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.util.VisualStyle;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
-import prefuse.data.Table;
-import prefuse.util.DataLib;
 import prefuse.visual.EdgeItem;
-import prefuse.visual.VisualItem;
 
 /**
  *
@@ -42,21 +39,6 @@ public class SettingsPanel extends javax.swing.JPanel {
     private final VisualStyle.UI<EdgeItem> edgeStyleUI;
     private final InteractionSource.SettingUI settings;
     private Map<VisualStyle<EdgeItem>, List<EdgeItem>> edgeOldStyles;
-    private static final Iterator<VisualItem> NULL_ITEMS = new Iterator<VisualItem>() {
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public VisualItem next() {
-            throw new IllegalStateException();
-        }
-
-        @Override
-        public void remove() {
-        }
-    };
 
     /**
      * Creates new form SettingsPanel
@@ -72,9 +54,7 @@ public class SettingsPanel extends javax.swing.JPanel {
                 new Iterable<EdgeItem>() {
                     @Override
                     public Iterator<EdgeItem> iterator() {
-                        Table edges = d.getVisualGraph().getEdgeTable();
-                        return edges.getColumnNumber(InteractionController.FIELD_INTERACTION_SOURCE) < 0 ? NULL_ITEMS
-                                : edges.tuples(DataLib.rows(edges, InteractionController.FIELD_INTERACTION_SOURCE, is.getName()));
+                        return Lookup.getDefault().lookup(InteractionController.class).getEdgeItems(is);
                     }
                 });
         tabbedPane.addTab("Visual Styles", ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/styleedit.png", false), edgeStyleUI.getComponent());
@@ -95,8 +75,8 @@ public class SettingsPanel extends javax.swing.JPanel {
             settings.apply(is);
         }
         if (ok) {
-            // Load the UI style into the model's style
-            Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is).load(edgeStyleUI.getVisualStyle());
+            // Reset the model's style using the UI style
+            Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is).reset(edgeStyleUI.getVisualStyle());
             // Then, apply the style to the visual items
             edgeStyleUI.apply();
         } else { // cancel
