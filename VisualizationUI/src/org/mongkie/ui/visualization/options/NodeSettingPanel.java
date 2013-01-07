@@ -79,8 +79,8 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         this.display = display;
         this.style = new VisualStyle.Node() {
             @Override
-            protected boolean apply(String field, NodeItem n) {
-                boolean redraw = super.apply(field, n);
+            public boolean assign(String field, NodeItem n) {
+                boolean redraw = super.assign(field, n);
                 applied = true;
                 return redraw;
             }
@@ -213,12 +213,8 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     }
 
     @Override
-    public boolean apply() {
-        if (!applied) {
-            style.apply(getVisualItems());
-            return true;
-        }
-        return false;
+    public boolean isApplied() {
+        return applied;
     }
 
     @Override

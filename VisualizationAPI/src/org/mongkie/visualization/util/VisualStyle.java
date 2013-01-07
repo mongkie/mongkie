@@ -76,12 +76,12 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         if (!items.hasNext()) {
             return;
         }
-        boolean redraw = false;
         I it = items.next();
         Visualization v = it.getVisualization();
+        boolean redraw = false;
         do {
             for (String field : FIELDS) {
-                if (apply(field, it)) {
+                if (assign(field, it)) {
                     redraw = true;
                 }
             }
@@ -101,11 +101,11 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         if (!items.hasNext()) {
             return;
         }
-        boolean redraw = false;
         I it = items.next();
         Visualization v = it.getVisualization();
+        boolean redraw = false;
         do {
-            if (apply(field, it)) {
+            if (assign(field, it)) {
                 redraw = true;
             }
             it = items.hasNext() ? items.next() : null;
@@ -126,11 +126,11 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         if (items.length < 1) {
             return;
         }
-        boolean redraw = false;
         Visualization v = items[0].getVisualization();
+        boolean redraw = false;
         for (String field : FIELDS) {
             for (I n : items) {
-                if (apply(field, n)) {
+                if (assign(field, n)) {
                     redraw = true;
                 }
             }
@@ -149,10 +149,10 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         if (!FIELDS.contains(field)) {
             throw new IllegalArgumentException("Unknown visual field: " + field);
         }
-        boolean redraw = false;
         Visualization v = items[0].getVisualization();
+        boolean redraw = false;
         for (I n : items) {
-            if (apply(field, n)) {
+            if (assign(field, n)) {
                 redraw = true;
             }
         }
@@ -168,7 +168,7 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         apply(field, items);
     }
 
-    protected abstract boolean apply(String field, I item);
+    public abstract boolean assign(String field, I item);
 
     public abstract void reset();
 
@@ -321,7 +321,7 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         }
 
         @Override
-        protected boolean apply(String field, NodeItem n) {
+        public boolean assign(String field, NodeItem n) {
             if (field.equals(VisualItem.STROKE)) {
                 return false;
             }
@@ -480,7 +480,7 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         }
 
         @Override
-        protected boolean apply(String field, EdgeItem e) {
+        public boolean assign(String field, EdgeItem e) {
             if (field.equals(VisualItem.FILLCOLOR)) {
                 return false;
             }
@@ -559,7 +559,7 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
 
         public Iterator<I> getVisualItems();
 
-        public boolean apply();
+        public boolean isApplied();
 
         public String getItemType();
     }

@@ -76,11 +76,12 @@ public class SettingsPanel extends javax.swing.JPanel {
         }
         if (ok) {
             // Reset the model's style using the UI style
-            Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is).reset(edgeStyleUI.getVisualStyle());
+            VisualStyle<EdgeItem> modelEdgeStyle =
+                    Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is).reset(edgeStyleUI.getVisualStyle());
             // Then, apply the style to the visual items
-            edgeStyleUI.apply();
-        } else { // cancel
-            // Revert any styles changed in the UI
+            modelEdgeStyle.apply(edgeStyleUI.getVisualItems());
+        } else if (edgeStyleUI.isApplied()) { // If canceled but some styles are applied
+            // Revert any styles have been changed in the UI
             for (VisualStyle<EdgeItem> style : edgeOldStyles.keySet()) {
                 style.apply(edgeOldStyles.get(style).toArray(new EdgeItem[]{}));
             }

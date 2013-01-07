@@ -365,8 +365,8 @@ public class InteractionControllerImpl implements InteractionController {
 
         @Override
         protected void queryFinished(boolean success) {
+            super.queryFinished(success);
             m.setLinked(success && linked);
-            m.getDisplay().getVisualization().rerun(DRAW);
             if (success && !expandedNodeItems.isEmpty()) {
                 Lookup.getDefault().lookup(ExpandingLayout.class).layout(m.getDisplay(), Collections.unmodifiableList(expandedNodeItems));
             }
@@ -400,8 +400,8 @@ public class InteractionControllerImpl implements InteractionController {
 
         @Override
         protected void queryFinished(boolean success) {
+            super.queryFinished(success);
             m.setLinked(success);
-            m.getDisplay().getVisualization().rerun(DRAW);
         }
 
         @Override
@@ -544,7 +544,8 @@ public class InteractionControllerImpl implements InteractionController {
             try {
                 final InteractionSource<K> is = m.getInteractionSource();
                 final Set<Interaction<K>> interactions = query(is, getQueryKeys());
-                m.getDisplay().getVisualization().process(new Runnable() {
+                final Visualization v = m.getDisplay().getVisualization();
+                v.process(new Runnable() {
                     @Override
                     public void run() {
                         Graph g = m.getDisplay().getGraph();
@@ -575,6 +576,7 @@ public class InteractionControllerImpl implements InteractionController {
                                     Edge e = getExistingEdge(g, is, source, target);
                                     if (e == null) {
                                         e = g.addEdge(source, target);
+                                        addedEdgeItems.add((EdgeItem) v.getVisualItem(Constants.EDGES, e));
                                     }
                                     m.addInteraction(i, e);
                                     for (Attribute a : i.getAttributeSet().getList()) {
@@ -610,7 +612,18 @@ public class InteractionControllerImpl implements InteractionController {
             }
         }
 
-        protected abstract void queryFinished(boolean success);
+        protected void queryFinished(boolean success) {
+            VisualStyle<EdgeItem> edgeStyle = getEdgeVisualStyle(m.getInteractionSource());
+            for (EdgeItem e : addedEdgeItems) {
+                for (String field : VisualStyle.FIELDS) {
+                    // Just assign the value without repainting
+                    edgeStyle.assign(field, e);
+                }
+            }
+            addedEdgeItems.clear();
+            m.getDisplay().getVisualization().rerun(DRAW);
+        }
+        private final List<EdgeItem> addedEdgeItems = new ArrayList<EdgeItem>();
     }
 
     private void addAttributeColumns(Table into, Schema s, String prefix) {

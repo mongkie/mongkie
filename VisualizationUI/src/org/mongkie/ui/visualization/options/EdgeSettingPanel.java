@@ -86,8 +86,8 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         this.display = display;
         this.style = new VisualStyle.Edge() {
             @Override
-            protected boolean apply(String field, EdgeItem e) {
-                boolean redraw = super.apply(field, e);
+            public boolean assign(String field, EdgeItem e) {
+                boolean redraw = super.assign(field, e);
                 applied = true;
                 return redraw;
             }
@@ -252,12 +252,8 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     }
 
     @Override
-    public boolean apply() {
-        if (!applied) {
-            style.apply(getVisualItems());
-            return true;
-        }
-        return false;
+    public boolean isApplied() {
+        return applied;
     }
 
     @Override
