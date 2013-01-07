@@ -251,7 +251,8 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
                 if (e.isAggregating()) {
                     return SpringForce.DEFAULT_MIN_SPRING_LENGTH;
                 } else {
-                    return SpringForce.DEFAULT_MAX_SPRING_LENGTH;
+//                    return SpringForce.DEFAULT_MAX_SPRING_LENGTH;
+                    return super.getSpringLength(e);
                 }
             }
 
@@ -386,18 +387,22 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
     // Start of layout logics for the expanding graph
     public ForceDirected() {
         super(null);
-        expandingLayout = new ForceDirectedLayout(GRAPH, new ForceSimulator(new RungeKuttaIntegrator()), false) {
+        ForceSimulator forceSimulator = new ForceSimulator(new RungeKuttaIntegrator());
+        forceSimulator.addForce(new NBodyForce(
+                NBodyForce.DEFAULT_MIN_GRAV_CONSTANT,
+                NBodyForce.DEFAULT_MIN_DISTANCE,
+                NBodyForce.DEFAULT_THETA));
+        forceSimulator.addForce(new DragForce(DragForce.DEFAULT_DRAG_COEFF));
+        forceSimulator.addForce(new SpringForce(
+                SpringForce.DEFAULT_SPRING_COEFF / 10 * 4,
+                SpringForce.DEFAULT_SPRING_LENGTH * 4));
+        expandingLayout = new ForceDirectedLayout(GRAPH, forceSimulator, false) {
             @Override
             protected boolean isEnabled(VisualItem item) {
                 return (item instanceof NodeItem)
                         ? expandedNodes.contains((NodeItem) item) : super.isEnabled(item);
             }
         };
-        ForceSimulator forceSimulator = expandingLayout.getForceSimulator();
-        forceSimulator.addForce(new NBodyForce(
-                NBodyForce.DEFAULT_GRAV_CONSTANT * 4, NBodyForce.DEFAULT_MAX_DISTANCE, NBodyForce.DEFAULT_THETA));
-        forceSimulator.addForce(new DragForce());
-        forceSimulator.addForce(new SpringForce());
         isBigGraph = false;
     }
     private final ForceDirectedLayout expandingLayout;
