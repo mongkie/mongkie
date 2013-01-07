@@ -29,8 +29,12 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
 import java.util.Iterator;
+import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.ListCellRenderer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -45,6 +49,8 @@ import org.mongkie.visualization.util.VisualStyle;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.StatusDisplayer;
+import org.openide.util.NbPreferences;
 import org.openide.windows.WindowManager;
 import prefuse.util.ColorLib;
 import prefuse.util.FontLib;
@@ -254,6 +260,11 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         return false;
     }
 
+    @Override
+    public String getItemType() {
+        return VisualStyle.EDGES;
+    }
+
     /**
      * This method is called from within the constructor to
      * initialize the form.
@@ -277,6 +288,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         fontColorButton = new JColorButton(WindowManager.getDefault().getMainWindow(), ColorLib.getColor((Integer) style.get(VisualItem.TEXTCOLOR)));
         resetAllButton = new javax.swing.JButton();
         hideLabelCheckBox = new javax.swing.JCheckBox();
+        presetsButton = new javax.swing.JButton();
 
         lineLabel.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.lineLabel.text")); // NOI18N
 
@@ -313,6 +325,17 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
 
         hideLabelCheckBox.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.hideLabelCheckBox.text")); // NOI18N
 
+        presetsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/visualization/resources/preset.png"))); // NOI18N
+        presetsButton.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.presetsButton.text")); // NOI18N
+        presetsButton.setFocusPainted(false);
+        presetsButton.setFocusable(false);
+        presetsButton.setIconTextGap(0);
+        presetsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                presetsButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -345,7 +368,10 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
                                 .addComponent(colorLabel)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(colorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(resetAllButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(resetAllButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(presetsButton)))
                 .addContainerGap(36, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -370,7 +396,9 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
                     .addComponent(fontButton)
                     .addComponent(fontLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(resetAllButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(resetAllButton)
+                    .addComponent(presetsButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -381,6 +409,46 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
             reset();
         }
     }//GEN-LAST:event_resetAllButtonActionPerformed
+
+    private void presetsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_presetsButtonActionPerformed
+        JPopupMenu menu = new JPopupMenu();
+        Set<VisualStyle> presets = VisualStyle.getPersistence().getValues(this);
+        if (presets != null && !presets.isEmpty()) {
+            for (final VisualStyle preset : presets) {
+                JMenuItem item = new JMenuItem(preset.getName());
+                item.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        loadVisualStyle(preset, true);
+                        StatusDisplayer.getDefault().setStatusText("Visual style \"" + preset.getName() + "\" is loaded for " + getItemType());
+                    }
+                });
+                menu.add(item);
+            }
+        } else {
+            menu.add("<html><i>No preset</i></html>");
+        }
+        menu.add(new JSeparator());
+        JMenuItem saveItem = new JMenuItem("Save preset...");
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String lastPresetName = NbPreferences.forModule(EdgeSettingPanel.class).get("EdgeSettingPanel.lastPresetName", "");
+                NotifyDescriptor.InputLine question = new NotifyDescriptor.InputLine("Name", "Preset name");
+                question.setInputText(lastPresetName);
+                if (DialogDisplayer.getDefault().notify(question) == NotifyDescriptor.OK_OPTION) {
+                    String name = question.getInputText();
+                    if (name != null && !name.isEmpty()
+                            && VisualStyle.getPersistence().save(EdgeSettingPanel.this, name)) {
+                        StatusDisplayer.getDefault().setStatusText("Visual style \"" + name + "\" is saved for " + getItemType());
+                        NbPreferences.forModule(EdgeSettingPanel.class).put("EdgeSettingPanel.lastPresetName", name);
+                    }
+                }
+            }
+        });
+        menu.add(saveItem);
+        menu.show(presetsButton, 0, presetsButton.getPreferredSize().height);
+    }//GEN-LAST:event_presetsButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox arrowChooser;
     private javax.swing.JLabel arrowLabel;
@@ -392,6 +460,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     private javax.swing.JCheckBox hideLabelCheckBox;
     private javax.swing.JComboBox lineChooser;
     private javax.swing.JLabel lineLabel;
+    private javax.swing.JButton presetsButton;
     private javax.swing.JButton resetAllButton;
     private javax.swing.JSpinner sizeSpinner;
     private javax.swing.JLabel widthLabel;

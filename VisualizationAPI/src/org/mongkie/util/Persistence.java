@@ -132,8 +132,6 @@ public abstract class Persistence<V> {
             }
         }
 
-        public abstract void load(K key, V value);
-
         public final boolean save(K key, String name) {
             try {
                 V value = addValue(key, name);

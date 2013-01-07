@@ -683,13 +683,13 @@ public class DataLib {
      * @param table
      * @return
      */
-    public static String getTypedColumnName(Table table, Class type) {
+    public static String getTypedColumnName(Table table, Class type, String def) {
         for (int i = 0; i < table.getColumnCount(); i++) {
             if (table.getColumnType(i) == type) {
                 return table.getColumnName(i);
             }
         }
-        return table.getColumnName(0);
+        return def;
     }
 } // end of class DataLib
 

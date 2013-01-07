@@ -17,6 +17,7 @@
  */
 package org.mongkie.visualmap;
 
+import org.mongkie.visualization.util.VisualStyle;
 import prefuse.data.Edge;
 import prefuse.data.Node;
 
@@ -29,11 +30,11 @@ public interface VisualMapping<T, V> {
     /**
      * Element type for nodes. The ranking receives a {@link Node} object.
      */
-    public static final String NODE_ELEMENT = "Nodes";
+    public static final String NODE_ELEMENT = VisualStyle.NODES;
     /**
      * Element type for edges. The ranking receives a {@link Edge} object.
      */
-    public static final String EDGE_ELEMENT = "Edges";
+    public static final String EDGE_ELEMENT = VisualStyle.EDGES;
 
     /**
      * Returns the value of the element. 

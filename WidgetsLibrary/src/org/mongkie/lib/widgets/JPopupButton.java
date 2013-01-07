@@ -69,9 +69,15 @@ public class JPopupButton extends JButton {
     }
 
     public void clearItems() {
+        clearItems(true);
+    }
+
+    public void clearItems(boolean fireEvent) {
         items.clear();
         selectedItem = null;
-        fireChangeEvent();
+        if (fireEvent) {
+            fireChangeEvent();
+        }
     }
 
     public void addItem(Object object, Icon icon) {
@@ -79,6 +85,13 @@ public class JPopupButton extends JButton {
     }
 
     public boolean setSelectedItem(Object item) {
+        if (item == null) {
+            if (selectedItem != null) {
+                fireChangeEvent();
+                return true;
+            }
+            return false;
+        }
         for (JPopupButtonItem i : items) {
             if (i.object.equals(item)) {
                 if (i != selectedItem) {

@@ -49,15 +49,21 @@ public class NodeOptions implements Options {
     }
 
     private void updateLableColumnTool(JPopupButton b, Graph g) {
-        b.clearItems();
+        b.clearItems(false);
         if (g.getNodeTable().getColumnCount() > 0) {
             for (String col : DataLib.getColumnNames(g.getNodeTable())) {
                 b.addItem(col, null);
             }
-            b.setSelectedItem(g.getNodeTable().getColumn(g.getNodeLabelField()) == null
-                    ? DataLib.getTypedColumnName(g.getNodeTable(), String.class) : g.getNodeLabelField());
+            Table table = g.getNodeTable();
+            String label = g.getNodeLabelField();
+            if (table.getColumn(label) != null) {
+                b.setSelectedItem(table.getColumnType(label) != String.class ? DataLib.getTypedColumnName(table, String.class, label) : label);
+            } else {
+                b.setSelectedItem(DataLib.getTypedColumnName(table, String.class, table.getColumnName(0)));
+            }
             b.setEnabled(true);
         } else {
+            b.setSelectedItem(null);
             b.setEnabled(false);
         }
     }

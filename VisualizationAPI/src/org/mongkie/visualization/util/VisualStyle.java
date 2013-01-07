@@ -43,6 +43,7 @@ import org.mongkie.util.Persistence;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.color.ColorController;
 import org.mongkie.visualization.color.ColorProvider;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import prefuse.Visualization;
 import prefuse.util.ColorLib;
@@ -56,8 +57,10 @@ import prefuse.visual.VisualItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class VisualStyle<I extends VisualItem> implements Persistence.Value {
+public abstract class VisualStyle<I extends VisualItem> implements Persistence.Value, Serializable {
 
+    public static final String NODES = "Nodes";
+    public static final String EDGES = "Edges";
     public static final Set<String> FIELDS = new HashSet<String>(
             Arrays.asList(new String[]{
                 VisualItem.SHAPE,
@@ -76,16 +79,14 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         boolean redraw = false;
         I it = items.next();
         Visualization v = it.getVisualization();
-        synchronized (v) {
-            do {
-                for (String field : FIELDS) {
-                    if (apply(field, it)) {
-                        redraw = true;
-                    }
+        do {
+            for (String field : FIELDS) {
+                if (apply(field, it)) {
+                    redraw = true;
                 }
-                it = items.hasNext() ? items.next() : null;
-            } while (it != null);
-        }
+            }
+            it = items.hasNext() ? items.next() : null;
+        } while (it != null);
         if (redraw) {
             v.rerun(Visualization.DRAW);
         } else {
@@ -103,14 +104,12 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         boolean redraw = false;
         I it = items.next();
         Visualization v = it.getVisualization();
-        synchronized (v) {
-            do {
-                if (apply(field, it)) {
-                    redraw = true;
-                }
-                it = items.hasNext() ? items.next() : null;
-            } while (it != null);
-        }
+        do {
+            if (apply(field, it)) {
+                redraw = true;
+            }
+            it = items.hasNext() ? items.next() : null;
+        } while (it != null);
         if (redraw) {
             v.rerun(Visualization.DRAW);
         } else {
@@ -129,12 +128,10 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         }
         boolean redraw = false;
         Visualization v = items[0].getVisualization();
-        synchronized (v) {
-            for (String field : FIELDS) {
-                for (I n : items) {
-                    if (apply(field, n)) {
-                        redraw = true;
-                    }
+        for (String field : FIELDS) {
+            for (I n : items) {
+                if (apply(field, n)) {
+                    redraw = true;
                 }
             }
         }
@@ -154,11 +151,9 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         }
         boolean redraw = false;
         Visualization v = items[0].getVisualization();
-        synchronized (v) {
-            for (I n : items) {
-                if (apply(field, n)) {
-                    redraw = true;
-                }
+        for (I n : items) {
+            if (apply(field, n)) {
+                redraw = true;
             }
         }
         if (redraw) {
@@ -565,5 +560,44 @@ public abstract class VisualStyle<I extends VisualItem> implements Persistence.V
         public Iterator<I> getVisualItems();
 
         public boolean apply();
+
+        public String getItemType();
+    }
+
+    public static class PersistenceImpl extends Persistence.KeyValues<UI, VisualStyle> {
+
+        protected PersistenceImpl() {
+        }
+
+        @Override
+        protected String getKeyName(UI ui) {
+            return ui.getItemType();
+        }
+
+        @Override
+        protected VisualStyle valueOf(UI ui, String name) {
+            try {
+                VisualStyle style = ui.getVisualStyle().clone();
+                style.setName(name);
+                return style;
+            } catch (CloneNotSupportedException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return null;
+        }
+
+        @Override
+        protected String getRootName() {
+            return "VisualStyles";
+        }
+
+        private static class Default {
+
+            private static final PersistenceImpl INSTANCE = new PersistenceImpl();
+        }
+    }
+
+    public static PersistenceImpl getPersistence() {
+        return PersistenceImpl.Default.INSTANCE;
     }
 }
