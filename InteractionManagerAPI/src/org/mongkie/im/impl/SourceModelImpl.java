@@ -237,10 +237,9 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
     }
 
     Set<Edge> clearInteractions() {
-        Set<Edge> edges = new HashSet<Edge>();
-        for (Set<Edge> _edges : interaction2Edges.values()) {
-            edges.addAll(_edges);
-            _edges.clear();
+        Set<Edge> edges = new HashSet<Edge>(getEdges());
+        for (Interaction i : interaction2Edges.keySet()) {
+            interaction2Edges.get(i).clear();
         }
         interaction2Edges.clear();
         edge2Interaction.clear();
