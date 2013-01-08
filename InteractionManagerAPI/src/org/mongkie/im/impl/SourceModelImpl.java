@@ -27,11 +27,11 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import kobic.prefuse.display.DisplayListener;
+import static org.mongkie.im.InteractionController.FIELD_INTERACTION_SOURCE;
 import org.mongkie.im.QueryEvent;
 import org.mongkie.im.QueryEvent.Type;
 import org.mongkie.im.SourceModel;
 import org.mongkie.im.SourceModelListener;
-import static org.mongkie.im.impl.InteractionControllerImpl.FIELD_INTERACTION_SOURCE;
 import org.mongkie.im.spi.Interaction;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.longtask.LongTask;
@@ -42,6 +42,9 @@ import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.util.VisualStyle;
 import prefuse.data.Edge;
 import prefuse.data.Graph;
+import prefuse.data.Tuple;
+import prefuse.data.event.TupleSetListener;
+import prefuse.data.tuple.TupleSet;
 import prefuse.util.DataLib;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
@@ -50,7 +53,7 @@ import prefuse.visual.NodeItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
+class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, TupleSetListener {
 
     private final InteractionSource is;
     private final LongTaskExecutor link, expand;
@@ -64,6 +67,7 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
     SourceModelImpl(MongkieDisplay d, final InteractionSource is) {
         this.is = is;
         this.d = d;
+        d.getGraph().getEdges().addTupleSetListener(SourceModelImpl.this);
         nodeVisualStyle = VisualStyle.createNodeStyle();
         edgeVisualStyle = VisualStyle.createEdgeStyle();
         d.addDisplayListener(SourceModelImpl.this);
@@ -263,6 +267,21 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
     private final Map<Edge, Interaction> edge2Interaction = new HashMap<Edge, Interaction>();
 
     @Override
+    public void tupleSetChanged(TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
+        for (Tuple t : removed) {
+            Edge e = d.getGraph().getEdge(t.getRow());
+            Interaction i = edge2Interaction.remove(e);
+            if (i != null) {
+                Set<Edge> edges = interaction2Edges.get(i);
+                assert edges.remove(e);
+                if (edges.isEmpty()) {
+                    interaction2Edges.remove(i);
+                }
+            }
+        }
+    }
+
+    @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {
         setLinked(false);
         setAnnotated(false);
@@ -271,6 +290,7 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
         for (SourceModelListener l : listeners) {
             l.graphDisposing(g);
         }
+        g.getEdges().removeTupleSetListener(this);
     }
 
     @Override
@@ -278,5 +298,6 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay> {
         for (SourceModelListener l : listeners) {
             l.graphChanged(g);
         }
+        g.getEdges().addTupleSetListener(this);
     }
 }

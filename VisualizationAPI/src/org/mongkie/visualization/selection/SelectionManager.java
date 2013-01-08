@@ -67,13 +67,8 @@ public class SelectionManager implements WorkspaceListener, TupleSetListener, Di
     }
 
     @Override
-    public void displayClosed(final MongkieDisplay display) {
-        display.getVisualization().process(new Runnable() {
-            @Override
-            public void run() {
-                display.getVisualization().getFocusGroup(FOCUS_ITEMS).clear();
-            }
-        }, DRAW);
+    public void displayClosed(MongkieDisplay display) {
+        display.getVisualization().getFocusGroup(FOCUS_ITEMS).clear();
     }
 
     @Override
