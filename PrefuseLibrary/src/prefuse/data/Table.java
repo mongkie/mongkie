@@ -6,12 +6,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.event.TableModelEvent;
-
 import prefuse.data.column.Column;
 import prefuse.data.column.ColumnFactory;
 import prefuse.data.column.ColumnMetadata;
@@ -905,17 +904,47 @@ public class Table extends AbstractTupleSet implements ColumnListener {
         }
     }
 
-    public Map<Object, List<Tuple>> groupBy(String field) {
-        Map<Object, List<Tuple>> result = new LinkedHashMap<Object, List<Tuple>>();
-        Iterator<Tuple> tuples = tuples();
-        while (tuples.hasNext()) {
-            Tuple t = tuples.next();
-            Object key = t.get(field);
-            List<Tuple> value = result.get(key);
-            if (value == null) {
-                result.put(key, value = new ArrayList<Tuple>());
+    public Map<Object, Set<Tuple>> groupBy(String field) {
+        Map<Object, Set<Tuple>> result = new LinkedHashMap<Object, Set<Tuple>>();
+        if (getMetadata(field).hasMultipleValues()) {
+            for (Iterator<Tuple> tupleIter = tuples(); tupleIter.hasNext();) {
+                Tuple tuple = tupleIter.next();
+                String val = tuple.getString(field);
+                if (val == null || val.isEmpty()) {
+                    continue;
+                }
+                if (val.contains(Column.MULTI_VAL_SEPARATOR)) {
+                    for (String v : val.split(Column.MULTI_VAL_SEPARATOR)) {
+                        if (v.isEmpty()) {
+                            continue;
+                        }
+                        Set<Tuple> tuples = result.get(v);
+                        if (tuples == null) {
+                            result.put(v, tuples = new LinkedHashSet<Tuple>());
+                        }
+                        tuples.add(tuple);
+                    }
+                } else {
+                    Set<Tuple> tuples = result.get(val);
+                    if (tuples == null) {
+                        result.put(val, tuples = new LinkedHashSet<Tuple>());
+                    }
+                    tuples.add(tuple);
+                }
             }
-            value.add(t);
+        } else {
+            for (Iterator<Tuple> tupleIter = tuples(); tupleIter.hasNext();) {
+                Tuple tuple = tupleIter.next();
+                Object val = tuple.get(field);
+                if (val == null) {
+                    continue;
+                }
+                Set<Tuple> tuples = result.get(val);
+                if (tuples == null) {
+                    result.put(val, tuples = new LinkedHashSet<Tuple>());
+                }
+                tuples.add(tuple);
+            }
         }
         return result;
     }
@@ -923,16 +952,16 @@ public class Table extends AbstractTupleSet implements ColumnListener {
     public Map<Object, List<Tuple>> groupBy(String field, Predicate p) {
         Map<Object, List<Tuple>> result = new LinkedHashMap<Object, List<Tuple>>();
         for (Iterator<Tuple> tupleIter = tuples(); tupleIter.hasNext();) {
-            Tuple t = tupleIter.next();
-            if (p != null && !p.getBoolean(t)) {
+            Tuple tuple = tupleIter.next();
+            if (p != null && !p.getBoolean(tuple)) {
                 continue;
             }
-            Object key = t.get(field);
+            Object key = tuple.get(field);
             List<Tuple> value = result.get(key);
             if (value == null) {
                 result.put(key, value = new ArrayList<Tuple>());
             }
-            value.add(t);
+            value.add(tuple);
         }
         return result;
     }

@@ -32,8 +32,6 @@ import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Graph;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
-import prefuse.data.column.Column;
-import prefuse.data.expression.AbstractPredicate;
 import prefuse.util.ColorLib;
 import prefuse.util.DataLib;
 import prefuse.visual.VisualItem;
@@ -119,22 +117,11 @@ public class AttributePartitionBuilder implements PartitionBuilder {
             } else {
                 throw new IllegalArgumentException("Element type must be Nodes or Edges");
             }
-            for (final Object val : DataLib.asSet(table, column)) {
+            Map<Object, Set<Tuple>> value2Tuples = table.groupBy(column);
+            for (Object val : value2Tuples.keySet()) {
                 AttributePart p = new AttributePart(val, this);
-                for (Iterator<Integer> rowIter = DataLib.rows(table, column, val); rowIter.hasNext();) {
-                    p.addItem(model.getDisplay().getVisualization().getVisualItem(group, table.getTuple(rowIter.next())));
-                }
-                if (table.getMetadata(column).hasMultipleValues()) {
-                    for (Iterator<Tuple> tupleIter = table.tuples(new AbstractPredicate() {
-                        @Override
-                        public boolean getBoolean(Tuple t) {
-                            String str = t.getString(column);
-                            return str != null && str.contains(Column.MULTI_VAL_SEPARATOR)
-                                    && new HashSet<String>(Arrays.asList(str.split(Column.MULTI_VAL_SEPARATOR))).contains((String) val);
-                        }
-                    }); tupleIter.hasNext();) {
-                        p.addItem(model.getDisplay().getVisualization().getVisualItem(group, tupleIter.next()));
-                    }
+                for (Tuple tuple : value2Tuples.get(val)) {
+                    p.addItem(model.getDisplay().getVisualization().getVisualItem(group, tuple));
                 }
                 p.setPortion((p.size() / (double) table.getTupleCount()) * 100);
                 parts.add(p);

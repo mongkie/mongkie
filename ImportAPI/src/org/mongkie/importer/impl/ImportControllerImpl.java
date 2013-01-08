@@ -237,15 +237,15 @@ public class ImportControllerImpl implements ImportController {
 
     private Table populateNodeRowsByUniqueId(Table origTable, String nodeId, Report report, Map<String, Integer> rowsById) {
         Table nodeTable = origTable.getSchema().instantiate();
-        Map<Object, List<Tuple>> tuplesById = origTable.groupBy(nodeId);
-        for (List<Tuple> tuples : tuplesById.values()) {
+        Map<Object, Set<Tuple>> tuplesById = origTable.groupBy(nodeId);
+        for (Set<Tuple> tuples : tuplesById.values()) {
             assert !tuples.isEmpty();
+            Tuple node = tuples.iterator().next();
             if (tuples.size() > 1) {
                 report.logIssue(new Issue(NbBundle.getMessage(
-                        ImportControllerImpl.class, "ImportControllerImpl.issue.duplicatedNodeId", tuples.get(0).get(nodeId)),
+                        ImportControllerImpl.class, "ImportControllerImpl.issue.duplicatedNodeId", node.get(nodeId)),
                         Issue.Level.SEVERE));
             } else {
-                Tuple node = tuples.get(0);
                 String nid = node.get(nodeId).toString();
                 rowsById.put(nid, nodeTable.addTuple(node).getRow());
             }
