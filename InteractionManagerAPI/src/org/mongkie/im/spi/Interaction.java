@@ -20,6 +20,7 @@ package org.mongkie.im.spi;
 
 import java.util.List;
 import kobic.prefuse.data.Attribute;
+import prefuse.data.Edge;
 
 /**
  *
@@ -30,12 +31,23 @@ public interface Interaction<K> {
     public K getSourceKey();
 
     public K getTargetKey();
-    
+
     public boolean isDirected();
 
     public Interactor<K> getInteractor();
 
     public Attribute.Set getAttributeSet();
+
+    public InteractionSource<K> getInteractionSource();
+
+    /**
+     * Returns whether this interaction is identical with the given
+     * existing edge <b>with same source and target keys</b>.
+     *
+     * @param e an existing edge
+     * @return
+     */
+    public boolean identicalWith(Edge e);
 
     public static class Interactor<K> {
 

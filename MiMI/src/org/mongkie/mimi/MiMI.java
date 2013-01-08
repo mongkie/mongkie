@@ -39,6 +39,7 @@ import org.mongkie.mimi.jaxb.annotation.Annotation;
 import org.mongkie.mimi.jaxb.interaction.Interaction;
 import org.mongkie.mimi.jaxb.interaction.Result;
 import org.openide.util.lookup.ServiceProvider;
+import prefuse.data.Edge;
 
 /**
  *
@@ -116,7 +117,7 @@ public class MiMI implements InteractionSource<Integer> {
             for (Result r : rs.getResult()) {
                 Set<PPI> interactions = new LinkedHashSet<PPI>();
                 for (Interaction i : r.getInteraction()) {
-                    interactions.add(new PPI(i));
+                    interactions.add(new PPI(this, i));
                 }
                 results.put(r.getSourceKey(), interactions);
             }
@@ -176,14 +177,16 @@ public class MiMI implements InteractionSource<Integer> {
     }
     private MiMISettingUI settings;
 
-    public class PPI implements org.mongkie.im.spi.Interaction<Integer> {
+    public static class PPI implements org.mongkie.im.spi.Interaction<Integer> {
 
         private final int sourceGeneId, targetGeneId;
         private final int interactionId;
         private final Interactor<Integer> interactor;
         private final Attribute.Set attributes;
+        private final MiMI mimi;
 
-        public PPI(Interaction interaction) {
+        public PPI(MiMI mimi, Interaction interaction) {
+            this.mimi = mimi;
             interactionId = interaction.getID();
             sourceGeneId = interaction.getSource();
             targetGeneId = interaction.getTarget();
@@ -262,6 +265,16 @@ public class MiMI implements InteractionSource<Integer> {
         @Override
         public Interactor<Integer> getInteractor() {
             return interactor;
+        }
+
+        @Override
+        public MiMI getInteractionSource() {
+            return mimi;
+        }
+
+        @Override
+        public boolean identicalWith(Edge e) {
+            return mimi.getName().equals(e.getString(FIELD));
         }
     }
 

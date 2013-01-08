@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import kobic.prefuse.display.DisplayListener;
-import static org.mongkie.im.InteractionController.FIELD_INTERACTION_SOURCE;
 import org.mongkie.im.QueryEvent;
 import org.mongkie.im.QueryEvent.Type;
 import org.mongkie.im.SourceModel;
@@ -169,8 +168,8 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
     @Override
     public boolean isPartiallyLinked() {
         return !linked
-                && d.getGraph().getEdgeTable().getColumn(FIELD_INTERACTION_SOURCE) != null
-                && DataLib.get(d.getGraph().getEdgeTable(), FIELD_INTERACTION_SOURCE, is.getName()) >= 0;
+                && d.getGraph().getEdgeTable().getColumn(InteractionSource.FIELD) != null
+                && DataLib.get(d.getGraph().getEdgeTable(), InteractionSource.FIELD, is.getName()) >= 0;
     }
 
     void fireUnlinkedEvent() {
@@ -272,11 +271,15 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
             Edge e = d.getGraph().getEdge(t.getRow());
             Interaction i = edge2Interaction.remove(e);
             if (i != null) {
-                Set<Edge> edges = interaction2Edges.get(i);
-                assert edges.remove(e);
-                if (edges.isEmpty()) {
-                    interaction2Edges.remove(i);
-                }
+//                Set<Edge> edges = interaction2Edges.get(i);
+//                assert edges.remove(e);
+//                if (edges.isEmpty()) {
+//                    interaction2Edges.remove(i);
+//                }
+                // Remove the interaction although it has another edges?
+                Set<Edge> edges = interaction2Edges.remove(i);
+                assert edges.contains(e);
+                edges.clear();
             }
         }
     }

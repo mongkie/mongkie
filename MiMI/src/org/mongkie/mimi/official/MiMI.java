@@ -51,6 +51,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import prefuse.data.Edge;
 
 /**
  *
@@ -105,7 +106,7 @@ public class MiMI implements InteractionSource<Integer> {
         for (Result result : ncibi.getMiMI().getResponse().getResultSet().getResult()) {
             InteractingGene ig = result.getInteractingGene();
             if (ig.getTaxonomyID() == 9606) {
-                interactions.add(new PPI(geneId, ig));
+                interactions.add(new PPI(this, geneId, ig));
             }
         }
         return interactions;
@@ -172,14 +173,16 @@ public class MiMI implements InteractionSource<Integer> {
         return null;
     }
 
-    public class PPI implements Interaction<Integer> {
+    public static class PPI implements Interaction<Integer> {
 
         private final int sourceGeneId, targetGeneId;
         private final int interactionId;
         private final Interactor<Integer> interactor;
         private final Attribute.Set attributes;
+        private final MiMI mimi;
 
-        public PPI(Integer sourceGeneId, InteractingGene interactingGene) {
+        public PPI(MiMI mimi, Integer sourceGeneId, InteractingGene interactingGene) {
+            this.mimi = mimi;
             this.sourceGeneId = sourceGeneId;
             interactionId = interactingGene.getInteractionID();
             targetGeneId = interactingGene.getGeneID().getValue();
@@ -273,6 +276,16 @@ public class MiMI implements InteractionSource<Integer> {
         @Override
         public Interactor<Integer> getInteractor() {
             return interactor;
+        }
+
+        @Override
+        public MiMI getInteractionSource() {
+            return mimi;
+        }
+
+        @Override
+        public boolean identicalWith(Edge e) {
+            return mimi.getName().equals(e.getString(FIELD));
         }
     }
 

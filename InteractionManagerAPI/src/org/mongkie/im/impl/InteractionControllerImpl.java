@@ -277,8 +277,8 @@ public class InteractionControllerImpl implements InteractionController {
                     }
                     edgeTable.removeColumn(col);
                 }
-                if (DataLib.uniqueCount(edgeTable.tuples(), FIELD_INTERACTION_SOURCE) == 0) {
-                    edgeTable.removeColumn(FIELD_INTERACTION_SOURCE);
+                if (DataLib.uniqueCount(edgeTable.tuples(), InteractionSource.FIELD) == 0) {
+                    edgeTable.removeColumn(InteractionSource.FIELD);
                 }
             }
         });
@@ -487,20 +487,20 @@ public class InteractionControllerImpl implements InteractionController {
          * interaction source
          *
          * @param g
-         * @param is
+         * @param i
          * @param source
          * @param target
          * @return an already existing edge for the interaction
          */
-        private Edge getExistingEdge(Graph g, InteractionSource is, Node source, Node target) {
+        private Edge getExistingEdge(Graph g, Interaction i, Node source, Node target) {
             for (Edge e : g.getEdges(source, target)) {
-                if (is.getName().equals(e.getString(FIELD_INTERACTION_SOURCE))) {
+                if (i.identicalWith(e)) {
                     return e;
                 }
             }
-            if (!is.isDirected()) {
+            if (!i.getInteractionSource().isDirected()) {
                 for (Edge e : g.getEdges(target, source)) {
-                    if (is.getName().equals(e.getString(FIELD_INTERACTION_SOURCE))) {
+                    if (i.identicalWith(e)) {
                         return e;
                     }
                 }
@@ -551,8 +551,8 @@ public class InteractionControllerImpl implements InteractionController {
                         Graph g = m.getDisplay().getGraph();
                         addNodes(interactions, g);
                         // Add columns for attributes of the interaction
-                        if (g.getEdgeTable().getColumn(FIELD_INTERACTION_SOURCE) == null) {
-                            g.getEdgeTable().addColumn(FIELD_INTERACTION_SOURCE, String.class, null);
+                        if (g.getEdgeTable().getColumn(InteractionSource.FIELD) == null) {
+                            g.getEdgeTable().addColumn(InteractionSource.FIELD, String.class, null);
                         }
                         addAttributeColumns(g.getEdgeTable(), is.getInteractionSchema(), null);
                         for (Interaction<K> i : interactions) {
@@ -573,7 +573,7 @@ public class InteractionControllerImpl implements InteractionController {
 //                                            target.set(name, a.getValue());
 //                                        }
 //                                    }
-                                    Edge e = getExistingEdge(g, is, source, target);
+                                    Edge e = getExistingEdge(g, i, source, target);
                                     if (e == null) {
                                         e = g.addEdge(source, target);
                                         addedEdgeItems.add((EdgeItem) v.getVisualItem(Constants.EDGES, e));
@@ -594,7 +594,7 @@ public class InteractionControllerImpl implements InteractionController {
                                             e.set(getAttributeName(a.getName(), null), a.getValue());
                                         }
                                     }
-                                    e.setString(FIELD_INTERACTION_SOURCE, is.getName());
+                                    e.setString(InteractionSource.FIELD, is.getName());
                                 }
                             }
                         }
@@ -973,6 +973,16 @@ public class InteractionControllerImpl implements InteractionController {
                     return false;
                 }
                 return true;
+            }
+
+            @Override
+            public GraphSource getInteractionSource() {
+                return GraphSource.this;
+            }
+
+            @Override
+            public boolean identicalWith(Edge e) {
+                return name.equals(e.getString(FIELD));
             }
         }
     }

@@ -30,6 +30,8 @@ import kobic.prefuse.data.Schema;
  */
 public interface InteractionSource<K> {
 
+    public static final String FIELD = "*InteractionSource*";
+
     public String getName();
 
     public String getDescription();

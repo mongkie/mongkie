@@ -25,7 +25,6 @@ package org.mongkie.ui.visualmap.partition;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import org.mongkie.visualization.workspace.ModelChangeListener;
@@ -59,7 +58,6 @@ public class PartitionTopPane extends javax.swing.JPanel
     public PartitionTopPane() {
         controller = Lookup.getDefault().lookup(PartitionController.class);
         controller.addModelChangeListener(new ModelChangeListener<PartitionModel>() {
-
             @Override
             public void modelChanged(PartitionModel o, PartitionModel n) {
                 if (o != null) {
@@ -87,33 +85,29 @@ public class PartitionTopPane extends javax.swing.JPanel
         refreshChooser();
     }
 
-    private Partition refreshChooser() {
+    private void refreshChooser() {
         partitionChooser.removeItemListener(this);
-        final DefaultComboBoxModel comboBoxModel = new DefaultComboBoxModel();
-        comboBoxModel.addElement(NO_SELECTION);
-        comboBoxModel.setSelectedItem(NO_SELECTION);
-        Partition selectedPartition = null;
+        partitionChooser.removeAllItems();
+        partitionChooser.addItem(NO_SELECTION);
+        partitionChooser.setSelectedItem(NO_SELECTION);
+        refreshPartList(null);
         if (model != null) {
-            selectedPartition = model.getCurrentPartition();
-            for (Partition r : model.getPartitions()) {
-                comboBoxModel.addElement(r);
-                if (selectedPartition != null
-                        && selectedPartition.getElementType().equals(r.getElementType()) && selectedPartition.getName().equals(r.getName())) {
-                    comboBoxModel.setSelectedItem(r);
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    Partition selectedPartition = model.getCurrentPartition();
+                    for (Partition r : model.getPartitions()) {
+                        partitionChooser.addItem(r);
+                        if (selectedPartition != null
+                                && selectedPartition.getElementType().equals(r.getElementType()) && selectedPartition.getName().equals(r.getName())) {
+                            partitionChooser.setSelectedItem(r);
+                        }
+                    }
+                    refreshPartList(model.getCurrentPartition()); // May have been refresh by the model
+                    partitionChooser.addItemListener(PartitionTopPane.this);
                 }
-            }
-            selectedPartition = model.getCurrentPartition(); // May have been refresh by the model
-            partitionChooser.addItemListener(this);
+            });
         }
-        SwingUtilities.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                partitionChooser.setModel(comboBoxModel);
-            }
-        });
-        refreshPartList(selectedPartition);
-        return selectedPartition;
     }
     private final String NO_SELECTION = "---Choose a mapping parameter";
 
@@ -127,7 +121,7 @@ public class PartitionTopPane extends javax.swing.JPanel
             case CURRENT_PARTITION:
                 Partition selectedPartition = model.getCurrentPartition();
                 if (selectedPartition != null && partitionChooser.getSelectedItem() != selectedPartition) {
-                    selectedPartition = refreshChooser();
+                    refreshChooser();
                 } else {
                     refreshPartList(selectedPartition);
                 }

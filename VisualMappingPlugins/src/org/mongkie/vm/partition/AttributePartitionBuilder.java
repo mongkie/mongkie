@@ -22,14 +22,12 @@ import java.util.*;
 import kobic.prefuse.Config;
 import static kobic.prefuse.Constants.EDGES;
 import static kobic.prefuse.Constants.NODES;
-import org.mongkie.visualization.VisualizationController;
 import static org.mongkie.visualmap.VisualMapping.EDGE_ELEMENT;
 import static org.mongkie.visualmap.VisualMapping.NODE_ELEMENT;
 import org.mongkie.visualmap.partition.PartitionModel;
 import org.mongkie.visualmap.spi.partition.Part;
 import org.mongkie.visualmap.spi.partition.Partition;
 import org.mongkie.visualmap.spi.partition.PartitionBuilder;
-import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Graph;
 import prefuse.data.Table;
@@ -47,23 +45,20 @@ import prefuse.visual.VisualItem;
 @ServiceProvider(service = PartitionBuilder.class)
 public class AttributePartitionBuilder implements PartitionBuilder {
 
-    private transient VisualizationController vizController;
-
     public AttributePartitionBuilder() {
-        vizController = Lookup.getDefault().lookup(VisualizationController.class);
     }
 
     @Override
     public Partition[] buildPartitions(PartitionModel model) {
         List<Partition> partitions = new ArrayList<Partition>();
-        Graph graph = vizController.getDisplay().getGraph();
+        Graph graph = model.getDisplay().getGraph();
         //Nodes
         Table nodeTable = graph.getNodeTable();
         for (String column : DataLib.getColumnNames(nodeTable)) {
             if (nodeTable.getColumnType(column).isArray()) {
                 continue;
             }
-            AttributePartition partition = new AttributePartition(NODE_ELEMENT, column, graph);
+            AttributePartition partition = new AttributePartition(NODE_ELEMENT, column, model);
             partitions.add(partition);
         }
         //Edges
@@ -72,7 +67,7 @@ public class AttributePartitionBuilder implements PartitionBuilder {
             if (edgeTable.getColumnType(column).isArray()) {
                 continue;
             }
-            AttributePartition partition = new AttributePartition(EDGE_ELEMENT, column, graph);
+            AttributePartition partition = new AttributePartition(EDGE_ELEMENT, column, model);
             partitions.add(partition);
         }
         //Sort attributes by alphabetical order
@@ -102,42 +97,43 @@ public class AttributePartitionBuilder implements PartitionBuilder {
 
         private final String elementType;
         private final String column;
-        private final Graph graph;
+        private final PartitionModel model;
         private final List<Part> parts = new ArrayList<Part>();
 
-        public AttributePartition(String elementType, String column, Graph graph) {
+        public AttributePartition(String elementType, String column, PartitionModel model) {
             this.elementType = elementType;
             this.column = column;
-            this.graph = graph;
+            this.model = model;
             initializeParts();
         }
 
         private void initializeParts() {
             Table table;
-            String elementGroup;
+            String group;
             if (elementType.equals(NODE_ELEMENT)) {
-                table = graph.getNodeTable();
-                elementGroup = NODES;
+                table = model.getDisplay().getGraph().getNodeTable();
+                group = NODES;
             } else if (elementType.equals(EDGE_ELEMENT)) {
-                table = graph.getEdgeTable();
-                elementGroup = EDGES;
+                table = model.getDisplay().getGraph().getEdgeTable();
+                group = EDGES;
             } else {
                 throw new IllegalArgumentException("Element type must be Nodes or Edges");
             }
             for (final Object val : DataLib.asSet(table, column)) {
                 AttributePart p = new AttributePart(val, this);
                 for (Iterator<Integer> rowIter = DataLib.rows(table, column, val); rowIter.hasNext();) {
-                    p.addItem(Lookup.getDefault().lookup(VisualizationController.class).getVisualization().getVisualItem(elementGroup, table.getTuple(rowIter.next())));
+                    p.addItem(model.getDisplay().getVisualization().getVisualItem(group, table.getTuple(rowIter.next())));
                 }
                 if (table.getMetadata(column).hasMultipleValues()) {
                     for (Iterator<Tuple> tupleIter = table.tuples(new AbstractPredicate() {
                         @Override
                         public boolean getBoolean(Tuple t) {
                             String str = t.getString(column);
-                            return str != null && str.contains(Column.MULTI_VAL_SEPARATOR) && Arrays.asList(str.split(Column.MULTI_VAL_SEPARATOR)).contains((String) val);
+                            return str != null && str.contains(Column.MULTI_VAL_SEPARATOR)
+                                    && new HashSet<String>(Arrays.asList(str.split(Column.MULTI_VAL_SEPARATOR))).contains((String) val);
                         }
                     }); tupleIter.hasNext();) {
-                        p.addItem(Lookup.getDefault().lookup(VisualizationController.class).getVisualization().getVisualItem(elementGroup, tupleIter.next()));
+                        p.addItem(model.getDisplay().getVisualization().getVisualItem(group, tupleIter.next()));
                     }
                 }
                 p.setPortion((p.size() / (double) table.getTupleCount()) * 100);
@@ -163,7 +159,7 @@ public class AttributePartitionBuilder implements PartitionBuilder {
 
         @Override
         public Graph getGraph() {
-            return graph;
+            return model.getDisplay().getGraph();
         }
 
         @Override
@@ -183,7 +179,7 @@ public class AttributePartitionBuilder implements PartitionBuilder {
 
         @Override
         protected AttributePartition clone() {
-            return new AttributePartition(elementType, column, graph);
+            return new AttributePartition(elementType, column, model);
         }
 
         @Override

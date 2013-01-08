@@ -34,7 +34,6 @@ import prefuse.visual.NodeItem;
 public interface InteractionController {
 
     public static final String CATEGORY_OTHERS = "Others";
-    public static final String FIELD_INTERACTION_SOURCE = "*InteractionSource*";
 
     public String[] getCategories();
 
