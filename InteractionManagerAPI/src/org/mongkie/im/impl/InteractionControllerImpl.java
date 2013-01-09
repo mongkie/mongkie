@@ -237,9 +237,11 @@ public class InteractionControllerImpl implements InteractionController {
         final SourceModelImpl m = (SourceModelImpl) getModel(is);
         final MongkieDisplay d = m.getDisplay();
         final Graph g = d.getGraph();
-        d.getVisualization().process(new Runnable() {
-            @Override
-            public void run() {
+        try {
+            m.setUnlinking(true);
+            d.getVisualization().process(new Runnable() {
+                @Override
+                public void run() {
 //                List<Integer> edges = new ArrayList<Integer>();
 //                for (Iterator<Integer> edgeIter =
 //                        DataLib.rows(g.getEdgeTable(), FIELD_INTERACTION_SOURCE, is.getName());
@@ -250,38 +252,41 @@ public class InteractionControllerImpl implements InteractionController {
 //                    g.removeEdge(e);
 //                }
 //                m.clearInteractions();
-                for (Edge e : m.clearInteractions()) {
-                    g.removeEdge(e);
-                }
-            }
-        });
-        d.getVisualization().process(new Runnable() {
-            @Override
-            public void run() {
-                // Remove attribute columns also...
-                Schema as = is.getAnnotationSchema();
-                Table nodeTable = g.getNodeTable();
-                for (int i = 0; i < as.getColumnCount(); i++) {
-                    String col = getAttributeName(as.getColumnName(i), is.getName());
-                    if (nodeTable.getColumnNumber(col) < 0) {
-                        continue;
+                    for (Edge e : m.clearInteractions()) {
+                        g.removeEdge(e);
                     }
-                    nodeTable.removeColumn(col);
                 }
-                Schema es = is.getInteractionSchema();
-                Table edgeTable = g.getEdgeTable();
-                for (int i = 0; i < es.getColumnCount(); i++) {
-                    String col = getAttributeName(es.getColumnName(i), null);
-                    if (edgeTable.getColumnNumber(col) < 0) {
-                        continue;
+            });
+            // Remove attribute columns also...
+            d.getVisualization().process(new Runnable() {
+                @Override
+                public void run() {
+                    Schema as = is.getAnnotationSchema();
+                    Table nodeTable = g.getNodeTable();
+                    for (int i = 0; i < as.getColumnCount(); i++) {
+                        String col = getAttributeName(as.getColumnName(i), is.getName());
+                        if (nodeTable.getColumnNumber(col) < 0) {
+                            continue;
+                        }
+                        nodeTable.removeColumn(col);
                     }
-                    edgeTable.removeColumn(col);
+                    Schema es = is.getInteractionSchema();
+                    Table edgeTable = g.getEdgeTable();
+                    for (int i = 0; i < es.getColumnCount(); i++) {
+                        String col = getAttributeName(es.getColumnName(i), null);
+                        if (edgeTable.getColumnNumber(col) < 0) {
+                            continue;
+                        }
+                        edgeTable.removeColumn(col);
+                    }
+                    if (DataLib.uniqueCount(edgeTable.tuples(), InteractionSource.FIELD) == 0) {
+                        edgeTable.removeColumn(InteractionSource.FIELD);
+                    }
                 }
-                if (DataLib.uniqueCount(edgeTable.tuples(), InteractionSource.FIELD) == 0) {
-                    edgeTable.removeColumn(InteractionSource.FIELD);
-                }
-            }
-        });
+            });
+        } finally {
+            m.setUnlinking(false);
+        }
         d.getVisualization().repaint();
         d.fireGraphChangedEvent();
         m.fireUnlinkedEvent();
@@ -512,7 +517,7 @@ public class InteractionControllerImpl implements InteractionController {
             Map<K, Set<Interaction<K>>> results = caches.get(is).query(keys);
             List<K> _keys = new ArrayList<K>(keys);
             _keys.removeAll(results.keySet());
-            Map<K, Set<Interaction<K>>> qResults = is.query(_keys.toArray((K[]) Array.newInstance(is.getKeyType(), 0)));
+            Map<K, Set<Interaction<K>>> qResults = is.query(_keys.toArray((K[]) Array.newInstance(is.getKeyType(), _keys.size())));
             for (K k : qResults.keySet()) {
                 Set<Interaction<K>> result = qResults.get(k);
                 results.put(k, Collections.unmodifiableSet(result));
@@ -601,8 +606,8 @@ public class InteractionControllerImpl implements InteractionController {
                     }
                 });
                 annotateNodes(getAllNodeKeys());
-                queryFinished(true);
                 m.getDisplay().fireGraphChangedEvent();
+                queryFinished(true);
             } catch (Exception ex) {
                 Logger.getLogger(Link.class.getName()).log(Level.SEVERE, null, ex);
                 ErrorManager.getDefault().notify(ex);

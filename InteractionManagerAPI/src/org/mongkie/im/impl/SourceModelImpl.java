@@ -237,7 +237,7 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
     }
 
     Set<Edge> clearInteractions() {
-        Set<Edge> edges = new HashSet<Edge>(getEdges());
+        Set<Edge> edges = new HashSet<Edge>(edge2Interaction.keySet());
         for (Interaction i : interaction2Edges.keySet()) {
             interaction2Edges.get(i).clear();
         }
@@ -266,8 +266,11 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
 
     @Override
     public void tupleSetChanged(TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
-        for (Tuple t : removed) {
-            Edge e = d.getGraph().getEdge(t.getRow());
+        if (unlinking) {
+            return;
+        }
+        for (Tuple edge : removed) {
+            Edge e = d.getGraph().getEdge(edge.getRow());
             Interaction i = edge2Interaction.remove(e);
             if (i != null) {
 //                Set<Edge> edges = interaction2Edges.get(i);
@@ -282,6 +285,11 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
             }
         }
     }
+
+    void setUnlinking(boolean unlinking) {
+        this.unlinking = unlinking;
+    }
+    private boolean unlinking = false;
 
     @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {
