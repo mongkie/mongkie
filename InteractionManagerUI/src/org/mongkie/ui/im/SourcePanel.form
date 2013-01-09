@@ -118,7 +118,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="actionMenuButton">
+    <Component class="javax.swing.JButton" name="actionsMenuButton">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="10" style="0"/>
@@ -127,17 +127,20 @@
           <Image iconType="3" name="/org/mongkie/ui/im/resources/menu_dropdown.png"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/mongkie/ui/im/Bundle.properties" key="SourcePanel.actionMenuButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/mongkie/ui/im/Bundle.properties" key="SourcePanel.actionsMenuButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
         <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/mongkie/ui/im/Bundle.properties" key="SourcePanel.actionMenuButton.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/mongkie/ui/im/Bundle.properties" key="SourcePanel.actionsMenuButton.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
         <Property name="borderPainted" type="boolean" value="false"/>
         <Property name="contentAreaFilled" type="boolean" value="false"/>
+        <Property name="disabledIcon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/org/mongkie/ui/im/resources/menu_dropdown_disabled.png"/>
+        </Property>
         <Property name="focusPainted" type="boolean" value="false"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="actionMenuButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="actionsMenuButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="settingButton">

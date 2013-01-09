@@ -99,6 +99,18 @@ public abstract class Persistence<V> {
         }
 
         protected abstract void store(Preferences node, V value);
+
+        public final boolean delete(String name) {
+            try {
+                if (getRootPreferences().nodeExists(name)) {
+                    getChildPreferences(name).removeNode();
+                    return true;
+                }
+            } catch (BackingStoreException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return false;
+        }
     }
 
     public static abstract class KeyValues<K, V extends Value> extends Persistence<V> {

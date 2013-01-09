@@ -18,6 +18,7 @@
  */
 package org.mongkie.ui.im;
 
+import java.awt.Component;
 import javax.swing.SwingUtilities;
 import org.mongkie.im.InteractionController;
 import org.mongkie.im.SourceModel;
@@ -65,6 +66,13 @@ public class CategoryPanel extends javax.swing.JPanel implements SourceModelChan
 
     @Override
     public void modelRemoved(SourceModel model) {
+        for (Component c : getComponents()) {
+            if (c instanceof SourcePanel && model.getInteractionSource().equals(((SourcePanel) c).getInteractionSource())) {
+                remove(c);
+                revalidate();
+                repaint();
+            }
+        }
     }
 
     /**

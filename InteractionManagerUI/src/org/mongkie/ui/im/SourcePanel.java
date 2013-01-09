@@ -19,6 +19,7 @@
 package org.mongkie.ui.im;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
@@ -33,6 +34,7 @@ import org.mongkie.im.InteractionController;
 import org.mongkie.im.QueryEvent;
 import org.mongkie.im.SourceModel;
 import org.mongkie.im.SourceModelListener;
+import org.mongkie.im.spi.InteractionAction;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.DialogDescriptor;
@@ -92,10 +94,33 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
                         Lookup.getDefault().lookup(InteractionController.class).executeUnlink(is);
                     }
                 }));
+        InteractionAction[] actions = is.getActions();
+        actionsMenuButton.setEnabled(actions != null && actions.length > 0);
+        if (actionsMenuButton.isEnabled()) {
+            actionsMenuButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            actionsPopupMenu = new JPopupMenu();
+            for (final InteractionAction a : actions) {
+                JMenuItem menu = new JMenuItem(
+                        new AbstractAction(a.getName(), a.getIcon()) {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                a.execute(is);
+                            }
+                        });
+                menu.setEnabled(a.isEnabled(is));
+                menu.setToolTipText(a.getDescription());
+                menu.putClientProperty(InteractionAction.class, a);
+                actionsPopupMenu.add(menu);
+            }
+        }
         graphChanged(d.getGraph());
     }
     private JXBusyLabel querying;
-    private JPopupMenu partiallyLinkedMenu;
+    private JPopupMenu partiallyLinkedMenu, actionsPopupMenu;
+
+    InteractionSource getInteractionSource() {
+        return is;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -112,7 +137,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         interactionNameLink = new JXHyperlink();
         keyLabel = new javax.swing.JLabel();
         columnComboBox = new javax.swing.JComboBox();
-        actionMenuButton = new javax.swing.JButton();
+        actionsMenuButton = new javax.swing.JButton();
         settingButton = new javax.swing.JButton();
 
         setMaximumSize(new java.awt.Dimension(32767, 28));
@@ -152,19 +177,20 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         columnComboBox.setPreferredSize(new java.awt.Dimension(100, 22));
         add(columnComboBox);
 
-        actionMenuButton.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        actionMenuButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/menu_dropdown.png"))); // NOI18N
-        actionMenuButton.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionMenuButton.text")); // NOI18N
-        actionMenuButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionMenuButton.toolTipText")); // NOI18N
-        actionMenuButton.setBorderPainted(false);
-        actionMenuButton.setContentAreaFilled(false);
-        actionMenuButton.setFocusPainted(false);
-        actionMenuButton.addActionListener(new java.awt.event.ActionListener() {
+        actionsMenuButton.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        actionsMenuButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/menu_dropdown.png"))); // NOI18N
+        actionsMenuButton.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionsMenuButton.text")); // NOI18N
+        actionsMenuButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionsMenuButton.toolTipText")); // NOI18N
+        actionsMenuButton.setBorderPainted(false);
+        actionsMenuButton.setContentAreaFilled(false);
+        actionsMenuButton.setDisabledIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/menu_dropdown_disabled.png"))); // NOI18N
+        actionsMenuButton.setFocusPainted(false);
+        actionsMenuButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                actionMenuButtonActionPerformed(evt);
+                actionsMenuButtonActionPerformed(evt);
             }
         });
-        add(actionMenuButton);
+        add(actionsMenuButton);
 
         settingButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/settings.png"))); // NOI18N
         settingButton.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.settingButton.text")); // NOI18N
@@ -187,16 +213,12 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
             if (model.isLinked()) {
                 Lookup.getDefault().lookup(InteractionController.class).executeUnlink(is);
             } else if (model.isPartiallyLinked()) {
-                partiallyLinkedMenu.show(interactionLinkButton, 0, interactionLinkButton.getHeight());
+                partiallyLinkedMenu.show(interactionLinkButton, 0, interactionLinkButton.getPreferredSize().height);
             } else {
                 Lookup.getDefault().lookup(InteractionController.class).executeLink(is);
             }
         }
     }//GEN-LAST:event_interactionLinkButtonActionPerformed
-
-    private void actionMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionMenuButtonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_actionMenuButtonActionPerformed
 
     private void settingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingButtonActionPerformed
         settings.load();
@@ -207,8 +229,18 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
             settings.apply(false);
         }
     }//GEN-LAST:event_settingButtonActionPerformed
+
+    private void actionsMenuButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_actionsMenuButtonActionPerformed
+        for (Component c : actionsPopupMenu.getComponents()) {
+            if (c instanceof JMenuItem) {
+                JMenuItem menu = (JMenuItem) c;
+                menu.setEnabled(((InteractionAction) menu.getClientProperty(InteractionAction.class)).isEnabled(is));
+            }
+        }
+        actionsPopupMenu.show(actionsMenuButton, 4, actionsMenuButton.getPreferredSize().height);
+    }//GEN-LAST:event_actionsMenuButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton actionMenuButton;
+    private javax.swing.JButton actionsMenuButton;
     private javax.swing.JComboBox columnComboBox;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;

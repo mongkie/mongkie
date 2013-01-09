@@ -51,7 +51,7 @@ public interface InteractionController {
 
     public InteractionSource getInteractionSource(String name);
 
-    public void addInteractionSource(String name, Graph g, String nodeKeyCol);
+    public void addGraphInteractionSource(Graph g, String name, String nodeKeyCol);
 
     public boolean addModelChangeListener(MongkieDisplay d, SourceModelChangeListener l);
 

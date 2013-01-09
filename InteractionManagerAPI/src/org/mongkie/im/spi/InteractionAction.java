@@ -1,7 +1,7 @@
 /*
  * This file is part of MONGKIE. Visit <http://www.mongkie.org/> for details.
  * Visit <http://www.mongkie.org> for details about MONGKIE.
- * Copyright (C) 2012 Korean Bioinformation Center (KOBIC)
+ * Copyright (C) 2013 Korean Bioinformation Center (KOBIC)
  *
  * MONGKIE is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,48 +18,21 @@
  */
 package org.mongkie.im.spi;
 
-import java.util.Map;
-import java.util.Set;
-import javax.swing.JPanel;
-import kobic.prefuse.data.Attribute;
-import kobic.prefuse.data.Schema;
+import javax.swing.Icon;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface InteractionSource<K> {
-
-    public static final String FIELD = "*InteractionSource*";
+public interface InteractionAction<IS extends InteractionSource> {
 
     public String getName();
 
     public String getDescription();
 
-    public String getCategory();
+    public Icon getIcon();
 
-    public Schema getInteractionSchema();
+    public boolean isEnabled(IS is);
 
-    public Schema getAnnotationSchema();
-
-    public boolean isDirected();
-
-    public <I extends Interaction<K>> Map<K, Set<I>> query(K... keys) throws Exception;
-
-    public Map<K, Attribute.Set> annotate(K... keys) throws Exception;
-
-    public Class<K> getKeyType();
-
-    public SettingUI getSettingUI();
-    
-    public InteractionAction[] getActions();
-
-    public static interface SettingUI<I extends InteractionSource> {
-
-        public JPanel getPanel();
-
-        public void load(I is);
-
-        public void apply(I is);
-    }
+    public void execute(IS is);
 }

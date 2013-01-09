@@ -60,7 +60,7 @@ public class AddGraphInteractionSource implements Processor<GraphContainer> {
     @Override
     public void process() {
         Graph g = container.getGraph();
-        Lookup.getDefault().lookup(InteractionController.class).addInteractionSource(name, g, nodeKeyCol);
+        Lookup.getDefault().lookup(InteractionController.class).addGraphInteractionSource(g, name, nodeKeyCol);
     }
 
     @Override

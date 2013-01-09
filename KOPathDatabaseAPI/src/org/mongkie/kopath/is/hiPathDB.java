@@ -24,6 +24,7 @@ import java.util.Set;
 import kobic.prefuse.data.Attribute;
 import kobic.prefuse.data.Schema;
 import org.mongkie.im.spi.Interaction;
+import org.mongkie.im.spi.InteractionAction;
 import org.mongkie.im.spi.InteractionSource;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Edge;
@@ -85,6 +86,11 @@ public class hiPathDB implements InteractionSource<Integer> {
     @Override
     public SettingUI getSettingUI() {
         return null;
+    }
+
+    @Override
+    public InteractionAction[] getActions() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     public static class BinaryInteraction implements Interaction<Integer> {

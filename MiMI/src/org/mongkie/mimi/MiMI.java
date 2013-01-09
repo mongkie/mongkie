@@ -34,6 +34,7 @@ import javax.xml.bind.JAXBException;
 import kobic.prefuse.data.Attribute;
 import kobic.prefuse.data.Schema;
 import org.mongkie.im.spi.Interaction.Interactor;
+import org.mongkie.im.spi.InteractionAction;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.mimi.jaxb.annotation.Annotation;
 import org.mongkie.mimi.jaxb.interaction.Interaction;
@@ -176,6 +177,11 @@ public class MiMI implements InteractionSource<Integer> {
         return settings;
     }
     private MiMISettingUI settings;
+
+    @Override
+    public InteractionAction[] getActions() {
+        return null;
+    }
 
     public static class PPI implements org.mongkie.im.spi.Interaction<Integer> {
 

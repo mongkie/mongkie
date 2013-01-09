@@ -134,14 +134,6 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
         return d;
     }
 
-    void destroy() {
-        if (isLinking()) {
-            link.cancel();
-        }
-        listeners.clear();
-        d.removeDisplayListener(this);
-    }
-
     LongTaskExecutor getLinkExecutor() {
         return link;
     }
@@ -296,7 +288,7 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
         setLinked(false);
         setAnnotated(false);
         setKeyField(null);
-        clearInteractions();
+        clearInteractions().clear();
         for (SourceModelListener l : listeners) {
             l.graphDisposing(g);
         }
@@ -309,5 +301,21 @@ class SourceModelImpl implements SourceModel, DisplayListener<MongkieDisplay>, T
             l.graphChanged(g);
         }
         g.getEdges().addTupleSetListener(this);
+    }
+
+    void dispose() {
+        if (isExpanding()) {
+            getExpandExecutor().cancel();
+        }
+        if (isLinking()) {
+            getLinkExecutor().cancel();
+        }
+        setLinked(false);
+        setAnnotated(false);
+        setKeyField(null);
+        clearInteractions().clear();
+        listeners.clear();
+        d.removeDisplayListener(this);
+        d.getGraph().getEdges().removeTupleSetListener(this);
     }
 }

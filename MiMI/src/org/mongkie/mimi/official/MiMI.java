@@ -42,6 +42,7 @@ import kobic.prefuse.data.Attribute;
 import kobic.prefuse.data.Schema;
 import org.mongkie.im.spi.Interaction;
 import org.mongkie.im.spi.Interaction.Interactor;
+import org.mongkie.im.spi.InteractionAction;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.mimi.jaxb.official.InteractingGene;
 import org.mongkie.mimi.jaxb.official.InteractionAttribute;
@@ -170,6 +171,11 @@ public class MiMI implements InteractionSource<Integer> {
 
     @Override
     public SettingUI getSettingUI() {
+        return null;
+    }
+
+    @Override
+    public InteractionAction[] getActions() {
         return null;
     }
 

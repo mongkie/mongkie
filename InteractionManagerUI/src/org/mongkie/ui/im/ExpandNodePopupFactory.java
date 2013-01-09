@@ -18,18 +18,15 @@
  */
 package org.mongkie.ui.im;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import kobic.prefuse.controls.PopupControl;
@@ -52,26 +49,34 @@ import prefuse.visual.NodeItem;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ServiceProvider(service = NodePopupMenuItemFactory.class)
-public class ExpandNodePopupFactory extends NodePopupMenuItemFactory implements SourceModelChangeListener {
-
-    private JMenu menu;
-    private final Map<InteractionSource, JMenuItem> actions = new HashMap<InteractionSource, JMenuItem>();
-    private PopupControl<MongkieDisplay> control;
+public class ExpandNodePopupFactory extends NodePopupMenuItemFactory {
 
     @Override
     public List<JMenuItem> createMenuItems(final PopupControl<MongkieDisplay> control) {
-        if (menu != null) {
-            menu.removeAll();
-            actions.clear();
-        }
-        this.control = control;
-        menu = new JMenu("More Interactions");
+        final JMenu menu = new JMenu("More Interactions");
         menu.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/im/resources/interaction.png", false));
         InteractionController ic = Lookup.getDefault().lookup(InteractionController.class);
-        ic.addModelChangeListener(control.getDisplay(), this);
+        ic.addModelChangeListener(control.getDisplay(), new SourceModelChangeListener() {
+            @Override
+            public void modelAdded(SourceModel model) {
+                addExapndAction(menu, model.getInteractionSource(), control);
+            }
+
+            @Override
+            public void modelRemoved(SourceModel model) {
+                for (Component c : menu.getMenuComponents()) {
+                    if (c instanceof JMenuItem
+                            && model.getInteractionSource().equals(((JMenuItem) c).getClientProperty(InteractionSource.class))) {
+                        menu.remove(c);
+                        menu.getPopupMenu().removePopupMenuListener(
+                                (PopupMenuListener) ((JMenuItem) c).getClientProperty(PopupMenuListener.class));
+                    }
+                }
+            }
+        });
         for (String category : ic.getCategories()) {
             for (InteractionSource is : ic.getInteractionSources(category)) {
-                addExapndAction(is);
+                addExapndAction(menu, is, control);
             }
         }
         menu.getPopupMenu().setBorder(BorderFactory.createLineBorder(ColorLib.getColor(0, 0, 0, 100)));
@@ -80,9 +85,9 @@ public class ExpandNodePopupFactory extends NodePopupMenuItemFactory implements 
         return menuItems;
     }
 
-    private void addExapndAction(final InteractionSource is) {
+    private void addExapndAction(final JMenu menu, final InteractionSource is, final PopupControl<MongkieDisplay> control) {
         final InteractionController ic = Lookup.getDefault().lookup(InteractionController.class);
-        final Action a = new AbstractAction(is.getName()) {
+        final JMenuItem mi = new JMenuItem(new AbstractAction(is.getName()) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 TupleSet focusedTupleSet = control.getDisplay().getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
@@ -98,11 +103,14 @@ public class ExpandNodePopupFactory extends NodePopupMenuItemFactory implements 
                     ic.executeExpand(is, clickedItem.get(ic.getModel(is).getKeyField()));
                 }
             }
-        };
-        menu.getPopupMenu().addPopupMenuListener(new PopupMenuListener() {
+        });
+        mi.putClientProperty(InteractionSource.class, is);
+        menu.add(mi);
+        PopupMenuListener l = new PopupMenuListener() {
             @Override
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                a.setEnabled(ic.getModel(is).getKeyField() != null);
+                mi.setEnabled(ic.getModel(is).getKeyField() != null);
+                mi.setToolTipText(mi.isEnabled() ? "Add more interactions from " + is.getName() : "Key field is not available");
             }
 
             @Override
@@ -112,27 +120,8 @@ public class ExpandNodePopupFactory extends NodePopupMenuItemFactory implements 
             @Override
             public void popupMenuCanceled(PopupMenuEvent e) {
             }
-        });
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                actions.put(is, menu.add(a));
-            }
-        });
-    }
-
-    @Override
-    public void modelAdded(SourceModel model) {
-        addExapndAction(model.getInteractionSource());
-    }
-
-    @Override
-    public void modelRemoved(final SourceModel model) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                menu.remove(actions.remove(model.getInteractionSource()));
-            }
-        });
+        };
+        mi.putClientProperty(PopupMenuListener.class, l);
+        menu.getPopupMenu().addPopupMenuListener(l);
     }
 }

@@ -36,6 +36,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import kobic.prefuse.Constants;
 import kobic.prefuse.data.Attribute;
 import kobic.prefuse.data.Schema;
@@ -45,6 +47,7 @@ import org.mongkie.im.SourceModel;
 import org.mongkie.im.SourceModelChangeListener;
 import org.mongkie.im.spi.Interaction;
 import org.mongkie.im.spi.Interaction.Interactor;
+import org.mongkie.im.spi.InteractionAction;
 import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.progress.Progress;
@@ -106,7 +109,7 @@ public class InteractionControllerImpl implements InteractionController {
                             for (SourceModelImpl m : modelImpls) {
                                 models.put(m.getInteractionSource(), m);
                             }
-                            // Create models for newly added others
+                            // Create models of newly added graph sources
                             for (InteractionSource is : getInteractionSources(CATEGORY_OTHERS)) {
                                 if (models.keySet().contains(is)) {
                                     continue;
@@ -118,6 +121,22 @@ public class InteractionControllerImpl implements InteractionController {
                                     for (SourceModelChangeListener l : listeners.get(display)) {
                                         l.modelAdded(m);
                                     }
+                                }
+                            }
+                            // Remove models of deleted graph sources
+                            List<InteractionSource> sources = new ArrayList<InteractionSource>(models.keySet());
+                            sources.removeAll(getInteractionSources(CATEGORY_OTHERS));
+                            for (InteractionSource s : sources) {
+                                if (s instanceof GraphSource) {
+                                    SourceModelImpl m = models.remove(s);
+                                    assert m != null;
+                                    display.remove(m);
+                                    if (listeners.containsKey(display)) {
+                                        for (SourceModelChangeListener l : listeners.get(display)) {
+                                            l.modelRemoved(m);
+                                        }
+                                    }
+                                    m.dispose();
                                 }
                             }
                         }
@@ -717,8 +736,8 @@ public class InteractionControllerImpl implements InteractionController {
     }
 
     @Override
-    public void addInteractionSource(String name, Graph g, String nodeKeyCol) {
-        GraphSource gs = new GraphSource(name, g, nodeKeyCol);
+    public void addGraphInteractionSource(Graph g, String name, String nodeKeyCol) {
+        GraphSource gs = new GraphSource(g, name, nodeKeyCol);
         MongkieDisplay d = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
         SourceModelImpl m = new SourceModelImpl(d, gs);
         d.add(m);
@@ -731,6 +750,25 @@ public class InteractionControllerImpl implements InteractionController {
                 l.modelAdded(m);
             }
         }
+    }
+
+    private boolean removeGraphInteractionSource(GraphSource gs) {
+        if (!GraphSource.getPersistence().delete(gs.getName())) {
+            return false;
+        }
+        SourceModelImpl model = models.remove(gs);
+        assert model != null;
+        caches.remove(gs).clear();
+        assert sourcesByCategory.get(CATEGORY_OTHERS).remove(gs);
+        MongkieDisplay display = model.getDisplay();
+        display.remove(model);
+        if (listeners.containsKey(display)) {
+            for (SourceModelChangeListener l : listeners.get(display)) {
+                l.modelRemoved(model);
+            }
+        }
+        model.dispose();
+        return true;
     }
 
     @Override
@@ -757,6 +795,38 @@ public class InteractionControllerImpl implements InteractionController {
             return null;
         }
 
+        @Override
+        public InteractionAction[] getActions() {
+            return new InteractionAction[]{
+                        new InteractionAction<GraphSource>() {
+                            @Override
+                            public String getName() {
+                                return "Delete";
+                            }
+
+                            @Override
+                            public String getDescription() {
+                                return "Delete this graph interaction source";
+                            }
+
+                            @Override
+                            public Icon getIcon() {
+                                return new ImageIcon(getClass().getResource("/org/mongkie/im/resources/delete.png"));
+                            }
+
+                            @Override
+                            public boolean isEnabled(GraphSource gs) {
+                                return true;
+                            }
+
+                            @Override
+                            public void execute(GraphSource gs) {
+                                ((InteractionControllerImpl) Lookup.getDefault().lookup(InteractionController.class)).removeGraphInteractionSource(gs);
+                            }
+                        }
+                    };
+        }
+
         static final class PersistenceImpl extends Persistence.Values<GraphSource> {
 
             private static final String GRAPH = "graph";
@@ -770,7 +840,7 @@ public class InteractionControllerImpl implements InteractionController {
                 byte[] bytes = node.getByteArray(GRAPH, null);
                 if (bytes != null) {
                     Graph g = GraphIO.readSerializableGraph(new ByteArrayInputStream(bytes));
-                    return new GraphSource(node.name(), g, node.get(NODE_KEYCOL, g.getNodeKeyField()));
+                    return new GraphSource(g, node.name(), node.get(NODE_KEYCOL, g.getNodeKeyField()));
                 }
                 return null;
             }
@@ -798,7 +868,7 @@ public class InteractionControllerImpl implements InteractionController {
         String name;
         final String nodeKeyCol;
 
-        GraphSource(String name, Graph g, String nodeKeyCol) {
+        GraphSource(Graph g, String name, String nodeKeyCol) {
             this.g = g;
             g.getNodeTable().index(nodeKeyCol);
             is = Schema.valueOf(g.getEdgeTable().getSchema());
