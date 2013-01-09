@@ -79,7 +79,7 @@ public class SettingsPanel extends javax.swing.JPanel {
             VisualStyle<EdgeItem> modelEdgeStyle =
                     Lookup.getDefault().lookup(InteractionController.class).getEdgeVisualStyle(is).reset(edgeStyleUI.getVisualStyle());
             // Then, apply the style to the visual items
-            if (!edgeStyleUI.isApplied()) {
+            if (!edgeStyleUI.isApplied() && tabbedPane.getTitleAt(tabbedPane.getSelectedIndex()).equals("Visual Styles")) {
                 modelEdgeStyle.apply(edgeStyleUI.getVisualItems());
             }
         } else if (edgeStyleUI.isApplied()) { // If canceled but some styles are applied
