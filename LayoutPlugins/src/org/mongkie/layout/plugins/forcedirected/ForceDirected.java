@@ -17,7 +17,6 @@
  */
 package org.mongkie.layout.plugins.forcedirected;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -418,11 +417,11 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
         if (expandedNodes.isEmpty()) {
             return;
         }
+        assert this.expandedNodes.isEmpty();
         this.expandedNodes.addAll(expandedNodes);
         expandingLayout.setVisualization(d.getVisualization());
         expandingLayout.setEnabled(true);
         d.setGraphLayout(expandingLayout, getDuration(expandedNodes.size()));
-        Point2D anchor = getLayoutAnchor();
         for (NodeItem expanded : this.expandedNodes) {
             NodeItem referer = null;
             for (Iterator<NodeItem> iter = expanded.inNeighbors(); iter.hasNext();) {
@@ -441,14 +440,12 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
                     }
                 }
             }
-            if (referer == null) {
-                setX(expanded, null, anchor.getX());
-                setY(expanded, null, anchor.getY());
-            } else {
+            if (referer != null) {
                 setX(expanded, referer, referer.getX());
                 setY(expanded, referer, referer.getY());
             }
         }
+        d.getVisualization().repaint(); // Position of expanded nodes are changed
         d.getLayoutAction().addActivityListener(l);
         d.rerunLayoutAction();
     }
