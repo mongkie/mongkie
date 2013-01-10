@@ -53,6 +53,7 @@ import org.mongkie.longtask.LongTask;
 import org.mongkie.longtask.progress.Progress;
 import org.mongkie.longtask.progress.ProgressTicket;
 import org.mongkie.util.Persistence;
+import org.mongkie.util.UIUtilities;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualization.util.LayoutService.ExpandingLayout;
@@ -806,7 +807,7 @@ public class InteractionControllerImpl implements InteractionController {
 
                             @Override
                             public String getDescription() {
-                                return "Delete this graph interaction source";
+                                return "Delete the interaction source";
                             }
 
                             @Override
@@ -821,7 +822,9 @@ public class InteractionControllerImpl implements InteractionController {
 
                             @Override
                             public void execute(GraphSource gs) {
-                                ((InteractionControllerImpl) Lookup.getDefault().lookup(InteractionController.class)).removeGraphInteractionSource(gs);
+                                if (Lookup.getDefault().lookup(UIUtilities.class).notifyConfirmation("Are you sure you want to delete " + gs.getName() + "?")) {
+                                    ((InteractionControllerImpl) Lookup.getDefault().lookup(InteractionController.class)).removeGraphInteractionSource(gs);
+                                }
                             }
                         }
                     };
