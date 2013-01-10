@@ -33,6 +33,7 @@ import kobic.prefuse.action.layout.DecoratorLayout;
 import kobic.prefuse.action.layout.DecoratorLayout.DecoratedTableListener;
 import kobic.prefuse.controls.AggregateDragControl;
 import kobic.prefuse.controls.HighlightControl;
+import kobic.prefuse.controls.HoverTooltipControl;
 import kobic.prefuse.controls.MultipleSelectionControl;
 import kobic.prefuse.controls.SingleSelectionControl;
 import kobic.prefuse.data.GraphFactory;
@@ -54,8 +55,13 @@ import prefuse.action.assignment.StrokeAction;
 import prefuse.action.layout.Layout;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityAdapter;
-import prefuse.controls.*;
+import prefuse.controls.Control;
+import prefuse.controls.DragSelectionControl;
+import prefuse.controls.PanControl;
+import prefuse.controls.WheelZoomControl;
+import prefuse.controls.ZoomToFitControl;
 import prefuse.data.*;
+import prefuse.data.event.EventConstants;
 import prefuse.data.event.TableListener;
 import prefuse.data.expression.AbstractPredicate;
 import prefuse.data.expression.Predicate;
@@ -563,6 +569,7 @@ public abstract class NetworkDisplay extends Display {
     public AggregateItem aggregateNodes(final Collection<Node> nodes, final String label) {
         return aggregateNodes(nodes, label, DRAW);
     }
+
     public AggregateItem aggregateNodes(final Collection<Node> nodes, final String label, String... activities) {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         final int aggregateId = getNextAggregateId();
@@ -583,7 +590,7 @@ public abstract class NetworkDisplay extends Display {
         }, activities);
         return (AggregateItem) aggregates.getTuple(AggregateItem.AGGR_ID, aggregateId);
     }
-    
+
     public void unaggregateItems(final AggregateItem aggrItem) {
         final AggregateTable aggregates = (AggregateTable) v.getVisualGroup(AGGR_ITEMS);
         v.process(new Runnable() {
@@ -1066,35 +1073,9 @@ public abstract class NetworkDisplay extends Display {
     private final List<Control> controls = new ArrayList<Control>();
 
     private void registerControls() {
-        Schema nodeTooltipSchema = getNodeDataViewSupport().getTooltipSchema();
-        if (nodeTooltipSchema != null) {
-            addControlListener(nodeTooltipControl = new HoverTooltipControl(NODES, nodeTooltipSchema) {
-                @Override
-                protected String getString(Tuple data, String field) {
-                    return getNodeDataViewSupport().getStringAt(data, field);
-                }
-
-                @Override
-                protected String getTitle(String field) {
-                    return getNodeDataViewSupport().getColumnTitle(field);
-                }
-            });
-            controls.add(nodeTooltipControl);
-        }
-        Schema edgeTooltipSchema = getEdgeDataViewSupport().getTooltipSchema();
-        if (edgeTooltipSchema != null && isEdgeInteractive()) {
-            addControlListener(edgeTooltipControl = new HoverTooltipControl(EDGES, edgeTooltipSchema) {
-                @Override
-                protected String getString(Tuple data, String field) {
-                    return getEdgeDataViewSupport().getStringAt(data, field);
-                }
-
-                @Override
-                protected String getTitle(String field) {
-                    return getEdgeDataViewSupport().getColumnTitle(field);
-                }
-            });
-            controls.add(edgeTooltipControl);
+        controls.add(addControlListener(nodeTooltipControl = new HoverTooltipControl(NODES, getNodeDataViewSupport())));
+        if (isEdgeInteractive()) {
+            controls.add(addControlListener(edgeTooltipControl = new HoverTooltipControl(EDGES, getEdgeDataViewSupport())));
         }
         controls.add(addControlListener(new MultipleSelectionControl(v, NODES, DRAW)));
         controls.add(addControlListener(new MultipleSelectionControl(v, EDGES)));
@@ -1145,12 +1126,39 @@ public abstract class NetworkDisplay extends Display {
     }
 
     protected DataViewSupport createEdgeDataViewSupport(final Table table) {
-        return new DataViewSupport(table) {
-            @Override
-            public Schema getOutlineSchema() {
-                return table.getSchema();
+        return new EdgeDataViewSupport(table);
+    }
+
+    private static final class EdgeDataViewSupport extends DataViewSupport {
+
+        private Schema s = null;
+
+        private EdgeDataViewSupport(Table table) {
+            super(table);
+            table.addTableListener(new TableListener() {
+                @Override
+                public void tableChanged(Table t, int start, int end, int col, int type) {
+                    if ((type == EventConstants.INSERT || type == EventConstants.DELETE) && col != EventConstants.ALL_COLUMNS) {
+                        s = null;
+                    }
+                }
+            });
+        }
+
+        @Override
+        public Schema getOutlineSchema() {
+            if (s == null) {
+                Schema ts = getTable().getSchema();
+                s = new Schema(ts.getColumnCount());
+                for (int i = 0; i < ts.getColumnCount(); i++) {
+                    String col = ts.getColumnName(i);
+                    if (!col.equals(Graph.DEFAULT_SOURCE_KEY) && !col.equals(Graph.DEFAULT_TARGET_KEY)) {
+                        s.addColumn(col, ts.getColumnType(i), ts.getDefault(i));
+                    }
+                }
             }
-        };
+            return s;
+        }
     }
 
     public void setTooltipEnabled(boolean on) {
