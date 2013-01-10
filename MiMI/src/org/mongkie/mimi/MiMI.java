@@ -18,6 +18,7 @@
  */
 package org.mongkie.mimi;
 
+import java.awt.Image;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import org.mongkie.im.spi.InteractionSource;
 import org.mongkie.mimi.jaxb.annotation.Annotation;
 import org.mongkie.mimi.jaxb.interaction.Interaction;
 import org.mongkie.mimi.jaxb.interaction.Result;
+import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Edge;
 
@@ -55,11 +57,6 @@ public class MiMI implements InteractionSource<Integer> {
     @Override
     public String getName() {
         return "MiMI";
-    }
-
-    @Override
-    public String getDescription() {
-        return "NCIBI-MiMI Webservice API for querying gene interactions";
     }
 
     @Override
@@ -182,6 +179,36 @@ public class MiMI implements InteractionSource<Integer> {
     public InteractionAction[] getActions() {
         return null;
     }
+
+    @Override
+    public RichDescription getRichDescription() {
+        if (richDescription == null) {
+            richDescription = new RichDescription() {
+                @Override
+                public Image getMainImage() {
+                    return ImageUtilities.loadImage("org/mongkie/mimi/resources/mimi_logo.png", false);
+                }
+
+                @Override
+                public Image getFooterImage() {
+                    return ImageUtilities.loadImage("org/mongkie/mimi/resources/footer_NCIBI.png", false);
+                }
+
+                @Override
+                public String getDescription() {
+                    return "MiMI is a database that provides access to the knowledge and data merged and integrated from numerous protein interactions databases.\n"
+                            + "For more information, visit http://mimi.ncibi.org";
+                }
+
+                @Override
+                public String getURL() {
+                    return "http://mimi.ncibi.org/MimiWeb/main-page.jsp";
+                }
+            };
+        }
+        return richDescription;
+    }
+    private RichDescription richDescription;
 
     public static class PPI implements org.mongkie.im.spi.Interaction<Integer> {
 

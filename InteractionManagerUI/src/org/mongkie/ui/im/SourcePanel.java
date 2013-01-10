@@ -21,9 +21,13 @@ package org.mongkie.ui.im;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URI;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -36,6 +40,7 @@ import org.mongkie.im.SourceModel;
 import org.mongkie.im.SourceModelListener;
 import org.mongkie.im.spi.InteractionAction;
 import org.mongkie.im.spi.InteractionSource;
+import org.mongkie.lib.widgets.richtooltip.RichTooltip;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -67,11 +72,43 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         querying = new JXBusyLabel(
                 new Dimension(interactionLinkButton.getPreferredSize().width, interactionLinkButton.getPreferredSize().height));
         querying.setToolTipText("Querying interactions...");
-        ((JXHyperlink) interactionNameLink).setText(is.getName());
         this.is = is;
         settings = new SettingsPanel(d, is);
         model = Lookup.getDefault().lookup(InteractionController.class).getModel(is);
         model.addModelListener(SourcePanel.this);
+        InteractionSource.RichDescription richDescription = is.getRichDescription();
+        if (richDescription != null) {
+            final RichTooltip richTooltip = new RichTooltip("About " + is.getName(), richDescription.getDescription());
+            Image mainImg = richDescription.getMainImage(), footerImg = richDescription.getFooterImage();
+            if (mainImg != null) {
+                richTooltip.setMainImage(mainImg);
+            }
+            if (footerImg != null) {
+                richTooltip.setFooterImage(footerImg);
+            }
+            String url = richDescription.getURL();
+            if (url != null) {
+                ((JXHyperlink) interactionNameLink).setURI(URI.create(url));
+            }
+            interactionNameLink.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    richTooltip.showTooltip(interactionNameLink);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    richTooltip.hideTooltip();
+                }
+//                @Override
+//                public void mouseClicked(MouseEvent e) {
+//                    richTooltip.hideTooltip();
+//                }
+            });
+        } else {
+            interactionNameLink.setToolTipText("Description is not available");
+        }
+        interactionNameLink.setText(is.getName());
         columnComboBox.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {

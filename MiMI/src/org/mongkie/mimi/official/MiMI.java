@@ -71,11 +71,6 @@ public class MiMI implements InteractionSource<Integer> {
     }
 
     @Override
-    public String getDescription() {
-        return "NCIBI-MiMI Webservice API for querying gene interactions";
-    }
-
-    @Override
     public String getCategory() {
         return "PPI";
     }
@@ -176,6 +171,11 @@ public class MiMI implements InteractionSource<Integer> {
 
     @Override
     public InteractionAction[] getActions() {
+        return null;
+    }
+
+    @Override
+    public RichDescription getRichDescription() {
         return null;
     }
 

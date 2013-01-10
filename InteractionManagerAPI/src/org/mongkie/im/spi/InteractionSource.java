@@ -18,6 +18,7 @@
  */
 package org.mongkie.im.spi;
 
+import java.awt.Image;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JPanel;
@@ -34,8 +35,6 @@ public interface InteractionSource<K> {
 
     public String getName();
 
-    public String getDescription();
-
     public String getCategory();
 
     public Schema getInteractionSchema();
@@ -51,8 +50,21 @@ public interface InteractionSource<K> {
     public Class<K> getKeyType();
 
     public SettingUI getSettingUI();
-    
+
     public InteractionAction[] getActions();
+
+    public RichDescription getRichDescription();
+
+    public static interface RichDescription {
+
+        public Image getMainImage();
+
+        public Image getFooterImage();
+
+        public String getDescription();
+
+        public String getURL();
+    }
 
     public static interface SettingUI<I extends InteractionSource> {
 

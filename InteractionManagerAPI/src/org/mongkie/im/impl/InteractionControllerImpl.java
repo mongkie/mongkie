@@ -830,6 +830,11 @@ public class InteractionControllerImpl implements InteractionController {
                     };
         }
 
+        @Override
+        public RichDescription getRichDescription() {
+            return null;
+        }
+
         static final class PersistenceImpl extends Persistence.Values<GraphSource> {
 
             private static final String GRAPH = "graph";
@@ -893,11 +898,6 @@ public class InteractionControllerImpl implements InteractionController {
 
         @Override
         public String getName() {
-            return name;
-        }
-
-        @Override
-        public String getDescription() {
             return name;
         }
 
