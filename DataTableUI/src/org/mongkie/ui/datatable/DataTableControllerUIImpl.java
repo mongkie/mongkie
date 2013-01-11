@@ -29,7 +29,6 @@ import static org.mongkie.datatable.spi.DataTable.NODES;
 import org.netbeans.validation.api.ui.swing.ValidationPanel;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -82,6 +81,10 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
                         actionUI.load(table, a);
                         JPanel settingPanel = actionUI.getPanel();
                         final DialogDescriptor dd = new DialogDescriptor(settingPanel, a.getName());
+                        Object[] options = actionUI.getDialogOptions();
+                        if (options != null && options.length > 0) {
+                            dd.setOptions(options);
+                        }
                         if (settingPanel instanceof ValidationPanel) {
                             final ValidationPanel vp = (ValidationPanel) settingPanel;
                             vp.addChangeListener(new ChangeListener() {
@@ -92,7 +95,7 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
                             });
                             dd.setValid(!vp.isFatalProblem());
                         }
-                        if (actionUI.apply(DialogDisplayer.getDefault().notify(dd) == NotifyDescriptor.OK_OPTION)) {
+                        if (actionUI.close(DialogDisplayer.getDefault().notify(dd))) {
                             executeDataActionInOtherThread(table, a);
                         }
                     } else {

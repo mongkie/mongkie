@@ -50,8 +50,10 @@ public interface DataAction<T extends DataTable> {
 
         public void load(T table, A action);
 
-        public boolean apply(boolean ok);
+        public boolean close(Object option);
 
         public JPanel getPanel();
+
+        public Object[] getDialogOptions();
     }
 }

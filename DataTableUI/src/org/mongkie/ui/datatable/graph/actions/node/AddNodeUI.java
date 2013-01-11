@@ -33,6 +33,7 @@ import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.netbeans.validation.api.builtin.stringvalidation.StringValidators;
 import org.netbeans.validation.api.ui.ValidationGroup;
 import org.netbeans.validation.api.ui.swing.ValidationPanel;
+import org.openide.NotifyDescriptor;
 import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.nodes.*;
 import org.openide.util.Exceptions;
@@ -127,13 +128,19 @@ public class AddNodeUI extends javax.swing.JPanel implements DataAction.UI<Abstr
     }
 
     @Override
-    public boolean apply(boolean ok) {
+    public boolean close(Object option) {
+        boolean ok = option.equals(NotifyDescriptor.OK_OPTION);
         action.setTupleData(ok ? tupleData : null);
         labelText.getDocument().removeDocumentListener(tupleNode);
         labelText.setText(null);
         tupleData.clear();
         ((PropertySheet) propertySheet).setNodes(new Node[]{});
         return ok;
+    }
+
+    @Override
+    public Object[] getDialogOptions() {
+        return null;
     }
 
     @Override

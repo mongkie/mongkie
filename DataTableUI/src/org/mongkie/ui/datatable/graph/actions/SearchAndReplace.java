@@ -33,8 +33,12 @@ public class SearchAndReplace extends AbstractDataAction {
 
     @Override
     public UI getUI() {
-        return null;
+        if (ui == null) {
+            ui = new SearchAndReplaceUI();
+        }
+        return ui;
     }
+    private SearchAndReplaceUI ui;
 
     @Override
     public String getName() {
@@ -53,12 +57,11 @@ public class SearchAndReplace extends AbstractDataAction {
 
     @Override
     public void execute(AbstractDataTable table) {
-        System.out.println(getDescription());
+        throw new UnsupportedOperationException("Not supported operation.");
     }
 
     @Override
     public boolean isEnabled(AbstractModel model) {
-//        return model.getTable().getTupleCount() > 0;
-        return false;
+        return model.getTable().getTupleCount() > 0;
     }
 }

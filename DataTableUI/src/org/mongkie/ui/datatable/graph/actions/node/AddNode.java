@@ -28,7 +28,6 @@ import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.Visualization;
-import static prefuse.Visualization.DRAW;
 import prefuse.data.Node;
 import prefuse.util.PrefuseLib;
 import prefuse.util.display.DisplayLib;
@@ -91,7 +90,11 @@ public class AddNode extends AbstractNodeAction {
             PrefuseLib.setX(n, null, c.getX());
             PrefuseLib.setY(n, null, c.getY());
             table.setSelectedNodes(new org.openide.nodes.Node[]{table.getDataChildFactory().getNodeOf(node.getRow())});
-//            v.rerun(DRAW);
+//            v.rerun(Visualization.DRAW);
+            // When the first node added, fire graph changed event
+            if (model.getGraph().getNodeCount() == 1) {
+                model.getDisplay().fireGraphChangedEvent();
+            }
         }
     }
 

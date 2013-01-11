@@ -29,6 +29,7 @@ import org.netbeans.validation.api.Validator;
 import org.netbeans.validation.api.builtin.stringvalidation.StringValidators;
 import org.netbeans.validation.api.ui.ValidationGroup;
 import org.netbeans.validation.api.ui.swing.ValidationPanel;
+import org.openide.NotifyDescriptor;
 import prefuse.data.Table;
 
 /**
@@ -148,7 +149,8 @@ public class AddNewColumnUI extends javax.swing.JPanel implements DataAction.UI<
     private AddNewColumn action;
 
     @Override
-    public boolean apply(boolean ok) {
+    public boolean close(Object option) {
+        boolean ok = option.equals(NotifyDescriptor.OK_OPTION);
         if (ok) {
             action.setTitle(columnTitleTextField.getText());
             ColumnType type = (ColumnType) columnTypeComboBox.getSelectedItem();
@@ -161,6 +163,11 @@ public class AddNewColumnUI extends javax.swing.JPanel implements DataAction.UI<
         this.table = null;
         this.action = null;
         return ok;
+    }
+
+    @Override
+    public Object[] getDialogOptions() {
+        return null;
     }
 
     @Override
