@@ -23,6 +23,7 @@ import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
+import prefuse.data.Schema;
 
 /**
  *
@@ -42,12 +43,12 @@ public class SearchAndReplace extends AbstractDataAction {
 
     @Override
     public String getName() {
-        return "Search/Replace";
+        return "Search and Replace";
     }
 
     @Override
     public String getDescription() {
-        return "Search and replace data in the table";
+        return "Search and replace string in the table";
     }
 
     @Override
@@ -62,6 +63,16 @@ public class SearchAndReplace extends AbstractDataAction {
 
     @Override
     public boolean isEnabled(AbstractModel model) {
-        return model.getTable().getTupleCount() > 0;
+        return model.getTable().getTupleCount() > 0 && isStringColumnAvailable(model);
+    }
+
+    private boolean isStringColumnAvailable(AbstractModel model) {
+        Schema s = model.getDisplay().getDataViewSupport(model.getDataTable().getDataGroup()).getOutlineSchema();
+        for (int i = 0; i < s.getColumnCount(); i++) {
+            if (s.getColumnType(i) == String.class) {
+                return true;
+            }
+        }
+        return false;
     }
 }

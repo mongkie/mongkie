@@ -18,7 +18,6 @@
  */
 package org.mongkie.datatable;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import prefuse.data.column.Column;
@@ -55,6 +54,17 @@ public enum ColumnType {
             }
         }
     }),
+    FLOAT(float.class, "Float", 0.0F,
+    new ValueParser<Float>() {
+        @Override
+        public Float parse(String text) {
+            try {
+                return Float.valueOf(text);
+            } catch (NumberFormatException ex) {
+                return 0.0F;
+            }
+        }
+    }),
     DOUBLE(double.class, "Double", 0.0D,
     new ValueParser<Double>() {
         @Override
@@ -70,12 +80,7 @@ public enum ColumnType {
     new ValueParser<String>() {
         @Override
         public String parse(String text) {
-            String[] array = text.split(",\\s*");
-            String val = StringLib.concatStringArray(array, Column.MULTI_VAL_SEPARATOR);
-            System.out.println("> " + text);
-            System.out.println(">> " + Arrays.toString(array));
-            System.out.println(">>> " + val);
-            return val;
+            return StringLib.concatStringArray(text.split(",\\s*"), Column.MULTI_VAL_SEPARATOR);
         }
     });
     private final String name;

@@ -141,6 +141,9 @@
           <ResourceString bundle="org/mongkie/ui/datatable/graph/actions/Bundle.properties" key="SearchAndReplaceUI.findPreviousButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="findPreviousButtonActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="replaceButton">
       <Properties>
@@ -148,6 +151,9 @@
           <ResourceString bundle="org/mongkie/ui/datatable/graph/actions/Bundle.properties" key="SearchAndReplaceUI.replaceButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="replaceButtonActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="replaceAllButton">
       <Properties>
@@ -155,6 +161,9 @@
           <ResourceString bundle="org/mongkie/ui/datatable/graph/actions/Bundle.properties" key="SearchAndReplaceUI.replaceAllButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="replaceAllButtonActionPerformed"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JPanel" name="optionPanel">
 
@@ -190,6 +199,9 @@
               <ResourceString bundle="org/mongkie/ui/datatable/graph/actions/Bundle.properties" key="SearchAndReplaceUI.wholeWordsCheckBox.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="wholeWordsCheckBoxActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JCheckBox" name="matchCaseCheckBox">
           <Properties>
@@ -197,12 +209,17 @@
               <ResourceString bundle="org/mongkie/ui/datatable/graph/actions/Bundle.properties" key="SearchAndReplaceUI.matchCaseCheckBox.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="matchCaseCheckBoxActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JCheckBox" name="regularExpressionCheckBox">
           <Properties>
+            <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="org/mongkie/ui/datatable/graph/actions/Bundle.properties" key="SearchAndReplaceUI.regularExpressionCheckBox.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -216,6 +233,9 @@
           <ResourceString bundle="org/mongkie/ui/datatable/graph/actions/Bundle.properties" key="SearchAndReplaceUI.findNextButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="findNextButtonActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

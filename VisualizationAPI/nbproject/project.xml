@@ -55,6 +55,7 @@
                 <package>org.mongkie.visualization</package>
                 <package>org.mongkie.visualization.color</package>
                 <package>org.mongkie.visualization.group</package>
+                <package>org.mongkie.visualization.search</package>
                 <package>org.mongkie.visualization.selection</package>
                 <package>org.mongkie.visualization.util</package>
                 <package>org.mongkie.visualization.workspace</package>
