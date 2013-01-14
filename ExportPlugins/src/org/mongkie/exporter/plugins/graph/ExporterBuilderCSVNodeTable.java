@@ -17,29 +17,19 @@
  */
 package org.mongkie.exporter.plugins.graph;
 
-import org.mongkie.exporter.spi.GraphExporterBuilder;
-import org.mongkie.util.io.FileType;
+import org.mongkie.exporter.plugins.graph.ExporterCSV.Table;
+import org.mongkie.exporter.spi.AbstractCSVExporterBuilder;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = GraphExporterBuilder.class, position = 1000)
-public class ExporterBuilderCSV implements GraphExporterBuilder<ExporterCSV> {
-
-    @Override
-    public FileType[] getFileTypes() {
-        return new FileType[]{new FileType("CSV Files", ".csv", ".txt")};
-    }
+@ServiceProvider(service = AbstractCSVExporterBuilder.Node.class)
+public class ExporterBuilderCSVNodeTable extends AbstractCSVExporterBuilder.Node<ExporterCSV> {
 
     @Override
     public ExporterCSV buildExporter() {
-        return new ExporterCSV();
-    }
-
-    @Override
-    public String getName() {
-        return "CSV";
+        return new ExporterCSV(Table.NODE_TABLE);
     }
 }

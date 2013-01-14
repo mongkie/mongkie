@@ -31,6 +31,19 @@ public class ExporterCSV extends AbstractGraphExporter {
 
     private final CSVTableWriter writer = new CSVTableWriter(true);
     private Table tableToExport = Table.NODE_TABLE;
+    private boolean tableSelectable = true;
+
+    public ExporterCSV() {
+    }
+
+    public ExporterCSV(Table tableToExport) {
+        this.tableToExport = tableToExport;
+        this.tableSelectable = false;
+    }
+
+    boolean isTableSelectable() {
+        return tableSelectable;
+    }
 
     public boolean isPrintHeader() {
         return writer.isPrintHeader();
@@ -45,7 +58,9 @@ public class ExporterCSV extends AbstractGraphExporter {
     }
 
     public void setTableToExport(Table tableToExport) {
-        this.tableToExport = tableToExport;
+        if (tableSelectable) {
+            this.tableToExport = tableToExport;
+        }
     }
 
     @Override

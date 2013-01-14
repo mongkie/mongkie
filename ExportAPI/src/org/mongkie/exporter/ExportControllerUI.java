@@ -26,6 +26,10 @@ public interface ExportControllerUI {
     public ExportController getExportController();
 
     public void exportGraph();
+    
+    public void exportNodeTable();
+    
+    public void exportEdgeTable();
 
     public void exportImage();
 }

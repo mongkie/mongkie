@@ -27,10 +27,10 @@ package org.mongkie.ui.exporter;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class GraphExportSettingUI extends javax.swing.JPanel {
+public class GraphExportGlobalSettingUI extends javax.swing.JPanel {
 
     /** Creates new form GraphExportSettingUI */
-    public GraphExportSettingUI() {
+    public GraphExportGlobalSettingUI() {
         initComponents();
     }
 
@@ -61,19 +61,19 @@ public class GraphExportSettingUI extends javax.swing.JPanel {
 
         exportSettingButtonGroup.add(fullRadioButton);
         fullRadioButton.setSelected(true);
-        fullRadioButton.setText(org.openide.util.NbBundle.getMessage(GraphExportSettingUI.class, "GraphExportSettingUI.fullRadioButton.text")); // NOI18N
+        fullRadioButton.setText(org.openide.util.NbBundle.getMessage(GraphExportGlobalSettingUI.class, "GraphExportGlobalSettingUI.fullRadioButton.text")); // NOI18N
 
         exportSettingButtonGroup.add(selectedOnlyRadioButton);
-        selectedOnlyRadioButton.setText(org.openide.util.NbBundle.getMessage(GraphExportSettingUI.class, "GraphExportSettingUI.selectedOnlyRadioButton.text")); // NOI18N
+        selectedOnlyRadioButton.setText(org.openide.util.NbBundle.getMessage(GraphExportGlobalSettingUI.class, "GraphExportGlobalSettingUI.selectedOnlyRadioButton.text")); // NOI18N
         selectedOnlyRadioButton.setEnabled(false);
 
-        labelFullGraph.setFont(new java.awt.Font("Tahoma", 0, 10));
+        labelFullGraph.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         labelFullGraph.setForeground(new java.awt.Color(102, 102, 102));
-        labelFullGraph.setText(org.openide.util.NbBundle.getMessage(GraphExportSettingUI.class, "GraphExportSettingUI.labelFullGraph.text")); // NOI18N
+        labelFullGraph.setText(org.openide.util.NbBundle.getMessage(GraphExportGlobalSettingUI.class, "GraphExportGlobalSettingUI.labelFullGraph.text")); // NOI18N
 
         labelSelectedOnly.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         labelSelectedOnly.setForeground(new java.awt.Color(102, 102, 102));
-        labelSelectedOnly.setText(org.openide.util.NbBundle.getMessage(GraphExportSettingUI.class, "GraphExportSettingUI.labelSelectedOnly.text")); // NOI18N
+        labelSelectedOnly.setText(org.openide.util.NbBundle.getMessage(GraphExportGlobalSettingUI.class, "GraphExportGlobalSettingUI.labelSelectedOnly.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

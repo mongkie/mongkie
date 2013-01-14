@@ -18,10 +18,13 @@
 package org.mongkie.ui.datatable.graph.actions;
 
 import java.awt.Image;
+import kobic.prefuse.Constants;
 import org.mongkie.datatable.spi.DataAction;
+import org.mongkie.exporter.ExportControllerUI;
 import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 import org.openide.util.ImageUtilities;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -43,7 +46,7 @@ public class ExportTable extends AbstractDataAction {
 
     @Override
     public String getDescription() {
-        return "Export table data to file";
+        return "Export table to CSV file";
     }
 
     @Override
@@ -53,12 +56,17 @@ public class ExportTable extends AbstractDataAction {
 
     @Override
     public void execute(AbstractDataTable table) {
-        System.out.println(getDescription());
+        if (table.getDataGroup().equals(Constants.NODES)) {
+            Lookup.getDefault().lookup(ExportControllerUI.class).exportNodeTable();
+        } else if (table.getDataGroup().equals(Constants.EDGES)) {
+            Lookup.getDefault().lookup(ExportControllerUI.class).exportEdgeTable();
+        } else {
+            throw new IllegalArgumentException("Unknown data group of the table :" + table.getDataGroup());
+        }
     }
 
     @Override
     public boolean isEnabled(AbstractModel model) {
-//        return model.getTable().getTupleCount() > 0;
-        return false;
+        return model.getTable().getTupleCount() > 0;
     }
 }

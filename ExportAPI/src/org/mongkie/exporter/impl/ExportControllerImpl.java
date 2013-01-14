@@ -27,6 +27,7 @@ import java.util.Map;
 import org.mongkie.exporter.ExportController;
 import org.mongkie.exporter.spi.Exporter;
 import org.mongkie.exporter.spi.Exporter.OptionUI;
+import org.mongkie.exporter.spi.Exporter.SettingUI;
 import org.mongkie.exporter.spi.ExporterBuilder;
 import org.mongkie.exporter.spi.FileExporter;
 import org.mongkie.visualization.VisualizationController;
@@ -43,6 +44,16 @@ public class ExportControllerImpl implements ExportController {
     @Override
     public OptionUI getOptionUI(Exporter exporter) {
         for (OptionUI ui : Lookup.getDefault().lookupAll(OptionUI.class)) {
+            if (ui.isUIForExporter(exporter)) {
+                return ui;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public SettingUI getSettingUI(Exporter exporter) {
+        for (SettingUI ui : Lookup.getDefault().lookupAll(SettingUI.class)) {
             if (ui.isUIForExporter(exporter)) {
                 return ui;
             }
@@ -72,7 +83,6 @@ public class ExportControllerImpl implements ExportController {
             out.flush();
             out.close();
             if (ex instanceof RuntimeException) {
-                ex.printStackTrace();
                 throw (RuntimeException) ex;
             }
             throw new RuntimeException(ex);

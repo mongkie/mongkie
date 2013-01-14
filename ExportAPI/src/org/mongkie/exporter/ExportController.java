@@ -33,6 +33,8 @@ public interface ExportController {
 
     public Exporter.OptionUI getOptionUI(Exporter exporter);
 
+    public Exporter.SettingUI getSettingUI(Exporter exporter);
+
     public <E extends Exporter> E getExporter(ExporterBuilder<E> builder);
 
     public <E extends Exporter> ExporterBuilder<E> getBuilder(E exporter);

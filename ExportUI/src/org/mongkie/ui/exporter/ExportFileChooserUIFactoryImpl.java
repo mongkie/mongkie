@@ -32,7 +32,7 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = ExportFileChooserUIFactory.class)
 public class ExportFileChooserUIFactoryImpl implements ExportFileChooserUIFactory {
 
-    private final GraphExportSettingUI exportSettings = new GraphExportSettingUI();
+    private final GraphExportGlobalSettingUI globalSettings = new GraphExportGlobalSettingUI();
 
     @Override
     public <E extends FileExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUI(Class<B> builderClass, String lastPath) {
@@ -41,7 +41,13 @@ public class ExportFileChooserUIFactoryImpl implements ExportFileChooserUIFactor
 
     @Override
     public ExportFileChooserUI<GraphExporter> createUIForGraphExporter(String lastPath, boolean exportSelectedOnly) {
-        exportSettings.setExportSelectedOnly(exportSelectedOnly);
-        return new ExportFileChooserUIImpl(GraphExporterBuilder.class, lastPath, exportSettings);
+        globalSettings.setExportSelectedOnly(exportSelectedOnly);
+        return new ExportFileChooserUIImpl(GraphExporterBuilder.class, lastPath, globalSettings);
+    }
+
+    @Override
+    public ExportFileChooserUI<GraphExporter> createUIForGraphExporter(Class builderClass, String lastPath, boolean exportSelectedOnly) {
+        globalSettings.setExportSelectedOnly(exportSelectedOnly);
+        return new ExportFileChooserUIImpl(builderClass, lastPath, globalSettings);
     }
 }

@@ -33,13 +33,26 @@ public interface Exporter {
 
     public void setDisplay(MongkieDisplay display);
 
+    // UI shown when options button clicked
     public static interface OptionUI<E extends Exporter> {
 
-        public void setup(E exporter);
+        public void load(E exporter);
 
         public JPanel getPanel();
 
-        public void apply(boolean update);
+        public void apply(boolean ok);
+
+        public boolean isUIForExporter(Exporter exporter);
+    }
+
+    // UI located in the right side of file chooser dialog
+    public static interface SettingUI<E extends Exporter> {
+
+        public void load(E exporter);
+
+        public JPanel getPanel();
+
+        public void apply();
 
         public boolean isUIForExporter(Exporter exporter);
     }

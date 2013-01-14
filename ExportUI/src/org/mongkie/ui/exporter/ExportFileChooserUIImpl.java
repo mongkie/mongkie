@@ -62,9 +62,10 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
     private JDialog dialog;
     private FileExporterBuilder<E> selectedBuilder;
     private E selectedExporter;
-    private GraphExportSettingUI exportSettings;
+    private GraphExportGlobalSettingUI globalSettings;
+    private Exporter.SettingUI selectedSettingUI;
 
-    ExportFileChooserUIImpl(final Class<? extends FileExporterBuilder<E>> builderClass, String lastPath, GraphExportSettingUI exportSettings) {
+    ExportFileChooserUIImpl(final Class<? extends FileExporterBuilder<E>> builderClass, String lastPath, GraphExportGlobalSettingUI globalSettings) {
         final ExportControllerUI controllerUI = Lookup.getDefault().lookup(ExportControllerUI.class);
 
         //Options optionPanel
@@ -72,19 +73,17 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
         final JButton optionsButton = new JButton(NbBundle.getMessage(ExportFileChooserUIImpl.class, "ExportFileChooserUIImpl.optionsButton.text"));
         optionsPanel.add(optionsButton);
         optionsButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 Exporter.OptionUI optionUI = controllerUI.getExportController().getOptionUI(selectedExporter);
                 if (optionUI != null) {
                     JPanel optionPanel = optionUI.getPanel();
-                    optionUI.setup(selectedExporter);
+                    optionUI.load(selectedExporter);
                     final DialogDescriptor dd = new DialogDescriptor(optionPanel,
                             NbBundle.getMessage(ExportFileChooserUIImpl.class, "ExportFileChooserUIImpl.optionsDialog.title", selectedBuilder.getName()));
                     if (optionPanel instanceof ValidationPanel) {
                         ValidationPanel vp = (ValidationPanel) optionPanel;
                         vp.addChangeListener(new ChangeListener() {
-
                             @Override
                             public void stateChanged(ChangeEvent e) {
                                 dd.setValid(!((ValidationPanel) e.getSource()).isFatalProblem());
@@ -100,17 +99,18 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
             }
         });
 
-        //Graph Settings Panel
+        // Export global settings
         final JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(optionsPanel, BorderLayout.NORTH);
-        this.exportSettings = exportSettings;
-        if (exportSettings != null) {
-            southPanel.add(exportSettings, BorderLayout.CENTER);
+        this.globalSettings = globalSettings;
+        if (globalSettings != null) {
+            southPanel.add(globalSettings, BorderLayout.CENTER);
         }
+        // Each exporter settings
+        final JPanel rightPanel = new JPanel(new BorderLayout());
 
-        //Optionable file fileChooser
+        // Optionable file fileChooser
         fileChooser = new JFileChooser(lastPath) {
-
             @Override
             protected JDialog createDialog(Component parent) throws HeadlessException {
                 dialog = super.createDialog(parent);
@@ -119,15 +119,27 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                 Component c = dialog.getContentPane().getComponent(0);
                 if (c != null && c instanceof JComponent) {
                     Insets insets = ((JComponent) c).getInsets();
-                    southPanel.setBorder(BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right));
+                    southPanel.setBorder(BorderFactory.createEmptyBorder(0, insets.left, insets.bottom, insets.right));
+                    rightPanel.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(insets.top, 2, insets.bottom, insets.right), BorderFactory.createTitledBorder("Export Settings")));
+                } else {
+                    southPanel.setBorder(BorderFactory.createEmptyBorder(0, 2, 10, 2));
+                    rightPanel.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createEmptyBorder(10, 2, 10, 2), BorderFactory.createTitledBorder("Export Settings")));
                 }
                 dialog.getContentPane().add(southPanel, BorderLayout.SOUTH);
+                if (selectedSettingUI != null) {
+                    dialog.getContentPane().add(rightPanel, BorderLayout.EAST);
+                }
                 return dialog;
             }
 
             @Override
             public void approveSelection() {
                 if (canExport()) {
+                    if (selectedSettingUI != null) {
+                        selectedSettingUI.apply();
+                    }
                     super.approveSelection();
                 }
             }
@@ -135,19 +147,35 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
 
         fileChooser.setDialogTitle(NbBundle.getMessage(ExportFileChooserUIImpl.class, "ExportFileChooserUIImpl.filechooser.title"));
         fileChooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
-
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 DialogFileFilter fileFilter = (DialogFileFilter) evt.getNewValue();
                 selectedFilter = fileFilter;
 
-                //Options optionPanel enabling
+                // Options and settings panel enabling
                 selectedBuilder = getFileExporterBuilder(builderClass, fileFilter);
+                if (selectedSettingUI != null) {
+                    selectedSettingUI.apply();
+                    dialog.remove(rightPanel);
+                    rightPanel.remove(selectedSettingUI.getPanel());
+                    dialog.revalidate();
+                    dialog.repaint();
+                    selectedSettingUI = null;
+                }
                 if (selectedBuilder != null) {
                     selectedExporter = controllerUI.getExportController().getExporter(selectedBuilder);
-                }
-                if (selectedBuilder != null && controllerUI.getExportController().getOptionUI(selectedExporter) != null) {
-                    optionsButton.setEnabled(true);
+                    if (controllerUI.getExportController().getOptionUI(selectedExporter) != null) {
+                        optionsButton.setEnabled(true);
+                    }
+                    if ((selectedSettingUI = controllerUI.getExportController().getSettingUI(selectedExporter)) != null) {
+                        selectedSettingUI.load(selectedExporter);
+                        rightPanel.add(selectedSettingUI.getPanel(), BorderLayout.CENTER);
+                        if (dialog != null) {
+                            dialog.getContentPane().add(rightPanel, BorderLayout.EAST);
+                            dialog.revalidate();
+                            dialog.repaint();
+                        }
+                    }
                 } else {
                     optionsButton.setEnabled(false);
                 }
@@ -166,7 +194,6 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
             }
         });
         fileChooser.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new PropertyChangeListener() {
-
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getNewValue() != null) {
@@ -255,7 +282,7 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
 
     @Override
     public boolean isExportSelectedOnly() {
-        return exportSettings != null ? exportSettings.isExportSelectedOnly() : false;
+        return globalSettings != null ? globalSettings.isExportSelectedOnly() : false;
     }
 
     @Override

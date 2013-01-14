@@ -36,6 +36,11 @@ public abstract class AbstractGraphExporter implements GraphExporter {
     }
 
     @Override
+    public boolean isExportSelectedOnly() {
+        return selectedOnly;
+    }
+
+    @Override
     public void setOutputStream(OutputStream out) {
         this.out = out;
     }

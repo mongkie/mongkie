@@ -24,4 +24,6 @@ package org.mongkie.exporter.spi;
 public interface GraphExporter extends FileExporter {
 
     public void setExportSelectedOnly(boolean selectedOnly);
+    
+    public boolean isExportSelectedOnly();
 }

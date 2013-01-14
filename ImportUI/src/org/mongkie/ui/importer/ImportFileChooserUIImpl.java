@@ -116,7 +116,9 @@ class ImportFileChooserUIImpl<I extends FileImporter> implements ImportFileChoos
                 Component c = dialog.getContentPane().getComponent(0);
                 if (c != null && c instanceof JComponent) {
                     Insets insets = ((JComponent) c).getInsets();
-                    southPanel.setBorder(BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right));
+                    southPanel.setBorder(BorderFactory.createEmptyBorder(0, insets.left, insets.bottom, insets.right));
+                } else {
+                    southPanel.setBorder(BorderFactory.createEmptyBorder(0, 2, 10, 2));
                 }
                 dialog.getContentPane().add(southPanel, BorderLayout.SOUTH);
                 return dialog;
