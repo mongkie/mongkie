@@ -24,7 +24,7 @@ import org.mongkie.util.io.FileType;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class AbstractCSVExporterBuilder<E extends GraphExporter>
+public abstract class TableExporterBuilder<E extends GraphExporter>
         implements FileExporterBuilder<E> {
 
     @Override
@@ -37,9 +37,9 @@ public abstract class AbstractCSVExporterBuilder<E extends GraphExporter>
         return "CSV";
     }
 
-    public abstract static class Node<E extends GraphExporter> extends AbstractCSVExporterBuilder<E> {
+    public abstract static class Node<E extends GraphExporter> extends TableExporterBuilder<E> {
     }
 
-    public abstract static class Edge<E extends GraphExporter> extends AbstractCSVExporterBuilder<E> {
+    public abstract static class Edge<E extends GraphExporter> extends TableExporterBuilder<E> {
     }
 }

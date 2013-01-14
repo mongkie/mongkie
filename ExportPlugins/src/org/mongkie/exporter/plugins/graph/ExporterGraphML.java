@@ -42,4 +42,9 @@ public class ExporterGraphML extends AbstractGraphExporter {
     public boolean cancel() {
         return false;
     }
+
+    @Override
+    public boolean supportsSelectionOnly() {
+        return false;
+    }
 }

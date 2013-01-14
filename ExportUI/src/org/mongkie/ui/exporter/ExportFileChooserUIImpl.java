@@ -29,7 +29,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.mongkie.exporter.ExportControllerUI;
 import org.mongkie.exporter.ExportFileChooserUI;
-import org.mongkie.exporter.spi.Exporter;
+import static org.mongkie.exporter.spi.Exporter.*;
 import org.mongkie.exporter.spi.FileExporter;
 import org.mongkie.exporter.spi.FileExporterBuilder;
 import org.mongkie.lib.widgets.TopDialog;
@@ -62,20 +62,20 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
     private JDialog dialog;
     private FileExporterBuilder<E> selectedBuilder;
     private E selectedExporter;
-    private GraphExportGlobalSettingUI globalSettings;
-    private Exporter.SettingUI selectedSettingUI;
+    private GlobalSettingUI<E> globalSettings;
+    private SettingUI<E> selectedSettingUI;
 
-    ExportFileChooserUIImpl(final Class<? extends FileExporterBuilder<E>> builderClass, String lastPath, GraphExportGlobalSettingUI globalSettings) {
+    ExportFileChooserUIImpl(final Class<? extends FileExporterBuilder<E>> builderClass, String lastPath, final GlobalSettingUI<E> globalSettings) {
         final ExportControllerUI controllerUI = Lookup.getDefault().lookup(ExportControllerUI.class);
 
-        //Options optionPanel
+        // Option UI shown when options bution clicked
         JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         final JButton optionsButton = new JButton(NbBundle.getMessage(ExportFileChooserUIImpl.class, "ExportFileChooserUIImpl.optionsButton.text"));
         optionsPanel.add(optionsButton);
         optionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Exporter.OptionUI optionUI = controllerUI.getExportController().getOptionUI(selectedExporter);
+                OptionUI optionUI = controllerUI.getExportController().getOptionUI(selectedExporter);
                 if (optionUI != null) {
                     JPanel optionPanel = optionUI.getPanel();
                     optionUI.load(selectedExporter);
@@ -93,7 +93,6 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                     TopDialog topDialog = new TopDialog(dialog, dd.getTitle(), dd.isModal(), dd, dd.getClosingOptions(), dd.getButtonListener());
                     topDialog.setVisible(true);
                     Object result = (dd.getValue() != null) ? dd.getValue() : NotifyDescriptor.CLOSED_OPTION;
-//                    Object result = DialogDisplayer.getDefault().notify(dd);
                     optionUI.apply(result == NotifyDescriptor.OK_OPTION);
                 }
             }
@@ -104,12 +103,11 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
         southPanel.add(optionsPanel, BorderLayout.NORTH);
         this.globalSettings = globalSettings;
         if (globalSettings != null) {
-            southPanel.add(globalSettings, BorderLayout.CENTER);
+            southPanel.add(globalSettings.getPanel(), BorderLayout.CENTER);
         }
-        // Each exporter settings
+        // Selected exporter settings
         final JPanel rightPanel = new JPanel(new BorderLayout());
 
-        // Optionable file fileChooser
         fileChooser = new JFileChooser(lastPath) {
             @Override
             protected JDialog createDialog(Component parent) throws HeadlessException {
@@ -140,6 +138,9 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                     if (selectedSettingUI != null) {
                         selectedSettingUI.apply();
                     }
+                    if (globalSettings != null && selectedExporter != null) {
+                        globalSettings.apply();
+                    }
                     super.approveSelection();
                 }
             }
@@ -152,7 +153,7 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                 DialogFileFilter fileFilter = (DialogFileFilter) evt.getNewValue();
                 selectedFilter = fileFilter;
 
-                // Options and settings panel enabling
+                // Refresh options and settings UI
                 selectedBuilder = getFileExporterBuilder(builderClass, fileFilter);
                 if (selectedSettingUI != null) {
                     selectedSettingUI.apply();
@@ -161,6 +162,9 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                     dialog.revalidate();
                     dialog.repaint();
                     selectedSettingUI = null;
+                }
+                if (globalSettings != null && selectedExporter != null) {
+                    globalSettings.apply();
                 }
                 if (selectedBuilder != null) {
                     selectedExporter = controllerUI.getExportController().getExporter(selectedBuilder);
@@ -176,11 +180,14 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                             dialog.repaint();
                         }
                     }
+                    if (globalSettings != null) {
+                        globalSettings.load(selectedExporter);
+                    }
                 } else {
                     optionsButton.setEnabled(false);
                 }
 
-                //Selected file extension change
+                // Selected file extension change
                 if (selectedFile != null && fileFilter != null) {
                     String fileName = selectedFile.getName();
                     String directoryPath = fileChooser.getCurrentDirectory().getAbsolutePath();
@@ -202,7 +209,7 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
             }
         });
 
-        //File filters
+        // File filters
         DialogFileFilter defaultFilter = null;
         for (FileExporterBuilder builder : Lookup.getDefault().lookupAll(builderClass)) {
             for (FileType fileType : builder.getFileTypes()) {
@@ -262,7 +269,6 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
     }
 
     private FileExporterBuilder<E> getFileExporterBuilder(Class<? extends FileExporterBuilder<E>> builderClass, DialogFileFilter fileFilter) {
-        //Find fileFilter
         for (FileExporterBuilder<E> builder : Lookup.getDefault().lookupAll(builderClass)) {
             for (FileType fileType : builder.getFileTypes()) {
                 DialogFileFilter tempFilter = new DialogFileFilter(fileType.getName());
@@ -281,8 +287,8 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
     }
 
     @Override
-    public boolean isExportSelectedOnly() {
-        return globalSettings != null ? globalSettings.isExportSelectedOnly() : false;
+    public GlobalSettingUI<E> getGlobalSettings() {
+        return globalSettings;
     }
 
     @Override

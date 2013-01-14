@@ -17,6 +17,7 @@
  */
 package org.mongkie.exporter;
 
+import org.mongkie.exporter.spi.Exporter.GlobalSettingUI;
 import org.mongkie.exporter.spi.FileExporter;
 import org.mongkie.exporter.spi.FileExporterBuilder;
 import org.mongkie.exporter.spi.GraphExporter;
@@ -29,7 +30,9 @@ public interface ExportFileChooserUIFactory {
 
     public <E extends FileExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUI(Class<B> builderClass, String lastPath);
 
-    public ExportFileChooserUI<GraphExporter> createUIForGraphExporter(String lastPath, boolean exportSelectedOnly);
-    
-    public ExportFileChooserUI<GraphExporter> createUIForGraphExporter(Class builderClass, String lastPath, boolean exportSelectedOnly);
+    public <E extends FileExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUI(Class<B> builderClass, String lastPath, GlobalSettingUI<E> globalSettings);
+
+    public ExportFileChooserUI<GraphExporter> createUIForGraphExporter(String lastPath);
+
+    public <E extends GraphExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUIForGraphExporter(Class<B> builderClass, String lastPath);
 }

@@ -18,15 +18,15 @@
 package org.mongkie.exporter.plugins.graph;
 
 import org.mongkie.exporter.plugins.graph.ExporterCSV.Table;
-import org.mongkie.exporter.spi.AbstractCSVExporterBuilder;
+import org.mongkie.exporter.spi.TableExporterBuilder;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = AbstractCSVExporterBuilder.Node.class)
-public class ExporterBuilderCSVNodeTable extends AbstractCSVExporterBuilder.Node<ExporterCSV> {
+@ServiceProvider(service = TableExporterBuilder.Node.class)
+public class ExporterBuilderCSVNodeTable extends TableExporterBuilder.Node<ExporterCSV> {
 
     @Override
     public ExporterCSV buildExporter() {

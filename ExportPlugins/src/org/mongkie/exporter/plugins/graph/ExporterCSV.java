@@ -88,6 +88,11 @@ public class ExporterCSV extends AbstractGraphExporter {
         return false;
     }
 
+    @Override
+    public boolean supportsSelectionOnly() {
+        return true;
+    }
+
     public static enum Table {
 
         NODE_TABLE, EDGE_TABLE

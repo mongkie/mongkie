@@ -23,11 +23,11 @@ import org.mongkie.exporter.ExportController;
 import org.mongkie.exporter.ExportControllerUI;
 import org.mongkie.exporter.ExportFileChooserUI;
 import org.mongkie.exporter.ExportFileChooserUIFactory;
-import org.mongkie.exporter.spi.AbstractCSVExporterBuilder;
 import org.mongkie.exporter.spi.FileExporter;
 import org.mongkie.exporter.spi.GraphExporter;
 import org.mongkie.exporter.spi.ImageExporter;
 import org.mongkie.exporter.spi.ImageExporterBuilder;
+import org.mongkie.exporter.spi.TableExporterBuilder;
 import org.mongkie.longtask.LongTaskErrorHandler;
 import org.mongkie.longtask.LongTaskExecutor;
 import org.mongkie.longtask.progress.Progress;
@@ -81,49 +81,37 @@ public class ExportControllerUIImpl implements ExportControllerUI {
     @Override
     public void exportGraph() {
         final String LAST_PATH = "ExportGraph_Last_Path";
-        final String LAST_PATH_DEFAULT = "ExportGraph_Last_Path_Default";
-        final String SELECTED_ONLY = "ExportGraph_Selected_Only";
-        String lastPathDefault = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH_DEFAULT, null);
-        String lastPath = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH, lastPathDefault);
-        boolean selectedOnly = NbPreferences.forModule(ExportControllerUIImpl.class).getBoolean(SELECTED_ONLY, false);
-        ExportFileChooserUI<GraphExporter> chooserUI = Lookup.getDefault().lookup(ExportFileChooserUIFactory.class).createUIForGraphExporter(lastPath, selectedOnly);
+        String lastPath = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH, null);
+        ExportFileChooserUI<GraphExporter> chooserUI = Lookup.getDefault().lookup(ExportFileChooserUIFactory.class).createUIForGraphExporter(lastPath);
         int state = chooserUI.showSaveDialog(null);
         if (state == JFileChooser.APPROVE_OPTION) {
             File file = FileUtil.normalizeFile(chooserUI.getSelectedFile());
             NbPreferences.forModule(ExportControllerUIImpl.class).put(LAST_PATH, file.getAbsolutePath());
             GraphExporter selectedExporter = chooserUI.getSelectedExporter();
-            selectedExporter.setExportSelectedOnly(chooserUI.isExportSelectedOnly());
-            NbPreferences.forModule(ExportControllerUIImpl.class).putBoolean(SELECTED_ONLY, selectedExporter.isExportSelectedOnly());
             exportFile(file, selectedExporter);
         }
     }
 
     @Override
     public void exportNodeTable() {
-        exportCSV(AbstractCSVExporterBuilder.Node.class);
+        exportTable(TableExporterBuilder.Node.class);
     }
 
     @Override
     public void exportEdgeTable() {
-        exportCSV(AbstractCSVExporterBuilder.Edge.class);
+        exportTable(TableExporterBuilder.Edge.class);
     }
 
-    private void exportCSV(Class<? extends AbstractCSVExporterBuilder> builderClass) {
+    private void exportTable(Class<? extends TableExporterBuilder> builderClass) {
         final String LAST_PATH = "ExportCSV_Last_Path";
-        final String LAST_PATH_DEFAULT = "ExportCSV_Last_Path_Default";
-        final String SELECTED_ONLY = "ExportCSV_Selected_Only";
-        String lastPathDefault = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH_DEFAULT, null);
-        String lastPath = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH, lastPathDefault);
-        boolean selectedOnly = NbPreferences.forModule(ExportControllerUIImpl.class).getBoolean(SELECTED_ONLY, false);
+        String lastPath = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH, null);
         ExportFileChooserUI<GraphExporter> chooserUI =
-                Lookup.getDefault().lookup(ExportFileChooserUIFactory.class).createUIForGraphExporter(builderClass, lastPath, selectedOnly);
+                Lookup.getDefault().lookup(ExportFileChooserUIFactory.class).createUIForGraphExporter(builderClass, lastPath);
         int state = chooserUI.showSaveDialog(null);
         if (state == JFileChooser.APPROVE_OPTION) {
             File file = FileUtil.normalizeFile(chooserUI.getSelectedFile());
             NbPreferences.forModule(ExportControllerUIImpl.class).put(LAST_PATH, file.getAbsolutePath());
             GraphExporter selectedExporter = chooserUI.getSelectedExporter();
-            selectedExporter.setExportSelectedOnly(chooserUI.isExportSelectedOnly());
-            NbPreferences.forModule(ExportControllerUIImpl.class).putBoolean(SELECTED_ONLY, selectedExporter.isExportSelectedOnly());
             exportFile(file, selectedExporter);
         }
     }
@@ -131,13 +119,8 @@ public class ExportControllerUIImpl implements ExportControllerUI {
     @Override
     public void exportImage() {
         final String LAST_PATH = "ExportImage_Last_Path";
-        final String LAST_PATH_DEFAULT = "ExportImage_Last_Path_Default";
-
-        String lastPathDefault = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH_DEFAULT, null);
-        String lastPath = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH, lastPathDefault);
-
+        String lastPath = NbPreferences.forModule(ExportControllerUIImpl.class).get(LAST_PATH, null);
         ExportFileChooserUI<ImageExporter> chooserUI = Lookup.getDefault().lookup(ExportFileChooserUIFactory.class).createUI(ImageExporterBuilder.class, lastPath);
-
         int state = chooserUI.showSaveDialog(null);
         if (state == JFileChooser.APPROVE_OPTION) {
             File file = FileUtil.normalizeFile(chooserUI.getSelectedFile());

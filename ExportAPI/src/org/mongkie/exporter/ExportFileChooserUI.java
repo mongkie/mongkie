@@ -20,6 +20,7 @@ package org.mongkie.exporter;
 import java.awt.Component;
 import java.io.File;
 import javax.swing.JFileChooser;
+import org.mongkie.exporter.spi.Exporter;
 import org.mongkie.exporter.spi.FileExporter;
 
 /**
@@ -30,7 +31,7 @@ public interface ExportFileChooserUI<E extends FileExporter> {
 
     public JFileChooser getFileChooser();
 
-    public boolean isExportSelectedOnly();
+    public Exporter.GlobalSettingUI<E> getGlobalSettings();
 
     public int showSaveDialog(Component parent);
 

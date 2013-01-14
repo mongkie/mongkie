@@ -26,18 +26,18 @@ import org.mongkie.visualization.MongkieDisplay;
  */
 public abstract class AbstractGraphExporter implements GraphExporter {
 
-    protected boolean selectedOnly;
+    protected boolean selectionOnly;
     protected OutputStream out;
     protected MongkieDisplay display;
 
     @Override
-    public void setExportSelectedOnly(boolean selectedOnly) {
-        this.selectedOnly = selectedOnly;
+    public void setExportSelectionOnly(boolean selectionOnly) {
+        this.selectionOnly = selectionOnly;
     }
 
     @Override
-    public boolean isExportSelectedOnly() {
-        return selectedOnly;
+    public boolean isExportSelectionOnly() {
+        return selectionOnly;
     }
 
     @Override

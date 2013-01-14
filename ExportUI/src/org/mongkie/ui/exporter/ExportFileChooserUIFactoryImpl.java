@@ -19,6 +19,7 @@ package org.mongkie.ui.exporter;
 
 import org.mongkie.exporter.ExportFileChooserUI;
 import org.mongkie.exporter.ExportFileChooserUIFactory;
+import org.mongkie.exporter.spi.Exporter.GlobalSettingUI;
 import org.mongkie.exporter.spi.FileExporter;
 import org.mongkie.exporter.spi.FileExporterBuilder;
 import org.mongkie.exporter.spi.GraphExporter;
@@ -32,22 +33,23 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = ExportFileChooserUIFactory.class)
 public class ExportFileChooserUIFactoryImpl implements ExportFileChooserUIFactory {
 
-    private final GraphExportGlobalSettingUI globalSettings = new GraphExportGlobalSettingUI();
-
     @Override
     public <E extends FileExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUI(Class<B> builderClass, String lastPath) {
         return new ExportFileChooserUIImpl<E>(builderClass, lastPath, null);
     }
 
     @Override
-    public ExportFileChooserUI<GraphExporter> createUIForGraphExporter(String lastPath, boolean exportSelectedOnly) {
-        globalSettings.setExportSelectedOnly(exportSelectedOnly);
-        return new ExportFileChooserUIImpl(GraphExporterBuilder.class, lastPath, globalSettings);
+    public <E extends FileExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUI(Class<B> builderClass, String lastPath, GlobalSettingUI<E> globalSettings) {
+        return new ExportFileChooserUIImpl<E>(builderClass, lastPath, globalSettings);
     }
 
     @Override
-    public ExportFileChooserUI<GraphExporter> createUIForGraphExporter(Class builderClass, String lastPath, boolean exportSelectedOnly) {
-        globalSettings.setExportSelectedOnly(exportSelectedOnly);
-        return new ExportFileChooserUIImpl(builderClass, lastPath, globalSettings);
+    public ExportFileChooserUI<GraphExporter> createUIForGraphExporter(String lastPath) {
+        return new ExportFileChooserUIImpl(GraphExporterBuilder.class, lastPath, new GraphExportGlobalSettingUI());
+    }
+
+    @Override
+    public <E extends GraphExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUIForGraphExporter(Class<B> builderClass, String lastPath) {
+        return new ExportFileChooserUIImpl(builderClass, lastPath, new GraphExportGlobalSettingUI());
     }
 }

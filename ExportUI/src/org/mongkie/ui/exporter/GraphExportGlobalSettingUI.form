@@ -31,14 +31,14 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="fullRadioButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="exportAllRadioButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="labelFullGraph" min="-2" max="-2" attributes="0"/>
+                      <Component id="labelExportAll" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="selectedOnlyRadioButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="selectionOnlyRadioButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="labelSelectedOnly" min="-2" max="-2" attributes="0"/>
+                      <Component id="labelSelectionOnly" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
@@ -50,13 +50,13 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="fullRadioButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="labelFullGraph" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="exportAllRadioButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="labelExportAll" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="selectedOnlyRadioButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="labelSelectedOnly" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="selectionOnlyRadioButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="labelSelectionOnly" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -64,29 +64,29 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JRadioButton" name="fullRadioButton">
+    <Component class="javax.swing.JRadioButton" name="exportAllRadioButton">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="exportSettingButtonGroup"/>
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/mongkie/ui/exporter/Bundle.properties" key="GraphExportGlobalSettingUI.fullRadioButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/mongkie/ui/exporter/Bundle.properties" key="GraphExportGlobalSettingUI.exportAllRadioButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JRadioButton" name="selectedOnlyRadioButton">
+    <Component class="javax.swing.JRadioButton" name="selectionOnlyRadioButton">
       <Properties>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="exportSettingButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/mongkie/ui/exporter/Bundle.properties" key="GraphExportGlobalSettingUI.selectedOnlyRadioButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/mongkie/ui/exporter/Bundle.properties" key="GraphExportGlobalSettingUI.selectionOnlyRadioButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="labelFullGraph">
+    <Component class="javax.swing.JLabel" name="labelExportAll">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="10" style="0"/>
@@ -95,11 +95,11 @@
           <Color blue="66" green="66" red="66" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/mongkie/ui/exporter/Bundle.properties" key="GraphExportGlobalSettingUI.labelFullGraph.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/mongkie/ui/exporter/Bundle.properties" key="GraphExportGlobalSettingUI.labelExportAll.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="labelSelectedOnly">
+    <Component class="javax.swing.JLabel" name="labelSelectionOnly">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="10" style="0"/>
@@ -108,7 +108,7 @@
           <Color blue="66" green="66" red="66" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/mongkie/ui/exporter/Bundle.properties" key="GraphExportGlobalSettingUI.labelSelectedOnly.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/mongkie/ui/exporter/Bundle.properties" key="GraphExportGlobalSettingUI.labelSelectionOnly.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>

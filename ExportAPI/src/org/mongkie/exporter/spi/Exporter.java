@@ -33,7 +33,7 @@ public interface Exporter {
 
     public void setDisplay(MongkieDisplay display);
 
-    // UI shown when options button clicked
+    // Option UI shown when options button clicked
     public static interface OptionUI<E extends Exporter> {
 
         public void load(E exporter);
@@ -45,7 +45,7 @@ public interface Exporter {
         public boolean isUIForExporter(Exporter exporter);
     }
 
-    // UI located in the right side of file chooser dialog
+    // Setting UI located in the right side of a file chooser dialog
     public static interface SettingUI<E extends Exporter> {
 
         public void load(E exporter);
@@ -55,6 +55,16 @@ public interface Exporter {
         public void apply();
 
         public boolean isUIForExporter(Exporter exporter);
+    }
+
+    // Global setting UI located in the bottom side of a file chooser dialog
+    public static interface GlobalSettingUI<E extends Exporter> {
+
+        public void load(E exporter);
+
+        public JPanel getPanel();
+
+        public void apply();
     }
 
     public static interface MenuUI {

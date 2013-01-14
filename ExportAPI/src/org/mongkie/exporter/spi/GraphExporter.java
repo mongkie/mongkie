@@ -22,8 +22,10 @@ package org.mongkie.exporter.spi;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public interface GraphExporter extends FileExporter {
-
-    public void setExportSelectedOnly(boolean selectedOnly);
     
-    public boolean isExportSelectedOnly();
+    public boolean supportsSelectionOnly();
+
+    public void setExportSelectionOnly(boolean selectionOnly);
+    
+    public boolean isExportSelectionOnly();
 }
