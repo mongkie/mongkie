@@ -30,6 +30,6 @@ public class ExporterBuilderCSVNodeTable extends TableExporterBuilder.Node<Expor
 
     @Override
     public ExporterCSV buildExporter() {
-        return new ExporterCSV(Table.NODE_TABLE);
+        return new ExporterCSV(Table.NODE);
     }
 }

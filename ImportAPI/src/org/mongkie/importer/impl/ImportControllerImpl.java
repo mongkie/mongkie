@@ -262,7 +262,7 @@ public class ImportControllerImpl implements ImportController {
         if (nodeTable == null) {
             report.logIssue(new Issue(NbBundle.getMessage(ImportControllerImpl.class, "ImportControllerImpl.issue.nodeTableCreated"),
                     Issue.Level.WARNING));
-            nodeLabel = Graph.DEFAULT_LABEL_COLUMN;
+            nodeLabel = Graph.DEFAULT_NODE_LABEL;
             nodeTable = new Table();
             nodeTable.addColumn(nodeLabel, String.class, null);
             Map<String, Integer> id2Row = new HashMap<String, Integer>();

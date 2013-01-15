@@ -58,6 +58,7 @@ public class ExporterSettingUICSV extends javax.swing.JPanel implements Exporter
         selectTableLabel = new javax.swing.JLabel();
         nodeRadioButton = new javax.swing.JRadioButton();
         edgeRadioButton = new javax.swing.JRadioButton();
+        exportInternalIdsCheckBox = new javax.swing.JCheckBox();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
@@ -76,6 +77,8 @@ public class ExporterSettingUICSV extends javax.swing.JPanel implements Exporter
         edgeRadioButton.setText(org.openide.util.NbBundle.getMessage(ExporterSettingUICSV.class, "ExporterSettingUICSV.edgeRadioButton.text")); // NOI18N
         edgeRadioButton.setFocusPainted(false);
 
+        exportInternalIdsCheckBox.setText(org.openide.util.NbBundle.getMessage(ExporterSettingUICSV.class, "ExporterSettingUICSV.exportInternalIdsCheckBox.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -92,7 +95,10 @@ public class ExporterSettingUICSV extends javax.swing.JPanel implements Exporter
                         .addComponent(edgeRadioButton))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(printHeaderCheckBox)))
+                        .addComponent(printHeaderCheckBox))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(exportInternalIdsCheckBox)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -106,11 +112,14 @@ public class ExporterSettingUICSV extends javax.swing.JPanel implements Exporter
                     .addComponent(edgeRadioButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(printHeaderCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(exportInternalIdsCheckBox)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton edgeRadioButton;
+    private javax.swing.JCheckBox exportInternalIdsCheckBox;
     private javax.swing.JRadioButton nodeRadioButton;
     private javax.swing.JCheckBox printHeaderCheckBox;
     private javax.swing.JLabel selectTableLabel;
@@ -122,12 +131,12 @@ public class ExporterSettingUICSV extends javax.swing.JPanel implements Exporter
         this.exporter = exporter;
         ExporterCSV.Table tableToExport = exporter.getTableToExport();
         switch (tableToExport) {
-            case EDGE_TABLE:
+            case EDGE:
                 tableButtonGroup.setSelected(edgeRadioButton.getModel(), true);
                 edgeRadioButton.setEnabled(true);
                 nodeRadioButton.setEnabled(exporter.isTableSelectable());
                 break;
-            case NODE_TABLE:
+            case NODE:
                 tableButtonGroup.setSelected(nodeRadioButton.getModel(), true);
                 nodeRadioButton.setEnabled(true);
                 edgeRadioButton.setEnabled(exporter.isTableSelectable());
@@ -136,6 +145,7 @@ public class ExporterSettingUICSV extends javax.swing.JPanel implements Exporter
                 break;
         }
         printHeaderCheckBox.setSelected(exporter.isPrintHeader());
+        exportInternalIdsCheckBox.setSelected(exporter.isExportInternalIdColumns());
     }
 
     @Override
@@ -145,8 +155,9 @@ public class ExporterSettingUICSV extends javax.swing.JPanel implements Exporter
 
     @Override
     public void apply() {
-        exporter.setTableToExport(edgeRadioButton.isSelected() ? ExporterCSV.Table.EDGE_TABLE : ExporterCSV.Table.NODE_TABLE);
+        exporter.setTableToExport(edgeRadioButton.isSelected() ? ExporterCSV.Table.EDGE : ExporterCSV.Table.NODE);
         exporter.setPrintHeader(printHeaderCheckBox.isSelected());
+        exporter.setExportInternalIdColumns(exportInternalIdsCheckBox.isSelected());
     }
 
     @Override

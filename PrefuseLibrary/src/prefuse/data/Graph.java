@@ -78,7 +78,11 @@ public class Graph extends CompositeTupleSet {
     /**
      * Default data field used to label a node
      */
-    public static final String DEFAULT_LABEL_COLUMN = PrefuseConfig.get("data.graph.labelColumn");
+    public static final String INTERNAL_NODE_ID = PrefuseConfig.get("data.graph.nodeId");
+    /**
+     * Default data field used to label a node
+     */
+    public static final String DEFAULT_NODE_LABEL = PrefuseConfig.get("data.graph.nodeLabel");
     /**
      * Default data field used to uniquely identify a node
      */

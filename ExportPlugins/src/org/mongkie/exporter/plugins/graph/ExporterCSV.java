@@ -17,9 +17,15 @@
  */
 package org.mongkie.exporter.plugins.graph;
 
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mongkie.exporter.spi.AbstractGraphExporter;
+import org.mongkie.visualization.MongkieDisplay;
+import prefuse.data.Edge;
+import prefuse.data.Graph;
+import prefuse.data.Schema;
+import prefuse.data.Tuple;
 import prefuse.data.io.CSVTableWriter;
 import prefuse.data.io.DataIOException;
 
@@ -30,13 +36,14 @@ import prefuse.data.io.DataIOException;
 public class ExporterCSV extends AbstractGraphExporter {
 
     private final CSVTableWriter writer = new CSVTableWriter(true);
-    private Table tableToExport = Table.NODE_TABLE;
+    private Table tableToExport = Table.NODE;
     private boolean tableSelectable = true;
+    private boolean exportInternalIdColumns = false;
 
-    public ExporterCSV() {
+    ExporterCSV() {
     }
 
-    public ExporterCSV(Table tableToExport) {
+    ExporterCSV(Table tableToExport) {
         this.tableToExport = tableToExport;
         this.tableSelectable = false;
     }
@@ -45,19 +52,27 @@ public class ExporterCSV extends AbstractGraphExporter {
         return tableSelectable;
     }
 
-    public boolean isPrintHeader() {
+    boolean isPrintHeader() {
         return writer.isPrintHeader();
     }
 
-    public void setPrintHeader(boolean printHeader) {
+    void setPrintHeader(boolean printHeader) {
         writer.setPrintHeader(printHeader);
     }
 
-    public Table getTableToExport() {
+    boolean isExportInternalIdColumns() {
+        return exportInternalIdColumns;
+    }
+
+    void setExportInternalIdColumns(boolean exportInternalIdColumns) {
+        this.exportInternalIdColumns = exportInternalIdColumns;
+    }
+
+    Table getTableToExport() {
         return tableToExport;
     }
 
-    public void setTableToExport(Table tableToExport) {
+    void setTableToExport(Table tableToExport) {
         if (tableSelectable) {
             this.tableToExport = tableToExport;
         }
@@ -66,12 +81,68 @@ public class ExporterCSV extends AbstractGraphExporter {
     @Override
     public boolean execute() {
         try {
+            Schema outline;
+            Graph g = display.getGraph();
             switch (tableToExport) {
-                case NODE_TABLE:
-                    writer.writeTable(display.getGraph().getNodeTable(), out);
+                case NODE:
+                    outline = display.getNodeDataViewSupport().getOutlineSchema();
+                    if (exportInternalIdColumns) {
+                        prefuse.data.Table table = new prefuse.data.Table();
+                        table.addColumn(Graph.INTERNAL_NODE_ID, int.class);
+                        addOutlineColumns(table, outline);
+                        for (Iterator<Tuple> nodes = g.getNodes().tuples(); nodes.hasNext();) {
+                            Tuple node = nodes.next();
+                            int r = table.addRow();
+                            table.setInt(r, Graph.INTERNAL_NODE_ID, node.getRow());
+                            for (int i = 0; i < outline.getColumnCount(); i++) {
+                                String field = outline.getColumnName(i);
+                                table.set(r, outline.getColumnName(i), node.get(field));
+                            }
+                        }
+                        writer.writeTable(table, out);
+                    } else {
+                        prefuse.data.Table table = outline.instantiate();
+                        for (Iterator<Tuple> nodes = display.getGraph().getNodeTable().tuples(); nodes.hasNext();) {
+                            Tuple node = nodes.next();
+                            int r = table.addRow();
+                            for (int i = 0; i < outline.getColumnCount(); i++) {
+                                String field = outline.getColumnName(i);
+                                table.set(r, outline.getColumnName(i), node.get(field));
+                            }
+                        }
+                        writer.writeTable(table, out);
+                    }
                     break;
-                case EDGE_TABLE:
-                    writer.writeTable(display.getGraph().getEdgeTable(), out);
+                case EDGE:
+                    outline = display.getEdgeDataViewSupport().getOutlineSchema();
+                    if (exportInternalIdColumns) {
+                        prefuse.data.Table table = new prefuse.data.Table();
+                        table.addColumn(Graph.DEFAULT_SOURCE_KEY, int.class);
+                        table.addColumn(Graph.DEFAULT_TARGET_KEY, int.class);
+                        addOutlineColumns(table, outline);
+                        for (Iterator<Edge> edges = g.edges(); edges.hasNext();) {
+                            Edge edge = edges.next();
+                            int r = table.addRow();
+                            table.setInt(r, Graph.DEFAULT_SOURCE_KEY, edge.getSourceNode().getRow());
+                            table.setInt(r, Graph.DEFAULT_TARGET_KEY, edge.getTargetNode().getRow());
+                            for (int i = 0; i < outline.getColumnCount(); i++) {
+                                String field = outline.getColumnName(i);
+                                table.set(r, outline.getColumnName(i), edge.get(field));
+                            }
+                        }
+                        writer.writeTable(table, out);
+                    } else {
+                        prefuse.data.Table table = outline.instantiate();
+                        for (Iterator<Tuple> edges = g.getEdges().tuples(); edges.hasNext();) {
+                            Tuple edge = edges.next();
+                            int r = table.addRow();
+                            for (int i = 0; i < outline.getColumnCount(); i++) {
+                                String field = outline.getColumnName(i);
+                                table.set(r, outline.getColumnName(i), edge.get(field));
+                            }
+                        }
+                        writer.writeTable(table, out);
+                    }
                     break;
                 default:
                     return false;
@@ -81,6 +152,16 @@ public class ExporterCSV extends AbstractGraphExporter {
             throw new RuntimeException("An error happened when writing to the CSV file", ex);
         }
         return true;
+    }
+
+    private void addOutlineColumns(prefuse.data.Table table, Schema outline) {
+        for (int i = 0; i < outline.getColumnCount(); i++) {
+            table.addColumn(outline.getColumnName(i), outline.getColumnType(i), outline.getDefault(i));
+        }
+    }
+
+    MongkieDisplay getDisplay() {
+        return display;
     }
 
     @Override
@@ -93,8 +174,8 @@ public class ExporterCSV extends AbstractGraphExporter {
         return true;
     }
 
-    public static enum Table {
+    static enum Table {
 
-        NODE_TABLE, EDGE_TABLE
+        NODE, EDGE
     }
 }

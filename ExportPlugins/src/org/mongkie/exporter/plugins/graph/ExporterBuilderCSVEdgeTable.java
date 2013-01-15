@@ -30,6 +30,6 @@ public class ExporterBuilderCSVEdgeTable extends TableExporterBuilder.Edge<Expor
 
     @Override
     public ExporterCSV buildExporter() {
-        return new ExporterCSV(Table.EDGE_TABLE);
+        return new ExporterCSV(Table.EDGE);
     }
 }

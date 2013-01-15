@@ -202,7 +202,8 @@ public class PrefuseConfig extends Properties {
         // on tables with more rows than this threshold value
         setProperty("data.filter.optimizeThreshold", "300");
 
-        setProperty("data.graph.labelColumn", "node");
+        setProperty("data.graph.nodeId", "*id*");
+        setProperty("data.graph.nodeLabel", "node");
         // setProperty("data.graph.nodeKey", null); // intentionally null
         setProperty("data.graph.sourceKey", "source");
         setProperty("data.graph.targetKey", "target");

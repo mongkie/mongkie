@@ -1117,12 +1117,39 @@ public abstract class NetworkDisplay extends Display {
     }
 
     protected DataViewSupport createNodeDataViewSupport(final Table table) {
-        return new DataViewSupport(table) {
-            @Override
-            public Schema getOutlineSchema() {
-                return table.getSchema();
+        return new NodeDataViewSupport(table);
+    }
+
+    private static final class NodeDataViewSupport extends DataViewSupport {
+
+        private Schema s = null;
+
+        private NodeDataViewSupport(Table table) {
+            super(table);
+            table.addTableListener(new TableListener() {
+                @Override
+                public void tableChanged(Table t, int start, int end, int col, int type) {
+                    if ((type == EventConstants.INSERT || type == EventConstants.DELETE) && col != EventConstants.ALL_COLUMNS) {
+                        s = null;
+                    }
+                }
+            });
+        }
+
+        @Override
+        public Schema getOutlineSchema() {
+            if (s == null) {
+                Schema ts = getTable().getSchema();
+                s = new Schema(ts.getColumnCount());
+                for (int i = 0; i < ts.getColumnCount(); i++) {
+                    String col = ts.getColumnName(i);
+                    if (!col.equals(Graph.INTERNAL_NODE_ID)) {
+                        s.addColumn(col, ts.getColumnType(i), ts.getDefault(i));
+                    }
+                }
             }
-        };
+            return s;
+        }
     }
 
     protected DataViewSupport createEdgeDataViewSupport(final Table table) {
