@@ -22,12 +22,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.mongkie.exporter.spi.AbstractGraphExporter;
 import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.VisualizationController;
+import org.openide.util.Lookup;
 import prefuse.data.Edge;
 import prefuse.data.Graph;
+import prefuse.data.Node;
 import prefuse.data.Schema;
 import prefuse.data.Tuple;
 import prefuse.data.io.CSVTableWriter;
 import prefuse.data.io.DataIOException;
+import prefuse.visual.EdgeItem;
+import prefuse.visual.NodeItem;
 
 /**
  *
@@ -90,25 +95,17 @@ public class ExporterCSV extends AbstractGraphExporter {
                         prefuse.data.Table table = new prefuse.data.Table();
                         table.addColumn(Graph.INTERNAL_NODE_ID, int.class);
                         addOutlineColumns(table, outline);
-                        for (Iterator<Tuple> nodes = g.getNodes().tuples(); nodes.hasNext();) {
-                            Tuple node = nodes.next();
-                            int r = table.addRow();
-                            table.setInt(r, Graph.INTERNAL_NODE_ID, node.getRow());
-                            for (int i = 0; i < outline.getColumnCount(); i++) {
-                                String field = outline.getColumnName(i);
-                                table.set(r, outline.getColumnName(i), node.get(field));
-                            }
+                        for (Iterator<Node> nodes = getNodes(); nodes.hasNext();) {
+                            Node node = nodes.next();
+                            int row = addRowWithOutlineContents(table, node, outline);
+                            table.setInt(row, Graph.INTERNAL_NODE_ID, node.getRow());
                         }
                         writer.writeTable(table, out);
                     } else {
                         prefuse.data.Table table = outline.instantiate();
-                        for (Iterator<Tuple> nodes = display.getGraph().getNodeTable().tuples(); nodes.hasNext();) {
-                            Tuple node = nodes.next();
-                            int r = table.addRow();
-                            for (int i = 0; i < outline.getColumnCount(); i++) {
-                                String field = outline.getColumnName(i);
-                                table.set(r, outline.getColumnName(i), node.get(field));
-                            }
+                        for (Iterator<Node> nodes = getNodes(); nodes.hasNext();) {
+                            Node node = nodes.next();
+                            addRowWithOutlineContents(table, node, outline);
                         }
                         writer.writeTable(table, out);
                     }
@@ -120,26 +117,18 @@ public class ExporterCSV extends AbstractGraphExporter {
                         table.addColumn(Graph.DEFAULT_SOURCE_KEY, int.class);
                         table.addColumn(Graph.DEFAULT_TARGET_KEY, int.class);
                         addOutlineColumns(table, outline);
-                        for (Iterator<Edge> edges = g.edges(); edges.hasNext();) {
+                        for (Iterator<Edge> edges = getEdges(); edges.hasNext();) {
                             Edge edge = edges.next();
-                            int r = table.addRow();
-                            table.setInt(r, Graph.DEFAULT_SOURCE_KEY, edge.getSourceNode().getRow());
-                            table.setInt(r, Graph.DEFAULT_TARGET_KEY, edge.getTargetNode().getRow());
-                            for (int i = 0; i < outline.getColumnCount(); i++) {
-                                String field = outline.getColumnName(i);
-                                table.set(r, outline.getColumnName(i), edge.get(field));
-                            }
+                            int row = addRowWithOutlineContents(table, edge, outline);
+                            table.setInt(row, Graph.DEFAULT_SOURCE_KEY, edge.getSourceNode().getRow());
+                            table.setInt(row, Graph.DEFAULT_TARGET_KEY, edge.getTargetNode().getRow());
                         }
                         writer.writeTable(table, out);
                     } else {
                         prefuse.data.Table table = outline.instantiate();
-                        for (Iterator<Tuple> edges = g.getEdges().tuples(); edges.hasNext();) {
-                            Tuple edge = edges.next();
-                            int r = table.addRow();
-                            for (int i = 0; i < outline.getColumnCount(); i++) {
-                                String field = outline.getColumnName(i);
-                                table.set(r, outline.getColumnName(i), edge.get(field));
-                            }
+                        for (Iterator<Edge> edges = getEdges(); edges.hasNext();) {
+                            Edge edge = edges.next();
+                            addRowWithOutlineContents(table, edge, outline);
                         }
                         writer.writeTable(table, out);
                     }
@@ -158,6 +147,59 @@ public class ExporterCSV extends AbstractGraphExporter {
         for (int i = 0; i < outline.getColumnCount(); i++) {
             table.addColumn(outline.getColumnName(i), outline.getColumnType(i), outline.getDefault(i));
         }
+    }
+
+    private int addRowWithOutlineContents(prefuse.data.Table table, Tuple source, Schema outline) {
+        int row = table.addRow();
+        for (int i = 0; i < outline.getColumnCount(); i++) {
+            String field = outline.getColumnName(i);
+            table.set(row, outline.getColumnName(i), source.get(field));
+        }
+        return row;
+    }
+
+    private Iterator<Node> getNodes() {
+        return isExportSelectionOnly() ? new Iterator<Node>() {
+            Iterator<NodeItem> items =
+                    Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().getSelectedNodes(display.getVisualization());
+
+            @Override
+            public boolean hasNext() {
+                return items.hasNext();
+            }
+
+            @Override
+            public Node next() {
+                return (Node) items.next().getSourceTuple();
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Not supported.");
+            }
+        } : display.getGraph().nodes();
+    }
+
+    private Iterator<Edge> getEdges() {
+        return isExportSelectionOnly() ? new Iterator<Edge>() {
+            Iterator<EdgeItem> items =
+                    Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().getSelectedEdges(display.getVisualization());
+
+            @Override
+            public boolean hasNext() {
+                return items.hasNext();
+            }
+
+            @Override
+            public Edge next() {
+                return (Edge) items.next().getSourceTuple();
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException("Not supported.");
+            }
+        } : display.getGraph().edges();
     }
 
     MongkieDisplay getDisplay() {

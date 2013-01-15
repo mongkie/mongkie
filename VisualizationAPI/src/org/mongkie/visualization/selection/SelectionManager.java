@@ -33,6 +33,7 @@ import prefuse.data.Tuple;
 import prefuse.data.event.TupleSetListener;
 import prefuse.data.tuple.DefaultTupleSet;
 import prefuse.data.tuple.TupleSet;
+import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
@@ -131,6 +132,14 @@ public class SelectionManager implements WorkspaceListener, TupleSetListener, Di
 
     public Iterator<NodeItem> getSelectedNodes() {
         return getSelectedNodes(display.getVisualization());
+    }
+
+    public Iterator<EdgeItem> getSelectedEdges(Visualization v) {
+        return v.items(FOCUS_ITEMS, new InGroupPredicate(EDGES));
+    }
+
+    public Iterator<EdgeItem> getSelectedEdges() {
+        return getSelectedEdges(display.getVisualization());
     }
 
     @Override
