@@ -148,6 +148,18 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                     super.approveSelection();
                 }
             }
+
+            @Override
+            public void cancelSelection() {
+                // Also apply settings even if file chooser canceled
+                if (selectedSettingUI != null) {
+                    selectedSettingUI.apply();
+                }
+                if (globalSettingUI != null && selectedExporter != null) {
+                    globalSettingUI.apply();
+                }
+                super.cancelSelection();
+            }
         };
 
         fileChooser.setDialogTitle(NbBundle.getMessage(ExportFileChooserUIImpl.class, "ExportFileChooserUIImpl.filechooser.title"));

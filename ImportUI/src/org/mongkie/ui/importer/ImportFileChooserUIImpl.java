@@ -69,25 +69,23 @@ class ImportFileChooserUIImpl<I extends FileImporter> implements ImportFileChoos
 
     ImportFileChooserUIImpl(final Class<? extends FileImporterBuilder<I>> builderClass, String lastPath) {
 
-        //Options panel
-        JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        // Option UI
+        JPanel optionsButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         final JButton optionsButton = new JButton(NbBundle.getMessage(ImportControllerUIImpl.class, "ImportFileChooserUIImpl.fileImporter.fileChooser.optionButton.name"));
-        optionsPanel.add(optionsButton);
+        optionsButtonPanel.add(optionsButton);
         optionsButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 FileImporterBuilder<I> builder = getFileImporterBuilder(builderClass, selectedFilter);
                 Importer.OptionUI optionUI = controller.getOptionUI(builder);
                 if (optionUI != null) {
                     JPanel optionPanel = optionUI.getPanel();
-                    optionUI.setup(controller.getImporter(builder));
+                    optionUI.load(controller.getImporter(builder));
                     final DialogDescriptor optionDescriptor = new DialogDescriptor(optionPanel,
                             NbBundle.getMessage(ImportControllerUIImpl.class, "ImportFileChooserUIImpl.fileImporter.settingUI.title", builder.getName()));
                     if (optionPanel instanceof ValidationPanel) {
                         ValidationPanel vp = (ValidationPanel) optionPanel;
                         vp.addChangeListener(new ChangeListener() {
-
                             @Override
                             public void stateChanged(ChangeEvent e) {
                                 optionDescriptor.setValid(!((ValidationPanel) e.getSource()).isFatalProblem());
@@ -102,13 +100,15 @@ class ImportFileChooserUIImpl<I extends FileImporter> implements ImportFileChoos
             }
         });
 
-        //Graph Settings Panel
-        final JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(optionsPanel, BorderLayout.NORTH);
+        // Options button and import setting panel
+        final JPanel optionAndSettingPanel = new JPanel(new BorderLayout());
+        optionAndSettingPanel.add(optionsButtonPanel, BorderLayout.NORTH);
+        final JPanel importSettingPanel = new JPanel(new BorderLayout());
+        importSettingPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(5, 0, 0, 0), BorderFactory.createEtchedBorder()));
 
-        //Optionable file fileChooser
+        // Import file chooser
         fileChooser = new JFileChooser(lastPath) {
-
             @Override
             protected JDialog createDialog(Component parent) throws HeadlessException {
                 dialog = super.createDialog(parent);
@@ -116,49 +116,59 @@ class ImportFileChooserUIImpl<I extends FileImporter> implements ImportFileChoos
                 Component c = dialog.getContentPane().getComponent(0);
                 if (c != null && c instanceof JComponent) {
                     Insets insets = ((JComponent) c).getInsets();
-                    southPanel.setBorder(BorderFactory.createEmptyBorder(0, insets.left, insets.bottom, insets.right));
+                    optionAndSettingPanel.setBorder(BorderFactory.createEmptyBorder(0, insets.left, insets.bottom, insets.right));
                 } else {
-                    southPanel.setBorder(BorderFactory.createEmptyBorder(0, 2, 10, 2));
+                    optionAndSettingPanel.setBorder(BorderFactory.createEmptyBorder(0, 2, 10, 2));
                 }
-                dialog.getContentPane().add(southPanel, BorderLayout.SOUTH);
+                dialog.getContentPane().add(optionAndSettingPanel, BorderLayout.SOUTH);
                 return dialog;
             }
 
             @Override
             public void approveSelection() {
                 if (selectedSettingUI != null) {
-                    selectedSettingUI.apply(true);
+                    selectedSettingUI.apply();
                 }
                 super.approveSelection();
+            }
+
+            @Override
+            public void cancelSelection() {
+                // Also apply settings even if file chooser canceled
+                if (selectedSettingUI != null) {
+                    selectedSettingUI.apply();
+                }
+                super.cancelSelection();
             }
         };
         fileChooser.setDialogTitle(NbBundle.getMessage(ImportControllerUIImpl.class, "ImportFileChooserUIImpl.fileImporter.fileChooser.title"));
         fileChooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
-
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 DialogFileFilter fileFilter = (DialogFileFilter) evt.getNewValue();
 
+                // Refresh options button and importer setting panel
                 FileImporterBuilder<I> builder = getFileImporterBuilder(builderClass, fileFilter);
-                //Options panel enabling
                 optionsButton.setEnabled(fileFilter != null && controller.getOptionUI(builder) != null);
-                //Settings panel enabling
                 Importer.SettingUI settingUI = controller.getSettingUI(builder);
                 if (selectedSettingUI != null) {
-                    southPanel.remove(selectedSettingUI.getPanel());
+                    selectedSettingUI.apply();
+                    optionAndSettingPanel.remove(importSettingPanel);
+                    importSettingPanel.remove(selectedSettingUI.getPanel());
                 }
                 if (settingUI != null) {
-                    settingUI.setup(controller.getImporter(builder));
-                    southPanel.add(settingUI.getPanel(), BorderLayout.CENTER);
-                    southPanel.revalidate();
-                    southPanel.repaint();
+                    settingUI.load(controller.getImporter(builder));
+                    importSettingPanel.add(settingUI.getPanel(), BorderLayout.CENTER);
+                    optionAndSettingPanel.add(importSettingPanel, BorderLayout.CENTER);
+                    optionAndSettingPanel.revalidate();
+                    optionAndSettingPanel.repaint();
                 } else if (selectedSettingUI != null) {
-                    southPanel.revalidate();
-                    southPanel.repaint();
+                    optionAndSettingPanel.revalidate();
+                    optionAndSettingPanel.repaint();
                 }
                 selectedSettingUI = settingUI;
 
-                //Selected file extension change
+                // Selected file extension change
                 selectedFilter = fileFilter;
                 if (selectedFile != null && selectedFilter != null) {
                     String fileName = selectedFile.getName();
@@ -173,7 +183,6 @@ class ImportFileChooserUIImpl<I extends FileImporter> implements ImportFileChoos
             }
         });
         fileChooser.addPropertyChangeListener(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, new PropertyChangeListener() {
-
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getNewValue() != null) {
@@ -182,7 +191,7 @@ class ImportFileChooserUIImpl<I extends FileImporter> implements ImportFileChoos
             }
         });
 
-        //File filters
+        // File filters
         DialogFileFilter defaultFilter = null;
         for (FileType fileType : controller.getFileTypes(builderClass)) {
             DialogFileFilter fileFilter = new DialogFileFilter(fileType.getName());

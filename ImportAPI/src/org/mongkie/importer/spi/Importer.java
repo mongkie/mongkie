@@ -76,7 +76,7 @@ public interface Importer<C extends Container> {
          *
          * @param importer  the importer that settings is to be set
          */
-        public void setup(I importer);
+        public void load(I importer);
 
         /**
          * Returns the importer settings panel.
@@ -89,10 +89,10 @@ public interface Importer<C extends Container> {
          * Notify UI the settings panel has been closed and that new values can be
          * written.
          *
-         * @param update    <code>true</code> if user clicked OK or <code>false</code>
+         * @param ok    <code>true</code> if user clicked OK or <code>false</code>
          *                  if CANCEL.
          */
-        public void apply(boolean update);
+        public void apply(boolean ok);
 
         /**
          * Returns <code>true</code> if this UI belongs to the given importer.
@@ -115,7 +115,7 @@ public interface Importer<C extends Container> {
          *
          * @param importer  the importer that settings is to be set
          */
-        public void setup(I importer);
+        public void load(I importer);
 
         /**
          * Returns the importer settings panel.
@@ -128,10 +128,10 @@ public interface Importer<C extends Container> {
          * Notify UI the settings panel has been closed and that new values can be
          * written.
          *
-         * @param update    <code>true</code> if user clicked OK or <code>false</code>
+         * @param ok    <code>true</code> if user clicked OK or <code>false</code>
          *                  if CANCEL.
          */
-        public void apply(boolean update);
+        public void apply();
 
         /**
          * Returns <code>true</code> if this UI belongs to the given importer.

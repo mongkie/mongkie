@@ -77,7 +77,7 @@ public class ImporterOptionUIGraphML extends javax.swing.JPanel implements Impor
     // End of variables declaration//GEN-END:variables
 
     @Override
-    public void setup(Importer importer) {
+    public void load(Importer importer) {
         this.importer = importer;
     }
 
@@ -87,8 +87,8 @@ public class ImporterOptionUIGraphML extends javax.swing.JPanel implements Impor
     }
 
     @Override
-    public void apply(boolean update) {
-        System.out.println(update ? "Applied" : "Not Applied");
+    public void apply(boolean ok) {
+        System.out.println(ok ? "Applied" : "Not Applied");
         importer = null;
     }
 
