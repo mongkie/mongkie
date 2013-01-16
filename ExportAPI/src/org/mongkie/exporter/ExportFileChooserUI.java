@@ -31,7 +31,7 @@ public interface ExportFileChooserUI<E extends FileExporter> {
 
     public JFileChooser getFileChooser();
 
-    public Exporter.GlobalSettingUI<E> getGlobalSettings();
+    public Exporter.GlobalSettingUI<E> getGlobalSettingUI();
 
     public int showSaveDialog(Component parent);
 

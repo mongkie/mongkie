@@ -39,8 +39,8 @@ public class ExportFileChooserUIFactoryImpl implements ExportFileChooserUIFactor
     }
 
     @Override
-    public <E extends FileExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUI(Class<B> builderClass, String lastPath, GlobalSettingUI<E> globalSettings) {
-        return new ExportFileChooserUIImpl<E>(builderClass, lastPath, globalSettings);
+    public <E extends FileExporter, B extends FileExporterBuilder<E>> ExportFileChooserUI<E> createUI(Class<B> builderClass, String lastPath, GlobalSettingUI<E> globalSettingUI) {
+        return new ExportFileChooserUIImpl<E>(builderClass, lastPath, globalSettingUI);
     }
 
     @Override

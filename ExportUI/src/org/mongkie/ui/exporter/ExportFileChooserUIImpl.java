@@ -62,16 +62,16 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
     private JDialog dialog;
     private FileExporterBuilder<E> selectedBuilder;
     private E selectedExporter;
-    private GlobalSettingUI<E> globalSettings;
+    private GlobalSettingUI<E> globalSettingUI;
     private SettingUI<E> selectedSettingUI;
 
-    ExportFileChooserUIImpl(final Class<? extends FileExporterBuilder<E>> builderClass, String lastPath, final GlobalSettingUI<E> globalSettings) {
+    ExportFileChooserUIImpl(final Class<? extends FileExporterBuilder<E>> builderClass, String lastPath, final GlobalSettingUI<E> globalSettingUI) {
         final ExportControllerUI controllerUI = Lookup.getDefault().lookup(ExportControllerUI.class);
 
-        // Option UI shown when options bution clicked
-        JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        // Option UI shown when option bution clicked
+        JPanel optionButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         final JButton optionsButton = new JButton(NbBundle.getMessage(ExportFileChooserUIImpl.class, "ExportFileChooserUIImpl.optionsButton.text"));
-        optionsPanel.add(optionsButton);
+        optionButtonPanel.add(optionsButton);
         optionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -98,15 +98,19 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
             }
         });
 
-        // Export global settings
-        final JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(optionsPanel, BorderLayout.NORTH);
-        this.globalSettings = globalSettings;
-        if (globalSettings != null) {
-            southPanel.add(globalSettings.getPanel(), BorderLayout.CENTER);
+        // Option button and global setting panel
+        final JPanel optionAndGlobalSettingPanel = new JPanel(new BorderLayout());
+        optionAndGlobalSettingPanel.add(optionButtonPanel, BorderLayout.NORTH);
+        this.globalSettingUI = globalSettingUI;
+        if (globalSettingUI != null) {
+            JPanel globalSettingPanel = new JPanel(new BorderLayout());
+            globalSettingPanel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createEmptyBorder(5, 0, 0, 0), BorderFactory.createEtchedBorder()));
+            globalSettingPanel.add(globalSettingUI.getPanel(), BorderLayout.CENTER);
+            optionAndGlobalSettingPanel.add(globalSettingPanel, BorderLayout.CENTER);
         }
-        // Selected exporter settings
-        final JPanel rightPanel = new JPanel(new BorderLayout());
+        // Selected exporter setting panel
+        final JPanel exportSettingPanel = new JPanel(new BorderLayout());
 
         fileChooser = new JFileChooser(lastPath) {
             @Override
@@ -117,17 +121,17 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                 Component c = dialog.getContentPane().getComponent(0);
                 if (c != null && c instanceof JComponent) {
                     Insets insets = ((JComponent) c).getInsets();
-                    southPanel.setBorder(BorderFactory.createEmptyBorder(0, insets.left, insets.bottom, insets.right));
-                    rightPanel.setBorder(BorderFactory.createCompoundBorder(
+                    optionAndGlobalSettingPanel.setBorder(BorderFactory.createEmptyBorder(0, insets.left, insets.bottom, insets.right));
+                    exportSettingPanel.setBorder(BorderFactory.createCompoundBorder(
                             BorderFactory.createEmptyBorder(insets.top, 2, insets.bottom, insets.right), BorderFactory.createTitledBorder("Export Settings")));
                 } else {
-                    southPanel.setBorder(BorderFactory.createEmptyBorder(0, 2, 10, 2));
-                    rightPanel.setBorder(BorderFactory.createCompoundBorder(
+                    optionAndGlobalSettingPanel.setBorder(BorderFactory.createEmptyBorder(0, 2, 10, 2));
+                    exportSettingPanel.setBorder(BorderFactory.createCompoundBorder(
                             BorderFactory.createEmptyBorder(10, 2, 10, 2), BorderFactory.createTitledBorder("Export Settings")));
                 }
-                dialog.getContentPane().add(southPanel, BorderLayout.SOUTH);
+                dialog.getContentPane().add(optionAndGlobalSettingPanel, BorderLayout.SOUTH);
                 if (selectedSettingUI != null) {
-                    dialog.getContentPane().add(rightPanel, BorderLayout.EAST);
+                    dialog.getContentPane().add(exportSettingPanel, BorderLayout.EAST);
                 }
                 return dialog;
             }
@@ -138,8 +142,8 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                     if (selectedSettingUI != null) {
                         selectedSettingUI.apply();
                     }
-                    if (globalSettings != null && selectedExporter != null) {
-                        globalSettings.apply();
+                    if (globalSettingUI != null && selectedExporter != null) {
+                        globalSettingUI.apply();
                     }
                     super.approveSelection();
                 }
@@ -153,18 +157,18 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                 DialogFileFilter fileFilter = (DialogFileFilter) evt.getNewValue();
                 selectedFilter = fileFilter;
 
-                // Refresh options and settings UI
+                // Refresh option and settings UI
                 selectedBuilder = getFileExporterBuilder(builderClass, fileFilter);
                 if (selectedSettingUI != null) {
                     selectedSettingUI.apply();
-                    dialog.remove(rightPanel);
-                    rightPanel.remove(selectedSettingUI.getPanel());
+                    dialog.remove(exportSettingPanel);
+                    exportSettingPanel.remove(selectedSettingUI.getPanel());
                     dialog.revalidate();
                     dialog.repaint();
                     selectedSettingUI = null;
                 }
-                if (globalSettings != null && selectedExporter != null) {
-                    globalSettings.apply();
+                if (globalSettingUI != null && selectedExporter != null) {
+                    globalSettingUI.apply();
                 }
                 if (selectedBuilder != null) {
                     selectedExporter = controllerUI.getExportController().getExporter(selectedBuilder);
@@ -173,15 +177,15 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                     }
                     if ((selectedSettingUI = controllerUI.getExportController().getSettingUI(selectedExporter)) != null) {
                         selectedSettingUI.load(selectedExporter);
-                        rightPanel.add(selectedSettingUI.getPanel(), BorderLayout.CENTER);
+                        exportSettingPanel.add(selectedSettingUI.getPanel(), BorderLayout.CENTER);
                         if (dialog != null) {
-                            dialog.getContentPane().add(rightPanel, BorderLayout.EAST);
+                            dialog.getContentPane().add(exportSettingPanel, BorderLayout.EAST);
                             dialog.revalidate();
                             dialog.repaint();
                         }
                     }
-                    if (globalSettings != null) {
-                        globalSettings.load(selectedExporter);
+                    if (globalSettingUI != null) {
+                        globalSettingUI.load(selectedExporter);
                     }
                 } else {
                     optionsButton.setEnabled(false);
@@ -287,8 +291,8 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
     }
 
     @Override
-    public GlobalSettingUI<E> getGlobalSettings() {
-        return globalSettings;
+    public GlobalSettingUI<E> getGlobalSettingUI() {
+        return globalSettingUI;
     }
 
     @Override

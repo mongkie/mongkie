@@ -92,8 +92,6 @@ final class GraphExportGlobalSettingUI extends javax.swing.JPanel implements Exp
         labelExportAll = new javax.swing.JLabel();
         labelSelectionOnly = new javax.swing.JLabel();
 
-        setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
         exportSettingButtonGroup.add(exportAllRadioButton);
         exportAllRadioButton.setSelected(true);
         exportAllRadioButton.setText(org.openide.util.NbBundle.getMessage(GraphExportGlobalSettingUI.class, "GraphExportGlobalSettingUI.exportAllRadioButton.text")); // NOI18N
