@@ -56,21 +56,42 @@ public class FilterToolsPanel extends javax.swing.JPanel {
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setFocusable(false);
         setRequestFocusEnabled(false);
-        setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.LINE_AXIS));
 
         filterLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/datatable/resources/funnel.png"))); // NOI18N
         filterLabel.setText(org.openide.util.NbBundle.getMessage(FilterToolsPanel.class, "FilterToolsPanel.filterLabel.text")); // NOI18N
-        add(filterLabel);
 
-        filterInputTextField.setText(org.openide.util.NbBundle.getMessage(FilterToolsPanel.class, "FilterToolsPanel.filterInputTextField.text")); // NOI18N
+        filterInputTextField.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        filterInputTextField.setText(org.openide.util.NbBundle.getMessage(FilterToolsPanel.class, "FilterToolsPanel.text")); // NOI18N
         filterInputTextField.setEnabled(false);
-        filterInputTextField.setPreferredSize(new java.awt.Dimension(100, 26));
-        add(filterInputTextField);
+        filterInputTextField.setName(""); // NOI18N
+        filterInputTextField.setPreferredSize(new java.awt.Dimension(100, 24));
 
+        filterColumnComboBox.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         filterColumnComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "NONE" }));
         filterColumnComboBox.setEnabled(false);
-        filterColumnComboBox.setPreferredSize(new java.awt.Dimension(100, 26));
-        add(filterColumnComboBox);
+        filterColumnComboBox.setPreferredSize(new java.awt.Dimension(100, 24));
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(filterLabel)
+                .addGap(8, 8, 8)
+                .addComponent(filterInputTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(filterColumnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                .addComponent(filterColumnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(filterInputTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(filterLabel))
+        );
+
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {filterColumnComboBox, filterInputTextField});
+
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox filterColumnComboBox;

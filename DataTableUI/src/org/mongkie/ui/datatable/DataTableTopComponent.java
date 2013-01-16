@@ -245,7 +245,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
                 }
                 JComponent[] tools = table.getTools();
                 if (tools != null && tools.length > 0) {
-                    topToolbar.add(new javax.swing.JToolBar.Separator(), i++);
+                    topToolbar.add(glueAfterTableActions, i++);
                     for (JComponent tool : tools) {
                         topToolbar.add(tool, i++);
                     }
@@ -407,6 +407,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
     private void initComponents() {
 
         tableButtonGroup = new javax.swing.ButtonGroup();
+        glueAfterTableActions = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         topToolbar = new javax.swing.JToolBar();
         separatorAfterTableButtons = new javax.swing.JToolBar.Separator();
         viewScrollPane = new javax.swing.JScrollPane();
@@ -422,6 +423,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
         add(viewScrollPane, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler glueAfterTableActions;
     private javax.swing.JToolBar.Separator separatorAfterTableButtons;
     private javax.swing.ButtonGroup tableButtonGroup;
     private javax.swing.JToolBar topToolbar;
