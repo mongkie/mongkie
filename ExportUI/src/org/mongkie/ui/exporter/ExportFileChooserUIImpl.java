@@ -172,9 +172,7 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                 }
                 if (selectedBuilder != null) {
                     selectedExporter = controllerUI.getExportController().getExporter(selectedBuilder);
-                    if (controllerUI.getExportController().getOptionUI(selectedExporter) != null) {
-                        optionsButton.setEnabled(true);
-                    }
+                    optionsButton.setEnabled(controllerUI.getExportController().getOptionUI(selectedExporter) != null);
                     if ((selectedSettingUI = controllerUI.getExportController().getSettingUI(selectedExporter)) != null) {
                         selectedSettingUI.load(selectedExporter);
                         exportSettingPanel.add(selectedSettingUI.getPanel(), BorderLayout.CENTER);
