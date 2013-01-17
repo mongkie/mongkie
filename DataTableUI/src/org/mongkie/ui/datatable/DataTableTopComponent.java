@@ -161,14 +161,14 @@ public final class DataTableTopComponent extends TopComponent implements Display
                             viewScrollPane.setViewportView(view);
                         }
                         table.selected();
-                        addActionsAndTools(table, true);
+                        addActionsAndTools(table);
                     }
                 }
             });
             topToolbar.add(toggle, i);
             if (table instanceof NodeDataTable) {
                 table.selected();
-                addActionsAndTools(table, false);
+                addActionsAndTools(table);
             }
         }
     }
@@ -186,7 +186,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
         });
     }
 
-    private void addActionsAndTools(final DataTable table, final boolean refresh) {
+    private void addActionsAndTools(final DataTable table) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -254,9 +254,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
                     }
                 }
                 topToolbar.updateUI();
-                if (refresh) {
-                    refreshActionsAndTools(table);
-                }
+                refreshActionsAndTools(table);
             }
         });
     }

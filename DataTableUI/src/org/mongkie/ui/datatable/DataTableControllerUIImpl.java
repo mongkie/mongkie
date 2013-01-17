@@ -117,16 +117,23 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
 
     @Override
     public void refreshModel(final DataTable table, final boolean actionsOnly) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                DataTableTopComponent.findInstance().refreshModel(table, actionsOnly);
-            }
-        });
+        if (SwingUtilities.isEventDispatchThread()) {
+            DataTableTopComponent.findInstance().refreshModel(table, actionsOnly);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    DataTableTopComponent.findInstance().refreshModel(table, actionsOnly);
+                }
+            });
+        }
     }
 
     @Override
     public boolean isRefreshing(DataTable table) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            throw new IllegalStateException("Must be accessed in the AWT event dispatching thread");
+        }
         return DataTableTopComponent.findInstance().isRefreshing(table);
     }
 }

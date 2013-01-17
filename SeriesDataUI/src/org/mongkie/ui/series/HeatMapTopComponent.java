@@ -98,7 +98,7 @@ public final class HeatMapTopComponent extends TopComponent implements SeriesMod
         loadingLabel = new BusyLabel(
                 //                NbBundle.getMessage(HeatMapTopComponent.class, "HeatMapTopComponent.heatmapScroll.loadingMessage"),
                 null,
-                30, 30, heatmapScroll, resultPanel);
+                24, 24, heatmapScroll, resultPanel);
 
         nodeColorizer = new NodeColorProvider() {
 

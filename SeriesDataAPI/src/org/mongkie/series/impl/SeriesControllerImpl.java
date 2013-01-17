@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import kobic.prefuse.data.io.ReaderFactory;
 import kobic.prefuse.display.DisplayListener;
 import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.longtask.LongTask;
@@ -53,7 +54,6 @@ public class SeriesControllerImpl implements SeriesController, DisplayListener {
     public SeriesControllerImpl() {
         listeners = new ArrayList<SeriesModelChangeListener>();
         Lookup.getDefault().lookup(VisualizationController.class).addWorkspaceListener(new WorkspaceListener() {
-
             @Override
             public void displaySelected(MongkieDisplay display) {
                 display.addDisplayListener(SeriesControllerImpl.this);
@@ -143,13 +143,13 @@ public class SeriesControllerImpl implements SeriesController, DisplayListener {
         private final MongkieDisplay display;
         private final SeriesImporter importer;
         private final SeriesModelImpl model;
-        private static final CSVTableReader CSV_READER = new CSVTableReader();
+        private static final CSVTableReader CSVReader = ReaderFactory.createCSVTableReader();
 
         public SeriesLoader(SeriesModelImpl model, SeriesImporter importer) {
             this.importer = importer;
             this.model = model;
             this.display = model.getDisplay();
-            CSV_READER.setHasHeader(importer.hasHeaderRecord());
+            CSVReader.setHasHeader(importer.hasHeaderRecord());
         }
 
         @Override
@@ -168,19 +168,22 @@ public class SeriesControllerImpl implements SeriesController, DisplayListener {
             Progress.start(progressTicket);
             // TODO: series is double? String?
             try {
-                Table seriesTable = CSV_READER.readTable(importer.getInputStream());
+                final Table seriesTable = CSVReader.readTable(importer.getInputStream());
                 if (seriesTable != null) {
-                    Table nodeTable = display.getGraph().getNodeTable();
+                    final Table nodeTable = display.getGraph().getNodeTable();
                     String seriesKey = seriesTable.getColumnName(0);
                     seriesTable.index(seriesKey);
-                    synchronized (display.getVisualization()) {
-                        for (int i = 1; i < seriesTable.getColumnCount(); i++) {
-                            String colName = seriesTable.getColumnName(i);
-                            if (nodeTable.getColumn(colName) == null) {
-                                nodeTable.addColumn(colName, double.class);
+                    display.getVisualization().process(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (int i = 1; i < seriesTable.getColumnCount(); i++) {
+                                String colName = seriesTable.getColumnName(i);
+                                if (nodeTable.getColumn(colName) == null) {
+                                    nodeTable.addColumn(colName, double.class);
+                                }
                             }
                         }
-                    }
+                    });
                     double[][] matrix = new double[seriesTable.getColumnCount() - 1][nodeTable.getTupleCount()];
                     int j = 0;
                     Iterator<Tuple> nodesIter = nodeTable.tuples();
