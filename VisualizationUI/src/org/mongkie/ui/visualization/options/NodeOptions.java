@@ -48,7 +48,7 @@ public class NodeOptions implements Options {
         return "Nodes";
     }
 
-    private void updateLableColumnTool(JPopupButton b, Graph g) {
+    private void updateLabelColumnTool(JPopupButton b, Graph g) {
         b.clearItems(false);
         if (g.getNodeTable().getColumnCount() > 0) {
             for (String col : DataLib.getColumnNames(g.getNodeTable())) {
@@ -56,11 +56,8 @@ public class NodeOptions implements Options {
             }
             Table table = g.getNodeTable();
             String label = g.getNodeLabelField();
-            if (table.getColumn(label) != null) {
-                b.setSelectedItem(table.getColumnType(label) != String.class ? DataLib.getTypedColumnName(table, String.class, label) : label);
-            } else {
-                b.setSelectedItem(DataLib.getTypedColumnName(table, String.class, table.getColumnName(0)));
-            }
+            b.setSelectedItem(table.getColumn(label) == null
+                    ? DataLib.getTypedColumnName(table, String.class, table.getColumnName(0)) : label);
             b.setEnabled(true);
         } else {
             b.setSelectedItem(null);
@@ -71,10 +68,11 @@ public class NodeOptions implements Options {
     @Override
     public List<JComponent> createTools(final MongkieDisplay display) {
         List<JComponent> tools = new ArrayList<JComponent>();
-        final JPopupButton lableColumnButton = new JPopupButton();
-        lableColumnButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/fontdown.png", false));
-        lableColumnButton.setToolTipText("Choose a column to be used for labeling the nodes");
-        lableColumnButton.setChangeListener(new ChangeListener() {
+        final JPopupButton labelColumnButton = new JPopupButton();
+        labelColumnButton.putClientProperty(MongkieDisplay.class, display);
+        labelColumnButton.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/fontdown.png", false));
+        labelColumnButton.setToolTipText("Choose a column to be used for labeling the nodes");
+        labelColumnButton.setChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 final String col = e != null ? (String) e.getSource() : null;
@@ -96,8 +94,8 @@ public class NodeOptions implements Options {
 
             @Override
             public void graphDisposing(NetworkDisplay d, Graph g) {
-                lableColumnButton.clearItems();
-                lableColumnButton.setEnabled(false);
+                labelColumnButton.clearItems();
+                labelColumnButton.setEnabled(false);
             }
 
             @Override
@@ -114,7 +112,7 @@ public class NodeOptions implements Options {
                                     case EventConstants.DELETE:
                                     case EventConstants.INSERT:
                                         // case EventConstants.UPDATE:
-                                        updateLableColumnTool(lableColumnButton, g);
+                                        updateLabelColumnTool(labelColumnButton, g);
                                         break;
                                     default:
                                         break;
@@ -122,13 +120,13 @@ public class NodeOptions implements Options {
                             }
                         }
                     });
-                    updateLableColumnTool(lableColumnButton, g);
+                    updateLabelColumnTool(labelColumnButton, g);
                     this.g = g;
                 }
             }
         });
-        updateLableColumnTool(lableColumnButton, display.getGraph());
-        tools.add(lableColumnButton);
+        updateLabelColumnTool(labelColumnButton, display.getGraph());
+        tools.add(labelColumnButton);
         return tools;
     }
 
