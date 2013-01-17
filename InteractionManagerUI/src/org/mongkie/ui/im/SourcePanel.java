@@ -31,6 +31,7 @@ import java.net.URI;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import kobic.prefuse.display.NetworkDisplay;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXHyperlink;
@@ -347,21 +348,27 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
 
     }
 
-    private void refreshColumnComboBox(Graph g) {
-        columnComboBox.removeAllItems();
-        if (g != null) {
-            Table t = g.getNodeTable();
-            String key = model.getKeyField();
-            for (int i = 0; i < t.getColumnCount(); i++) {
-                if (is.getKeyType().equals(TypeLib.getWrapperType(t.getColumnType(i)))) {
-                    columnComboBox.addItem(t.getColumnName(i));
+    private void refreshColumnComboBox(final Graph g) {
+        // Refreshing items of a combo box must be executed in the EDT
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                columnComboBox.removeAllItems();
+                if (g != null) {
+                    Table t = g.getNodeTable();
+                    String key = model.getKeyField();
+                    for (int i = 0; i < t.getColumnCount(); i++) {
+                        if (is.getKeyType().equals(TypeLib.getWrapperType(t.getColumnType(i)))) {
+                            columnComboBox.addItem(t.getColumnName(i));
+                        }
+                    }
+                    if (key != null) {
+                        columnComboBox.setSelectedItem(key);
+                    }
                 }
+                updateInteractionLinkButton();
             }
-            if (key != null) {
-                columnComboBox.setSelectedItem(key);
-            }
-        }
-        updateInteractionLinkButton();
+        });
     }
 
     @Override
