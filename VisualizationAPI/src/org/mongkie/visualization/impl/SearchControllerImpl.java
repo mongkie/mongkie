@@ -16,15 +16,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.visualization.search;
+package org.mongkie.visualization.impl;
 
+import org.mongkie.visualization.search.SearchController;
+import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Schema;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface SearchController {
+@ServiceProvider(service = SearchController.class)
+public class SearchControllerImpl implements SearchController {
 
-    public boolean isStringColumnAvailable(Schema s);
+    @Override
+    public boolean isStringColumnAvailable(Schema s) {
+        for (int i = 0; i < s.getColumnCount(); i++) {
+            if (s.getColumnType(i) == String.class) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

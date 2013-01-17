@@ -36,11 +36,20 @@ public interface DataTable {
 
     public JComponent getView();
 
-    public JComponent[] getTools();
+    public Tool[] getTools();
 
     public void refreshModel(MongkieDisplay d);
 
     public void selected();
 
     public void deselected();
+
+    public interface Tool<T extends DataTable> {
+
+        public T getDataTable();
+
+        public void refresh(boolean clear);
+
+        public JComponent getComponent();
+    }
 }

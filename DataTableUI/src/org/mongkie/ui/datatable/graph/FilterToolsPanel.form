@@ -28,9 +28,9 @@
           <Group type="102" alignment="0" attributes="0">
               <Component id="filterLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-              <Component id="filterInputTextField" min="-2" pref="138" max="-2" attributes="0"/>
+              <Component id="filterInputTextField" min="-2" pref="132" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="filterColumnComboBox" min="-2" max="-2" attributes="0"/>
+              <Component id="filterColumnComboBox" min="-2" pref="125" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>

@@ -243,10 +243,13 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
     }
 
     @Override
-    public JComponent[] getTools() {
-        return new JComponent[]{filterTools};
+    public Tool[] getTools() {
+        if (tools == null) {
+            tools = new Tool[]{new FilterToolsPanel(this)};
+        }
+        return tools;
     }
-    private FilterToolsPanel filterTools = new FilterToolsPanel();
+    private Tool[] tools;
 
     protected final Table getTable() {
         assert model != null && model.getDisplay() != null;

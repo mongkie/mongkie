@@ -33,6 +33,7 @@ import org.mongkie.datatable.DataTableController;
 import org.mongkie.datatable.DataTableControllerUI;
 import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.datatable.spi.DataTable;
+import org.mongkie.datatable.spi.DataTable.Tool;
 import org.mongkie.datatable.spi.GraphDataTable;
 import org.mongkie.datatable.spi.PopupAction;
 import static org.mongkie.kopath.viz.Config.ROLE_PATHWAY;
@@ -160,14 +161,14 @@ public final class DataTableTopComponent extends TopComponent implements Display
                             viewScrollPane.setViewportView(view);
                         }
                         table.selected();
-                        addActionsAndTools(table);
+                        addActionsAndTools(table, true);
                     }
                 }
             });
             topToolbar.add(toggle, i);
             if (table instanceof NodeDataTable) {
                 table.selected();
-                addActionsAndTools(table);
+                addActionsAndTools(table, false);
             }
         }
     }
@@ -185,7 +186,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
         });
     }
 
-    private void addActionsAndTools(final DataTable table) {
+    private void addActionsAndTools(final DataTable table, final boolean refresh) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -243,14 +244,19 @@ public final class DataTableTopComponent extends TopComponent implements Display
                     command.setEnabled(a.isEnabled(table));
                     topToolbar.add(command, i++);
                 }
-                JComponent[] tools = table.getTools();
+                Tool[] tools = table.getTools();
                 if (tools != null && tools.length > 0) {
                     topToolbar.add(glueAfterTableActions, i++);
-                    for (JComponent tool : tools) {
-                        topToolbar.add(tool, i++);
+                    for (Tool tool : tools) {
+                        JComponent c = tool.getComponent();
+                        c.putClientProperty(Tool.class, tool);
+                        topToolbar.add(c, i++);
                     }
                 }
                 topToolbar.updateUI();
+                if (refresh) {
+                    refreshActionsAndTools(table);
+                }
             }
         });
     }
@@ -260,6 +266,11 @@ public final class DataTableTopComponent extends TopComponent implements Display
             if (c instanceof JCommandButton) {
                 JCommandButton command = (JCommandButton) c;
                 command.setEnabled(table != null && ((DataAction) command.getClientProperty(DataAction.PROP_KEY)).isEnabled(table));
+            } else if (c instanceof JComponent) {
+                Tool tool = (Tool) ((JComponent) c).getClientProperty(Tool.class);
+                if (tool != null) {
+                    tool.refresh(table == null || (table instanceof GraphDataTable && ((GraphDataTable) table).getModel() == null));
+                }
             }
         }
     }
@@ -288,13 +299,9 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     void refreshModel(final DataTable table, boolean actionsOnly) {
         if (!actionsOnly) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    table.refreshModel(display);
-                }
-            });
-        } else if (table == getSelectedTable()) {
+            table.refreshModel(display);
+        }
+        if (table == getSelectedTable()) {
             refreshActionsAndTools(table);
         }
     }
@@ -369,10 +376,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {
-//        SwingUtilities.invokeLater(new Runnable() {
-//
-//            @Override
-//            public void run() {
         DataTable currentTable = getSelectedTable();
         for (GraphDataTable table : Lookup.getDefault().lookupAll(GraphDataTable.class)) {
             table.clear();
@@ -380,8 +383,6 @@ public final class DataTableTopComponent extends TopComponent implements Display
                 refreshActionsAndTools(null);
             }
         }
-//            }
-//        });
         if (d.isLoading() && !refreshing.isBusy()) {
             refreshing.setBusy(true);
         }
@@ -389,13 +390,8 @@ public final class DataTableTopComponent extends TopComponent implements Display
 
     @Override
     public void graphChanged(final MongkieDisplay d, Graph g) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //TODO: refresh only graph tables
-                refreshTables(d);
-            }
-        });
+        //TODO: refresh only graph tables
+        refreshTables(d);
     }
 
     /**

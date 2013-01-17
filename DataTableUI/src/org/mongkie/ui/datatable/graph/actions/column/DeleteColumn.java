@@ -18,8 +18,8 @@
 package org.mongkie.ui.datatable.graph.actions.column;
 
 import java.awt.Image;
-import javax.swing.SwingUtilities;
 import static kobic.prefuse.Constants.EDGES;
+import org.mongkie.datatable.DataTableControllerUI;
 import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.datatable.spi.DataTable;
 import org.mongkie.datatable.spi.PopupAction;
@@ -28,6 +28,7 @@ import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.data.Table;
 
@@ -94,7 +95,6 @@ public class DeleteColumn extends AbstractColumnAction implements PopupAction<Ab
                 continue;
             }
             actions[i++] = new DataAction<AbstractDataTable>() {
-
                 @Override
                 public String getName() {
                     return name;
@@ -111,19 +111,13 @@ public class DeleteColumn extends AbstractColumnAction implements PopupAction<Ab
                 }
 
                 @Override
-                public void execute(final AbstractDataTable table) {
+                public void execute(AbstractDataTable table) {
                     if (DialogDisplayer.getDefault().notify(
                             new NotifyDescriptor.Confirmation("Are you sure you want to delete '" + name + "'?",
                             DeleteColumn.this.getName(), NotifyDescriptor.OK_CANCEL_OPTION))
                             == NotifyDescriptor.OK_OPTION) {
                         table.getModel().getTable().removeColumn(name);
-                        SwingUtilities.invokeLater(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                table.refreshModel(table.getModel().getDisplay());
-                            }
-                        });
+                        Lookup.getDefault().lookup(DataTableControllerUI.class).refreshModel(table, false);
                     }
                 }
 

@@ -116,8 +116,13 @@ public class DataTableControllerUIImpl implements DataTableControllerUI {
     }
 
     @Override
-    public void refreshModel(DataTable table, boolean actionsOnly) {
-        DataTableTopComponent.findInstance().refreshModel(table, actionsOnly);
+    public void refreshModel(final DataTable table, final boolean actionsOnly) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                DataTableTopComponent.findInstance().refreshModel(table, actionsOnly);
+            }
+        });
     }
 
     @Override
