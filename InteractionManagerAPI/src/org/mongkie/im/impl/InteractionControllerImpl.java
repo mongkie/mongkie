@@ -480,7 +480,8 @@ public class InteractionControllerImpl implements InteractionController {
                         for (Iterator<Integer> nodeIter =
                                 DataLib.rows(g.getNodeTable(), keyField, k); nodeIter.hasNext();) {
                             Node n = g.getNode(nodeIter.next());
-                            for (Attribute a : results.get(k)) {
+                            Attribute.Set attributes = results.get(k);
+                            for (Attribute a : attributes) {
                                 String name = getAttributeName(a.getName(), is.getName());
                                 if (n.getColumnIndex(name) < 0) {
                                     Logger.getLogger(getClass().getName()).log(Level.WARNING,
@@ -488,6 +489,16 @@ public class InteractionControllerImpl implements InteractionController {
                                     continue;
                                 }
                                 n.set(name, a.getValue());
+                            }
+                            // Update label fields of expanded nodes
+                            String graphLabel = g.getNodeLabelField();
+                            String sourceLabel = is.getAnnotationSchema().getLabelField();
+                            if (sourceLabel != null && graphLabel != null && n.getString(graphLabel) == null) {
+                                if (g.getNodeTable().getColumnType(graphLabel) == String.class) {
+                                    n.setString(graphLabel, attributes.getValue(sourceLabel).toString());
+                                } else if (g.getNodeTable().getColumnType(graphLabel) == is.getAnnotationSchema().getColumnType(sourceLabel)) {
+                                    n.set(graphLabel, attributes.getValue(sourceLabel));
+                                }
                             }
                         }
                     }
