@@ -29,7 +29,7 @@ public class DataLib {
      * field.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return an array containing the data values
      */
     public static Object[] toArray(Iterator tuples, String field) {
@@ -50,7 +50,7 @@ public class DataLib {
      * for the given column name, otherwise an exception will be thrown.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return an array of doubles containing the column values
      */
     public static double[] toDoubleArray(Iterator tuples, String field) {
@@ -71,7 +71,7 @@ public class DataLib {
      * iterator and field.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return an array containing the column values sorted
      */
     public static Object[] ordinalArray(Iterator tuples, String field) {
@@ -84,8 +84,8 @@ public class DataLib {
      * field.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
-     * @param cmp a comparator for sorting the column contents
+     * @param field  the column / data field name
+     * @param cmp    a comparator for sorting the column contents
      * @return an array containing the column values sorted
      */
     public static Object[] ordinalArray(Iterator tuples, String field,
@@ -107,7 +107,7 @@ public class DataLib {
      * iterator and field.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return an array containing the column values sorted
      */
     public static Object[] ordinalArray(TupleSet tuples, String field) {
@@ -120,8 +120,8 @@ public class DataLib {
      * field.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
-     * @param cmp a comparator for sorting the column contents
+     * @param field  the column / data field name
+     * @param cmp    a comparator for sorting the column contents
      * @return an array containing the column values sorted
      */
     public static Object[] ordinalArray(TupleSet tuples, String field,
@@ -140,9 +140,9 @@ public class DataLib {
      * index in a sorted array.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return a map mapping column values to their position in a sorted order
-     * of values
+     *         of values
      */
     public static Map ordinalMap(Iterator tuples, String field) {
         return ordinalMap(tuples, field,
@@ -154,10 +154,10 @@ public class DataLib {
      * index in a sorted array.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
-     * @param cmp a comparator for sorting the column contents
+     * @param field  the column / data field name
+     * @param cmp    a comparator for sorting the column contents
      * @return a map mapping column values to their position in a sorted order
-     * of values
+     *         of values
      */
     public static Map ordinalMap(Iterator tuples, String field, Comparator cmp) {
         Object[] o = ordinalArray(tuples, field, cmp);
@@ -175,9 +175,9 @@ public class DataLib {
      * index in a sorted array.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return a map mapping column values to their position in a sorted order
-     * of values
+     *         of values
      */
     public static Map ordinalMap(TupleSet tuples, String field) {
         return ordinalMap(tuples, field,
@@ -189,10 +189,10 @@ public class DataLib {
      * index in a sorted array.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
-     * @param cmp a comparator for sorting the column contents
+     * @param field  the column / data field name
+     * @param cmp    a comparator for sorting the column contents
      * @return a map mapping column values to their position in a sorted order
-     * of values
+     *         of values
      */
     public static Map ordinalMap(TupleSet tuples, String field, Comparator cmp) {
         if (tuples instanceof Table) {
@@ -208,7 +208,7 @@ public class DataLib {
      * Get the number of values in a data column. Duplicates will be counted.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the number of values
      */
     public static int count(Iterator tuples, String field) {
@@ -221,7 +221,7 @@ public class DataLib {
      * Get the number of distinct values in a data column.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the number of distinct values
      */
     public static int uniqueCount(Iterator tuples, String field) {
@@ -298,7 +298,7 @@ public class DataLib {
      * Get the Tuple with the minimum data field value.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the minimum data field value
      */
     public static Tuple min(Iterator tuples, String field) {
@@ -309,8 +309,8 @@ public class DataLib {
      * Get the Tuple with the minimum data field value.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
-     * @param cmp a comparator for sorting the column contents
+     * @param field  the column / data field name
+     * @param cmp    a comparator for sorting the column contents
      * @return the Tuple with the minimum data field value
      */
     public static Tuple min(Iterator tuples, String field, Comparator cmp) {
@@ -335,7 +335,7 @@ public class DataLib {
      * Get the Tuple with the minimum data field value.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the minimum data field value
      */
     public static Tuple min(TupleSet tuples, String field, Comparator cmp) {
@@ -352,7 +352,7 @@ public class DataLib {
      * Get the Tuple with the minimum data field value.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the minimum data field value
      */
     public static Tuple min(TupleSet tuples, String field) {
@@ -364,7 +364,7 @@ public class DataLib {
      * Get the Tuple with the maximum data field value.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the maximum data field value
      */
     public static Tuple max(Iterator tuples, String field) {
@@ -375,8 +375,8 @@ public class DataLib {
      * Get the Tuple with the maximum data field value.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
-     * @param cmp a comparator for sorting the column contents
+     * @param field  the column / data field name
+     * @param cmp    a comparator for sorting the column contents
      * @return the Tuple with the maximum data field value
      */
     public static Tuple max(Iterator tuples, String field, Comparator cmp) {
@@ -401,7 +401,7 @@ public class DataLib {
      * Get the Tuple with the maximum data field value.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the maximum data field value
      */
     public static Tuple max(TupleSet tuples, String field, Comparator cmp) {
@@ -418,7 +418,7 @@ public class DataLib {
      * Get the Tuple with the maximum data field value.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the maximum data field value
      */
     public static Tuple max(TupleSet tuples, String field) {
@@ -430,7 +430,7 @@ public class DataLib {
      * Get the Tuple with the median data field value.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the median data field value
      */
     public static Tuple median(Iterator tuples, String field) {
@@ -441,8 +441,8 @@ public class DataLib {
      * Get the Tuple with the median data field value.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
-     * @param cmp a comparator for sorting the column contents
+     * @param field  the column / data field name
+     * @param cmp    a comparator for sorting the column contents
      * @return the Tuple with the median data field value
      */
     public static Tuple median(Iterator tuples, String field, Comparator cmp) {
@@ -471,7 +471,7 @@ public class DataLib {
      * Get the Tuple with the median data field value.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the median data field value
      */
     public static Tuple median(TupleSet tuples, String field, Comparator cmp) {
@@ -488,7 +488,7 @@ public class DataLib {
      * Get the Tuple with the median data field value.
      *
      * @param tuples a TupleSet
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the Tuple with the median data field value
      */
     public static Tuple median(TupleSet tuples, String field) {
@@ -502,7 +502,7 @@ public class DataLib {
      * returned.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the mean value, or NaN if a non-numeric data type is encountered
      */
     public static double mean(Iterator tuples, String field) {
@@ -526,9 +526,9 @@ public class DataLib {
      * returned.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the standard deviation value, or NaN if a non-numeric data type
-     * is encountered
+     *         is encountered
      */
     public static double deviation(Iterator tuples, String field) {
         return deviation(tuples, field, DataLib.mean(tuples, field));
@@ -540,11 +540,11 @@ public class DataLib {
      * returned.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
-     * @param mean the mean of the column, used to speed up accurate deviation
-     * calculation
+     * @param field  the column / data field name
+     * @param mean   the mean of the column, used to speed up accurate deviation
+     *               calculation
      * @return the standard deviation value, or NaN if a non-numeric data type
-     * is encountered
+     *         is encountered
      */
     public static double deviation(Iterator tuples, String field, double mean) {
         try {
@@ -568,7 +568,7 @@ public class DataLib {
      * field or the field is not a numeric data type, NaN will be returned.
      *
      * @param tuples an iterator over tuples
-     * @param field the column / data field name
+     * @param field  the column / data field name
      * @return the sum, or NaN if a non-numeric data type is encountered
      */
     public static double sum(Iterator tuples, String field) {
@@ -589,7 +589,7 @@ public class DataLib {
      * Infer the data field type across all tuples in a TupleSet.
      *
      * @param tuples the TupleSet to analyze
-     * @param field the data field to type check
+     * @param field  the data field to type check
      * @return the inferred data type
      * @throws IllegalArgumentException if incompatible types are used
      */
@@ -635,6 +635,14 @@ public class DataLib {
             list.add((T) tuples.next());
         }
         return list;
+    }
+
+    public static <T extends Tuple> Set<T> asSet(Iterator<T> tuples) {
+        Set<T> set = new HashSet<T>();
+        while (tuples.hasNext()) {
+            set.add((T) tuples.next());
+        }
+        return set;
     }
 
     public static TupleSet removeTuples(TupleSet tupleSet, Predicate filter) {

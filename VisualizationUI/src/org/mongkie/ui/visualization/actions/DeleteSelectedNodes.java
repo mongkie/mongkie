@@ -18,7 +18,7 @@
  */
 package org.mongkie.ui.visualization.actions;
 
-import java.util.List;
+import java.util.Set;
 import javax.swing.Action;
 import org.mongkie.visualization.MongkieDisplay;
 import org.mongkie.visualization.util.DisplayAction;
@@ -52,14 +52,14 @@ public final class DeleteSelectedNodes extends DisplayAction.Focus<NodeItem> {
     }
 
     @Override
-    protected void performAction(final MongkieDisplay display, final List<NodeItem> nodes) {
+    protected void performAction(final MongkieDisplay display, final Set<NodeItem> nodes) {
         if (DialogDisplayer.getDefault().notify(
                 new NotifyDescriptor.Confirmation("Are you sure you want to delete selected " + nodes.size() + " nodes?", NotifyDescriptor.YES_NO_OPTION))
                 == NotifyDescriptor.YES_OPTION) {
             display.getVisualization().process(new Runnable() {
                 @Override
                 public void run() {
-                    clearFocusedItems();
+                    clearFocusItems();
                     for (NodeItem n : nodes) {
                         display.getGraph().removeNode(n.getSourceTuple().getRow());
                     }

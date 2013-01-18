@@ -23,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.*;
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -53,6 +54,8 @@ import org.mongkie.visualization.VisualizationController;
 import org.mongkie.visualization.VisualizationControllerUI;
 import org.mongkie.visualization.selection.SelectionListener;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -64,6 +67,7 @@ import org.openide.windows.WindowManager;
 import prefuse.Visualization;
 import prefuse.data.Graph;
 import prefuse.data.Tuple;
+import prefuse.data.tuple.TupleSet;
 import prefuse.visual.AggregateItem;
 import prefuse.visual.EdgeItem;
 import prefuse.visual.NodeItem;
@@ -162,6 +166,43 @@ public final class DisplayTopComponent extends TopComponent
 
                     @Override
                     protected void addNodePopupMenuItems(JPopupMenu popup) {
+                        final Action deleteAction = new AbstractAction("Delete", ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/delete.png", false)) {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                final TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+                                final NodeItem clickedItem = (NodeItem) getClickedItem();
+                                if (focusedTupleSet.containsTuple(clickedItem)) {
+                                    final Tuple[] selectedNodeItems = focusedTupleSet.toArray();
+                                    if (DialogDisplayer.getDefault().notify(
+                                            new NotifyDescriptor.Confirmation("Are you sure you want to delete selected " + selectedNodeItems.length + " nodes?", NotifyDescriptor.YES_NO_OPTION))
+                                            == NotifyDescriptor.YES_OPTION) {
+                                        display.getVisualization().process(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                focusedTupleSet.clear();
+                                                for (Tuple n : selectedNodeItems) {
+                                                    display.getGraph().removeNode(((NodeItem) n).getSourceTuple().getRow());
+                                                }
+                                            }
+                                        });
+                                        display.getVisualization().repaint();
+                                    }
+                                } else {
+                                    if (DialogDisplayer.getDefault().notify(
+                                            new NotifyDescriptor.Confirmation("Are you sure you want to delete the clicked node?", NotifyDescriptor.YES_NO_OPTION))
+                                            == NotifyDescriptor.YES_OPTION) {
+                                        display.getVisualization().process(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                display.getGraph().removeNode(clickedItem.getSourceTuple().getRow());
+                                            }
+                                        });
+                                        display.getVisualization().repaint();
+                                    }
+                                }
+                            }
+                        };
+                        popup.add(deleteAction);
                         super.addNodePopupMenuItems(popup);
                         for (NodePopupMenuItemFactory f : Lookup.getDefault().lookupAll(NodePopupMenuItemFactory.class)) {
                             for (JMenuItem mi : f.createMenuItems(this)) {
@@ -171,6 +212,48 @@ public final class DisplayTopComponent extends TopComponent
                                 popup.addPopupMenuListener((PopupMenuListener) f);
                             }
                         }
+                    }
+
+                    @Override
+                    protected void addEdgePopupMenuItems(JPopupMenu popup) {
+                        final Action deleteAction = new AbstractAction("Delete", ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/delete.png", false)) {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                final TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
+                                final EdgeItem clickedItem = (EdgeItem) getClickedItem();
+                                if (focusedTupleSet.containsTuple(clickedItem)) {
+                                    final Tuple[] selectedEdgeItems = focusedTupleSet.toArray();
+                                    if (DialogDisplayer.getDefault().notify(
+                                            new NotifyDescriptor.Confirmation("Are you sure you want to delete selected " + selectedEdgeItems.length + " edges?", NotifyDescriptor.YES_NO_OPTION))
+                                            == NotifyDescriptor.YES_OPTION) {
+                                        display.getVisualization().process(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                focusedTupleSet.clear();
+                                                for (Tuple e : selectedEdgeItems) {
+                                                    display.getGraph().removeEdge(((EdgeItem) e).getSourceTuple().getRow());
+                                                }
+                                            }
+                                        });
+                                        display.getVisualization().repaint();
+                                    }
+                                } else {
+                                    if (DialogDisplayer.getDefault().notify(
+                                            new NotifyDescriptor.Confirmation("Are you sure you want to delete the clicked edge?", NotifyDescriptor.YES_NO_OPTION))
+                                            == NotifyDescriptor.YES_OPTION) {
+                                        display.getVisualization().process(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                display.getGraph().removeEdge(clickedItem.getSourceTuple().getRow());
+                                            }
+                                        });
+                                        display.getVisualization().repaint();
+                                    }
+                                }
+                            }
+                        };
+                        popup.add(deleteAction);
+                        super.addEdgePopupMenuItems(popup);
                     }
 
                     @Override

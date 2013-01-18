@@ -17,7 +17,8 @@
  */
 package org.mongkie.visualization.util;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Set;
 import static kobic.prefuse.Constants.*;
 import kobic.prefuse.display.DisplayListener;
 import org.mongkie.util.SingleContextAction;
@@ -55,7 +56,6 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
 
     @Override
     protected final void contextChanged(MongkieDisplay d) {
-        super.contextChanged(d);
         MongkieDisplay old = display;
         if (old == d) {
             return;
@@ -68,6 +68,7 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
         }
         display = d;
         displayChanged(old, display);
+        super.contextChanged(d);
     }
 
     protected void displayChanged(MongkieDisplay old, MongkieDisplay display) {
@@ -105,12 +106,19 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
 
         @Override
         public void tupleSetChanged(TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
-            setEnabled(tupleSet.getTupleCount() > 0);
+            setEnabled(isEnabled(display));
         }
 
         @Override
         protected boolean isEnabled(MongkieDisplay display) {
-            return display.getVisualization().items(FOCUS_ITEMS, new InGroupPredicate(getGroup())).hasNext();
+            return getFocusItems().hasNext();
+        }
+
+        protected final Iterator<I> getFocusItems() {
+            String group = getGroup();
+            return group != null
+                    ? display.getVisualization().items(FOCUS_ITEMS, new InGroupPredicate(group))
+                    : display.getVisualization().items(FOCUS_ITEMS);
         }
 
         private String getGroup() {
@@ -121,6 +129,8 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
                 return EDGES;
             } else if (type == AggregateItem.class) {
                 return AGGR_ITEMS;
+            } else if (type == VisualItem.class) {
+                return null;
             }
             throw new IllegalArgumentException("Unknown type: " + type);
         }
@@ -129,12 +139,12 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
 
         @Override
         protected final void performAction(MongkieDisplay display) {
-            performAction(display, DataLib.asList(display.getVisualization().items(FOCUS_ITEMS, new InGroupPredicate(getGroup()))));
+            performAction(display, DataLib.asSet(getFocusItems()));
         }
 
-        protected abstract void performAction(MongkieDisplay display, List<I> items);
+        protected abstract void performAction(MongkieDisplay display, Set<I> items);
 
-        protected final void clearFocusedItems() {
+        protected final void clearFocusItems() {
             display.getVisualization().getFocusGroup(FOCUS_ITEMS).clear();
         }
     }

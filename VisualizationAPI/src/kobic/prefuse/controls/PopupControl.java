@@ -36,7 +36,6 @@ import prefuse.Visualization;
 import static prefuse.Visualization.AGGR_ITEMS;
 import static prefuse.Visualization.FOCUS_ITEMS;
 import prefuse.controls.ControlAdapter;
-import prefuse.data.Tuple;
 import prefuse.data.tuple.TupleSet;
 import prefuse.util.ColorLib;
 import prefuse.util.io.IOLib;
@@ -87,42 +86,6 @@ public abstract class PopupControl<D extends NetworkDisplay> extends ControlAdap
                 }
             });
         }
-        final Action deleteAction = new AbstractAction("Delete", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "delete.png")) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(Visualization.FOCUS_ITEMS);
-                final NodeItem clickedItem = (NodeItem) getClickedItem();
-                if (focusedTupleSet.containsTuple(clickedItem)) {
-                    final Tuple[] selectedNodeItems = focusedTupleSet.toArray();
-                    if (JOptionPane.showConfirmDialog(display,
-                            "Are you sure you want to delete selected " + selectedNodeItems.length + " nodes?",
-                            "Question", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                        display.getVisualization().process(new Runnable() {
-                            @Override
-                            public void run() {
-                                focusedTupleSet.clear();
-                                for (Tuple n : selectedNodeItems) {
-                                    display.getGraph().removeNode(((NodeItem) n).getSourceTuple().getRow());
-                                }
-                            }
-                        });
-                        display.getVisualization().repaint();
-                    }
-                } else {
-                    if (JOptionPane.showConfirmDialog(display, "Are you sure you want to delete the clicked node?",
-                            "Question", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                        display.getVisualization().process(new Runnable() {
-                            @Override
-                            public void run() {
-                                display.getGraph().removeNode(clickedItem.getSourceTuple().getRow());
-                            }
-                        });
-                        display.getVisualization().repaint();
-                    }
-                }
-            }
-        };
-        popup.add(deleteAction);
         final Action groupingAction = new AbstractAction("Group", IOLib.getIcon(PopupControl.class, IMAGE_PATH + "group.png")) {
             @Override
             public void actionPerformed(ActionEvent e) {
