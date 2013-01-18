@@ -26,6 +26,7 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.Utilities;
 import prefuse.Visualization;
 import prefuse.data.tuple.DefaultTupleSet;
 
@@ -38,6 +39,7 @@ displayName = "#CTL_SelectAllNodes", lazy = true)
 public final class SelectAllNodes extends DisplayAction {
 
     public SelectAllNodes() {
+        this(Utilities.actionsGlobalContext());
     }
 
     public SelectAllNodes(Lookup lookup) {

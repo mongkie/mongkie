@@ -24,7 +24,6 @@ import kobic.prefuse.display.DisplayListener;
 import org.mongkie.util.SingleContextAction;
 import org.mongkie.visualization.MongkieDisplay;
 import org.openide.util.Lookup;
-import org.openide.util.Utilities;
 import static prefuse.Visualization.*;
 import prefuse.data.Graph;
 import prefuse.data.Tuple;
@@ -45,10 +44,6 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
         implements DisplayListener<MongkieDisplay> {
 
     protected MongkieDisplay display;
-
-    protected DisplayAction() {
-        this(Utilities.actionsGlobalContext());
-    }
 
     protected DisplayAction(Lookup lookup) {
         super(MongkieDisplay.class, lookup);
@@ -85,10 +80,6 @@ public abstract class DisplayAction extends SingleContextAction<MongkieDisplay>
     }
 
     public static abstract class Focus<I extends VisualItem> extends DisplayAction implements TupleSetListener {
-
-        public Focus() {
-            super();
-        }
 
         public Focus(Lookup lookup) {
             super(lookup);
