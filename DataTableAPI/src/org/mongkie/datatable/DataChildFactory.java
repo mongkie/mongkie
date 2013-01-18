@@ -122,7 +122,7 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
     @Override
     public void tableChanged(Table t, int start, int end, int col, final int type) {
         NetworkDisplay d = (NetworkDisplay) t.getClientProperty(NetworkDisplay.PROP_KEY);
-        // row inserted or deleted
+        // tuple inserted or deleted
         if (!d.isLoading()
                 && col == EventConstants.ALL_COLUMNS) {
             d.getVisualization().invokeAfterDataProcessing(this, new Runnable() {
@@ -131,6 +131,35 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
                     refresh(true);
                 }
             });
+        }
+        switch (type) {
+            // column added
+            case EventConstants.INSERT:
+                if (col != EventConstants.ALL_COLUMNS) {
+                    for (DataNode node : tuple2Node.values()) {
+                        node.fireColumnInserted(col);
+                    }
+                }
+                break;
+            // column deleted
+            case EventConstants.DELETE:
+                if (col != EventConstants.ALL_COLUMNS) {
+                    for (DataNode node : tuple2Node.values()) {
+                        node.fireColumnDeleted(col);
+                    }
+                }
+                break;
+            // tuple updated
+            case EventConstants.UPDATE:
+                for (int row = start; row <= end; row++) {
+                    DataNode node = getNodeOf(row);
+                    if (node != null) {
+                        node.fireDataUpdated(col);
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
 }
