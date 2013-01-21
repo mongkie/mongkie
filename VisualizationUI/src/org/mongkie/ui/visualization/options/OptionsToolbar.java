@@ -100,10 +100,7 @@ public final class OptionsToolbar extends JToolBar {
                     display.getVisualization().process(new Runnable() {
                         @Override
                         public void run() {
-                            if (col == null || !col.equals(display.getGraph().getNodeLabelField())) {
-                                display.getGraph().setNodeLabelField(col);
-                                display.getNodeLabelRenderer().setLabelField(col);
-                                display.nodeLabelFieldChanged();
+                            if (display.setNodeLableColumn(col)) {
                                 searcher.setTextField(null);
                             }
                         }

@@ -237,18 +237,30 @@ public abstract class NetworkDisplay extends Display {
         search(edgeSearchEngine, query);
     }
 
-    public void nodeLabelFieldChanged() {
-        indexNodeSearchFields(nodeSearchEngine);
-        if (v.items(SEARCH_ITEMS, new InGroupPredicate(NODES)).hasNext()) {
-            searchNodes(null);
+    public boolean setNodeLableColumn(String col) {
+        if (col == null || !col.equals(getGraph().getNodeLabelField())) {
+            getGraph().setNodeLabelField(col);
+            getNodeLabelRenderer().setLabelField(col);
+            indexNodeSearchFields(nodeSearchEngine);
+            if (v.items(SEARCH_ITEMS, new InGroupPredicate(NODES)).hasNext()) {
+                searchNodes(null);
+            }
+            return true;
         }
+        return false;
     }
 
-    public void edgeLabelFieldChanged() {
-        indexEdgeSearchFields(edgeSearchEngine);
-        if (v.items(SEARCH_ITEMS, new InGroupPredicate(EDGES)).hasNext()) {
-            searchEdges(null);
+    public boolean setEdgeLableColumn(String col) {
+        if (col == null || !col.equals(getGraph().getEdgeLabelField())) {
+            getGraph().setEdgeLabelField(col);
+            getEdgeLabelRenderer().setLabelField(col);
+            indexEdgeSearchFields(edgeSearchEngine);
+            if (v.items(SEARCH_ITEMS, new InGroupPredicate(EDGES)).hasNext()) {
+                searchEdges(null);
+            }
+            return true;
         }
+        return false;
     }
 
     private void initializeDisplay() {

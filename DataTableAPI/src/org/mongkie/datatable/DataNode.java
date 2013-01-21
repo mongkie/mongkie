@@ -19,6 +19,7 @@ package org.mongkie.datatable;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import kobic.prefuse.data.TupleProvider;
 import kobic.prefuse.display.DataEditSupport;
 import kobic.prefuse.display.DataViewSupport;
 import org.openide.nodes.AbstractNode;
@@ -34,7 +35,7 @@ import prefuse.data.event.EventConstants;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public abstract class DataNode extends AbstractNode {
+public abstract class DataNode extends AbstractNode implements TupleProvider {
 
     public DataNode(Tuple data, String labelColumn) {
         super(Children.LEAF, Lookups.singleton(data));
@@ -43,6 +44,7 @@ public abstract class DataNode extends AbstractNode {
         setDisplayName(label == null ? "" : label);
     }
 
+    @Override
     public Tuple getTuple() {
         return getLookup().lookup(Tuple.class);
     }

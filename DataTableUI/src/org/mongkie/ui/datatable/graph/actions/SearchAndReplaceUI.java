@@ -23,23 +23,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.spi.DataAction;
 import org.mongkie.ui.datatable.graph.AbstractDataTable;
+import org.mongkie.visualization.search.SearchController;
+import org.mongkie.visualization.search.SearchOption;
+import org.mongkie.visualization.search.SearchResult;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.Node;
+import org.openide.util.Lookup;
 import prefuse.data.Schema;
 import prefuse.data.Tuple;
 
@@ -47,21 +44,21 @@ import prefuse.data.Tuple;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class SearchAndReplaceUI extends javax.swing.JPanel
+class SearchAndReplaceUI extends javax.swing.JPanel
         implements DataAction.UI<AbstractDataTable, SearchAndReplace>, ItemListener {
 
     private AbstractDataTable table;
     private static final String ALL_COLUMNS = "---All Columns";
-    private SearchOptions options;
-    private final SearchResult result;
+    private SearchOption options;
+    private final SearchResult<DataNode> results;
     private boolean forward = true;
 
     /**
      * Creates new form SearchAndReplaceUI
      */
-    public SearchAndReplaceUI() {
+    SearchAndReplaceUI() {
         initComponents();
-        result = new SearchResult();
+        results = new SearchResult<DataNode>();
         searchTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -90,7 +87,7 @@ public class SearchAndReplaceUI extends javax.swing.JPanel
         });
     }
 
-    void refreshSearchColumns() {
+    private void refreshSearchColumns() {
         columnChooseComboBox.removeAllItems();
         columnChooseComboBox.addItem(ALL_COLUMNS);
         Schema s = table.getModel().getDisplay().getDataViewSupport(table.getDataGroup()).getOutlineSchema();
@@ -101,8 +98,8 @@ public class SearchAndReplaceUI extends javax.swing.JPanel
         }
     }
 
-    void clearResult() {
-        result.clear();
+    private void clearResult() {
+        results.clear();
         refreshUI();
     }
 
@@ -115,72 +112,54 @@ public class SearchAndReplaceUI extends javax.swing.JPanel
         dialog.setVisible(true);
     }
 
-    void findNext() {
+    private void findNext() {
         String text = searchTextField.getText();
-        if (result.isEmpty()) {
-            if (!search(text).isEmpty()) {
-                table.setSelectedNodes(new Node[]{result.current()});
+        if (results.isEmpty()) {
+            if (!Lookup.getDefault().lookup(SearchController.class).search(
+                    table.getExplorerManager().getRootContext().getChildren().getNodes(true), text, options, results, getSearchColumns()).isEmpty()) {
+                table.setSelectedNodes(new Node[]{results.current()});
             }
         } else {
-            table.setSelectedNodes(new Node[]{result.next()});
+            table.setSelectedNodes(new Node[]{results.next()});
         }
         forward = true;
         refreshUI();
-        if (result.isEmpty()) {
+        if (results.isEmpty()) {
             showMessageDialog("Find Next", "No search result.");
         }
     }
 
-    void findPrevious() {
+    private void findPrevious() {
         String text = searchTextField.getText();
-        if (result.isEmpty()) {
-            if (!search(text).isEmpty()) {
-                table.setSelectedNodes(new Node[]{result.previous()});
+        if (results.isEmpty()) {
+            if (!Lookup.getDefault().lookup(SearchController.class).search(
+                    table.getExplorerManager().getRootContext().getChildren().getNodes(true), text, options, results, getSearchColumns()).isEmpty()) {
+                table.setSelectedNodes(new Node[]{results.previous()});
             }
         } else {
-            table.setSelectedNodes(new Node[]{result.previous()});
+            table.setSelectedNodes(new Node[]{results.previous()});
         }
         forward = false;
         refreshUI();
-        if (result.isEmpty()) {
+        if (results.isEmpty()) {
             showMessageDialog("Find Previous", "No search result.");
         }
     }
 
-    SearchResult search(String text) {
-        assert result.isEmpty();
-        String query = options.isWholeWords() ? ".*\\b(" + text + ")\\b.*" : ".*(" + text + ").*";
-        Pattern pattern = options.isCaseSensitive()
-                ? Pattern.compile(query) : Pattern.compile(query, Pattern.CASE_INSENSITIVE);
-        result.setPattern(pattern);
-        for (Node n : table.getExplorerManager().getRootContext().getChildren().getNodes(true)) {
-            DataNode data = (DataNode) n;
-            if (!result.contains(data) && match(data, pattern)) {
-                result.add(data);
-            }
-        }
-        return result;
-    }
-
-    boolean match(DataNode n, Pattern pattern) {
-        Tuple data = n.getTuple();
+    private String[] getSearchColumns() {
         String col = (String) columnChooseComboBox.getSelectedItem();
         if (col.equals(ALL_COLUMNS)) {
+            String[] columns = new String[columnChooseComboBox.getItemCount() - 1];
             for (int i = 1; i < columnChooseComboBox.getItemCount(); i++) {
-                String value = data.getString((String) columnChooseComboBox.getItemAt(i));
-                if (value != null && !value.isEmpty() && pattern.matcher(value).matches()) {
-                    return true;
-                }
+                columns[i - 1] = (String) columnChooseComboBox.getItemAt(i);
             }
-            return false;
-        } else {
-            String value = data.getString(col);
-            return value != null && !value.isEmpty() && pattern.matcher(value).matches();
+            return columns;
         }
+        return new String[]{col};
     }
 
     @Deprecated
-    boolean contains(DataNode n, String text) {
+    private boolean contains(DataNode n, String text) {
         Tuple data = n.getTuple();
         String col = (String) columnChooseComboBox.getSelectedItem();
         if (!options.isCaseSensitive()) {
@@ -212,48 +191,20 @@ public class SearchAndReplaceUI extends javax.swing.JPanel
         }
     }
 
-    void replace() {
-        replace(result.current());
-        result.remove(forward);
-        if (!result.isEmpty()) {
-            table.setSelectedNodes(new Node[]{result.current()});
-        } else {
-            table.setSelectedNodes(new Node[]{});
-        }
+    private void replace() {
+        DataNode next = Lookup.getDefault().lookup(SearchController.class).replace(results, replaceTextField.getText(), forward, getSearchColumns());
+        table.setSelectedNodes(next != null ? new Node[]{next} : new Node[]{});
         refreshUI();
     }
 
-    void replaceAll() {
-        for (Iterator<DataNode> nodes = result.iterator(); nodes.hasNext();) {
-            replace(nodes.next());
-        }
-        int occurrences = result.size();
+    private void replaceAll() {
+        int occurrences = Lookup.getDefault().lookup(SearchController.class).replaceAll(results, replaceTextField.getText(), getSearchColumns());
         table.setSelectedNodes(new Node[]{});
-        result.clear();
         refreshUI();
         showMessageDialog("Replace All", occurrences + " occurrences are replaced.");
     }
 
-    void replace(DataNode n) {
-        String replacement = replaceTextField.getText();
-        Tuple data = n.getTuple();
-        String col = (String) columnChooseComboBox.getSelectedItem();
-        if (col.equals(ALL_COLUMNS)) {
-            for (int i = 1; i < columnChooseComboBox.getItemCount(); i++) {
-                String field = (String) columnChooseComboBox.getItemAt(i);
-                String value = data.getString(field);
-                Matcher m;
-                if (value != null && !value.isEmpty() && (m = result.getPattern().matcher(value)).matches()) {
-                    data.setString(field, value.replace(m.group(1), replacement));
-                }
-            }
-        } else {
-            String value = data.getString(col);
-            data.setString(col, value.replace(result.getPattern().matcher(value).group(1), replacement));
-        }
-    }
-
-    void refreshUI() {
+    private void refreshUI() {
         findNextButton.setEnabled(!searchTextField.getText().isEmpty());
         findPreviousButton.setEnabled(!searchTextField.getText().isEmpty());
         if (forward) {
@@ -263,8 +214,8 @@ public class SearchAndReplaceUI extends javax.swing.JPanel
             findNextButton.setIcon(nextImgInactive);
             findPreviousButton.setIcon(prevImg);
         }
-        replaceButton.setEnabled(!result.isEmpty());
-        replaceAllButton.setEnabled(!result.isEmpty());
+        replaceButton.setEnabled(!results.isEmpty());
+        replaceAllButton.setEnabled(!results.isEmpty());
     }
     javax.swing.Icon prevImg = new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/datatable/resources/go_previous.png"));
     javax.swing.Icon prevImgInactive = new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/datatable/resources/go_previous_inactive.png"));
@@ -488,10 +439,10 @@ public class SearchAndReplaceUI extends javax.swing.JPanel
     @Override
     public void load(AbstractDataTable table, SearchAndReplace action) {
         this.table = table;
-        options = (SearchOptions) table.getClientProperty(SearchOptions.class);
+        options = (SearchOption) table.getClientProperty(SearchOption.class);
         if (options == null) {
-            options = new SearchOptions();
-            table.putClientProperty(SearchOptions.class, options);
+            options = new SearchOption();
+            table.putClientProperty(SearchOption.class, options);
         }
         refreshSearchColumns();
         columnChooseComboBox.addItemListener(this);
@@ -504,7 +455,7 @@ public class SearchAndReplaceUI extends javax.swing.JPanel
     @Override
     public boolean close(Object option) {
         columnChooseComboBox.removeItemListener(this);
-        result.clear();
+        results.clear();
         return false;
     }
 
@@ -516,105 +467,5 @@ public class SearchAndReplaceUI extends javax.swing.JPanel
     @Override
     public JPanel getPanel() {
         return this;
-    }
-
-    private static final class SearchOptions {
-
-        private boolean wholeWords = false;
-        private boolean caseSensitive = false;
-
-        boolean isWholeWords() {
-            return wholeWords;
-        }
-
-        void setWholeWords(boolean wholeWords) {
-            this.wholeWords = wholeWords;
-        }
-
-        boolean isCaseSensitive() {
-            return caseSensitive;
-        }
-
-        void setCaseSensitive(boolean caseSensitive) {
-            this.caseSensitive = caseSensitive;
-        }
-    }
-
-    private static final class SearchResult implements Iterable<DataNode> {
-
-        private final List<DataNode> nodes = new ArrayList<DataNode>();
-        private final Set<DataNode> set = new HashSet<DataNode>();
-        private int current = 0;
-        private Pattern pattern;
-
-        Pattern getPattern() {
-            return pattern;
-        }
-
-        void setPattern(Pattern pattern) {
-            this.pattern = pattern;
-        }
-
-        boolean isEmpty() {
-            return nodes.isEmpty();
-        }
-
-        void add(DataNode n) {
-            if (set.add(n)) {
-                nodes.add(n);
-            }
-        }
-
-        void remove(boolean forward) {
-            assert !nodes.isEmpty();
-            DataNode n = nodes.get(current);
-            assert set.remove(n);
-            assert nodes.remove(n);
-            if (nodes.isEmpty() || (forward && current >= nodes.size())) {
-                current = 0;
-            } else if (!forward && --current < 0) {
-                current = nodes.size() - 1;
-            }
-        }
-
-        boolean contains(DataNode n) {
-            return set.contains(n);
-        }
-
-        void clear() {
-            nodes.clear();
-            set.clear();
-            current = 0;
-        }
-
-        DataNode current() {
-            assert !nodes.isEmpty();
-            return nodes.get(current);
-        }
-
-        DataNode next() {
-            assert !nodes.isEmpty();
-            if (++current >= nodes.size()) {
-                current = 0;
-            }
-            return nodes.get(current);
-        }
-
-        DataNode previous() {
-            assert !nodes.isEmpty();
-            if (--current < 0) {
-                current = nodes.size() - 1;
-            }
-            return nodes.get(current);
-        }
-
-        @Override
-        public Iterator<DataNode> iterator() {
-            return nodes.iterator();
-        }
-
-        int size() {
-            return nodes.size();
-        }
     }
 }

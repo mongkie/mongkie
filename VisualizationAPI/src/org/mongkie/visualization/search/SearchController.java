@@ -18,7 +18,11 @@
  */
 package org.mongkie.visualization.search;
 
+import java.util.Iterator;
+import java.util.regex.Pattern;
+import kobic.prefuse.data.TupleProvider;
 import prefuse.data.Schema;
+import prefuse.data.Tuple;
 
 /**
  *
@@ -27,4 +31,18 @@ import prefuse.data.Schema;
 public interface SearchController {
 
     public boolean isStringColumnAvailable(Schema s);
+
+    public <T extends TupleProvider> SearchResult<T> search(Iterator<T> sources, String text, SearchOption options, SearchResult<T> results, String... columns);
+
+    public <T extends TupleProvider> SearchResult<T> search(T[] sources, String text, SearchOption options, SearchResult<T> results, String... columns);
+    
+    public <T extends TupleProvider> SearchResult<T> search(Object[] sources, String text, SearchOption options, SearchResult<T> results, String... columns);
+
+    public boolean match(Tuple data, Pattern pattern, String... columns);
+
+    public <T extends TupleProvider> T replace(SearchResult<T> results, String replacement, boolean forward, String... columns);
+
+    public <T extends TupleProvider> int replaceAll(SearchResult<T> results, String replacement, String... columns);
+
+    public <T extends TupleProvider> void replace(T result, Pattern pattern, String replacement, String... columns);
 }
