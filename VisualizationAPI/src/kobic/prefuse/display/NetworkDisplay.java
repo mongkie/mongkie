@@ -237,6 +237,20 @@ public abstract class NetworkDisplay extends Display {
         search(edgeSearchEngine, query);
     }
 
+    public void nodeLabelFieldChanged() {
+        indexNodeSearchFields(nodeSearchEngine);
+        if (v.items(SEARCH_ITEMS, new InGroupPredicate(NODES)).hasNext()) {
+            searchNodes(null);
+        }
+    }
+
+    public void edgeLabelFieldChanged() {
+        indexEdgeSearchFields(edgeSearchEngine);
+        if (v.items(SEARCH_ITEMS, new InGroupPredicate(EDGES)).hasNext()) {
+            searchEdges(null);
+        }
+    }
+
     private void initializeDisplay() {
         registerControls();
 

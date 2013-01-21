@@ -17,9 +17,13 @@
  */
 package org.mongkie.ui.datatable.graph;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import javax.swing.AbstractAction;
 import javax.swing.JComponent;
+import org.jdesktop.swingx.JXSearchField;
 import org.mongkie.datatable.spi.DataTable;
 import org.mongkie.visualization.search.SearchController;
 import org.openide.util.Lookup;
@@ -32,7 +36,7 @@ import prefuse.data.Schema;
 class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<AbstractDataTable>, ItemListener {
 
     private final AbstractDataTable table;
-    private static final String NONE = "NONE";
+    private static final String NONE = "---None";
     private static final String ALL_COLUMNS = "---All columns";
     private static final String PROP_FILTERCOLUMN = FilterToolsPanel.class.getName() + "_FilterColumn";
 
@@ -42,6 +46,26 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
     FilterToolsPanel(AbstractDataTable table) {
         this.table = table;
         initComponents();
+
+        ((JXSearchField) filterInputTextField).setInstantSearchDelay(500); // Default is 50 milliseconds
+        ((JXSearchField) filterInputTextField).setCancelAction(
+                new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        System.out.println("clear");
+                        filterInputTextField.setText(null);
+                    }
+                });
+        ((JXSearchField) filterInputTextField).setAction(
+                new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String text = filterInputTextField.getText();
+                        if (!text.isEmpty()) {
+                            System.out.println("filter: " + text);
+                        }
+                    }
+                });
     }
 
     /**
@@ -55,7 +79,10 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
     private void initComponents() {
 
         filterLabel = new javax.swing.JLabel();
-        filterInputTextField = new javax.swing.JTextField();
+        filterInputTextField = new JXSearchField();
+        ((JXSearchField) filterInputTextField).setLayoutStyle(JXSearchField.LayoutStyle.VISTA);
+        ((JXSearchField) filterInputTextField).setUseNativeSearchFieldIfPossible(false);
+        ((JXSearchField) filterInputTextField).setPromptBackround(java.awt.Color.white);
         filterColumnComboBox = new javax.swing.JComboBox();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -66,9 +93,8 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
         filterLabel.setText(org.openide.util.NbBundle.getMessage(FilterToolsPanel.class, "FilterToolsPanel.filterLabel.text")); // NOI18N
 
         filterInputTextField.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        filterInputTextField.setText(org.openide.util.NbBundle.getMessage(FilterToolsPanel.class, "FilterToolsPanel.text")); // NOI18N
+        filterInputTextField.setText(org.openide.util.NbBundle.getMessage(FilterToolsPanel.class, "FilterToolsPanel.filterInputTextField.text")); // NOI18N
         filterInputTextField.setEnabled(false);
-        filterInputTextField.setName(""); // NOI18N
         filterInputTextField.setPreferredSize(new java.awt.Dimension(100, 24));
 
         filterColumnComboBox.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
@@ -83,9 +109,9 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
             .addGroup(layout.createSequentialGroup()
                 .addComponent(filterLabel)
                 .addGap(8, 8, 8)
-                .addComponent(filterInputTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(filterInputTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(filterColumnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(filterColumnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

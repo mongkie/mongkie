@@ -47,15 +47,20 @@ public class InstantSearchPanel extends javax.swing.JPanel {
         initComponents();
 
         jXSearchField.setCancelAction(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 jXSearchField.setText(null);
                 display.searchNodes(null);
             }
         });
+//        jXSearchField.setFindAction(new ActionListener() {
+//
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                display.searchNodes(e.getActionCommand());
+//            }
+//        });
         jXSearchField.setAction(new AbstractAction() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 display.searchNodes(e.getActionCommand());
@@ -63,7 +68,6 @@ public class InstantSearchPanel extends javax.swing.JPanel {
         });
         jXSearchField.setEnabled(d.getGraph().getNodeCount() > 0);
         d.addDisplayListener(new DisplayListener() {
-
             @Override
             public void graphDisposing(NetworkDisplay d, Graph g) {
                 jXSearchField.setEnabled(false);
@@ -74,6 +78,14 @@ public class InstantSearchPanel extends javax.swing.JPanel {
                 jXSearchField.setEnabled(g.getNodeCount() > 0);
             }
         });
+    }
+
+    ActionListener getCancelAction() {
+        return jXSearchField.getCancelAction();
+    }
+
+    void setTextField(String text) {
+        jXSearchField.setText(text);
     }
 
     /**
@@ -90,7 +102,7 @@ public class InstantSearchPanel extends javax.swing.JPanel {
         jXSearchField.setLayoutStyle(org.jdesktop.swingx.JXSearchField.LayoutStyle.VISTA);
         jXSearchField.setText(org.openide.util.NbBundle.getMessage(InstantSearchPanel.class, "InstantSearchPanel.jXSearchField.text", new Object[] {})); // NOI18N
         jXSearchField.setUseNativeSearchFieldIfPossible(false);
-        jXSearchField.setFont(jXSearchField.getFont().deriveFont(jXSearchField.getFont().getSize()-1f));
+        jXSearchField.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jXSearchField.setPreferredSize(new java.awt.Dimension(240, 24));
         jXSearchField.setPromptBackround(java.awt.Color.white);
 

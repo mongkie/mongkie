@@ -56,6 +56,9 @@ public abstract class SearchTupleSet extends DefaultTupleSet {
      * encountered in the iteration.
      */
     public void index(Iterator tuples, String field) {
+        if (field == null) {
+            return;
+        }
         while ( tuples.hasNext() ) {
             Tuple t = (Tuple)tuples.next();
             index(t, field);
