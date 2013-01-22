@@ -52,6 +52,7 @@ import prefuse.action.assignment.ColorAction;
 import prefuse.action.assignment.ShapeAction;
 import prefuse.action.assignment.SizeAction;
 import prefuse.action.assignment.StrokeAction;
+import prefuse.action.filter.VisibilityFilter;
 import prefuse.action.layout.Layout;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityAdapter;
@@ -62,8 +63,11 @@ import prefuse.controls.WheelZoomControl;
 import prefuse.controls.ZoomToFitControl;
 import prefuse.data.*;
 import prefuse.data.event.EventConstants;
+import prefuse.data.event.ExpressionListener;
 import prefuse.data.event.TableListener;
 import prefuse.data.expression.AbstractPredicate;
+import prefuse.data.expression.AndPredicate;
+import prefuse.data.expression.Expression;
 import prefuse.data.expression.Predicate;
 import prefuse.data.io.DataIOException;
 import prefuse.data.search.RegexSearchTupleSet;
@@ -482,11 +486,11 @@ public abstract class NetworkDisplay extends Display {
         return (DataEditSupport) ((Table) getVisualization().getSourceData(dataGroup)).getClientProperty(DataEditSupport.PROP_KEY);
     }
 
-    public final void resetGraph(Graph g) {
-        resetGraph(g, (DisplayListener) null, DRAW, LAYOUT, ANIMATE);
+    public final void reset(Graph g) {
+        reset(g, (DisplayListener) null, DRAW, LAYOUT, ANIMATE);
     }
 
-    public final void resetGraph(Graph g, final DisplayListener processor, String... activities) {
+    public final void reset(Graph g, final DisplayListener processor, String... activities) {
         final Graph ng = (g == null) ? GraphFactory.createDefault() : g;
         v.process(new Runnable() {
             @Override
@@ -792,6 +796,7 @@ public abstract class NetworkDisplay extends Display {
     }
 
     protected void unregisterActions() {
+        nodeVisiblePredicates.clear();
         nodeItemsInAggregateTable.removeAllTableListeners();
         draw.removeAll();
         animate.removeAll();
@@ -803,6 +808,32 @@ public abstract class NetworkDisplay extends Display {
 
     private void registerActions() {
         draw = new ActionList();
+        draw.add(new VisibilityFilter(v, NODES, nodeVisiblePredicates =
+                new AndPredicate() {
+                    @Override
+                    public boolean getBoolean(Tuple t) {
+                        return size() == 0 ? true : super.getBoolean(t);
+                    }
+                }) {
+            @Override
+            public void run(double frac) {
+                super.run(frac);
+                // All edges connected to invisbile nodes should be invisible
+                for (Iterator<NodeItem> invisibleNodes = v.items(NODES, VisiblePredicate.FALSE); invisibleNodes.hasNext();) {
+                    NodeItem n = invisibleNodes.next();
+                    for (Iterator<EdgeItem> invisibleEdges = n.getGraph().edges(n); invisibleEdges.hasNext();) {
+                        PrefuseLib.updateVisible(invisibleEdges.next(), false);
+                    }
+                }
+            }
+        });
+        nodeVisiblePredicates.addExpressionListener(new ExpressionListener() {
+
+            @Override
+            public void expressionChanged(Expression expr) {
+                v.rerun(DRAW);
+            }
+        });
         addNodeSizeAction(draw, getNodeSizeField());
         addNodeShapeAction(draw);
         addNodeStrokeAction(draw);
@@ -826,6 +857,7 @@ public abstract class NetworkDisplay extends Display {
         v.putAction(LAYOUT, layout);
         v.putAction(ANIMATE, animate);
     }
+    private AndPredicate nodeVisiblePredicates;
 
     public boolean isLayoutRunning() {
         return layout.isRunning();

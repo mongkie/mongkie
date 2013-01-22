@@ -24,8 +24,11 @@ import java.awt.event.ItemListener;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import org.jdesktop.swingx.JXSearchField;
+import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.spi.DataTable;
 import org.mongkie.visualization.search.SearchController;
+import org.mongkie.visualization.search.SearchOption;
+import org.mongkie.visualization.search.SearchResult;
 import org.openide.util.Lookup;
 import prefuse.data.Schema;
 
@@ -39,12 +42,15 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
     private static final String NONE = "---None";
     private static final String ALL_COLUMNS = "---All columns";
     private static final String PROP_FILTERCOLUMN = FilterToolsPanel.class.getName() + "_FilterColumn";
+    private final SearchResult<DataNode> results;
 
     /**
      * Creates new form FilterToolsPanel
      */
     FilterToolsPanel(AbstractDataTable table) {
         this.table = table;
+        results = new SearchResult<DataNode>();
+
         initComponents();
 
         ((JXSearchField) filterInputTextField).setInstantSearchDelay(500); // Default is 50 milliseconds
@@ -66,6 +72,25 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
                         }
                     }
                 });
+    }
+
+    private void searchAndFilter(String text) {
+        results.clear();
+        Lookup.getDefault().lookup(SearchController.class).search(
+                table.getExplorerManager().getRootContext().getChildren().getNodes(true),
+                text, SearchOption.getDefault(), results, getSearchColumns());
+    }
+
+    private String[] getSearchColumns() {
+        String col = (String) filterColumnComboBox.getSelectedItem();
+        if (col.equals(ALL_COLUMNS)) {
+            String[] columns = new String[filterColumnComboBox.getItemCount() - 1];
+            for (int i = 1; i < filterColumnComboBox.getItemCount(); i++) {
+                columns[i - 1] = (String) filterColumnComboBox.getItemAt(i);
+            }
+            return columns;
+        }
+        return new String[]{col};
     }
 
     /**

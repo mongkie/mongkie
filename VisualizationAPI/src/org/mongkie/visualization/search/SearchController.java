@@ -32,10 +32,14 @@ public interface SearchController {
 
     public boolean isStringColumnAvailable(Schema s);
 
+    public Pattern makeRegexPattern(String text, SearchOption options);
+
+    public Pattern makeRegexPattern(String text, boolean wholeWords, boolean caseSensitive);
+
     public <T extends TupleProvider> SearchResult<T> search(Iterator<T> sources, String text, SearchOption options, SearchResult<T> results, String... columns);
 
     public <T extends TupleProvider> SearchResult<T> search(T[] sources, String text, SearchOption options, SearchResult<T> results, String... columns);
-    
+
     public <T extends TupleProvider> SearchResult<T> search(Object[] sources, String text, SearchOption options, SearchResult<T> results, String... columns);
 
     public boolean match(Tuple data, Pattern pattern, String... columns);

@@ -63,11 +63,15 @@ public class VisibilityFilter extends GroupAction {
      * @see prefuse.action.Action#run(double)
      */
     public void run(double frac) {
-        Iterator items = m_vis.items(m_group, m_filter);
+        Iterator items = items();
         while ( items.hasNext() ) {
             VisualItem item = (VisualItem)items.next();
             PrefuseLib.updateVisible(item, m_predicate.getBoolean(item));
         }
+    }
+    
+    protected Iterator<VisualItem> items() {
+        return m_vis.items(m_group, m_filter);
     }
 
 } // end of class VisibilityAction

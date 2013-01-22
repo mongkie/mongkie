@@ -53,8 +53,7 @@ public class SearchControllerImpl implements SearchController {
         } else {
             assert results.isEmpty();
         }
-        String query = makeQueryString(text, options);
-        Pattern pattern = makeRegexPattern(query, options);
+        Pattern pattern = makeRegexPattern(text, options);
         results.setPattern(pattern);
         for (T data : sources) {
             if (!results.contains(data) && match(data.getTuple(), pattern, columns)) {
@@ -71,8 +70,7 @@ public class SearchControllerImpl implements SearchController {
         } else {
             assert results.isEmpty();
         }
-        String query = makeQueryString(text, options);
-        Pattern pattern = makeRegexPattern(query, options);
+        Pattern pattern = makeRegexPattern(text, options);
         results.setPattern(pattern);
         for (Object source : sources) {
             T data = (T) source;
@@ -90,8 +88,7 @@ public class SearchControllerImpl implements SearchController {
         } else {
             assert results.isEmpty();
         }
-        String query = makeQueryString(text, options);
-        Pattern pattern = makeRegexPattern(query, options);
+        Pattern pattern = makeRegexPattern(text, options);
         results.setPattern(pattern);
         while (sources.hasNext()) {
             T data = sources.next();
@@ -102,13 +99,15 @@ public class SearchControllerImpl implements SearchController {
         return results;
     }
 
-    private String makeQueryString(String text, SearchOption options) {
-        return options.isWholeWords() ? ".*\\b(" + text + ")\\b.*" : ".*(" + text + ").*";
+    @Override
+    public Pattern makeRegexPattern(String text, SearchOption options) {
+        return makeRegexPattern(text, options.isWholeWords(), options.isCaseSensitive());
     }
 
-    private Pattern makeRegexPattern(String query, SearchOption options) {
-        return options.isCaseSensitive()
-                ? Pattern.compile(query) : Pattern.compile(query, Pattern.CASE_INSENSITIVE);
+    @Override
+    public Pattern makeRegexPattern(String text, boolean wholeWords, boolean caseSensitive) {
+        String query = wholeWords ? ".*\\b(" + text + ")\\b.*" : ".*(" + text + ").*";
+        return caseSensitive ? Pattern.compile(query) : Pattern.compile(query, Pattern.CASE_INSENSITIVE);
     }
 
     @Override

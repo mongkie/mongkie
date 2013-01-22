@@ -43,7 +43,7 @@ public class RetrievalWorker extends PathwayWorker {
     public void process(Graph g) {
         g.setNodeLabelField(FIELD_NAME);
         display.setIntegratedPathway(dbId == 0);
-        display.resetGraph(g);
+        display.reset(g);
         if (display.isIntegratedPathway()) {
             for (String pathwayId : pathwayIds) {
                 ((NodeItem) display.getVisualGraph().getNodeFrom(FIELD_NODEID, pathwayId)).setExpandable(false);

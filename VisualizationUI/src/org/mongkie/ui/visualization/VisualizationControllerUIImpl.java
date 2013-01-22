@@ -52,10 +52,10 @@ public class VisualizationControllerUIImpl implements VisualizationControllerUI 
             if (g != null) {
                 if (isBigGraph(g)) {
                     currentDisplay.cancelLayoutAction();
-                    currentDisplay.resetGraph(g, null, DRAW);
+                    currentDisplay.reset(g, null, DRAW);
                     Lookup.getDefault().lookup(BigGraphLayout.class).layout(currentDisplay);
                 } else {
-                    currentDisplay.resetGraph(g);
+                    currentDisplay.reset(g);
                 }
             } else {
                 currentDisplay.setLoading(loading);
