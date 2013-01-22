@@ -482,11 +482,11 @@ public abstract class NetworkDisplay extends Display {
         return (DataEditSupport) ((Table) getVisualization().getSourceData(dataGroup)).getClientProperty(DataEditSupport.PROP_KEY);
     }
 
-    public final void resetGraph(Graph g) {
-        resetGraph(g, (DisplayListener) null, DRAW, LAYOUT, ANIMATE);
+    public final void reset(Graph g) {
+        reset(g, (DisplayListener) null, DRAW, LAYOUT, ANIMATE);
     }
 
-    public final void resetGraph(Graph g, final DisplayListener processor, String... activities) {
+    public final void reset(Graph g, final DisplayListener processor, String... activities) {
         final Graph ng = (g == null) ? GraphFactory.createDefault() : g;
         v.process(new Runnable() {
             @Override

@@ -77,7 +77,7 @@ public class DefaultGraphProcessor implements Processor<GraphContainer> {
                 final MongkieDisplay d = tc.getDisplay();
                 d.cancelLayoutAction();
                 d.setLoading(false);
-                d.resetGraph(vgc.getGraph(), new DisplayListener() {
+                d.reset(vgc.getGraph(), new DisplayListener() {
                     @Override
                     public void graphDisposing(NetworkDisplay d, Graph g) {
                     }

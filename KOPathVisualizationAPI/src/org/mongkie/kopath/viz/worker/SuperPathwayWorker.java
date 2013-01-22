@@ -92,7 +92,7 @@ public class SuperPathwayWorker extends SwingWorker<Graph, Void> {
     public void process(Graph g) {
         g.setNodeLabelField(FIELD_NAME);
         display.setIntegratedPathway(true);
-        display.resetGraph(g);
+        display.reset(g);
     }
 
     public void lastly() {
