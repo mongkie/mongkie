@@ -42,23 +42,4 @@ public class SearchOption {
     public void setCaseSensitive(boolean caseSensitive) {
         this.caseSensitive = caseSensitive;
     }
-
-    public static SearchOption getDefault() {
-        return DefaultHoder.OPTION;
-    }
-
-    static class DefaultHoder {
-
-        static final SearchOption OPTION = new SearchOption() {
-            @Override
-            public void setWholeWords(boolean wholeWords) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public void setCaseSensitive(boolean caseSensitive) {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
 }

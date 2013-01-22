@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.mongkie.filter
-OpenIDE-Module-Localizing-Bundle: org/mongkie/filter/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
