@@ -25,9 +25,14 @@ import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import org.jdesktop.swingx.JXSearchField;
 import org.mongkie.datatable.spi.DataTable;
+import org.mongkie.filter.FilterController;
+import org.mongkie.filter.FilterModel;
+import org.mongkie.filter.spi.Filter;
 import org.mongkie.visualization.search.SearchController;
+import org.mongkie.visualization.search.SearchOption;
 import org.openide.util.Lookup;
 import prefuse.data.Schema;
+import prefuse.data.Tuple;
 
 /**
  *
@@ -35,10 +40,10 @@ import prefuse.data.Schema;
  */
 class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<AbstractDataTable>, ItemListener {
 
-    private final AbstractDataTable table;
+    private AbstractDataTable table;
     private static final String NONE = "---None";
     private static final String ALL_COLUMNS = "---All columns";
-    private static final String PROP_FILTERCOLUMN = FilterToolsPanel.class.getName() + "_FilterColumn";
+    private FilterModel filterModel;
 
     /**
      * Creates new form FilterToolsPanel
@@ -47,25 +52,52 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
         this.table = table;
         initComponents();
 
-        ((JXSearchField) filterInputTextField).setInstantSearchDelay(500); // Default is 50 milliseconds
         ((JXSearchField) filterInputTextField).setCancelAction(
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        System.out.println("clear");
-                        filterInputTextField.setText(null);
+                        clearFilter(false);
                     }
                 });
         ((JXSearchField) filterInputTextField).setAction(
                 new AbstractAction() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        String text = filterInputTextField.getText();
-                        if (!text.isEmpty()) {
-                            System.out.println("filter: " + text);
+                        if (filterModel != null) {
+                            applyFilter(false);
                         }
                     }
                 });
+//        filterInputTextField.addKeyListener(new KeyAdapter() {
+//            @Override
+//            public void keyReleased(KeyEvent e) {
+//                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+//                    applyFilter(false);
+//                } else if (filterInputTextField.getText().isEmpty()) {
+//                    clearFilter(false);
+//                }
+//            }
+//        });
+    }
+
+    private void clearFilter(boolean reapply) {
+        filterInputTextField.setText(null);
+        RegexFilter filter = (RegexFilter) filterModel.getFilter(table.getDataGroup(), getFilterName());
+        System.out.println("clearFilter");
+        if (!filter.setText(null) && reapply) {
+            System.out.println("> reapply");
+            filter.reapply();
+        }
+    }
+
+    private void applyFilter(boolean reapply) {
+        String text = filterInputTextField.getText();
+        RegexFilter filter = (RegexFilter) filterModel.getFilter(table.getDataGroup(), getFilterName());
+        System.out.println("applyFilter");
+        if (!filter.setText(text.isEmpty() ? null : text) && reapply) {
+            System.out.println("> reapply");
+            filter.reapply();
+        }
     }
 
     /**
@@ -140,51 +172,129 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
         return this;
     }
 
-    @Override
-    public void refresh(boolean clear) {
-        clear = clear || !Lookup.getDefault().lookup(SearchController.class).isStringColumnAvailable(
-                table.getModel().getDisplay().getDataViewSupport(table.getDataGroup()).getOutlineSchema());
-        refreshFilterColumns(clear);
-        if (clear) {
-            filterInputTextField.setText(null);
-            filterInputTextField.setEnabled(false);
-        } else {
-            filterInputTextField.setEnabled(true);
-        }
+    private String getFilterName() {
+        return RegexFilter.class.getName() + "_" + table.getDataGroup();
     }
 
-    private void refreshFilterColumns(boolean clear) {
-        if (clear) {
+    @Override
+    public void refresh(AbstractDataTable table) {
+        this.table = table;
+        if (table == null || table.getModel() == null
+                || table.getModel().getDisplay().getDataViewSupport(table.getDataGroup()).getOutlineSchema().getColumnCount() == 0) {
             filterColumnComboBox.removeItemListener(this);
             filterColumnComboBox.removeAllItems();
             filterColumnComboBox.addItem(NONE);
             filterColumnComboBox.setEnabled(false);
+            filterInputTextField.setText(null);
+            filterInputTextField.setEnabled(false);
+            filterModel = null;
         } else {
             filterColumnComboBox.removeItemListener(this);
-            String filterColumn = (String) table.getModel().getTable().getClientProperty(PROP_FILTERCOLUMN);
             filterColumnComboBox.removeAllItems();
             filterColumnComboBox.addItem(ALL_COLUMNS);
             Schema s = table.getModel().getDisplay().getDataViewSupport(table.getDataGroup()).getOutlineSchema();
             for (int i = 0; i < s.getColumnCount(); i++) {
-                if (s.getColumnType(i) == String.class) { // only for string types
-                    filterColumnComboBox.addItem(s.getColumnName(i));
+                String col = s.getColumnName(i);
+                if (table.getModel().getTable().canGetString(col)) {
+                    filterColumnComboBox.addItem(col);
                 }
             }
             filterColumnComboBox.setEnabled(true);
-            if (filterColumn == null) {
-                filterColumnComboBox.setSelectedIndex(0);
-            } else {
-                filterColumnComboBox.setSelectedItem(filterColumn);
+            filterModel = Lookup.getDefault().lookup(FilterController.class).getModel(table.getModel().getDisplay());
+            RegexFilter filter = (RegexFilter) filterModel.getFilter(table.getDataGroup(), getFilterName());
+            if (filter == null) {
+                Lookup.getDefault().lookup(FilterController.class).addFilter(table.getDataGroup(), filter = new RegexFilter(getFilterName()));
+                filter.s = s;
             }
-            table.getModel().getTable().putClientProperty(PROP_FILTERCOLUMN, filterColumnComboBox.getSelectedItem());
+            filterColumnComboBox.setSelectedItem(filter.getColumn());
+            if (s != filter.s) { // Some columns are added or deleted
+                filter.s = s;
+                String col = (String) filterColumnComboBox.getSelectedItem();
+                if (!filter.getColumn().equals(col)) { // Filter column was deleted
+                    // setColumn() results in applying the filter
+                    filter.column = col;
+                    clearFilter(true); // Apply the filter only once
+                } else {
+                    filterInputTextField.setText(filter.getText());
+                    applyFilter(true);
+                }
+            } else {
+                filterInputTextField.setText(filter.getText());
+            }
             filterColumnComboBox.addItemListener(this);
+            filterInputTextField.setEnabled(true);
         }
     }
 
     @Override
     public void itemStateChanged(ItemEvent e) {
         if (e.getStateChange() == ItemEvent.SELECTED) {
-            table.getModel().getTable().putClientProperty(PROP_FILTERCOLUMN, e.getItem());
+            ((RegexFilter) filterModel.getFilter(table.getDataGroup(), getFilterName())).setColumn((String) e.getItem());
+        }
+    }
+
+    private class RegexFilter extends Filter {
+
+        private String column = ALL_COLUMNS, text = null;
+        private final String name;
+        private Schema s;
+
+        RegexFilter(String name) {
+            this.name = name;
+        }
+
+        String getColumn() {
+            return column;
+        }
+
+        boolean setColumn(String column) {
+            if (column.equals(this.column)) {
+                return false;
+            }
+            this.column = column;
+            if (text != null) {
+                fireExpressionChange(); // Apply the filter
+            }
+            return true;
+        }
+
+        String getText() {
+            return text;
+        }
+
+        boolean setText(String text) {
+            if ((text != null && text.equals(this.text))
+                    || (text == null && this.text == null)) {
+                return false;
+            }
+            this.text = text;
+            fireExpressionChange(); // Apply the filter
+            return true;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public boolean getBoolean(Tuple data) {
+            if (text == null) {
+                return true;
+            }
+            SearchController searcher = Lookup.getDefault().lookup(SearchController.class);
+            return searcher.match(data, searcher.makeRegexPattern(text, SearchOption.getDefault()), getFilterColumns());
+        }
+
+        private String[] getFilterColumns() {
+            if (column.equals(ALL_COLUMNS)) {
+                String[] columns = new String[filterColumnComboBox.getItemCount() - 1];
+                for (int i = 1; i < filterColumnComboBox.getItemCount(); i++) {
+                    columns[i - 1] = (String) filterColumnComboBox.getItemAt(i);
+                }
+                return columns;
+            }
+            return new String[]{column};
         }
     }
 }

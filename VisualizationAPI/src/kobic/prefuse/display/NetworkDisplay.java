@@ -1173,6 +1173,7 @@ public abstract class NetworkDisplay extends Display {
                         s.addColumn(col, ts.getColumnType(i), ts.getDefault(i));
                     }
                 }
+                s.lockSchema();
             }
             return s;
         }
@@ -1209,6 +1210,7 @@ public abstract class NetworkDisplay extends Display {
                         s.addColumn(col, ts.getColumnType(i), ts.getDefault(i));
                     }
                 }
+                s.lockSchema();
             }
             return s;
         }

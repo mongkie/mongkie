@@ -267,7 +267,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             } else if (c instanceof JComponent) {
                 Tool tool = (Tool) ((JComponent) c).getClientProperty(Tool.class);
                 if (tool != null) {
-                    tool.refresh(table == null || (table instanceof GraphDataTable && ((GraphDataTable) table).getModel() == null));
+                    tool.refresh(table);
                 }
             }
         }

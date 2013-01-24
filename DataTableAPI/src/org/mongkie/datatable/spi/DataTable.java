@@ -48,7 +48,7 @@ public interface DataTable {
 
         public T getDataTable();
 
-        public void refresh(boolean clear);
+        public void refresh(T table);
 
         public JComponent getComponent();
     }

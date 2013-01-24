@@ -33,27 +33,27 @@ public abstract class Config {
     public static final Schema NODEOUTLINE_FOR_PATHWAYLEVEL = new Schema(
             new String[]{FIELD_NAME, FIELD_PUBLICID, FIELD_TYPE, FIELD_LOCATION, FIELD_FEATURE, FIELD_SUBNODES},
             new Class[]{String.class, String.class, String.class, String.class, String.class, int[].class},
-            new Object[]{null, null, null, null, null, null});
+            new Object[]{null, null, null, null, null, null}).lockSchema();
     public static final Schema NODEPROPERTIES_FOR_PATHWAYLEVEL = new Schema(
             new String[]{FIELD_NAME, FIELD_TYPE, FIELD_PUBLICID, FIELD_PUBLICIDDBNAME, FIELD_SYMBOL, FIELD_FULLNAME, FIELD_GENETYPE, FIELD_DESCRIPTION, FIELD_LOCATION, FIELD_FEATURE, FIELD_SUBNODES},
             new Class[]{String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class},
-            new Object[]{null, null, null, null, null, null, null, null, null, null, null});
+            new Object[]{null, null, null, null, null, null, null, null, null, null, null}).lockSchema();
     public static final Schema EDGEOUTLINE_FOR_PATHWAYLEVEL = new Schema(
             new String[]{FIELD_INTERACTIONID, FIELD_INTERACTIONTYPE, FIELD_NODENAMEA, FIELD_NODENAMEB, FIELD_CONTROLTYPE, FIELD_NODENAMEC},
             new Class[]{String.class, String.class, String.class, String.class, String.class, String.class},
-            new Object[]{null, null, null, null, null, null});
+            new Object[]{null, null, null, null, null, null}).lockSchema();
     public static final Schema NODEOUTLINE_FOR_ENTITYLEVEL = new Schema(
             new String[]{FIELD_NAME, FIELD_PUBLICID, FIELD_PUBLICIDDBNAME, FIELD_TYPE, FIELD_SUBNODES},
             new Class[]{String.class, String.class, String.class, String.class, int[].class},
-            new Object[]{null, null, null, null, null});
+            new Object[]{null, null, null, null, null}).lockSchema();
     public static final Schema NODEPROPERTIES_FOR_ENTITYLEVEL = new Schema(
             new String[]{FIELD_NAME, FIELD_TYPE, FIELD_PUBLICID, FIELD_PUBLICIDDBNAME, FIELD_SYMBOL, FIELD_FULLNAME, FIELD_GENETYPE, FIELD_DESCRIPTION, FIELD_SUBNODES},
             new Class[]{String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class, String.class},
-            new Object[]{null, null, null, null, null, null, null, null, null});
+            new Object[]{null, null, null, null, null, null, null, null, null}).lockSchema();
     public static final Schema EDGEOUTLINE_FOR_ENTITYLEVEL = new Schema(
             new String[]{FIELD_PATHWAYNAME, FIELD_INTERACTIONID, FIELD_INTERACTIONTYPE, FIELD_NODENAMEA, FIELD_NODENAMEB, FIELD_CONTROLTYPE, FIELD_DATABASE},
             new Class[]{String.class, String.class, String.class, String.class, String.class, String.class, String.class},
-            new Object[]{null, null, null, null, null, null, null});
+            new Object[]{null, null, null, null, null, null, null}).lockSchema();
     public static final Map<String, String> NODEOUTLINE_COLUMN_NAMES = new HashMap<String, String>();
 
     static {

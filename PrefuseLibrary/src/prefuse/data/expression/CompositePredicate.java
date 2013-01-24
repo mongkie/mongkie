@@ -11,7 +11,7 @@ import java.util.Iterator;
  */
 public abstract class CompositePredicate extends AbstractPredicate {
 
-    protected ArrayList m_clauses = new ArrayList(2);
+    protected ArrayList<Predicate> m_clauses = new ArrayList<Predicate>(2);
     
     /**
      * Create a new, empty CompositePredicate.
@@ -40,6 +40,7 @@ public abstract class CompositePredicate extends AbstractPredicate {
             throw new IllegalArgumentException("Duplicate predicate.");
         }
         m_clauses.add(p);
+        p.addExpressionListener(this);
         fireExpressionChange();
     }
     
@@ -50,6 +51,7 @@ public abstract class CompositePredicate extends AbstractPredicate {
      */
     public boolean remove(Predicate p) {
         if ( m_clauses.remove(p) ) {
+            p.removeExpressionListener(this);
             fireExpressionChange();
             return true;
         } else {

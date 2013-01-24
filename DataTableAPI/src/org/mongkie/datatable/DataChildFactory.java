@@ -25,6 +25,7 @@ import java.util.Map;
 import kobic.prefuse.display.DataViewSupport;
 import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.spi.DataNodeFactory;
+import org.mongkie.util.AccumulativeEventsProcessor;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
@@ -32,13 +33,15 @@ import org.openide.util.Lookup;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
 import prefuse.data.event.EventConstants;
+import prefuse.data.event.ExpressionListener;
 import prefuse.data.event.TableListener;
+import prefuse.data.expression.Expression;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public class DataChildFactory extends ChildFactory<Tuple> implements TableListener {
+public class DataChildFactory extends ChildFactory<Tuple> implements TableListener, ExpressionListener {
 
     private Table table;
     private DataNodeFactory nodeFactory;
@@ -49,12 +52,15 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
         this.table = table;
         this.table.addTableListener(DataChildFactory.this);
         this.labelColumn = labelColumn;
+        // Add a listener for visibility filter changes
+        ((DataViewSupport) table.getClientProperty(DataViewSupport.PROP_KEY)).getFilter().addExpressionListener(DataChildFactory.this);
     }
 
     public DataChildFactory setTable(Table table, String labelColumn) {
         Table old = this.table;
         if (old != null) {
             old.removeTableListener(this);
+            ((DataViewSupport) old.getClientProperty(DataViewSupport.PROP_KEY)).getFilter().removeExpressionListener(this);
         }
         if (table == null || this.table != table) {
             for (DataNode n : tuple2Node.values()) {
@@ -69,6 +75,7 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
         this.table = table;
         if (this.table != null) {
             this.table.addTableListener(this);
+            ((DataViewSupport) this.table.getClientProperty(DataViewSupport.PROP_KEY)).getFilter().addExpressionListener(this);
         }
         this.labelColumn = labelColumn;
         refresh(true);
@@ -162,4 +169,21 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
                 break;
         }
     }
+
+    @Override
+    public void expressionChanged(Expression expr) { // Filters changed
+        if (refreshQ != null && refreshQ.isAccumulating()) {
+            refreshQ.eventAttended();
+        } else {
+            refreshQ = new AccumulativeEventsProcessor(new Runnable() {
+                @Override
+                public void run() {
+                    //TODO run in the EDT?
+                    refresh(true);
+                }
+            });
+            refreshQ.start();
+        }
+    }
+    private AccumulativeEventsProcessor refreshQ;
 }
