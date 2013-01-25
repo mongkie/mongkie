@@ -25,12 +25,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.filter.FilterModel;
 import org.mongkie.filter.FilterModelListener;
 import org.mongkie.filter.spi.Filter;
 import org.mongkie.visualization.MongkieDisplay;
+import org.openide.util.Exceptions;
 import prefuse.Visualization;
+import static prefuse.Visualization.DRAW;
 import prefuse.action.ActionList;
 import prefuse.action.RepaintAction;
 import prefuse.action.filter.VisibilityFilter;
@@ -61,8 +64,8 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
 
     FilterModelImpl(MongkieDisplay display) {
         this.display = display;
-        filter = new ActionList(display.getVisualization());
         Visualization v = display.getVisualization();
+        filter = new ActionList(v);
         filter.add(new VisibilityFilter(v, EDGES, edgeVisiblePredicates = new VisiblePredicates()));
         edgeVisiblePredicates.addExpressionListener(FilterModelImpl.this);
         filter.add(new VisibilityFilter(v, NODES, nodeVisiblePredicates = new VisiblePredicates()) {
@@ -93,6 +96,7 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
     void putFilterAction() {
         display.getNodeDataViewSupport().addFilter(nodeVisiblePredicates);
         display.getEdgeDataViewSupport().addFilter(edgeVisiblePredicates);
+        display.getVisualization().removeAction(FILTER);
         display.getVisualization().putAction(FILTER, filter);
     }
 
@@ -114,11 +118,19 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
 
     @Override
     public void expressionChanged(Expression expr) {
-        //TODO accumulative event processing?
+        if (applyDelayed) {
+            applyDelayed = false;
+            return;
+        }
         if (display.getVisualization().getAction(FILTER) != null) {
             display.getVisualization().rerun(FILTER);
         }
     }
+
+    void setApplyDelayed(boolean applyDelayed) {
+        this.applyDelayed = applyDelayed;
+    }
+    private volatile boolean applyDelayed = false;
 
     @Override
     public void addModelListener(FilterModelListener l) {
@@ -133,6 +145,7 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
     }
 
     private void fireFiltersApplied() {
+        display.getVisualization().rerun(DRAW); // Rerun draw actions over items that are changed in visibility
         synchronized (listeners) {
             for (Iterator<FilterModelListener> listenerIter = listeners.iterator(); listenerIter.hasNext();) {
                 listenerIter.next().fitersApplied(
@@ -140,7 +153,7 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
                         new HashSet<Filter>(edgeVisiblePredicates.filters.values()));
             }
         }
-        System.out.println("fireFiltersApplied");
+        Logger.getLogger(FilterModelImpl.class.getName()).info("Filters applied.");
     }
 
     @Override
@@ -192,42 +205,45 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
         }
 
         @Override
-        public boolean getBoolean(Tuple t) {
+        public boolean getBoolean(Tuple data) {
             if (size() == 0) {
                 return true;
             }
             switch (connective) {
                 case AND:
                     for (Predicate p : m_clauses) {
-                        if (!p.getBoolean(t)) {
+                        if (!p.getBoolean(data)) {
                             return false;
                         }
                     }
                     return true;
                 case OR:
                     for (Predicate p : m_clauses) {
-                        if (p.getBoolean(t)) {
+                        if (p.getBoolean(data)) {
                             return true;
                         }
                     }
                     return false;
                 default:
-                    throw new UnsupportedOperationException("Not supported operation yet: " + connective.name());
+                    throw new UnsupportedOperationException("Not supported operator yet: " + connective.name());
             }
 
         }
 
-        Filter addFilter(Filter filter) {
-            super.add(filter);
-            return filters.put(filter.getName(), filter);
+        boolean addFilter(Filter filter) {
+            filters.put(filter.getName(), filter);
+            try {
+                super.add(filter);
+            } catch (IllegalArgumentException ex) {
+                Exceptions.printStackTrace(ex);
+                filters.remove(filter.getName());
+                return false;
+            }
+            return true;
         }
 
         boolean removeFilter(Filter filter) {
-            if (super.remove(filter)) {
-                filters.remove(filter.getName());
-                return true;
-            }
-            return false;
+            return filters.remove(filter.getName()) == filter & super.remove(filter);
         }
 
         Filter getFilter(String name) {

@@ -44,6 +44,10 @@ public abstract class CompositePredicate extends AbstractPredicate {
         fireExpressionChange();
     }
     
+    public boolean contains(Predicate p) {
+        return m_clauses.contains(p);
+    }
+    
     /**
      * Remove a new clause.
      * @param p the Predicate clause to remove

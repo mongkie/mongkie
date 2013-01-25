@@ -62,6 +62,7 @@ public abstract class DataNode extends AbstractNode implements TupleProvider {
     @Override
     public void destroy() throws IOException {
         super.destroy();
+//        fireNodeDestroyed();
     }
 
     void fireColumnInserted(int col) {
@@ -82,6 +83,21 @@ public abstract class DataNode extends AbstractNode implements TupleProvider {
         } else if (s.getColumnIndex(data.getColumnName(col)) > -1) {
             firePropertyChange(data.getColumnName(col), null, data.get(col));
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + getTuple().hashCode();
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        return getTuple().equals(((DataNode) obj).getTuple());
     }
 
     protected abstract Sheet.Set preparePropertySet(Tuple data);

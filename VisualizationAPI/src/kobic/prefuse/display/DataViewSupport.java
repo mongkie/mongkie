@@ -48,7 +48,6 @@ public abstract class DataViewSupport {
         String dataGroup = (String) table.getClientProperty(PROPKEY_DATAGROUP);
         if (EDGES.equals(dataGroup)) {
             filters = new AndPredicate(new AbstractPredicate() {
-
                 private final NetworkDisplay display = (NetworkDisplay) table.getClientProperty(NetworkDisplay.PROP_KEY);
 
                 @Override
@@ -58,7 +57,6 @@ public abstract class DataViewSupport {
             });
         } else {
             filters = new AndPredicate() {
-
                 @Override
                 public boolean getBoolean(Tuple t) {
                     return size() > 0 ? super.getBoolean(t) : true;
@@ -74,8 +72,17 @@ public abstract class DataViewSupport {
         return filters;
     }
 
-    public void addFilter(Predicate filter) {
-        filters.add(filter);
+    public boolean addFilter(Predicate filter) {
+        if (!filters.contains(filter)) {
+            filters.add(filter);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean containsFilter(Predicate filter) {
+        return filters.contains(filter);
     }
 
     public boolean removeFilter(Predicate filter) {

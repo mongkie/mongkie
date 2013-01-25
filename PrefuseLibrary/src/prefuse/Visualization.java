@@ -1108,6 +1108,12 @@ public class Visualization {
      */
     public Action putAction(String name, Action action) {
         action.setVisualization(this);
+        Action old = getAction(name);
+        if (old != null) {
+            old.cancel();
+            m_actions.remove(name);
+            old.setVisualization(null);
+        }
         m_actions.put(name, action);
         return action;
     }

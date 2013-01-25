@@ -237,7 +237,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
     @Override
     public JComponent getView() {
-//        return this;
         MongkieDisplay d = model.getDisplay();
         return (d != null && d.isFired()) ? this : null;
     }
@@ -288,6 +287,11 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                 addPropertyColumn(col, viewSupport.getColumnTitle(col), outline.getColumnType(i).getSimpleName());
             }
             getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
+            model.reset(table, showing); // Must reset the model *BEFORE* refreshing child nodes
+            if (tools != null) {
+                // Also filter tool must be refreshed before filter actions called in the child factory performed
+                ((FilterToolsPanel) tools[0]).refresh(false);
+            }
             if (childFactory == null) {
                 em.setRootContext(new AbstractNode(
                         Children.create(childFactory = new DataChildFactory(table, labelColumn), false)) {
@@ -299,7 +303,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             } else {
                 childFactory.setTable(table, labelColumn);
             }
-            model.reset(table, showing);
         } else {
             clear();
             model = null;
@@ -379,7 +382,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
         private final T dataTable;
         private final MongkieDisplay display;
-        private List<Node> selectedNodes = new ArrayList<Node>();
+        private Set<Node> selectedNodes = new HashSet<Node>();
         private Table table;
 
         protected AbstractModel(MongkieDisplay display, T dataTable) {
@@ -428,8 +431,8 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
         /**
          * Synchronize selections in the data table with selections in the
-         * display. It will pan the display to place a last selected item in the
-         * center of the display
+         * display. It will pan the display to place a last selected *ONE* item in the
+         * center of the display.
          *
          * @param evt event object of selection of the data table
          */
@@ -446,7 +449,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                         selectedNodes.addAll(Arrays.asList((Node[]) evt.getNewValue()));
                         internalDisplaySelection = true;
                         // Firstly, remove unselected items
-                        if (oldNodes.isEmpty()) {
+                        if (oldNodes.isEmpty()) { // Ensure focus items is empty
                             focusedTupleSet.clear();
                         } else {
                             for (Node n : oldNodes) {
@@ -473,7 +476,7 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                         internalDisplaySelection = false;
                     }
                 }, Visualization.DRAW);
-                if (centerItem != null
+                if (centerItem != null && !dataTable.getDataChildFactory().isRefreshing()
                         && !Lookup.getDefault().lookup(DataTableControllerUI.class).isRefreshing(dataTable)) {
                     panDisplayCenterTo(centerItem);
                 }
@@ -533,10 +536,10 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             for (Iterator<VisualItem> items = selectedItems.tuples(new InGroupPredicate(dataTable.getDataGroup())); items.hasNext();) {
                 Tuple tuple = items.next().getSourceTuple();
                 DataNode n = dataTable.getDataChildFactory().getNodeOf(tuple);
-                if (n == null) {
-                    // filtered rows by DataViewSupport.getFilter()
-                    continue;
-                }
+//                if (n == null) {
+//                    // filtered rows by DataViewSupport.getFilter()?
+//                    continue;
+//                }
                 assert n != null;
                 selectedNodes.add(n);
             }

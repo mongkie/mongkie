@@ -133,34 +133,39 @@ public class FilterControllerImpl implements FilterController, DisplayListener<M
     }
 
     @Override
-    public void addFilter(String group, Filter filter) {
+    public void addFilter(Filter filter) {
+        addFilter(filter, false);
+    }
+
+    @Override
+    public void addFilter(Filter filter, boolean delay) {
+        if (filter == null) {
+            return;
+        }
+        model.setApplyDelayed(delay);
+        String group = filter.getDataGroup();
         if (NODES.equals(group)) {
-            addNodeFilter(filter);
+            model.getNodeVisiblePredicates().addFilter(filter);
         } else if (EDGES.equals(group)) {
-            addEdgeFilter(filter);
+            model.getEdgeVisiblePredicates().addFilter(filter);
         } else {
+            model.setApplyDelayed(false);
             throw new IllegalArgumentException("Unknown data group: " + group);
         }
     }
 
     @Override
-    public boolean removeFilter(String group, Filter filter) {
+    public boolean removeFilter(Filter filter) {
+        if (filter == null) {
+            return false;
+        }
+        String group = filter.getDataGroup();
         if (NODES.equals(group)) {
-            return removeNodeFilter(filter);
+            return model.getNodeVisiblePredicates().removeFilter(filter);
         } else if (EDGES.equals(group)) {
-            return removeEdgeFilter(filter);
+            return model.getEdgeVisiblePredicates().removeFilter(filter);
         }
         throw new IllegalArgumentException("Unknown data group: " + group);
-    }
-
-    @Override
-    public void addNodeFilter(Filter filter) {
-        model.getNodeVisiblePredicates().addFilter(filter);
-    }
-
-    @Override
-    public boolean removeNodeFilter(Filter filter) {
-        return model.getNodeVisiblePredicates().removeFilter(filter);
     }
 
     @Override
@@ -169,17 +174,13 @@ public class FilterControllerImpl implements FilterController, DisplayListener<M
     }
 
     @Override
-    public void addEdgeFilter(Filter filter) {
-        model.getEdgeVisiblePredicates().addFilter(filter);
-    }
-
-    @Override
-    public boolean removeEdgeFilter(Filter filter) {
-        return model.getEdgeVisiblePredicates().removeFilter(filter);
-    }
-
-    @Override
     public void clearEdgeFilters() {
         model.getEdgeVisiblePredicates().clear();
+    }
+
+    @Override
+    public void clearAllFilters() {
+        clearNodeFilters();
+        clearEdgeFilters();
     }
 }

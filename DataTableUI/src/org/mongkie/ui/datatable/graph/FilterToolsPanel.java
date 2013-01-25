@@ -26,7 +26,6 @@ import javax.swing.JComponent;
 import org.jdesktop.swingx.JXSearchField;
 import org.mongkie.datatable.spi.DataTable;
 import org.mongkie.filter.FilterController;
-import org.mongkie.filter.FilterModel;
 import org.mongkie.filter.spi.Filter;
 import org.mongkie.visualization.search.SearchController;
 import org.mongkie.visualization.search.SearchOption;
@@ -43,7 +42,7 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
     private AbstractDataTable table;
     private static final String NONE = "---None";
     private static final String ALL_COLUMNS = "---All columns";
-    private FilterModel filterModel;
+    private RegexFilter filter;
 
     /**
      * Creates new form FilterToolsPanel
@@ -63,7 +62,7 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
                 new AbstractAction() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        if (filterModel != null) {
+                        if (filter != null) {
                             applyFilter(false);
                         }
                     }
@@ -82,20 +81,14 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
 
     private void clearFilter(boolean reapply) {
         filterInputTextField.setText(null);
-        RegexFilter filter = (RegexFilter) filterModel.getFilter(table.getDataGroup(), getFilterName());
-        System.out.println("clearFilter");
         if (!filter.setText(null) && reapply) {
-            System.out.println("> reapply");
             filter.reapply();
         }
     }
 
     private void applyFilter(boolean reapply) {
         String text = filterInputTextField.getText();
-        RegexFilter filter = (RegexFilter) filterModel.getFilter(table.getDataGroup(), getFilterName());
-        System.out.println("applyFilter");
         if (!filter.setText(text.isEmpty() ? null : text) && reapply) {
-            System.out.println("> reapply");
             filter.reapply();
         }
     }
@@ -177,9 +170,8 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
     }
 
     @Override
-    public void refresh(AbstractDataTable table) {
-        this.table = table;
-        if (table == null || table.getModel() == null
+    public void refresh(boolean disabled) {
+        if (disabled
                 || table.getModel().getDisplay().getDataViewSupport(table.getDataGroup()).getOutlineSchema().getColumnCount() == 0) {
             filterColumnComboBox.removeItemListener(this);
             filterColumnComboBox.removeAllItems();
@@ -187,30 +179,30 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
             filterColumnComboBox.setEnabled(false);
             filterInputTextField.setText(null);
             filterInputTextField.setEnabled(false);
-            filterModel = null;
+            filter = null;
         } else {
+            AbstractDataTable.AbstractModel model = table.getModel();
+            Schema s = model.getDisplay().getDataViewSupport(table.getDataGroup()).getOutlineSchema();
             filterColumnComboBox.removeItemListener(this);
             filterColumnComboBox.removeAllItems();
             filterColumnComboBox.addItem(ALL_COLUMNS);
-            Schema s = table.getModel().getDisplay().getDataViewSupport(table.getDataGroup()).getOutlineSchema();
             for (int i = 0; i < s.getColumnCount(); i++) {
                 String col = s.getColumnName(i);
-                if (table.getModel().getTable().canGetString(col)) {
+                if (model.getTable().canGetString(col)) {
                     filterColumnComboBox.addItem(col);
                 }
             }
-            filterColumnComboBox.setEnabled(true);
-            filterModel = Lookup.getDefault().lookup(FilterController.class).getModel(table.getModel().getDisplay());
-            RegexFilter filter = (RegexFilter) filterModel.getFilter(table.getDataGroup(), getFilterName());
+            filter = (RegexFilter) Lookup.getDefault().lookup(FilterController.class).getModel(model.getDisplay()).getFilter(table.getDataGroup(), getFilterName());
             if (filter == null) {
-                Lookup.getDefault().lookup(FilterController.class).addFilter(table.getDataGroup(), filter = new RegexFilter(getFilterName()));
-                filter.s = s;
+                Lookup.getDefault().lookup(FilterController.class).addFilter(filter = new RegexFilter(table, getFilterName()), true);
             }
             filterColumnComboBox.setSelectedItem(filter.getColumn());
-            if (s != filter.s) { // Some columns are added or deleted
-                filter.s = s;
+            Schema old = (Schema) model.getTable().getClientProperty(Schema.class.getName());
+            if (s != old) { // Some columns are added or deleted
+                model.getTable().putClientProperty(Schema.class.getName(), s);
                 String col = (String) filterColumnComboBox.getSelectedItem();
-                if (!filter.getColumn().equals(col)) { // Filter column was deleted
+                if (!filter.getColumn().equals(col) // Filter column was deleted
+                        || col.equals(ALL_COLUMNS)) {
                     // setColumn() results in applying the filter
                     filter.column = col;
                     clearFilter(true); // Apply the filter only once
@@ -222,6 +214,7 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
                 filterInputTextField.setText(filter.getText());
             }
             filterColumnComboBox.addItemListener(this);
+            filterColumnComboBox.setEnabled(true);
             filterInputTextField.setEnabled(true);
         }
     }
@@ -229,17 +222,18 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
     @Override
     public void itemStateChanged(ItemEvent e) {
         if (e.getStateChange() == ItemEvent.SELECTED) {
-            ((RegexFilter) filterModel.getFilter(table.getDataGroup(), getFilterName())).setColumn((String) e.getItem());
+            filter.setColumn((String) e.getItem());
         }
     }
 
-    private class RegexFilter extends Filter {
+    private static class RegexFilter extends Filter {
 
         private String column = ALL_COLUMNS, text = null;
         private final String name;
-        private Schema s;
+        private AbstractDataTable table;
 
-        RegexFilter(String name) {
+        RegexFilter(AbstractDataTable table, String name) {
+            this.table = table;
             this.name = name;
         }
 
@@ -278,6 +272,11 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
         }
 
         @Override
+        public String getDataGroup() {
+            return table.getDataGroup();
+        }
+
+        @Override
         public boolean getBoolean(Tuple data) {
             if (text == null) {
                 return true;
@@ -288,9 +287,13 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
 
         private String[] getFilterColumns() {
             if (column.equals(ALL_COLUMNS)) {
-                String[] columns = new String[filterColumnComboBox.getItemCount() - 1];
-                for (int i = 1; i < filterColumnComboBox.getItemCount(); i++) {
-                    columns[i - 1] = (String) filterColumnComboBox.getItemAt(i);
+                Schema s = table.getModel().getDisplay().getDataViewSupport(table.getDataGroup()).getOutlineSchema();
+                String[] columns = new String[s.getColumnCount()];
+                for (int i = 0; i < s.getColumnCount(); i++) {
+                    String col = s.getColumnName(i);
+                    if (table.getModel().getTable().canGetString(col)) {
+                        columns[i] = col;
+                    }
                 }
                 return columns;
             }

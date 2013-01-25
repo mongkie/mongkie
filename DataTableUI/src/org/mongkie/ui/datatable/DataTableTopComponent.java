@@ -266,8 +266,8 @@ public final class DataTableTopComponent extends TopComponent implements Display
                 command.setEnabled(table != null && ((DataAction) command.getClientProperty(DataAction.PROP_KEY)).isEnabled(table));
             } else if (c instanceof JComponent) {
                 Tool tool = (Tool) ((JComponent) c).getClientProperty(Tool.class);
-                if (tool != null) {
-                    tool.refresh(table);
+                if (tool != null && tool.getDataTable() == getSelectedTable()) {
+                    tool.refresh(table == null || (table instanceof GraphDataTable && ((GraphDataTable) table).getModel() == null));
                 }
             }
         }
@@ -347,14 +347,14 @@ public final class DataTableTopComponent extends TopComponent implements Display
                 }
             }
         };
-        if (refreshProcessor != null && refreshProcessor.isAccumulating()) {
-            refreshProcessor.eventAttended(refresh);
+        if (refreshingQ != null && refreshingQ.isAccumulating()) {
+            refreshingQ.eventAttended(refresh);
         } else {
-            refreshProcessor = new AccumulativeEventsProcessor(refresh);
-            refreshProcessor.start();
+            refreshingQ = new AccumulativeEventsProcessor(refresh);
+            refreshingQ.start();
         }
     }
-    private AccumulativeEventsProcessor refreshProcessor;
+    private AccumulativeEventsProcessor refreshingQ;
     private volatile boolean refreshingTables = false;
 
     boolean isRefreshing(DataTable table) {

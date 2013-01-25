@@ -27,21 +27,17 @@ import org.mongkie.visualization.MongkieDisplay;
  */
 public interface FilterController {
 
-    public void addFilter(String group, Filter filter);
+    public void addFilter(Filter filter);
 
-    public boolean removeFilter(String group, Filter filter);
+    public void addFilter(Filter filter, boolean delay);
 
-    public void addNodeFilter(Filter filter);
-
-    public boolean removeNodeFilter(Filter filter);
+    public boolean removeFilter(Filter filter);
 
     public void clearNodeFilters();
 
-    public void addEdgeFilter(Filter filter);
-
-    public boolean removeEdgeFilter(Filter filter);
-
     public void clearEdgeFilters();
+
+    public void clearAllFilters();
 
     public FilterModel getModel();
 

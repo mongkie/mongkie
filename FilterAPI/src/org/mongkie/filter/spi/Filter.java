@@ -29,6 +29,8 @@ public abstract class Filter extends AbstractPredicate {
 
     public abstract String getName();
 
+    public abstract String getDataGroup();
+
     @Override
     public abstract boolean getBoolean(Tuple data);
 

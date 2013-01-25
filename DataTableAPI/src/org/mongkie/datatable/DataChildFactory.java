@@ -17,18 +17,17 @@
  */
 package org.mongkie.datatable;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.SwingUtilities;
 import kobic.prefuse.display.DataViewSupport;
 import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.spi.DataNodeFactory;
 import org.mongkie.util.AccumulativeEventsProcessor;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
@@ -50,9 +49,9 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
 
     public DataChildFactory(Table table, String labelColumn) {
         this.table = table;
-        this.table.addTableListener(DataChildFactory.this);
         this.labelColumn = labelColumn;
-        // Add a listener for visibility filter changes
+        table.addTableListener(DataChildFactory.this);
+        // Add a listener for filter changes to refresh child nodes
         ((DataViewSupport) table.getClientProperty(DataViewSupport.PROP_KEY)).getFilter().addExpressionListener(DataChildFactory.this);
     }
 
@@ -63,22 +62,15 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
             ((DataViewSupport) old.getClientProperty(DataViewSupport.PROP_KEY)).getFilter().removeExpressionListener(this);
         }
         if (table == null || this.table != table) {
-            for (DataNode n : tuple2Node.values()) {
-                try {
-                    n.destroy();
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
             tuple2Node.clear();
         }
         this.table = table;
-        if (this.table != null) {
-            this.table.addTableListener(this);
-            ((DataViewSupport) this.table.getClientProperty(DataViewSupport.PROP_KEY)).getFilter().addExpressionListener(this);
+        if (table != null) {
+            table.addTableListener(this);
+            ((DataViewSupport) table.getClientProperty(DataViewSupport.PROP_KEY)).getFilter().addExpressionListener(this);
         }
         this.labelColumn = labelColumn;
-        refresh(true);
+        refresh();
         return this;
     }
 
@@ -86,21 +78,16 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
     protected boolean createKeys(List<Tuple> toPopulate) {
         if (null != table) {
             for (Iterator<Tuple> tuples =
-                    ((DataViewSupport) table.getClientProperty(DataViewSupport.PROP_KEY)).tuples();
+                    ((DataViewSupport) table.getClientProperty(DataViewSupport.PROP_KEY)).tuples(); // Returns not filtered tuples only
                     tuples.hasNext();) {
                 Tuple tuple = tuples.next();
                 toPopulate.add(tuple);
             }
-            // Remove keys not contained anymore
+            // Remove invalid or filtered tuples
             for (Iterator<Integer> keys = tuple2Node.keySet().iterator(); keys.hasNext();) {
                 Integer key = keys.next();
                 if (!table.isValidRow(key)
                         || !toPopulate.contains(table.getTuple(key))) {
-                    try {
-                        tuple2Node.get(key).destroy();
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
                     keys.remove();
                 }
             }
@@ -129,18 +116,19 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
     @Override
     public void tableChanged(Table t, int start, int end, int col, final int type) {
         NetworkDisplay d = (NetworkDisplay) t.getClientProperty(NetworkDisplay.PROP_KEY);
-        // tuple inserted or deleted
+        // Tuples inserted or deleted
         if (!d.isLoading()
                 && col == EventConstants.ALL_COLUMNS) {
             d.getVisualization().invokeAfterDataProcessing(this, new Runnable() {
                 @Override
                 public void run() {
-                    refresh(true);
+                    // DO NOT USE refreshLazy() which is lazy, but tuple changes must be refreshed immediately
+                    refresh();
                 }
             });
         }
         switch (type) {
-            // column added
+            // Column added
             case EventConstants.INSERT:
                 if (col != EventConstants.ALL_COLUMNS) {
                     for (DataNode node : tuple2Node.values()) {
@@ -148,7 +136,7 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
                     }
                 }
                 break;
-            // column deleted
+            // Column deleted
             case EventConstants.DELETE:
                 if (col != EventConstants.ALL_COLUMNS) {
                     for (DataNode node : tuple2Node.values()) {
@@ -156,7 +144,7 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
                     }
                 }
                 break;
-            // tuple updated
+            // Tuples updated
             case EventConstants.UPDATE:
                 for (int row = start; row <= end; row++) {
                     DataNode node = getNodeOf(row);
@@ -172,14 +160,36 @@ public class DataChildFactory extends ChildFactory<Tuple> implements TableListen
 
     @Override
     public void expressionChanged(Expression expr) { // Filters changed
+        refreshLazy(); // Filter changes allow laziness
+    }
+
+    public boolean isRefreshing() {
+        return refreshing;
+    }
+    private volatile boolean refreshing = false;
+
+    // Refresh nodes immediately
+    private void refresh() {
+        refreshing = true;
+        refresh(true);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                refreshing = false;
+            }
+        });
+
+    }
+
+    // Refresh nodes lazily
+    private void refreshLazy() {
         if (refreshQ != null && refreshQ.isAccumulating()) {
             refreshQ.eventAttended();
         } else {
             refreshQ = new AccumulativeEventsProcessor(new Runnable() {
                 @Override
                 public void run() {
-                    //TODO run in the EDT?
-                    refresh(true);
+                    refresh();
                 }
             });
             refreshQ.start();
