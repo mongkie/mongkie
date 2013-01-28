@@ -183,9 +183,4 @@ public class FilterControllerImpl implements FilterController, DisplayListener<M
         clearNodeFilters();
         clearEdgeFilters();
     }
-
-    @Override
-    public void reapplyFilters() {
-        model.expressionChanged(null);
-    }
 }

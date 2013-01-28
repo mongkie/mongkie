@@ -24,12 +24,10 @@ import java.util.Map;
 import kobic.prefuse.Constants;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.spi.DataAction;
-import org.mongkie.filter.FilterController;
 import org.mongkie.ui.datatable.graph.AbstractDataTable;
 import org.mongkie.ui.datatable.graph.AbstractDataTable.AbstractModel;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.ImageUtilities;
-import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import prefuse.Visualization;
 import prefuse.data.Node;
@@ -95,7 +93,6 @@ public class AddNode extends AbstractNodeAction {
             PrefuseLib.setY(n, null, c.getY());
             DataNode added = table.getDataChildFactory().getNodeOf(node.getRow());
             if (added == null) { // Data node for the added node does not exist because it is filtered
-                Lookup.getDefault().lookup(FilterController.class).reapplyFilters(); // Re-apply visibility filters
                 StatusDisplayer.getDefault().setStatusText("A node is added newly but it is filtered, clear filters to display it.");
             } else {
                 table.setSelectedNodes(new org.openide.nodes.Node[]{added});

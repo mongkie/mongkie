@@ -38,8 +38,11 @@ import prefuse.action.RepaintAction;
 import prefuse.action.filter.VisibilityFilter;
 import prefuse.activity.Activity;
 import prefuse.activity.ActivityAdapter;
+import prefuse.data.Table;
 import prefuse.data.Tuple;
+import prefuse.data.event.EventConstants;
 import prefuse.data.event.ExpressionListener;
+import prefuse.data.event.TableListener;
 import prefuse.data.expression.CompositePredicate;
 import prefuse.data.expression.Expression;
 import prefuse.data.expression.Predicate;
@@ -52,7 +55,7 @@ import prefuse.visual.expression.VisiblePredicate;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-final class FilterModelImpl implements FilterModel, ExpressionListener {
+final class FilterModelImpl implements FilterModel, ExpressionListener, TableListener {
 
     private static final String FILTER = "filter";
     private final MongkieDisplay display;
@@ -93,6 +96,8 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
     }
 
     void putFilterAction() {
+        display.getGraph().getNodeTable().addTableListener(this);
+        display.getGraph().getEdgeTable().addTableListener(this);
         display.getNodeDataViewSupport().addFilter(nodeVisiblePredicates);
         display.getEdgeDataViewSupport().addFilter(edgeVisiblePredicates);
         display.getVisualization().removeAction(FILTER);
@@ -100,6 +105,8 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
     }
 
     void clearFilterAction() {
+        display.getGraph().getNodeTable().removeTableListener(this);
+        display.getGraph().getEdgeTable().removeTableListener(this);
         nodeVisiblePredicates.clear();
         display.getNodeDataViewSupport().removeFilter(nodeVisiblePredicates);
         edgeVisiblePredicates.clear();
@@ -188,6 +195,20 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
             return getEdgeFilter(name);
         }
         throw new IllegalArgumentException("Unknown data group: " + group);
+    }
+
+    @Override
+    public void tableChanged(Table t, int start, int end, int col, int type) {
+        // Nodes or edges ared added newly
+        if (!display.isLoading()
+                && col == EventConstants.ALL_COLUMNS && type == EventConstants.INSERT) {
+            display.getVisualization().invokeAfterDataProcessing(this, new Runnable() {
+                @Override
+                public void run() {
+                    expressionChanged(null); // Re-run visibility filters on the current display
+                }
+            });
+        }
     }
 
     static class VisiblePredicates extends CompositePredicate {
