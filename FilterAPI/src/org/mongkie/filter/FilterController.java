@@ -46,4 +46,6 @@ public interface FilterController {
     public void addModelChangeListener(FilterModelChangeListener l);
 
     public void removeModelChangeListener(FilterModelChangeListener l);
+
+    public void reapplyFilters();
 }

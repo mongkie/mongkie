@@ -21,6 +21,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
 import org.jdesktop.swingx.JXSearchField;
@@ -67,16 +69,14 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
                         }
                     }
                 });
-//        filterInputTextField.addKeyListener(new KeyAdapter() {
-//            @Override
-//            public void keyReleased(KeyEvent e) {
-//                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-//                    applyFilter(false);
-//                } else if (filterInputTextField.getText().isEmpty()) {
-//                    clearFilter(false);
-//                }
-//            }
-//        });
+        filterInputTextField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    applyFilter(true); // Re-apply on ENTER KEY
+                }
+            }
+        });
     }
 
     private void clearFilter(boolean reapply) {

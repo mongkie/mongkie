@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.filter.FilterModel;
 import org.mongkie.filter.FilterModelListener;
@@ -153,7 +152,7 @@ final class FilterModelImpl implements FilterModel, ExpressionListener {
                         new HashSet<Filter>(edgeVisiblePredicates.filters.values()));
             }
         }
-        Logger.getLogger(FilterModelImpl.class.getName()).info("Filters applied.");
+//        Logger.getLogger(FilterModelImpl.class.getName()).info("Filters applied.");
     }
 
     @Override
