@@ -63,7 +63,7 @@ public class DeleteColumn extends AbstractColumnAction implements PopupAction<Ab
     public boolean isEnabled(AbstractModel model) {
         String dataGroup = model.getDataTable().getDataGroup();
         return model.getDisplay().getDataEditSupport(dataGroup).isRemoveColumnSupported()
-                && (dataGroup.equals(EDGES) ? model.getTable().getColumnCount() > 2 : model.getTable().getColumnCount() > 0);
+                && model.getDisplay().getDataViewSupport(dataGroup).getOutlineSchema().getColumnCount() > 0;
     }
 
     @Override

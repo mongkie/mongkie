@@ -86,11 +86,8 @@ public class JPopupButton extends JButton {
 
     public boolean setSelectedItem(Object item) {
         if (item == null) {
-            if (selectedItem != null) {
-                fireChangeEvent();
-                return true;
-            }
-            return false;
+            fireChangeEvent();
+            return true;
         }
         for (JPopupButtonItem i : items) {
             if (i.object.equals(item)) {
