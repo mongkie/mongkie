@@ -56,18 +56,10 @@ public class ExporterVizGraph extends AbstractGraphExporter {
             SerializableTable serializableNodeTable = new SerializableTable(g.getNodeTable());
             oos.writeObject(serializableNodeTable);
             SerializableTable serializableEdgeTable = new SerializableTable(g.getEdgeTable());
-            oos.writeObject(serializableEdgeTable);
-            // Direction
-            oos.writeBoolean(g.isDirected());
-            // Node key field
             String nodeKey = g.getNodeKeyField();
-            oos.writeObject(nodeKey);
-            // Edge source and target field
             String sourceKey = g.getEdgeSourceField();
-            oos.writeObject(sourceKey);
             String targetKey = g.getEdgeTargetField();
-            oos.writeObject(targetKey);
-            //// source and target node rows must be reassigned to serialized values
+            //// Rows of source and target nodes must be reassigned to serialized values
             if (nodeKey == null) {
                 for (Iterator<Tuple> edgesIter = serializableEdgeTable.getTable().tuples(); edgesIter.hasNext();) {
                     Tuple edge = edgesIter.next();
@@ -75,6 +67,14 @@ public class ExporterVizGraph extends AbstractGraphExporter {
                     edge.setInt(targetKey, serializableNodeTable.getRow(edge.getInt(targetKey)));
                 }
             }
+            oos.writeObject(serializableEdgeTable);
+            // Direction
+            oos.writeBoolean(g.isDirected());
+            // Node key field
+            oos.writeObject(nodeKey);
+            // Edge source and target field
+            oos.writeObject(sourceKey);
+            oos.writeObject(targetKey);
             // Label field for nodes and edges
             oos.writeObject(g.getNodeLabelField());
             oos.writeObject(g.getEdgeLabelField());

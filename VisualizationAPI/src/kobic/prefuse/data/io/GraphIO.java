@@ -70,7 +70,6 @@ public class GraphIO {
             SerializableTable serializableNodeTable = new SerializableTable(g.getNodeTable());
             out.writeObject(serializableNodeTable);
             SerializableTable serializableEdgeTable = new SerializableTable(g.getEdgeTable());
-            out.writeObject(serializableEdgeTable);
             String nodeKey = g.getNodeKeyField();
             String sourceKey = g.getEdgeSourceField();
             String targetKey = g.getEdgeTargetField();
@@ -81,6 +80,7 @@ public class GraphIO {
                     edge.setInt(targetKey, serializableNodeTable.getRow(edge.getInt(targetKey)));
                 }
             }
+            out.writeObject(serializableEdgeTable);
             out.writeBoolean(g.isDirected());
             out.writeObject(nodeKey);
             out.writeObject(sourceKey);
