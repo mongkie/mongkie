@@ -28,7 +28,6 @@ import javax.swing.*;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import kobic.prefuse.Constants;
 import kobic.prefuse.display.DataViewSupport;
 import org.mongkie.datatable.DataChildFactory;
 import org.mongkie.datatable.DataNode;
@@ -54,7 +53,6 @@ import prefuse.data.Table;
 import prefuse.data.Tuple;
 import prefuse.data.event.TupleSetListener;
 import prefuse.data.tuple.TupleSet;
-import prefuse.util.ColorLib;
 import prefuse.visual.VisualItem;
 import prefuse.visual.expression.InGroupPredicate;
 
@@ -66,82 +64,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
     private AbstractModel model;
 
-    private static class OutlineHtmlRenderer {
-
-        final JLabel renderer;
-
-        OutlineHtmlRenderer() {
-            renderer = HtmlRenderer.createLabel();
-        }
-
-        void reset() {
-            ((HtmlRenderer.Renderer) renderer).reset();
-        }
-
-        HtmlRenderer.Renderer getHtmlRenderer() {
-            return (HtmlRenderer.Renderer) renderer;
-        }
-
-        static OutlineHtmlRenderer getInstance() {
-            Holder.intance.reset();
-            return Holder.intance;
-        }
-
-        static class Holder {
-
-            static OutlineHtmlRenderer intance = new OutlineHtmlRenderer();
-        }
-
-        static Icon getEllipsisIcon() {
-            return EllipsisIcon.instance;
-        }
-
-        static class EllipsisIcon implements Icon {
-
-            boolean larger;
-            static EllipsisIcon instance = new EllipsisIcon();
-
-            private EllipsisIcon() {
-                Font f = UIManager.getFont("Table.font"); //NOI18N
-                larger = (f != null) ? (f.getSize() > 13) : false;
-            }
-
-            @Override
-            public int getIconHeight() {
-                return 12;
-            }
-
-            @Override
-            public int getIconWidth() {
-                return larger ? 16 : 12;
-            }
-
-            @Override
-            public void paintIcon(Component c, Graphics g, int x, int y) {
-                int w = c.getWidth();
-                int h = c.getHeight();
-                int ybase = h - 5;
-                int pos2 = (w / 2);
-                int pos1 = pos2 - 4;
-                int pos3 = pos2 + 4;
-                Color foreground = UIManager.getColor("PropSheet.customButtonForeground");
-                g.setColor((foreground == null) ? c.getForeground() : foreground);
-                drawDot(g, pos1 + 1, ybase, larger);
-                drawDot(g, pos2, ybase, larger);
-                drawDot(g, pos3 - 1, ybase, larger);
-            }
-
-            private void drawDot(Graphics g, int x, int y, boolean larger) {
-                if (!larger) {
-                    g.drawLine(x, y, x, y);
-                } else {
-                    g.drawLine(x - 1, y, x + 1, y);
-                    g.drawLine(x, y - 1, x, y + 1);
-                }
-            }
-        }
-    }
-
     protected AbstractDataTable() {
         super("Name");
         setBorder(BorderFactory.createEmptyBorder());
@@ -152,9 +74,14 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
         outline.setSelectVisibleColumnsLabel("Show/hide columns");
         final TableCellRenderer defaultRenderer = outline.getDefaultRenderer(Node.Property.class);
         outline.setDefaultRenderer(Node.Property.class, new DefaultOutlineCellRenderer() {
+            /**
+             * Gray color for the even lines in the view.
+             */
+            private final Color VERY_LIGHT_GRAY = new Color(236, 236, 236);
+
             private Color getSelectionBackground() {
                 Color c = UIManager.getColor("List.selectionBackground");
-                return c != null ? c : ColorLib.getColor(Constants.COLOR_DEFAULT_ITEM_FOCUS);
+                return c != null ? c : Color.BLUE;
             }
 
             private Color getSelectionForeground() {
@@ -166,23 +93,23 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 if (value != null) {
                     DataNode.Property property = (DataNode.Property) value;
+                    Component cell;
                     if (property.getValueType() == Boolean.TYPE) {
-                        return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, false, row, column);
+                        cell = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, false, row, column);
                     } else {
                         String string = StringUtilities.escapeHTML(
                                 model.getDisplay().getDataViewSupport(getDataGroup()).getStringAt(property.getTuple(), property.getName()));
                         String html = "<html>" + string + "</html>";
-                        Component c = OutlineHtmlRenderer.getInstance().getHtmlRenderer().getTableCellRendererComponent(table, html, isSelected, false, row, column);
-                        ((HtmlRenderer.Renderer) c).setHtml(true);
-                        ((HtmlRenderer.Renderer) c).setRenderStyle(HtmlRenderer.STYLE_TRUNCATE);
-                        ((JLabel) c).setToolTipText("".equals(string) ? null : StringUtilities.createHtmlTooltip(property.getDisplayName(), string, 4));
-//                        c.setBackground(isSelected ? getSelectionBackground() : table.getBackground());
-//                        c.setForeground(isSelected ? getSelectionForeground() : table.getForeground());
-                        //TODO Add ellipsis button if length of the value exceeds renderer's size?
-                        return c;
+                        cell = table.getDefaultRenderer(String.class).getTableCellRendererComponent(table, html, isSelected, false, row, column);
+                        ((HtmlRenderer.Renderer) cell).setHtml(true);
+                        ((HtmlRenderer.Renderer) cell).setRenderStyle(HtmlRenderer.STYLE_TRUNCATE);
+                        ((JLabel) cell).setToolTipText("".equals(string) ? null : StringUtilities.createHtmlTooltip(property.getDisplayName(), string, 4));
                     }
+                    cell.setBackground(isSelected ? getSelectionBackground() : row % 2 == 1 ? VERY_LIGHT_GRAY : table.getBackground());
+                    cell.setForeground(isSelected ? getSelectionForeground() : table.getForeground());
+                    return cell;
                 }
-                return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, false, row, column);
+                return super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
             }
         });
         final TableCellEditor defaultEditor = outline.getDefaultEditor(Node.Property.class);
