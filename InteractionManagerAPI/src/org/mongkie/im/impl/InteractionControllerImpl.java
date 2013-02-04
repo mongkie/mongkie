@@ -336,66 +336,90 @@ public class InteractionControllerImpl implements InteractionController {
         @Override
         protected Set<Interaction<K>> query(InteractionSource<K> is, Set<K> keys) throws Exception {
             Set<Interaction<K>> interactions = super.query(is, keys);
-            Set<K> expandedKeys = new HashSet<K>();
+            Set<K> _expandedKeys = new HashSet<K>();
             if (is.isDirected()) {
                 for (Interaction<K> i : interactions) {
                     K sourceKey = i.getSourceKey();
                     if (!keys.contains(sourceKey)) {
-                        expandedKeys.add(sourceKey);
+                        _expandedKeys.add(sourceKey);
                     }
                     K targetKey = i.getTargetKey();
                     if (!keys.contains(targetKey)) {
-                        expandedKeys.add(targetKey);
+                        _expandedKeys.add(targetKey);
                     }
                 }
             } else {
                 for (Interaction<K> i : interactions) {
                     K targetKey = i.getTargetKey();
                     if (!keys.contains(targetKey)) {
-                        expandedKeys.add(targetKey);
+                        _expandedKeys.add(targetKey);
                     }
                 }
             }
-            interactions.addAll(super.query(is, expandedKeys));
+            interactions.addAll(super.query(is, _expandedKeys));
             Set<K> existingKeys = getAllNodeKeys();
             for (Iterator<Interaction<K>> interactionIter = interactions.iterator(); interactionIter.hasNext();) {
                 Interaction<K> i = interactionIter.next();
                 K sourceKey = i.getSourceKey();
                 K targetKey = i.getTargetKey();
-                if ((!existingKeys.contains(sourceKey) && !expandedKeys.contains(sourceKey))
-                        || (!existingKeys.contains(targetKey) && !expandedKeys.contains(targetKey))) {
+                if ((!existingKeys.contains(sourceKey) && !_expandedKeys.contains(sourceKey))
+                        || (!existingKeys.contains(targetKey) && !_expandedKeys.contains(targetKey))) {
                     interactionIter.remove();
+                } else if (existingKeys.contains(sourceKey) && !existingKeys.contains(targetKey)) {
+                    List<K> _keys = expandedKeys.get(sourceKey);
+                    if (_keys == null) {
+                        expandedKeys.put(sourceKey, _keys = new ArrayList<K>());
+                    }
+                    _keys.add(targetKey);
+                } else if (!existingKeys.contains(sourceKey) && existingKeys.contains(targetKey)) {
+                    List<K> _keys = expandedKeys.get(targetKey);
+                    if (_keys == null) {
+                        expandedKeys.put(targetKey, _keys = new ArrayList<K>());
+                    }
+                    _keys.add(sourceKey);
                 }
             }
             return interactions;
         }
+        private final Map<K, List<K>> expandedKeys = new HashMap<K, List<K>>();
 
         @Override
         protected void addNodes(Set<Interaction<K>> interactions, Graph g) {
-            Visualization v = m.getDisplay().getVisualization();
-            for (Interaction i : interactions) {
+            for (Interaction<K> i : interactions) {
                 if (DataLib.get(g.getNodeTable(), keyField, i.getSourceKey()) < 0) {
                     Node n = g.addNode(); // Expanded node
                     n.set(keyField, i.getSourceKey());
-                    expandedNodeItems.add((NodeItem) v.getVisualItem(Constants.NODES, n));
                 }
                 if (DataLib.get(g.getNodeTable(), keyField, i.getTargetKey()) < 0) {
                     Node n = g.addNode(); // Expanded node
                     n.set(keyField, i.getTargetKey());
-                    expandedNodeItems.add((NodeItem) v.getVisualItem(Constants.NODES, n));
                 }
             }
         }
-        private final List<NodeItem> expandedNodeItems = new ArrayList<NodeItem>();
 
         @Override
         protected void queryFinished(boolean success) {
             super.queryFinished(success);
             m.setLinked(success && linked);
-            if (success && !expandedNodeItems.isEmpty()) {
-                Lookup.getDefault().lookup(ExpandingLayout.class).layout(m.getDisplay(), Collections.unmodifiableList(expandedNodeItems));
+            if (success && !expandedKeys.isEmpty()) {
+                Lookup.getDefault().lookup(ExpandingLayout.class).layout(m.getDisplay(), getLayoutReferers());
             }
-            expandedNodeItems.clear();
+            expandedKeys.clear();
+        }
+
+        private Map<NodeItem, List<NodeItem>> getLayoutReferers() {
+            Map<NodeItem, List<NodeItem>> referers = new HashMap<NodeItem, List<NodeItem>>();
+            Visualization v = m.getDisplay().getVisualization();
+            Graph g = m.getDisplay().getGraph();
+            for (K refererKey : expandedKeys.keySet()) {
+                NodeItem referer = (NodeItem) v.getVisualItem(Constants.NODES, g.getNode(DataLib.get(g.getNodeTable(), keyField, refererKey)));
+                List<NodeItem> nodes = new ArrayList<NodeItem>();
+                for (K k : expandedKeys.get(refererKey)) {
+                    nodes.add((NodeItem) v.getVisualItem(Constants.NODES, g.getNode(DataLib.get(g.getNodeTable(), keyField, k))));
+                }
+                referers.put(referer, nodes);
+            }
+            return referers;
         }
     }
 

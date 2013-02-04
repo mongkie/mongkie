@@ -19,6 +19,7 @@
 package org.mongkie.visualization.util;
 
 import java.util.List;
+import java.util.Map;
 import org.mongkie.visualization.MongkieDisplay;
 import prefuse.visual.NodeItem;
 
@@ -35,6 +36,6 @@ public interface LayoutService {
 
     public interface ExpandingLayout extends LayoutService {
 
-        public void layout(MongkieDisplay d, List<NodeItem> expandedNodes);
+        public void layout(MongkieDisplay d, Map<NodeItem, List<NodeItem>> expandedNodes);
     }
 }

@@ -19,8 +19,8 @@ package org.mongkie.layout.plugins.forcedirected;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import static kobic.prefuse.Constants.*;
 import org.mongkie.layout.LayoutProperty;
@@ -413,36 +413,19 @@ public final class ForceDirected extends PrefuseLayout.Delegation<ForceDirectedL
     }
 
     @Override
-    public void layout(MongkieDisplay d, List<NodeItem> expandedNodes) {
+    public void layout(MongkieDisplay d, Map<NodeItem, List<NodeItem>> expandedNodes) {
         if (expandedNodes.isEmpty()) {
             return;
         }
         assert this.expandedNodes.isEmpty();
-        this.expandedNodes.addAll(expandedNodes);
         expandingLayout.setVisualization(d.getVisualization());
         expandingLayout.setEnabled(true);
         d.setGraphLayout(expandingLayout, getDuration(expandedNodes.size()));
-        for (NodeItem expanded : this.expandedNodes) {
-            NodeItem referer = null;
-            for (Iterator<NodeItem> iter = expanded.inNeighbors(); iter.hasNext();) {
-                NodeItem n = iter.next();
-                if (!this.expandedNodes.contains(n)) {
-                    referer = n;
-                    break;
-                }
-            }
-            if (referer == null) {
-                for (Iterator<NodeItem> iter = expanded.outNeighbors(); iter.hasNext();) {
-                    NodeItem n = iter.next();
-                    if (!this.expandedNodes.contains(n)) {
-                        referer = n;
-                        break;
-                    }
-                }
-            }
-            if (referer != null) {
+        for (NodeItem referer : expandedNodes.keySet()) {
+            for (NodeItem expanded : expandedNodes.get(referer)) {
                 setX(expanded, referer, referer.getX());
                 setY(expanded, referer, referer.getY());
+                this.expandedNodes.add(expanded);
             }
         }
         d.getVisualization().repaint(); // Position of expanded nodes are changed
