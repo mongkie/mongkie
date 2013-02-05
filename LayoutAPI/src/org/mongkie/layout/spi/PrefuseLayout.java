@@ -70,6 +70,11 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
         pcs.firePropertyChange(name, o, n);
     }
 
+    protected void firePropertySetsChange() {
+        _properties = null;
+        pcs.firePropertyChange(LayoutProperty.ALL, null, null);
+    }
+
     @Override
     public final LayoutBuilder<? extends Layout> getBuilder() {
         return builder;
@@ -119,7 +124,7 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
     @Override
     public void resetPropertyValues() {
         resetProperties();
-        firePropertyChange("resetPropertyValues", null, this);
+        firePropertySetsChange();
     }
 
     protected abstract void resetProperties();
@@ -250,6 +255,16 @@ public abstract class PrefuseLayout extends prefuse.action.layout.Layout
         @Override
         public final void propertyChange(PropertyChangeEvent evt) {
             setLayoutParameters(getDeligateLayout());
+        }
+
+        @Override
+        protected void firePropertySetsChange() {
+            if (!isRunOnce() && _properties != null) {
+                for (LayoutProperty p : _properties) {
+                    p.getPropertyEditor().removePropertyChangeListener(this);
+                }
+            }
+            super.firePropertySetsChange();
         }
 
         @Override

@@ -45,7 +45,6 @@ public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
 
     private double radiusIncrement = 50;
     private boolean autoScale = true;
-    private LayoutProperty radiusIncrementProperty;
 
     RadialTree(LayoutBuilder<RadialTree> builder) {
         super(builder);
@@ -56,12 +55,8 @@ public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
     }
 
     public void setAutoScale(boolean autoScale) {
-        boolean o = this.autoScale;
         this.autoScale = autoScale;
-        if (radiusIncrementProperty != null) {
-            radiusIncrementProperty.setHidden(autoScale);
-            firePropertyChange(radiusIncrementProperty.getName(), o, autoScale);
-        }
+        firePropertySetsChange();
     }
 
     public double getRadiusIncrement() {
@@ -153,16 +148,16 @@ public class RadialTree extends PrefuseLayout.Delegation<RadialTreeLayout> {
     public LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         try {
-            properties.add(LayoutProperty.createProperty("Auto scale",
+            properties.add(new LayoutProperty("Auto scale",
                     "Set whether or not the layout should automatically scale itself to fit the display bounds.",
                     "Parameters",
                     this, boolean.class, "isAutoScale", "setAutoScale"));
-            radiusIncrementProperty = LayoutProperty.createProperty("Radius increment",
-                    "Set the radius increment to use between concentric circles. Note that this value is used only if auto-scaling is disabled.",
-                    "Parameters",
-                    this, double.class, "getRadiusIncrement", "setRadiusIncrement");
-            radiusIncrementProperty.setHidden(autoScale);
-            properties.add(radiusIncrementProperty);
+            if (!isAutoScale()) {
+                properties.add(new LayoutProperty("Radius increment",
+                        "Set the radius increment to use between concentric circles. Note that this value is used only if auto-scaling is disabled.",
+                        "Parameters",
+                        this, double.class, "getRadiusIncrement", "setRadiusIncrement"));
+            }
         } catch (NoSuchMethodException ex) {
             Exceptions.printStackTrace(ex);
         }

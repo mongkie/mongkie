@@ -63,6 +63,11 @@ public abstract class AbstractLayout implements Layout {
         pcs.firePropertyChange(name, o, n);
     }
 
+    protected void firePropertySetsChange() {
+        _properties = null;
+        pcs.firePropertyChange(LayoutProperty.ALL, null, null);
+    }
+
     @Override
     public void setDisplay(MongkieDisplay d) {
         this.display = d;
@@ -81,7 +86,7 @@ public abstract class AbstractLayout implements Layout {
     @Override
     public final void resetPropertyValues() {
         resetProperties();
-        firePropertyChange("resetPropertyValues", null, this);
+        firePropertySetsChange();
     }
 
     protected abstract void resetProperties();

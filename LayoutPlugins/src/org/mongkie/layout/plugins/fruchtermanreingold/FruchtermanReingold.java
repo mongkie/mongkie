@@ -80,7 +80,7 @@ public class FruchtermanReingold extends AbstractLayout {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         LayoutProperty p;
         try {
-            p = LayoutProperty.createProperty(
+            p = new LayoutProperty(
                     NbBundle.getMessage(FruchtermanReingold.class, "param.speed.name"),
                     NbBundle.getMessage(FruchtermanReingold.class, "param.speed.description"),
                     "Parameters",
@@ -93,7 +93,7 @@ public class FruchtermanReingold extends AbstractLayout {
                         }
                     }));
             properties.add(p);
-            p = LayoutProperty.createProperty(
+            p = new LayoutProperty(
                     NbBundle.getMessage(FruchtermanReingold.class, "param.gravity.name"),
                     NbBundle.getMessage(FruchtermanReingold.class, "param.gravity.description"),
                     "Parameters",
@@ -106,7 +106,7 @@ public class FruchtermanReingold extends AbstractLayout {
                         }
                     }));
             properties.add(p);
-            p = LayoutProperty.createProperty(
+            p = new LayoutProperty(
                     NbBundle.getMessage(FruchtermanReingold.class, "param.area.name"),
                     NbBundle.getMessage(FruchtermanReingold.class, "param.area.description"),
                     "Parameters",

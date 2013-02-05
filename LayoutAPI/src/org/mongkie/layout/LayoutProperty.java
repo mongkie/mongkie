@@ -31,32 +31,20 @@ import org.openide.nodes.PropertySupport;
  * @author Mathieu Bastian
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public final class LayoutProperty<T extends Object> extends PropertySupport.Reflection<T> {
+public class LayoutProperty<T extends Object> extends PropertySupport.Reflection<T> {
 
+    public static final String ALL = "Layout Properties";
     protected final String category;
-
-    private LayoutProperty(String category, Object instance, Class<T> valueType, String getter, String setter)
-            throws NoSuchMethodException {
-        super(instance, valueType, getter, setter);
-        this.category = category;
-    }
-
-    /**
-     * Return the category of the property
-     */
-    public String getCategory() {
-        return category;
-    }
 
     /**
      * Create a property.
      *
-     * @param layout      The layout instance
-     * @param valueType   The type of the property value, * ex: <code>Double.class</code>
      * @param name        The display name of the property
+     * @param description A description string for the property
      * @param category    A category string or <code>null</code> for using default
      *                    category
-     * @param description A description string for the property
+     * @param layout      The layout instance
+     * @param valueType   The type of the property value, * ex: <code>Double.class</code>
      * @param getter      The name of the get method for this property, must exist to
      *                    make Java reflexion working.
      * @param setter      The name of the set method for this property, must exist to
@@ -65,12 +53,12 @@ public final class LayoutProperty<T extends Object> extends PropertySupport.Refl
      * @throws NoSuchMethodException if the getter or setter methods cannot be
      *                               found
      */
-    public static LayoutProperty createProperty(String name, String description, String category,
+    public LayoutProperty(String name, String description, String category,
             Layout layout, Class valueType, String getter, String setter) throws NoSuchMethodException {
-        LayoutProperty property = new LayoutProperty(category, layout, valueType, getter, setter);
-        property.setName(name);
-        property.setShortDescription(description);
-        return property;
+        super(layout, valueType, getter, setter);
+        setName(name);
+        setShortDescription(description);
+        this.category = category;
     }
 
     /**
@@ -78,12 +66,12 @@ public final class LayoutProperty<T extends Object> extends PropertySupport.Refl
      * editor must be specified when the property type don't have a registered
      * editor class.
      *
-     * @param layout      The layout instance
-     * @param valueType   The type of the property value, * ex: <code>Double.class</code>
      * @param name        The display name of the property
+     * @param description A description string for the property
      * @param category    A category string or <code>null</code> for using default
      *                    category
-     * @param description A description string for the property
+     * @param layout      The layout instance
+     * @param valueType   The type of the property value, * ex: <code>Double.class</code>
      * @param getter      The name of the get method for this property, must exist to
      *                    make Java reflexion working.
      * @param setter      The name of the set method for this property, must exist to
@@ -93,12 +81,19 @@ public final class LayoutProperty<T extends Object> extends PropertySupport.Refl
      * @throws NoSuchMethodException if the getter or setter methods cannot be
      *                               found
      */
-    public static LayoutProperty createProperty(String name, String description, String category,
+    public LayoutProperty(String name, String description, String category,
             Layout layout, Class valueType, String getter, String setter, Class<? extends PropertyEditor> editorClass) throws NoSuchMethodException {
-        LayoutProperty property = new LayoutProperty(category, layout, valueType, getter, setter);
-        property.setName(name);
-        property.setShortDescription(description);
-        property.setPropertyEditorClass(editorClass);
-        return property;
+        super(layout, valueType, getter, setter);
+        setName(name);
+        setShortDescription(description);
+        setPropertyEditorClass(editorClass);
+        this.category = category;
+    }
+
+    /**
+     * Return the category of the property
+     */
+    public String getCategory() {
+        return category;
     }
 }

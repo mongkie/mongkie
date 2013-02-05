@@ -62,7 +62,8 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
         d.rerunLayoutAction();
     }
     // End of layout logics for the big graph
-    private LayoutProperty propNumCols, propNumRows;
+    private static final String PROP_NUMCOLS = "Number of columns";
+    private static final String PROP_NUMROWS = "Number of rows";
 
     Grid(LayoutBuilder<Grid> builder) {
         super(builder);
@@ -80,7 +81,7 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
         getDeligateLayout().setNumCols(cols);
         int old = getNumRows();
         getDeligateLayout().setNumRows(rows);
-        firePropertyChange(propNumRows.getName(), old, rows);
+        firePropertyChange(PROP_NUMROWS, old, rows);
     }
 
     public int getNumRows() {
@@ -95,7 +96,7 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
         int old = getNumCols();
         getDeligateLayout().setNumCols(cols);
         getDeligateLayout().setNumRows(rows);
-        firePropertyChange(propNumCols.getName(), old, cols);
+        firePropertyChange(PROP_NUMCOLS, old, cols);
     }
 
     public boolean isAnalyze() {
@@ -104,20 +105,13 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
 
     public void setAnalyze(boolean analyze) {
         GridLayout deligate = getDeligateLayout();
-        boolean o = deligate.isAnalyze();
         deligate.setAnalyze(analyze);
-        if (propNumCols != null) {
-            propNumCols.setHidden(analyze);
-        }
-        if (propNumRows != null) {
-            propNumRows.setHidden(analyze);
-        }
         if (!analyze && (getNumRows() < 1 || getNumCols() < 1)) {
             int[] dim = GridLayout.analyzeGraphGrid(display.getVisualGraph().getNodes());
             getDeligateLayout().setNumCols(dim[0]);
             getDeligateLayout().setNumRows(dim[1]);
         }
-        firePropertyChange("Auto dimensions", o, analyze);
+        firePropertySetsChange();
     }
 
     @Override
@@ -166,22 +160,20 @@ public final class Grid extends PrefuseLayout.Delegation<GridLayout> implements 
     public LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         try {
-            properties.add(LayoutProperty.createProperty("Auto dimensions",
+            properties.add(new LayoutProperty("Auto dimensions",
                     "Set whether or not to analyze a set of nodes to determine grid dimensions automatically",
                     "Parameters",
                     this, boolean.class, "isAnalyze", "setAnalyze"));
-            propNumCols = LayoutProperty.createProperty("Number of columns",
-                    "Set the number of the grid columns",
-                    "Parameters",
-                    this, int.class, "getNumCols", "setNumCols");
-            propNumCols.setHidden(isAnalyze());
-            properties.add(propNumCols);
-            propNumRows = LayoutProperty.createProperty("Number of rows",
-                    "Set the number of the grid rows",
-                    "Parameters",
-                    this, int.class, "getNumRows", "setNumRows");
-            propNumRows.setHidden(isAnalyze());
-            properties.add(propNumRows);
+            if (!isAnalyze()) {
+                properties.add(new LayoutProperty(PROP_NUMCOLS,
+                        "Set the number of the grid columns",
+                        "Parameters",
+                        this, int.class, "getNumCols", "setNumCols"));
+                properties.add(new LayoutProperty(PROP_NUMROWS,
+                        "Set the number of the grid rows",
+                        "Parameters",
+                        this, int.class, "getNumRows", "setNumRows"));
+            }
         } catch (NoSuchMethodException ex) {
             Exceptions.printStackTrace(ex);
         }

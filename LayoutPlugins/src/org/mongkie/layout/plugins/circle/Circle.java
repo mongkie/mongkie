@@ -38,7 +38,6 @@ public class Circle extends PrefuseLayout {
 
     private double radius = 200D;
     private boolean autoScale = true;
-    private LayoutProperty radiusProperty;
 
     Circle(CircleLayoutBuilder builder) {
         super(builder);
@@ -49,12 +48,8 @@ public class Circle extends PrefuseLayout {
     }
 
     public void setAutoScale(boolean autoScale) {
-        boolean o = this.autoScale;
         this.autoScale = autoScale;
-        if (radiusProperty != null) {
-            radiusProperty.setHidden(autoScale);
-            firePropertyChange("Auto scale", o, autoScale);
-        }
+        firePropertySetsChange();
     }
 
     public double getRadius() {
@@ -69,16 +64,16 @@ public class Circle extends PrefuseLayout {
     protected LayoutProperty[] createProperties() {
         List<LayoutProperty> properties = new ArrayList<LayoutProperty>();
         try {
-            properties.add(LayoutProperty.createProperty("Auto scale",
+            properties.add(new LayoutProperty("Auto scale",
                     "Set whether or not the layout should automatically scale itself to fit the display bounds.",
                     "Parameters",
                     this, boolean.class, "isAutoScale", "setAutoScale"));
-            radiusProperty = LayoutProperty.createProperty("Radius",
-                    "Radius of the layout circle",
-                    "Parameters",
-                    this, double.class, "getRadius", "setRadius");
-            radiusProperty.setHidden(autoScale);
-            properties.add(radiusProperty);
+            if (!isAutoScale()) {
+                properties.add(new LayoutProperty("Radius",
+                        "Radius of the layout circle",
+                        "Parameters",
+                        this, double.class, "getRadius", "setRadius"));
+            }
         } catch (NoSuchMethodException ex) {
             Exceptions.printStackTrace(ex);
         }

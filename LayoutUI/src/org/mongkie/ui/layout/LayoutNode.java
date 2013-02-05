@@ -59,7 +59,13 @@ public class LayoutNode extends AbstractNode implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        firePropertySetsChange(null, getPropertySets());
+        String propertyName = evt.getPropertyName();
+        if (LayoutProperty.ALL.equals(propertyName)) {
+            propertySets = null;
+            firePropertySetsChange(null, getPropertySets());
+        } else {
+            firePropertyChange(propertyName, evt.getOldValue(), evt.getNewValue());
+        }
     }
 
     @Override
