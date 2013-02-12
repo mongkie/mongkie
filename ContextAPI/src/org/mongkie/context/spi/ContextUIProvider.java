@@ -16,16 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.filter;
-
-import java.util.Set;
-import org.mongkie.filter.spi.Filter;
+package org.mongkie.context.spi;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface FilterModelListener {
-
-    public void fitersApplied(Set<Filter> nodeFilters, Set<Filter> edgeFilters);
+public interface ContextUIProvider {
+    
 }

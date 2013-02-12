@@ -16,7 +16,7 @@ import prefuse.data.expression.Predicate;
  *
  * @author <a href="http://jheer.org">jeffrey heer</a>
  */
-public interface AggregateItem extends VisualItem {
+public interface AggregateItem extends VisualItem, Comparable<AggregateItem> {
 
     public static final String AGGR_ID = "_aggr_id_";
     public static final String AGGR_NAME = "_aggr_name_";

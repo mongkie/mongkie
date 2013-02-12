@@ -836,6 +836,7 @@ public interface VisualItem extends Tuple {
     public static final int IDX_ENDY = SCHEMA.getColumnIndex(ENDY);
     public static final int IDX_BOUNDS = SCHEMA.getColumnIndex(BOUNDS);
     public static final int IDX_FONT = SCHEMA.getColumnIndex(FONT);
+    public static final int IDX_FILLCOLOR = SCHEMA.getColumnIndex(FILLCOLOR);
     public static final int IDX_TEXTCOLOR = SCHEMA.getColumnIndex(TEXTCOLOR);
     public static final int IDX_SIZE = SCHEMA.getColumnIndex(SIZE);
     public static final int IDX_VISIBLE = SCHEMA.getColumnIndex(VISIBLE);

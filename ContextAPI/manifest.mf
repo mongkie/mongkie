@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mongkie.context
+OpenIDE-Module-Localizing-Bundle: org/mongkie/context/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

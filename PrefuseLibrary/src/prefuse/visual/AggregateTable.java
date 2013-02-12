@@ -70,6 +70,10 @@ public class AggregateTable extends VisualTable {
         for (; ati.hasNext(); ++size, ati.next());
         return size;
     }
+    
+    public int getAggregatesSize() {
+        return m_aggregated.getRowCount();
+    }
 
     /**
      * Add an item to the aggregation at the given row.

@@ -194,7 +194,7 @@ public class RankingResultView extends JScrollPane implements RankingModelListen
         chooser.setAcceptAllFileFilterUsed(false);
         chooser.setDialogTitle(NbBundle.getMessage(RankingResultView.class, "RankingListScrollPane.screenshot.filechooser.title"));
         DialogFileFilter dialogFileFilter = new DialogFileFilter(NbBundle.getMessage(RankingResultView.class, "RankingListScrollPane.screenshot.filechooser.pngDescription"));
-        dialogFileFilter.addExtension("png");
+        dialogFileFilter.addExtension(".png");
         chooser.addChoosableFileFilter(dialogFileFilter);
         File selectedFile = new File(chooser.getCurrentDirectory(), "ranking_table.png");
         chooser.setSelectedFile(selectedFile);

@@ -126,8 +126,7 @@ public class FilterControllerImpl implements FilterController, DisplayListener<M
     public FilterModel getModel(MongkieDisplay d) {
         FilterModel m = d.getLookup().lookup(FilterModelImpl.class);
         if (m == null) {
-            m = new FilterModelImpl(d);
-            d.add(m);
+            throw new IllegalStateException("FilterController is not constructed?");
         }
         return m;
     }

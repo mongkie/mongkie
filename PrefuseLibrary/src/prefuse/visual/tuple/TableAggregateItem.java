@@ -116,5 +116,15 @@ public class TableAggregateItem extends TableVisualItem
         }
         return itemsArray;
     }
+
+    @Override
+    public int compareTo(AggregateItem o) {
+        return this.getAggregateSize() - o.getAggregateSize();
+    }
+
+    @Override
+    public String toString() {
+        return canGetString(AGGR_NAME) ? getString(AGGR_NAME) : super.toString();
+    }
 } // end of class TableAggregateItem
 

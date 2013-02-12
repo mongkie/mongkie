@@ -16,16 +16,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mongkie.filter;
+package org.mongkie.context.spi;
 
-import java.util.Set;
-import org.mongkie.filter.spi.Filter;
+import javax.swing.Icon;
+import javax.swing.JPanel;
+import org.mongkie.visualization.MongkieDisplay;
 
 /**
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-public interface FilterModelListener {
+public interface ContextUI {
 
-    public void fitersApplied(Set<Filter> nodeFilters, Set<Filter> edgeFilters);
+    public String getName();
+
+    public void refresh(MongkieDisplay display);
+
+    public void unload();
+
+    public Icon getIcon();
+
+    public String getTooltip();
+
+    public JPanel getPanel();
 }

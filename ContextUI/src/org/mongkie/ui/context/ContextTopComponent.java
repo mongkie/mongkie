@@ -17,16 +17,33 @@
  */
 package org.mongkie.ui.context;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.logging.Logger;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JToggleButton;
+import kobic.prefuse.display.DisplayListener;
+import org.mongkie.context.spi.ContextUI;
 import static org.mongkie.kopath.viz.Config.ROLE_PATHWAY;
 import static org.mongkie.visualization.Config.MODE_CONTEXT;
 import static org.mongkie.visualization.Config.ROLE_NETWORK;
+import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.VisualizationController;
+import org.mongkie.visualization.workspace.WorkspaceListener;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import prefuse.data.Graph;
 
 /**
  *
@@ -42,20 +59,137 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @ActionReference(path = "Menu/Window", position = 210)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ContextAction",
 preferredID = ContextTopComponent.PREFERRED_ID)
-public final class ContextTopComponent extends TopComponent {
+public final class ContextTopComponent extends TopComponent implements DisplayListener<MongkieDisplay> {
 
     private static ContextTopComponent instance;
-    /** path to the icon used by the component and its open action */
+    /**
+     * path to the icon used by the component and its open action
+     */
     static final String PREFERRED_ID = "ContextTopComponent";
+    private MongkieDisplay currentDisplay;
+    private ContextUI selectedContext;
 
     public ContextTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(ContextTopComponent.class, "CTL_ContextTopComponent"));
         setToolTipText(NbBundle.getMessage(ContextTopComponent.class, "HINT_ContextTopComponent"));
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
+        Lookup.getDefault().lookup(VisualizationController.class).addWorkspaceListener(
+                new WorkspaceListener() {
+                    @Override
+                    public void displaySelected(MongkieDisplay display) {
+                        currentDisplay = display;
+                        display.addDisplayListener(ContextTopComponent.this);
+                        refreshModel();
+                    }
+
+                    @Override
+                    public void displayDeselected(MongkieDisplay display) {
+                        display.removeDisplayListener(ContextTopComponent.this);
+                    }
+
+                    @Override
+                    public void displayClosed(MongkieDisplay display) {
+                    }
+
+                    @Override
+                    public void displayClosedAll() {
+                        currentDisplay = null;
+                        refreshModel();
+                    }
+                });
+        currentDisplay = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
+        boolean actionTextVisible = NbPreferences.forModule(ContextTopComponent.class).getBoolean(ACTION_TEXT_VISIBILITY, true);
+        String lastSelectedContextUI = NbPreferences.forModule(ContextTopComponent.class).get(LAST_SELECTED_CONTEXTUI, null);
+        for (final ContextUI context : Lookup.getDefault().lookupAll(ContextUI.class)) {
+            JToggleButton contextToggleButton = new JToggleButton();
+            contextToggleButton.putClientProperty(ContextUI.class, context);
+            contextToggleButton.setText(actionTextVisible ? context.getName() : null);
+            contextToggleButton.setIcon(context.getIcon());
+            contextToggleButton.setToolTipText(context.getTooltip() == null ? context.getName() : context.getTooltip());
+            contextToggleButton.setActionCommand(context.getName());
+            contextToggleButton.setFocusable(false);
+            contextToggleButton.setOpaque(false);
+            contextToggleButton.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    switch (e.getStateChange()) {
+                        case ItemEvent.SELECTED:
+                            selectedContext = context;
+                            refreshModel();
+                            add(context.getPanel(), BorderLayout.CENTER);
+                            revalidate();
+                            repaint();
+                            NbPreferences.forModule(ContextTopComponent.class).put(LAST_SELECTED_CONTEXTUI, context.getName());
+                            break;
+                        case ItemEvent.DESELECTED:
+                            selectedContext = null;
+                            remove(context.getPanel());
+                            revalidate();
+                            repaint();
+                            break;
+                        default:
+                            throw new AssertionError();
+                    }
+                }
+            });
+            toggleButtonGroup.add(contextToggleButton);
+            toggleToolbar.add(contextToggleButton);
+            if ((lastSelectedContextUI != null && lastSelectedContextUI.equals(context.getName()))) {
+                contextToggleButton.setSelected(true);
+            }
+        }
+        if (toggleButtonGroup.getSelection() == null) {
+            ((JToggleButton) toggleToolbar.getComponentAtIndex(1)).setSelected(true);
+        }
+        JPopupMenu actionTextVisibilityPopup = new JPopupMenu();
+        final JMenuItem toggleActionText = new JMenuItem(actionTextVisible ? HIDE_ACTION_TEXT : SHOW_ACTION_TEXT);
+        toggleActionText.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boolean textVisible = !NbPreferences.forModule(ContextTopComponent.class).getBoolean(ACTION_TEXT_VISIBILITY, true);
+                for (Component c : toggleToolbar.getComponents()) {
+                    if (c instanceof JToggleButton) {
+                        JToggleButton b = (JToggleButton) c;
+                        if (textVisible) {
+                            b.setText(((ContextUI) b.getClientProperty(ContextUI.class)).getName());
+                        } else if (b.getIcon() != null) {
+                            b.setText(null);
+                        }
+                    }
+                }
+                NbPreferences.forModule(ContextTopComponent.class).putBoolean(ACTION_TEXT_VISIBILITY, textVisible);
+                toggleActionText.setText(textVisible ? HIDE_ACTION_TEXT : SHOW_ACTION_TEXT);
+            }
+        });
+        actionTextVisibilityPopup.add(toggleActionText);
+        toggleToolbar.setComponentPopupMenu(actionTextVisibilityPopup);
+    }
+    private static final String ACTION_TEXT_VISIBILITY = "ActionTextVisibility";
+    private static final String SHOW_ACTION_TEXT = "Show Text";
+    private static final String HIDE_ACTION_TEXT = "Hide Text";
+    private static final String LAST_SELECTED_CONTEXTUI = "LastSelectedContextUI";
+
+    private void refreshModel() {
+        if (currentDisplay == null) {
+            selectedContext.unload();
+        } else {
+            selectedContext.refresh(currentDisplay);
+        }
     }
 
-    /** This method is called from within the constructor to
+    @Override
+    public void graphDisposing(MongkieDisplay d, Graph g) {
+        selectedContext.unload();
+    }
+
+    @Override
+    public void graphChanged(final MongkieDisplay d, Graph g) {
+        selectedContext.refresh(d);
+    }
+
+    /**
+     * This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
@@ -63,20 +197,25 @@ public final class ContextTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
-    }// </editor-fold>//GEN-END:initComponents
+        toggleButtonGroup = new javax.swing.ButtonGroup();
+        toggleToolbar = new javax.swing.JToolBar();
+        rightAlignmentGlue = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
 
+        setLayout(new java.awt.BorderLayout());
+
+        toggleToolbar.setFloatable(false);
+        toggleToolbar.setRollover(true);
+        toggleToolbar.setOpaque(false);
+        toggleToolbar.add(rightAlignmentGlue);
+
+        add(toggleToolbar, java.awt.BorderLayout.NORTH);
+    }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler rightAlignmentGlue;
+    private javax.swing.ButtonGroup toggleButtonGroup;
+    private javax.swing.JToolBar toggleToolbar;
     // End of variables declaration//GEN-END:variables
+
     /**
      * Gets default instance. Do not use directly: reserved for *.settings files only,
      * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
