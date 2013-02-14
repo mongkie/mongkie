@@ -51,7 +51,7 @@ public class EnrichedResultView extends JPanel implements EnrichedResultUI, Enri
 
     private void setViewPanels() {
         EnrichedTreeTableViewModel model = new EnrichedTreeTableViewModel(analysisResult, analysisResult.getSelectedGoIds());
-        tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane(JTabbedPane.BOTTOM);
         tableView = getTableView(model);
         treeTableView = getTreeTableView(model);
         addToTabbedPane(tabbedPane, TABLE_VIEW, tableView);

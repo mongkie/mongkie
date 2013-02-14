@@ -76,12 +76,11 @@ public final class EnrichmentResultTopComponent extends TopComponent implements 
         for (Action a : Utilities.actionsForPath("EnrichmentAnalysis/Result/Actions")) {
             JButton button = new JButton();
             Actions.connect(button, a);
-            button.setMargin(new java.awt.Insets(-2, -2, -2, -2));
             button.setFocusPainted(false);
             button.setFocusable(false);
             resultToolBar.add(button);
         }
-        resultToolBar.add(new JSeparator());
+        resultToolBar.add(new JSeparator(SwingConstants.VERTICAL));
         resultToolBar.add(ungroupAllButton);
         resultToolBar.add(selectAllButton);
         resultToolBar.add(selectNoneButton);
@@ -119,7 +118,6 @@ public final class EnrichmentResultTopComponent extends TopComponent implements 
         reportButton.setFocusPainted(false);
         reportButton.setFocusable(false);
         reportButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        reportButton.setMargin(new java.awt.Insets(-2, -2, -2, -2));
         reportButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         reportButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -134,7 +132,6 @@ public final class EnrichmentResultTopComponent extends TopComponent implements 
         selectAllButton.setFocusPainted(false);
         selectAllButton.setFocusable(false);
         selectAllButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        selectAllButton.setMargin(new java.awt.Insets(-2, -2, -2, -2));
         selectAllButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         selectAllButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -149,7 +146,6 @@ public final class EnrichmentResultTopComponent extends TopComponent implements 
         selectNoneButton.setFocusPainted(false);
         selectNoneButton.setFocusable(false);
         selectNoneButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        selectNoneButton.setMargin(new java.awt.Insets(-2, -2, -2, -2));
         selectNoneButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         selectNoneButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -164,7 +160,6 @@ public final class EnrichmentResultTopComponent extends TopComponent implements 
         ungroupAllButton.setFocusPainted(false);
         ungroupAllButton.setFocusable(false);
         ungroupAllButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        ungroupAllButton.setMargin(new java.awt.Insets(-2, -2, -2, -2));
         ungroupAllButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         ungroupAllButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

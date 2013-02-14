@@ -17,9 +17,6 @@
         <Property name="focusPainted" type="boolean" value="false"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="horizontalTextPosition" type="int" value="0"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[-2, -2, -2, -2]"/>
-        </Property>
         <Property name="verticalTextPosition" type="int" value="3"/>
       </Properties>
       <Events>
@@ -41,9 +38,6 @@
         <Property name="focusPainted" type="boolean" value="false"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="horizontalTextPosition" type="int" value="0"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[-2, -2, -2, -2]"/>
-        </Property>
         <Property name="verticalTextPosition" type="int" value="3"/>
       </Properties>
       <Events>
@@ -65,9 +59,6 @@
         <Property name="focusPainted" type="boolean" value="false"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="horizontalTextPosition" type="int" value="0"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[-2, -2, -2, -2]"/>
-        </Property>
         <Property name="verticalTextPosition" type="int" value="3"/>
       </Properties>
       <Events>
@@ -89,9 +80,6 @@
         <Property name="focusPainted" type="boolean" value="false"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="horizontalTextPosition" type="int" value="0"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[-2, -2, -2, -2]"/>
-        </Property>
         <Property name="verticalTextPosition" type="int" value="3"/>
       </Properties>
       <Events>
