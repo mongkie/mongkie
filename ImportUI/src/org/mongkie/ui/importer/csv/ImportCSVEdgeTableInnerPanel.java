@@ -116,6 +116,7 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
         pathTextField.setEditable(false);
         pathTextField.setText(org.openide.util.NbBundle.getMessage(ImportCSVEdgeTableInnerPanel.class, "ImportCSVInnerPanel.pathTextField.text")); // NOI18N
 
+        fileButton.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         fileButton.setText(org.openide.util.NbBundle.getMessage(ImportCSVEdgeTableInnerPanel.class, "ImportCSVInnerPanel.fileButton.text")); // NOI18N
 
         targetColumnLabel.setText(org.openide.util.NbBundle.getMessage(ImportCSVEdgeTableInnerPanel.class, "ImportCSVEdgeTableInnerPanel.targetColumnLabel.text")); // NOI18N
@@ -182,9 +183,9 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
                                 .addComponent(labelColumnComboBox, 0, 126, Short.MAX_VALUE))
                             .addContainerGap())
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(pathTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
+                            .addComponent(pathTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(fileButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(fileButton)
                             .addGap(12, 12, 12))
                         .addGroup(layout.createSequentialGroup()
                             .addComponent(previewSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
@@ -208,8 +209,8 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
                 .addComponent(descriptionLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(pathTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fileButton))
+                    .addComponent(fileButton)
+                    .addComponent(pathTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(hasHeaderCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
@@ -231,9 +232,12 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(editColumnExplainLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(previewScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
+                .addComponent(previewScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {fileButton, pathTextField});
+
     }// </editor-fold>//GEN-END:initComponents
 
     private void sourceColumnComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_sourceColumnComboBoxItemStateChanged

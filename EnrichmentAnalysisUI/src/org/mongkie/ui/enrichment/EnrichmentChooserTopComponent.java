@@ -312,9 +312,9 @@ public final class EnrichmentChooserTopComponent extends TopComponent
         infoLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/information.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(infoLabel, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.infoLabel.text")); // NOI18N
 
+        selectionSeparator.setEnabled(false);
         selectionSeparator.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/light-bulb.png"))); // NOI18N
         selectionSeparator.setTitle(org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.selectionSeparator.title")); // NOI18N
-        selectionSeparator.setEnabled(false);
 
         wholeNetworkButton.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(wholeNetworkButton, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.wholeNetworkButton.text")); // NOI18N
@@ -371,7 +371,7 @@ public final class EnrichmentChooserTopComponent extends TopComponent
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(infoLabel)
-                    .addComponent(enrichmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(enrichmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(selectionSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)

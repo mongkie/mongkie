@@ -256,14 +256,15 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
         settingButtion.setToolTipText(org.openide.util.NbBundle.getMessage(ClusteringTopComponent.class, "ClusteringTopComponent.settingButtion.toolTipText")); // NOI18N
         settingButtion.setEnabled(false);
         settingButtion.setFocusPainted(false);
-        settingButtion.setMargin(new java.awt.Insets(3, 3, 3, 3));
+        settingButtion.setPreferredSize(new java.awt.Dimension(26, 26));
         settingButtion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 settingButtionActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(3, 5, 2, 2);
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.insets = new java.awt.Insets(3, 2, 2, 0);
         chooserPanel.add(settingButtion, gridBagConstraints);
 
         infoLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);

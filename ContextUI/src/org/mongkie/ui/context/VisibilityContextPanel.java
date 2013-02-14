@@ -52,7 +52,7 @@ import prefuse.data.event.GraphListener;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = ContextUI.class, position = 0)
+@ServiceProvider(service = ContextUI.class, position = 1)
 public class VisibilityContextPanel extends javax.swing.JPanel implements ContextUI, FilterModelListener, GraphListener {
 
     private final VisibilityDataSet nodesVisibility, edgesVisibility;

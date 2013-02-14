@@ -66,7 +66,7 @@
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="2" attributes="0">
                   <Component id="infoLabel" alignment="2" min="-2" max="-2" attributes="0"/>
-                  <Component id="enrichmentComboBox" alignment="2" min="-2" pref="24" max="-2" attributes="0"/>
+                  <Component id="enrichmentComboBox" alignment="2" min="-2" pref="28" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
               <Component id="selectionSeparator" linkSize="2" min="-2" max="-2" attributes="0"/>

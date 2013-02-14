@@ -42,11 +42,11 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="pathTextField" alignment="0" pref="384" max="32767" attributes="0"/>
+                  <Component id="pathTextField" alignment="0" pref="386" max="32767" attributes="0"/>
                   <Component id="descriptionLabel" alignment="0" min="-2" pref="357" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="fileButton" min="-2" pref="24" max="-2" attributes="0"/>
+              <Component id="fileButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="12" pref="12" max="12" attributes="0"/>
           </Group>
           <Group type="102" alignment="1" attributes="0">
@@ -78,8 +78,8 @@
               <Component id="descriptionLabel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="2" attributes="0">
-                  <Component id="pathTextField" alignment="2" min="-2" max="-2" attributes="1"/>
-                  <Component id="fileButton" alignment="2" min="-2" max="-2" attributes="1"/>
+                  <Component id="fileButton" linkSize="1" alignment="2" min="-2" max="-2" attributes="1"/>
+                  <Component id="pathTextField" linkSize="1" alignment="2" min="-2" max="-2" attributes="1"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="hasHeaderCheckBox" min="-2" pref="16" max="-2" attributes="0"/>
@@ -98,7 +98,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="editColumnExplainLabel" min="-2" pref="13" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="previewScroll" pref="130" max="32767" attributes="0"/>
+              <Component id="previewScroll" pref="132" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -122,6 +122,9 @@
     </Component>
     <Component class="javax.swing.JButton" name="fileButton">
       <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Tahoma" size="11" style="0"/>
+        </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/mongkie/ui/importer/csv/Bundle.properties" key="ImportCSVInnerPanel.fileButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>

@@ -85,7 +85,7 @@ import prefuse.visual.VisualItem;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = ContextUI.class, position = 1)
+@ServiceProvider(service = ContextUI.class, position = 0)
 public class GroupsContextPanel extends javax.swing.JPanel implements ContextUI, GroupListener, TableListener {
 
     private final GroupsPie pie;
