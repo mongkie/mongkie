@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.mongkie.lib.swingx
 OpenIDE-Module-Localizing-Bundle: org/mongkie/lib/swingx/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.6.4
 

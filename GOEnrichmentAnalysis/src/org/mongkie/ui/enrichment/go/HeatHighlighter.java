@@ -1,15 +1,15 @@
 package org.mongkie.ui.enrichment.go;
 
+import gobean.GoBranch;
 import java.awt.Color;
 import java.awt.Component;
 import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import gobean.GoBranch;
-import org.mongkie.gobean.EnrichedResult;
+import static org.jdesktop.swingx.util.PaintUtils.*;
 import org.mongkie.enrichment.go.EnrichedGoId;
+import org.mongkie.gobean.EnrichedResult;
 import org.mongkie.ui.enrichment.go.util.UIUtilities;
-import static org.jdesktop.swingx.color.ColorUtil.blend;
 
 public class HeatHighlighter extends AbstractHighlighter {
 
