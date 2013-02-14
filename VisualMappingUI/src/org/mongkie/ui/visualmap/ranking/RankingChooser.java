@@ -293,7 +293,6 @@ public class RankingChooser extends javax.swing.JPanel implements ItemListener, 
         applyButton.setText(org.openide.util.NbBundle.getMessage(RankingChooser.class, "RankingChooser.applyButton.text")); // NOI18N
         applyButton.setToolTipText(org.openide.util.NbBundle.getMessage(RankingChooser.class, "RankingChooser.applyButton.toolTipText")); // NOI18N
         applyButton.setFocusPainted(false);
-        applyButton.setMargin(new java.awt.Insets(0, 8, 0, 8));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 0;

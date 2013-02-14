@@ -18,6 +18,7 @@
 package org.mongkie.ui.visualmap.partition;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Enumeration;
@@ -76,10 +77,10 @@ public class PartitionToolbar extends JToolBar implements PartitionModelListener
         setBorder(b);
 
         addSeparator();
-
-        JLabel box = new JLabel();
-        box.setMaximumSize(new java.awt.Dimension(32767, 32767));
-        add(box);
+        add(new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(32767, 0)));
+//        JLabel box = new JLabel();
+//        box.setMaximumSize(new java.awt.Dimension(32767, 32767));
+//        add(box);
     }
     private ButtonGroup elementGroup;
 

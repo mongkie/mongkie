@@ -215,7 +215,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         columnComboBox.setPreferredSize(new java.awt.Dimension(100, 22));
         add(columnComboBox);
 
-        actionsMenuButton.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        actionsMenuButton.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         actionsMenuButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/menu_dropdown.png"))); // NOI18N
         actionsMenuButton.setText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionsMenuButton.text")); // NOI18N
         actionsMenuButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.actionsMenuButton.toolTipText")); // NOI18N
@@ -223,6 +223,7 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         actionsMenuButton.setContentAreaFilled(false);
         actionsMenuButton.setDisabledIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/im/resources/menu_dropdown_disabled.png"))); // NOI18N
         actionsMenuButton.setFocusPainted(false);
+        actionsMenuButton.setMargin(new java.awt.Insets(2, 4, 2, 2));
         actionsMenuButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 actionsMenuButtonActionPerformed(evt);
@@ -235,9 +236,10 @@ public final class SourcePanel extends javax.swing.JPanel implements SourceModel
         settingButton.setToolTipText(org.openide.util.NbBundle.getMessage(SourcePanel.class, "SourcePanel.settingButton.toolTipText")); // NOI18N
         settingButton.setBorderPainted(false);
         settingButton.setContentAreaFilled(false);
-        settingButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        settingButton.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         settingButton.setFocusPainted(false);
         settingButton.setFocusable(false);
+        settingButton.setMargin(new java.awt.Insets(2, 2, 2, 4));
         settingButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 settingButtonActionPerformed(evt);

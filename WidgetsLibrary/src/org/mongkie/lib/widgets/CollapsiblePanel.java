@@ -120,15 +120,15 @@ public class CollapsiblePanel extends javax.swing.JPanel {
         setOpaque(false);
         setLayout(new java.awt.BorderLayout());
 
-        buttonPanel.setBorder(null);
         buttonPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 3));
 
         extendButton.setText(org.openide.util.NbBundle.getMessage(CollapsiblePanel.class, "CollapsiblePanel.extendButton.text")); // NOI18N
         extendButton.setAlignmentY(0.0F);
         extendButton.setBorderPainted(false);
         extendButton.setContentAreaFilled(false);
-        extendButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        extendButton.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         extendButton.setFocusable(false);
+        extendButton.setMargin(new java.awt.Insets(2, 4, 2, 2));
         buttonPanel.add(extendButton);
 
         add(buttonPanel, java.awt.BorderLayout.EAST);

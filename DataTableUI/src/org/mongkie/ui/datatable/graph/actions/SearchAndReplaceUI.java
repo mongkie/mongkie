@@ -268,6 +268,7 @@ class SearchAndReplaceUI extends javax.swing.JPanel
 
         findPreviousButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/datatable/resources/go_previous.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(findPreviousButton, org.openide.util.NbBundle.getMessage(SearchAndReplaceUI.class, "SearchAndReplaceUI.findPreviousButton.text")); // NOI18N
+        findPreviousButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
         findPreviousButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 findPreviousButtonActionPerformed(evt);
@@ -329,6 +330,7 @@ class SearchAndReplaceUI extends javax.swing.JPanel
 
         findNextButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/datatable/resources/go_next.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(findNextButton, org.openide.util.NbBundle.getMessage(SearchAndReplaceUI.class, "SearchAndReplaceUI.findNextButton.text")); // NOI18N
+        findNextButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
         findNextButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 findNextButtonActionPerformed(evt);

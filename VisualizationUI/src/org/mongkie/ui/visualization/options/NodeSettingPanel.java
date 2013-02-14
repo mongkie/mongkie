@@ -167,7 +167,7 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     }
 
     private void updateFontButton(Font f) {
-        fontFamilyButton.setFont(FontLib.getFont(f.getName(), f.getStyle(), 13));
+        fontFamilyButton.setFont(FontLib.getFont(f.getName(), f.getStyle(), 12));
         fontFamilyButton.setText(f.getFontName() + ", " + f.getSize());
     }
 
@@ -248,11 +248,9 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
 
         shapeLabel.setText(org.openide.util.NbBundle.getMessage(NodeSettingPanel.class, "NodeSettingPanel.shapeLabel.text")); // NOI18N
 
-        shapeChooser.setFont(shapeChooser.getFont().deriveFont(shapeChooser.getFont().getSize()-1f));
-
         fontLabel.setText(org.openide.util.NbBundle.getMessage(NodeSettingPanel.class, "NodeSettingPanel.fontLabel.text")); // NOI18N
 
-        fontFamilyButton.setFont(FontLib.getFont(((Font) style.get(VisualItem.FONT)).getName(), ((Font) style.get(VisualItem.FONT)).getStyle(), 13));
+        fontFamilyButton.setFont(FontLib.getFont(((Font) style.get(VisualItem.FONT)).getName(), ((Font) style.get(VisualItem.FONT)).getStyle(), 12));
         fontFamilyButton.setText(((Font) style.get(VisualItem.FONT)).getFontName() + ", " + ((Font) style.get(VisualItem.FONT)).getSize());
         fontFamilyButton.setBorderPainted(false);
 
@@ -273,6 +271,7 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
 
         resetAllButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/visualization/resources/undo.png"))); // NOI18N
         resetAllButton.setText(org.openide.util.NbBundle.getMessage(NodeSettingPanel.class, "NodeSettingPanel.resetAllButton.text")); // NOI18N
+        resetAllButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
         resetAllButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 resetAllButtonActionPerformed(evt);
@@ -284,6 +283,7 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         presetsButton.setFocusPainted(false);
         presetsButton.setFocusable(false);
         presetsButton.setIconTextGap(0);
+        presetsButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
         presetsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 presetsButtonActionPerformed(evt);
@@ -308,25 +308,24 @@ public class NodeSettingPanel extends javax.swing.JPanel implements VisualStyle.
                                 .addGap(18, 18, 18)
                                 .addComponent(fontFamilyButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fontColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(fillColorLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fillColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(borderColorLabel)))
+                                .addComponent(fontColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(sizeLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(borderColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(sizeLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(resetAllButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(presetsButton)))
-                .addContainerGap(32, Short.MAX_VALUE))
+                        .addComponent(presetsButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(fillColorLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fillColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(borderColorLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(borderColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(72, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

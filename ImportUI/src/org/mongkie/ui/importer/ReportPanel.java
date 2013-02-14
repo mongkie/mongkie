@@ -139,7 +139,6 @@ public class ReportPanel extends javax.swing.JPanel {
         autoScaleCheck = new javax.swing.JCheckBox();
         directionCheck = new javax.swing.JCheckBox();
 
-        issuesOutline.setBorder(null);
         issuesOutline.setFont(issuesOutline.getFont().deriveFont(issuesOutline.getFont().getSize()-1f));
         issuesOutline.setRenderDataProvider(new IssueRenderer());
         issuesOutline.setRootVisible(false);
@@ -165,10 +164,7 @@ public class ReportPanel extends javax.swing.JPanel {
         issuesPanel.setBorder(null);
         issuesPanel.setContentContainer(issuesScrollPane);
 
-        processorPanel.setBorder(null);
         processorPanel.setLayout(new javax.swing.BoxLayout(processorPanel, javax.swing.BoxLayout.Y_AXIS));
-
-        statePanel.setBorder(null);
 
         nodeCountLabel.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
         nodeCountLabel.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.nodeCountLabel.text")); // NOI18N
@@ -212,8 +208,10 @@ public class ReportPanel extends javax.swing.JPanel {
         );
 
         processingSeparator.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.processingSeparator.title")); // NOI18N
+        processingSeparator.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 2));
 
         reportSeparator.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.reportSeparator.title")); // NOI18N
+        reportSeparator.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 2, 0, 0));
 
         nodeJLabel.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.nodeJLabel.text")); // NOI18N
 
@@ -281,7 +279,7 @@ public class ReportPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(reportHeader, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(issuesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(issuesPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
@@ -302,8 +300,8 @@ public class ReportPanel extends javax.swing.JPanel {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(processingSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(processorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addComponent(processorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 72, Short.MAX_VALUE)
+                        .addGap(2, 2, 2))))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables

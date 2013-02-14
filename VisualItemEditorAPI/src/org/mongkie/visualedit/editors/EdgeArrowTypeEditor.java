@@ -209,7 +209,7 @@ public class EdgeArrowTypeEditor extends EnumTagsPropertyEditor<EdgeArrow>
 
             @Override
             public void paintIcon(Component c, Graphics g, int x, int y) {
-                paintEdgeArrow(arrow, (Graphics2D) g, x, y, getIconWidth(), getIconHeight());
+                paintEdgeArrow(arrow, (Graphics2D) g, x, y, getIconWidth(), getIconHeight(), c.getBackground(), c.getForeground(), 1.0D);
             }
 
             @Override

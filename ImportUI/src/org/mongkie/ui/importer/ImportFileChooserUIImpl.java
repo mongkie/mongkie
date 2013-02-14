@@ -112,7 +112,6 @@ class ImportFileChooserUIImpl<I extends FileImporter> implements ImportFileChoos
             @Override
             protected JDialog createDialog(Component parent) throws HeadlessException {
                 dialog = super.createDialog(parent);
-                dialog.setSize(640, 480);
                 Component c = dialog.getContentPane().getComponent(0);
                 if (c != null && c instanceof JComponent) {
                     Insets insets = ((JComponent) c).getInsets();
@@ -121,6 +120,7 @@ class ImportFileChooserUIImpl<I extends FileImporter> implements ImportFileChoos
                     optionAndSettingPanel.setBorder(BorderFactory.createEmptyBorder(0, 2, 10, 2));
                 }
                 dialog.getContentPane().add(optionAndSettingPanel, BorderLayout.SOUTH);
+                dialog.pack();
                 return dialog;
             }
 

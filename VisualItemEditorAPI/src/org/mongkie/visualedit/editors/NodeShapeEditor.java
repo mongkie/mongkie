@@ -127,10 +127,10 @@ public class NodeShapeEditor extends EnumTagsPropertyEditor<NodeShape>
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 Stroke origStroke = g2d.getStroke();
                 Color origColor = g2d.getColor();
-                g2d.setStroke(STROKE);
-                g2d.setColor(STROKE_COLOR);
+                g2d.setStroke(StrokeLib.getStroke(2.0F));
+                g2d.setColor(c.getForeground());
                 g2d.draw(s);
-                g2d.setColor(FILL_COLOR);
+                g2d.setColor(ColorLib.getColor(ColorLib.setAlpha(ColorLib.color(c.getForeground()), 100)));
                 g2d.fill(s);
                 g2d.setStroke(origStroke);
                 g2d.setColor(origColor);
@@ -155,9 +155,6 @@ public class NodeShapeEditor extends EnumTagsPropertyEditor<NodeShape>
                 return icon;
             }
             private static final Map<NodeShape, Icon> icons = new EnumMap<NodeShape, Icon>(NodeShape.class);
-            private static final Stroke STROKE = StrokeLib.getStroke(2.0F);
-            private static final Color STROKE_COLOR = ColorLib.getColor(20, 90, 230);
-            private static final Color FILL_COLOR = ColorLib.getColor(20, 90, 230, 120);
         }
     }
 }

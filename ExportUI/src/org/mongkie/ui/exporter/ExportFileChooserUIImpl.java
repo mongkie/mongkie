@@ -116,7 +116,6 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
             @Override
             protected JDialog createDialog(Component parent) throws HeadlessException {
                 dialog = super.createDialog(parent);
-                dialog.setSize(640, 480);
                 dialog.setResizable(true);
                 Component c = dialog.getContentPane().getComponent(0);
                 if (c != null && c instanceof JComponent) {
@@ -133,6 +132,7 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                 if (selectedSettingUI != null) {
                     dialog.getContentPane().add(exportSettingPanel, BorderLayout.EAST);
                 }
+                dialog.pack();
                 return dialog;
             }
 
@@ -175,8 +175,9 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                     selectedSettingUI.apply();
                     dialog.remove(exportSettingPanel);
                     exportSettingPanel.remove(selectedSettingUI.getPanel());
-                    dialog.revalidate();
-                    dialog.repaint();
+//                    dialog.revalidate();
+//                    dialog.repaint();
+                    dialog.pack();
                     selectedSettingUI = null;
                 }
                 if (globalSettingUI != null && selectedExporter != null) {
@@ -190,8 +191,9 @@ final class ExportFileChooserUIImpl<E extends FileExporter> implements ExportFil
                         exportSettingPanel.add(selectedSettingUI.getPanel(), BorderLayout.CENTER);
                         if (dialog != null) {
                             dialog.getContentPane().add(exportSettingPanel, BorderLayout.EAST);
-                            dialog.revalidate();
-                            dialog.repaint();
+//                            dialog.revalidate();
+//                            dialog.repaint();
+                            dialog.pack();
                         }
                     }
                     if (globalSettingUI != null) {

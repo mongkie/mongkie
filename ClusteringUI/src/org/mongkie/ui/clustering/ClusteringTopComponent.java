@@ -246,12 +246,12 @@ public final class ClusteringTopComponent extends TopComponent implements Cluste
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.ipady = 6;
+        gridBagConstraints.ipady = 2;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(3, 2, 2, 0);
         chooserPanel.add(clusteringComboBox, gridBagConstraints);
 
-        settingButtion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/clustering/resources/setting.png"))); // NOI18N
+        settingButtion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/clustering/resources/settings.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(settingButtion, org.openide.util.NbBundle.getMessage(ClusteringTopComponent.class, "ClusteringTopComponent.settingButtion.text")); // NOI18N
         settingButtion.setToolTipText(org.openide.util.NbBundle.getMessage(ClusteringTopComponent.class, "ClusteringTopComponent.settingButtion.toolTipText")); // NOI18N
         settingButtion.setEnabled(false);

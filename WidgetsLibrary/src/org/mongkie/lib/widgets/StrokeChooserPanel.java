@@ -246,7 +246,7 @@ public class StrokeChooserPanel extends JPanel {
             }
         }
 
-        private static void paintStroke(Stroke stroke, Graphics2D g, double x, double y, double w, double h, Color bg, Color fg) {
+        public static void paintStroke(Stroke stroke, Graphics2D g, double x, double y, double w, double h, Color bg, Color fg) {
             Object oldAntialias = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             // draw background

@@ -178,7 +178,7 @@
     <Component class="javax.swing.JButton" name="fontButton">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="FontLib.getFont(((Font) style.get(VisualItem.FONT)).getName(), ((Font) style.get(VisualItem.FONT)).getStyle(), 13)" type="code"/>
+          <Connection code="FontLib.getFont(((Font) style.get(VisualItem.FONT)).getName(), ((Font) style.get(VisualItem.FONT)).getStyle(), 12)" type="code"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
           <Connection code="((Font) style.get(VisualItem.FONT)).getFontName() + &quot;, &quot; + ((Font) style.get(VisualItem.FONT)).getSize()" type="code"/>
@@ -204,6 +204,9 @@
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/mongkie/ui/visualization/options/Bundle.properties" key="EdgeSettingPanel.resetAllButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[2, 4, 2, 4]"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="resetAllButtonActionPerformed"/>
@@ -227,6 +230,9 @@
         <Property name="focusPainted" type="boolean" value="false"/>
         <Property name="focusable" type="boolean" value="false"/>
         <Property name="iconTextGap" type="int" value="0"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[2, 4, 2, 4]"/>
+        </Property>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="presetsButtonActionPerformed"/>

@@ -19,6 +19,7 @@ package org.mongkie.ui.perspective;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -381,6 +382,7 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
     private static class PerspectiveButton extends JToggleButton {
 
         public PerspectiveButton(String text, Icon icon) {
+            setFont(new Font("Tahoma", Font.PLAIN, 12));
             setText(text);
             setBorder(null);
             setBorderPainted(false);

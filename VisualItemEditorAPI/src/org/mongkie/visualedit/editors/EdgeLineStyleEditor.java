@@ -169,7 +169,7 @@ public class EdgeLineStyleEditor extends EnumTagsPropertyEditor<EdgeStroke>
 
             @Override
             public void paintIcon(Component c, Graphics g, int x, int y) {
-                StrokeSample.paintStroke(stroke, (Graphics2D) g, x, y, getIconWidth(), getIconHeight());
+                StrokeSample.paintStroke(stroke, (Graphics2D) g, x, y, getIconWidth(), getIconHeight(), c.getBackground(), c.getForeground());
             }
 
             @Override

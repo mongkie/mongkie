@@ -77,6 +77,7 @@ public class GlobalSettingPanel extends javax.swing.JPanel {
 
         resetAllButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/visualization/resources/undo.png"))); // NOI18N
         resetAllButton.setText(org.openide.util.NbBundle.getMessage(GlobalSettingPanel.class, "GlobalSettingPanel.resetAllButton.text")); // NOI18N
+        resetAllButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
         resetAllButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 resetAllButtonActionPerformed(evt);
@@ -95,7 +96,7 @@ public class GlobalSettingPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(bgColorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(resetAllButton))
-                .addContainerGap(147, Short.MAX_VALUE))
+                .addContainerGap(167, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

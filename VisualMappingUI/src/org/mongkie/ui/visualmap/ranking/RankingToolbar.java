@@ -18,12 +18,14 @@
 package org.mongkie.ui.visualmap.ranking;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import javax.swing.AbstractButton;
+import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.Icon;
@@ -212,7 +214,6 @@ public class RankingToolbar extends JToolBar implements RankingModelListener {
             elementGroup.add(btn);
             add(btn);
         }
-        box = new javax.swing.JLabel();
 
         setFloatable(false);
         setRollover(true);
@@ -220,9 +221,10 @@ public class RankingToolbar extends JToolBar implements RankingModelListener {
         setBorder(b);
 
         addSeparator();
-
-        box.setMaximumSize(new java.awt.Dimension(32767, 32767));
-        add(box);
+        add(new Box.Filler(new Dimension(0, 0), new Dimension(0, 0), new Dimension(32767, 0)));
+//        javax.swing.JLabel box = new javax.swing.JLabel();
+//        box.setMaximumSize(new java.awt.Dimension(32767, 32767));
+//        add(box);
     }
 
     @Override
@@ -237,7 +239,6 @@ public class RankingToolbar extends JToolBar implements RankingModelListener {
             }
         });
     }
-    private javax.swing.JLabel box;
     private javax.swing.ButtonGroup elementGroup;
 
     private DecoratedIcon getDecoratedIcon(Icon icon, final Transformer transformer) {

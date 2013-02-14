@@ -162,6 +162,7 @@ public class ClusteringResultView extends OutlineView {
             }
             i++;
         }
+        repaint();
     }
 
 //    @Override

@@ -95,18 +95,22 @@ public class GeneIDSearchPanel extends javax.swing.JPanel {
         questionButton.setBorderPainted(false);
         questionButton.setContentAreaFilled(false);
         questionButton.setFocusPainted(false);
+        questionButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
 
-        gicLink.setClickedColor(new java.awt.Color(0, 51, 255));
         gicLink.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/kopath/resources/converter.png"))); // NOI18N
         gicLink.setText(org.openide.util.NbBundle.getMessage(GeneIDSearchPanel.class, "GeneIDSearchPanel.gicLink.text")); // NOI18N
+        gicLink.setClickedColor(new java.awt.Color(0, 51, 255));
         gicLink.setEnabled(false);
         gicLink.setFocusPainted(false);
 
-        exampleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/kopath/resources/example.png"))); // NOI18N
+        exampleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/kopath/resources/paste.png"))); // NOI18N
         exampleButton.setText(org.openide.util.NbBundle.getMessage(GeneIDSearchPanel.class, "GeneIDSearchPanel.exampleButton.text")); // NOI18N
         exampleButton.setToolTipText(org.openide.util.NbBundle.getMessage(GeneIDSearchPanel.class, "GeneIDSearchPanel.exampleButton.toolTipText")); // NOI18N
         exampleButton.setBorderPainted(false);
+        exampleButton.setContentAreaFilled(false);
+        exampleButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         exampleButton.setFocusPainted(false);
+        exampleButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
         exampleButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exampleButtonActionPerformed(evt);
@@ -120,20 +124,24 @@ public class GeneIDSearchPanel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(inputAreaScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 236, Short.MAX_VALUE)
-                    .addComponent(selectDbLabel)
-                    .addComponent(dbComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, 236, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(geneIdInputLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(questionButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(exampleButton))
-                    .addComponent(gicLink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(inputAreaScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
+                    .addComponent(dbComboBox, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(resetButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(searchButton)))
+                        .addComponent(searchButton))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(selectDbLabel)
+                            .addComponent(gicLink, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(questionButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(geneIdInputLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(exampleButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

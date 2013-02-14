@@ -80,7 +80,7 @@ public final class EnrichmentResultTopComponent extends TopComponent implements 
             button.setFocusable(false);
             resultToolBar.add(button);
         }
-        resultToolBar.add(new JSeparator(SwingConstants.VERTICAL));
+        resultToolBar.add(new JToolBar.Separator());
         resultToolBar.add(ungroupAllButton);
         resultToolBar.add(selectAllButton);
         resultToolBar.add(selectNoneButton);
@@ -169,7 +169,6 @@ public final class EnrichmentResultTopComponent extends TopComponent implements 
 
         setLayout(new java.awt.BorderLayout());
 
-        resultDisplayPanel.setBorder(null);
         resultDisplayPanel.setLayout(new java.awt.BorderLayout());
         add(resultDisplayPanel, java.awt.BorderLayout.CENTER);
 

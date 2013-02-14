@@ -65,7 +65,7 @@ public class SeriesImporterSettingUI extends JPanel implements Importer.SettingU
 
         keyFieldComboBox.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
-        keyFieldExplainLabel.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        keyFieldExplainLabel.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         keyFieldExplainLabel.setForeground(java.awt.Color.blue);
         keyFieldExplainLabel.setText(org.openide.util.NbBundle.getMessage(SeriesImporterSettingUI.class, "SeriesImporterSettingUI.keyFieldExplainLabel.text")); // NOI18N
 

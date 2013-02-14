@@ -193,7 +193,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
     }
 
     private void updateFontButton(Font f) {
-        fontButton.setFont(FontLib.getFont(f.getName(), f.getStyle(), 13));
+        fontButton.setFont(FontLib.getFont(f.getName(), f.getStyle(), 12));
         fontButton.setText(f.getFontName() + ", " + f.getSize());
     }
 
@@ -305,7 +305,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
 
         fontLabel.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.fontLabel.text")); // NOI18N
 
-        fontButton.setFont(FontLib.getFont(((Font) style.get(VisualItem.FONT)).getName(), ((Font) style.get(VisualItem.FONT)).getStyle(), 13));
+        fontButton.setFont(FontLib.getFont(((Font) style.get(VisualItem.FONT)).getName(), ((Font) style.get(VisualItem.FONT)).getStyle(), 12));
         fontButton.setText(((Font) style.get(VisualItem.FONT)).getFontName() + ", " + ((Font) style.get(VisualItem.FONT)).getSize());
         fontButton.setBorderPainted(false);
 
@@ -313,6 +313,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
 
         resetAllButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/visualization/resources/undo.png"))); // NOI18N
         resetAllButton.setText(org.openide.util.NbBundle.getMessage(EdgeSettingPanel.class, "EdgeSettingPanel.resetAllButton.text")); // NOI18N
+        resetAllButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
         resetAllButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 resetAllButtonActionPerformed(evt);
@@ -326,6 +327,7 @@ public class EdgeSettingPanel extends javax.swing.JPanel implements VisualStyle.
         presetsButton.setFocusPainted(false);
         presetsButton.setFocusable(false);
         presetsButton.setIconTextGap(0);
+        presetsButton.setMargin(new java.awt.Insets(2, 4, 2, 4));
         presetsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 presetsButtonActionPerformed(evt);

@@ -44,7 +44,8 @@ public final class OptionsToolbar extends JToolBar {
 
     public OptionsToolbar(MongkieDisplay display) {
         initComponents();
-        add(new NodeLabelColumnButton(display, (InstantSearchPanel) add(new InstantSearchPanel(display))));
+        InstantSearchPanel searchPanel = (InstantSearchPanel) add(new InstantSearchPanel(display));
+        add(new NodeLabelColumnButton(display, searchPanel));
         for (Options o : Lookup.getDefault().lookupAll(Options.class)) {
             if (o.hasTools()) {
                 addSeparator();
@@ -83,13 +84,16 @@ public final class OptionsToolbar extends JToolBar {
         if (comp instanceof JButton) {
             WidgetUtilities.fixButtonUI((JButton) comp);
         }
+        if (WidgetUtilities.isWindowsLookAndFeel() && comp instanceof JComponent) {
+            ((JComponent) comp).setAlignmentY(BOTTOM_ALIGNMENT);
+        }
         return super.add(comp);
     }
 
     private static class NodeLabelColumnButton extends JPopupButton {
 
         NodeLabelColumnButton(final MongkieDisplay display, final InstantSearchPanel searcher) {
-            setMargin(new Insets(0, 2, 0, 0));
+//            setMargin(new Insets(2, 4, 2, 4));
             setFocusable(false);
             setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/visualization/resources/fontdown.png", false));
             setToolTipText("Choose a column used for node labels and search for");
