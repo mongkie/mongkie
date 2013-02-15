@@ -20,12 +20,15 @@ public class Installer extends ModuleInstall {
         UIManager.put("Table.columnSelection", ImageUtilities.loadImageIcon("org/mongkie/desktop/branding/resources/column-selection.png", false));
         if (isGTK()) {
             UIManager.put("Label.disabledForeground", Color.gray);
-        } else if (isWindows() && System.getProperty("user.language").equals("ko")) {
-            setUIFont(new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
-//            UIManager.put("TabbedPane.font", new javax.swing.plaf.FontUIResource("Tahoma", Font.PLAIN, 12));
+        } else if (isWindows()) {
+            if (System.getProperty("user.language").equals("ko")) {
+                setUIFont(new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
+            }
             UIManager.put("Button.font", new javax.swing.plaf.FontUIResource("Tahoma", Font.PLAIN, 12));
-            UIManager.put("ToolBar.font", new javax.swing.plaf.FontUIResource("Tahoma", Font.PLAIN, 12));
-            UIManager.put("ToolTip.font", new javax.swing.plaf.FontUIResource("Tahoma", Font.PLAIN, 12));
+            UIManager.put("ToolTip.font", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
+            UIManager.put("TabbedPane.font", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
+            UIManager.put("windowTitleFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.BOLD, 11));
+            UIManager.put("controlFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
         }
 //        printDiagnosticInfo();
         updateTaskPaneUI();
@@ -33,16 +36,17 @@ public class Installer extends ModuleInstall {
 
     private void updateTaskPaneUI() {
         UIManager.put("TaskPaneContainer.useGradient", Boolean.FALSE);
-        Color background = new Color(((ColorUIResource) UIManager.get("Panel.background")).getRGB());
-        UIManager.put("TaskPaneContainer.background", background);
-        UIManager.put("TaskPane.foreground", new ColorUIResource(Color.BLACK));
-        UIManager.put("TaskPane.background", background);
-        UIManager.put("TaskPane.titleForeground", new ColorUIResource(Color.BLACK));
-        UIManager.put("TaskPane.titleBackgroundGradientStart", new ColorUIResource(Color.LIGHT_GRAY));
-        UIManager.put("TaskPane.titleBackgroundGradientEnd", new ColorUIResource(Color.LIGHT_GRAY));
-        UIManager.put("TaskPane.specialTitleForeground", new ColorUIResource(Color.BLUE));
-        UIManager.put("TaskPane.specialTitleBackground", new ColorUIResource(33, 89, 201));
-        UIManager.put("TaskPane.borderColor", new ColorUIResource(Color.LIGHT_GRAY));
+        UIManager.put("TaskPaneContainer.background", new Color(((ColorUIResource) UIManager.get("Panel.background")).getRGB()));
+        UIManager.put("TaskPane.foreground", UIManager.getColor("Panel.foreground"));
+        UIManager.put("TaskPane.background", UIManager.getColor("Panel.background"));
+        UIManager.put("TaskPane.titleForeground", UIManager.getColor("Panel.foreground"));
+        UIManager.put("TaskPane.titleBackgroundGradientStart", UIManager.getColor("InternalFrame.borderShadow"));
+        UIManager.put("TaskPane.titleBackgroundGradientEnd", UIManager.getColor("InternalFrame.borderShadow"));
+        UIManager.put("TaskPane.titleOver", UIManager.getColor("InternalFrame.borderHighlight"));
+        UIManager.put("TaskPane.specialTitleForeground", new ColorUIResource(Color.ORANGE));
+        UIManager.put("TaskPane.specialTitleBackground", UIManager.getColor("InternalFrame.borderShadow"));
+        UIManager.put("TaskPane.specialTitleOver", UIManager.getColor("InternalFrame.borderHighlight"));
+        UIManager.put("TaskPane.borderColor", UIManager.getColor("InternalFrame.borderShadow"));
     }
 
     private void printDiagnosticInfo() {

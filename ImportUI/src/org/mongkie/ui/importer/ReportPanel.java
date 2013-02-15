@@ -160,22 +160,22 @@ public class ReportPanel extends javax.swing.JPanel {
         reportHeader.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/importer/resources/import32.png"))); // NOI18N
         reportHeader.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.reportHeader.title")); // NOI18N
 
-        issuesPanel.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.issuesPanel.title")); // NOI18N
         issuesPanel.setBorder(null);
+        issuesPanel.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.issuesPanel.title")); // NOI18N
         issuesPanel.setContentContainer(issuesScrollPane);
 
         processorPanel.setLayout(new javax.swing.BoxLayout(processorPanel, javax.swing.BoxLayout.Y_AXIS));
 
-        nodeCountLabel.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        nodeCountLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         nodeCountLabel.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.nodeCountLabel.text")); // NOI18N
 
-        edgeCountLabel.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        edgeCountLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         edgeCountLabel.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.edgeCountLabel.text")); // NOI18N
 
-        nodeCountValue.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        nodeCountValue.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         nodeCountValue.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.nodeCountValue.text")); // NOI18N
 
-        edgeCountValue.setFont(new java.awt.Font("Lucida Grande", 1, 13)); // NOI18N
+        edgeCountValue.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         edgeCountValue.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.edgeCountValue.text")); // NOI18N
 
         javax.swing.GroupLayout statePanelLayout = new javax.swing.GroupLayout(statePanel);
@@ -197,21 +197,21 @@ public class ReportPanel extends javax.swing.JPanel {
             statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(statePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(nodeCountValue, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(nodeCountLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(nodeCountValue)
+                    .addComponent(nodeCountLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(edgeCountValue, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(edgeCountLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(edgeCountValue)
+                    .addComponent(edgeCountLabel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        processingSeparator.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.processingSeparator.title")); // NOI18N
         processingSeparator.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 2));
+        processingSeparator.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.processingSeparator.title")); // NOI18N
 
-        reportSeparator.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.reportSeparator.title")); // NOI18N
         reportSeparator.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 2, 0, 0));
+        reportSeparator.setTitle(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.reportSeparator.title")); // NOI18N
 
         nodeJLabel.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.nodeJLabel.text")); // NOI18N
 

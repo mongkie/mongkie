@@ -95,7 +95,7 @@ public class GeneIDSearchPanel extends javax.swing.JPanel {
         questionButton.setBorderPainted(false);
         questionButton.setContentAreaFilled(false);
         questionButton.setFocusPainted(false);
-        questionButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        questionButton.setMargin(new java.awt.Insets(0, -1, 0, -1));
 
         gicLink.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/kopath/resources/converter.png"))); // NOI18N
         gicLink.setText(org.openide.util.NbBundle.getMessage(GeneIDSearchPanel.class, "GeneIDSearchPanel.gicLink.text")); // NOI18N
