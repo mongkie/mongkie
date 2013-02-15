@@ -350,7 +350,7 @@ public final class EnrichmentChooserTopComponent extends TopComponent
                 .addComponent(enrichmentComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(8, 8, 8)
                 .addComponent(infoLabel)
-                .addGap(6, 6, 6))
+                .addGap(2, 2, 2))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
