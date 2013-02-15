@@ -107,12 +107,11 @@ class ImportCSVNodeTableInnerPanel extends ImportCSVInnerPanel {
 
         fileButton.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         fileButton.setText(org.openide.util.NbBundle.getMessage(ImportCSVNodeTableInnerPanel.class, "ImportCSVInnerPanel.fileButton.text")); // NOI18N
+        fileButton.setMargin(new java.awt.Insets(0, 4, 0, 2));
 
         labelColumnLabel.setText(org.openide.util.NbBundle.getMessage(ImportCSVNodeTableInnerPanel.class, "ImportCSVInnerPanel.labelColumnLabel.text")); // NOI18N
 
         previewScroll.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-        previewTable.setBorder(null);
         previewScroll.setViewportView(previewTable);
 
         idColumnLabel.setText(org.openide.util.NbBundle.getMessage(ImportCSVNodeTableInnerPanel.class, "ImportCSVNodeTableInnerPanel.idColumnLabel.text")); // NOI18N
@@ -155,7 +154,7 @@ class ImportCSVNodeTableInnerPanel extends ImportCSVInnerPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(pathTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
+                    .addComponent(pathTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 408, Short.MAX_VALUE)
                     .addComponent(descriptionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 357, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(fileButton)
@@ -200,7 +199,7 @@ class ImportCSVNodeTableInnerPanel extends ImportCSVInnerPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(editColumnExplainLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(previewScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                .addComponent(previewScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
                 .addContainerGap())
         );
 

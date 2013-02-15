@@ -66,9 +66,9 @@
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="2" attributes="0">
                   <Component id="infoLabel" alignment="2" min="-2" max="-2" attributes="0"/>
-                  <Component id="enrichmentComboBox" alignment="2" min="-2" pref="28" max="-2" attributes="0"/>
+                  <Component id="enrichmentComboBox" alignment="2" min="-2" pref="25" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="separate" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="selectionSeparator" linkSize="2" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -80,10 +80,10 @@
                   <Component id="geneIdColumnLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="geneIdColumnComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="settingsSeparator" linkSize="2" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="settingsPanel" pref="105" max="32767" attributes="0"/>
+              <Component id="settingsPanel" pref="121" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="runButton" min="-2" max="-2" attributes="0"/>
           </Group>

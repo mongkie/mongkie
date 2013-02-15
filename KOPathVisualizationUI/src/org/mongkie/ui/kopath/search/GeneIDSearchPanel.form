@@ -161,7 +161,7 @@
         <Property name="contentAreaFilled" type="boolean" value="false"/>
         <Property name="focusPainted" type="boolean" value="false"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[2, 4, 2, 4]"/>
+          <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>

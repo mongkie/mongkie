@@ -42,7 +42,7 @@
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="pathTextField" pref="395" max="32767" attributes="0"/>
+                          <Component id="pathTextField" pref="417" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="fileButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="12" pref="12" max="12" attributes="0"/>
@@ -106,7 +106,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="editColumnExplainLabel" min="-2" pref="13" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="previewScroll" pref="131" max="32767" attributes="0"/>
+              <Component id="previewScroll" pref="133" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
@@ -135,6 +135,9 @@
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/mongkie/ui/importer/csv/Bundle.properties" key="ImportCSVInnerPanel.fileButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 4, 0, 2]"/>
         </Property>
       </Properties>
     </Component>
@@ -165,11 +168,6 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
         <Component class="javax.swing.JTable" name="previewTable">
-          <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="null"/>
-            </Property>
-          </Properties>
         </Component>
       </SubComponents>
     </Container>

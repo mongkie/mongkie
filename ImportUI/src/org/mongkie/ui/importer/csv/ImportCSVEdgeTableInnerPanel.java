@@ -118,6 +118,7 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
 
         fileButton.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
         fileButton.setText(org.openide.util.NbBundle.getMessage(ImportCSVEdgeTableInnerPanel.class, "ImportCSVInnerPanel.fileButton.text")); // NOI18N
+        fileButton.setMargin(new java.awt.Insets(0, 4, 0, 2));
 
         targetColumnLabel.setText(org.openide.util.NbBundle.getMessage(ImportCSVEdgeTableInnerPanel.class, "ImportCSVEdgeTableInnerPanel.targetColumnLabel.text")); // NOI18N
 
@@ -129,8 +130,6 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
         });
 
         previewScroll.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-        previewTable.setBorder(null);
         previewScroll.setViewportView(previewTable);
 
         sourceColumnLabel.setText(org.openide.util.NbBundle.getMessage(ImportCSVEdgeTableInnerPanel.class, "ImportCSVEdgeTableInnerPanel.sourceColumnLabel.text")); // NOI18N
@@ -183,7 +182,7 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
                                 .addComponent(labelColumnComboBox, 0, 126, Short.MAX_VALUE))
                             .addContainerGap())
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                            .addComponent(pathTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                            .addComponent(pathTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(fileButton)
                             .addGap(12, 12, 12))
@@ -232,7 +231,7 @@ class ImportCSVEdgeTableInnerPanel extends ImportCSVInnerPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(editColumnExplainLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(previewScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
+                .addComponent(previewScroll, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
                 .addContainerGap())
         );
 

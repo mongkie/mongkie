@@ -249,6 +249,7 @@ public final class PathwaySearchTopComponent extends TopComponent implements Exp
         searchResultPanel.add(bannerPanel, java.awt.BorderLayout.SOUTH);
 
         resultTree.setBorder(null);
+        resultTree.setViewportBorder(javax.swing.BorderFactory.createEmptyBorder(2, 2, 2, 2));
         searchResultPanel.add(resultTree, java.awt.BorderLayout.CENTER);
 
         splitPane.setBottomComponent(searchResultPanel);

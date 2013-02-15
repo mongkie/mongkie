@@ -39,7 +39,7 @@
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="keyAttributesScrollPane" min="0" pref="0" max="32767" attributes="2"/>
-                          <Component id="keyAttributeListLabel" alignment="1" pref="183" max="32767" attributes="1"/>
+                          <Component id="keyAttributeListLabel" alignment="1" pref="188" max="32767" attributes="1"/>
                       </Group>
                   </Group>
                   <Component id="previewSeparator" alignment="0" max="32767" attributes="3"/>
@@ -132,7 +132,7 @@
                                   <Component id="editColumnExplainLabel" alignment="3" min="-2" pref="13" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="keyAttributesScrollPane" pref="163" max="32767" attributes="0"/>
+                              <Component id="keyAttributesScrollPane" pref="197" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <EmptySpace min="-2" pref="19" max="-2" attributes="0"/>
@@ -327,6 +327,9 @@
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/mongkie/ui/importer/attributes/Bundle.properties" key="ImportAttributesPanel.openFileButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 4, 0, 2]"/>
         </Property>
       </Properties>
       <Events>
