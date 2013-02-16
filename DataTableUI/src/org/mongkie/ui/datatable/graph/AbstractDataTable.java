@@ -91,9 +91,11 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                if (value != null) {
+                Component cell;
+                if (value == null) {
+                    cell = super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
+                } else {
                     DataNode.Property property = (DataNode.Property) value;
-                    Component cell;
                     if (property.getValueType() == Boolean.TYPE) {
                         cell = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, false, row, column);
                     } else {
@@ -105,11 +107,10 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                         ((HtmlRenderer.Renderer) cell).setRenderStyle(HtmlRenderer.STYLE_TRUNCATE);
                         ((JLabel) cell).setToolTipText("".equals(string) ? null : StringUtilities.createHtmlTooltip(property.getDisplayName(), string, 4));
                     }
-                    cell.setBackground(isSelected ? getSelectionBackground() : row % 2 == 1 ? VERY_LIGHT_GRAY : table.getBackground());
-                    cell.setForeground(isSelected ? getSelectionForeground() : table.getForeground());
-                    return cell;
                 }
-                return super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
+                cell.setBackground(isSelected ? getSelectionBackground() : row % 2 == 1 ? VERY_LIGHT_GRAY : table.getBackground());
+                cell.setForeground(isSelected ? getSelectionForeground() : table.getForeground());
+                return cell;
             }
         });
         final TableCellEditor defaultEditor = outline.getDefaultEditor(Node.Property.class);
