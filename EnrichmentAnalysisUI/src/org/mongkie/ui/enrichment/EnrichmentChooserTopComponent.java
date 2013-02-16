@@ -290,28 +290,52 @@ public final class EnrichmentChooserTopComponent extends TopComponent
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         selectionButtonGroup = new javax.swing.ButtonGroup();
+        enrichmentChooserPanel = new javax.swing.JPanel();
         enrichmentComboBox = new javax.swing.JComboBox();
         infoLabel = new javax.swing.JLabel();
+        optionParameterPanel = new javax.swing.JPanel();
         selectionSeparator = new org.jdesktop.swingx.JXTitledSeparator();
         wholeNetworkButton = new javax.swing.JRadioButton();
         fromSelectionButton = new javax.swing.JRadioButton();
         settingsSeparator = new org.jdesktop.swingx.JXTitledSeparator();
-        runButton = new javax.swing.JButton();
         settingsPanel = new javax.swing.JPanel();
         geneIdColumnLabel = new javax.swing.JLabel();
         geneIdColumnComboBox = new javax.swing.JComboBox();
+        runPanel = new javax.swing.JPanel();
+        runButton = new javax.swing.JButton();
         selectionButtonGroup.add(wholeNetworkButton);
         selectionButtonGroup.add(fromSelectionButton);
 
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(6, 3, 2, 4));
+        setLayout(new java.awt.BorderLayout());
+
+        enrichmentChooserPanel.setOpaque(false);
+        enrichmentChooserPanel.setLayout(new java.awt.GridBagLayout());
 
         enrichmentComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Gene Ontology", "Pathway (KoPath)" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(3, 2, 2, 0);
+        enrichmentChooserPanel.add(enrichmentComboBox, gridBagConstraints);
 
+        infoLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         infoLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/information.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(infoLabel, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.infoLabel.text")); // NOI18N
+        infoLabel.setPreferredSize(new java.awt.Dimension(26, 26));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.ipady = 2;
+        gridBagConstraints.insets = new java.awt.Insets(3, 2, 2, 0);
+        enrichmentChooserPanel.add(infoLabel, gridBagConstraints);
 
+        add(enrichmentChooserPanel, java.awt.BorderLayout.PAGE_START);
+
+        optionParameterPanel.setOpaque(false);
+
+        selectionSeparator.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 2, 0, 2));
         selectionSeparator.setEnabled(false);
         selectionSeparator.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/light-bulb.png"))); // NOI18N
         selectionSeparator.setTitle(org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.selectionSeparator.title")); // NOI18N
@@ -321,8 +345,63 @@ public final class EnrichmentChooserTopComponent extends TopComponent
 
         org.openide.awt.Mnemonics.setLocalizedText(fromSelectionButton, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.fromSelectionButton.text")); // NOI18N
 
+        settingsSeparator.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 2, 0, 2));
         settingsSeparator.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/settings.png"))); // NOI18N
         settingsSeparator.setTitle(org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.settingsSeparator.title")); // NOI18N
+
+        settingsPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 16, 2, 4));
+        settingsPanel.setOpaque(false);
+        settingsPanel.setLayout(new java.awt.BorderLayout());
+
+        org.openide.awt.Mnemonics.setLocalizedText(geneIdColumnLabel, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.geneIdColumnLabel.text")); // NOI18N
+
+        geneIdColumnComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Gene ID" }));
+
+        javax.swing.GroupLayout optionParameterPanelLayout = new javax.swing.GroupLayout(optionParameterPanel);
+        optionParameterPanel.setLayout(optionParameterPanelLayout);
+        optionParameterPanelLayout.setHorizontalGroup(
+            optionParameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(settingsPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(settingsSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(selectionSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(optionParameterPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(optionParameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, optionParameterPanelLayout.createSequentialGroup()
+                        .addComponent(geneIdColumnLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(geneIdColumnComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, optionParameterPanelLayout.createSequentialGroup()
+                        .addComponent(wholeNetworkButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fromSelectionButton)))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+        optionParameterPanelLayout.setVerticalGroup(
+            optionParameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(optionParameterPanelLayout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addComponent(selectionSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(optionParameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(wholeNetworkButton)
+                    .addComponent(fromSelectionButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(optionParameterPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(geneIdColumnLabel)
+                    .addComponent(geneIdColumnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(settingsSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(settingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+                .addGap(6, 6, 6))
+        );
+
+        optionParameterPanelLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {selectionSeparator, settingsSeparator});
+
+        add(optionParameterPanel, java.awt.BorderLayout.CENTER);
+
+        runPanel.setOpaque(false);
 
         runButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/enrichment/resources/run.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(runButton, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.runButton.text")); // NOI18N
@@ -332,67 +411,24 @@ public final class EnrichmentChooserTopComponent extends TopComponent
             }
         });
 
-        settingsPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 16, 2, 4));
-        settingsPanel.setLayout(new java.awt.BorderLayout());
-
-        org.openide.awt.Mnemonics.setLocalizedText(geneIdColumnLabel, org.openide.util.NbBundle.getMessage(EnrichmentChooserTopComponent.class, "EnrichmentChooserTopComponent.geneIdColumnLabel.text")); // NOI18N
-
-        geneIdColumnComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Gene ID" }));
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(settingsPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(settingsSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(selectionSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(enrichmentComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(8, 8, 8)
-                .addComponent(infoLabel)
-                .addGap(2, 2, 2))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(runButton, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(geneIdColumnLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(geneIdColumnComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(wholeNetworkButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(fromSelectionButton)))
-                        .addContainerGap(20, Short.MAX_VALUE))))
+        javax.swing.GroupLayout runPanelLayout = new javax.swing.GroupLayout(runPanel);
+        runPanel.setLayout(runPanelLayout);
+        runPanelLayout.setHorizontalGroup(
+            runPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, runPanelLayout.createSequentialGroup()
+                .addContainerGap(224, Short.MAX_VALUE)
+                .addComponent(runButton)
+                .addGap(6, 6, 6))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(infoLabel)
-                    .addComponent(enrichmentComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(selectionSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(wholeNetworkButton)
-                    .addComponent(fromSelectionButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(geneIdColumnLabel)
-                    .addComponent(geneIdColumnComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(settingsSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(settingsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(runButton))
+        runPanelLayout.setVerticalGroup(
+            runPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(runPanelLayout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addComponent(runButton)
+                .addGap(6, 6, 6))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {selectionSeparator, settingsSeparator});
-
+        add(runPanel, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
@@ -403,12 +439,15 @@ public final class EnrichmentChooserTopComponent extends TopComponent
         }
     }//GEN-LAST:event_runButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel enrichmentChooserPanel;
     private javax.swing.JComboBox enrichmentComboBox;
     private javax.swing.JRadioButton fromSelectionButton;
     private javax.swing.JComboBox geneIdColumnComboBox;
     private javax.swing.JLabel geneIdColumnLabel;
     private javax.swing.JLabel infoLabel;
+    private javax.swing.JPanel optionParameterPanel;
     private javax.swing.JButton runButton;
+    private javax.swing.JPanel runPanel;
     private javax.swing.ButtonGroup selectionButtonGroup;
     private org.jdesktop.swingx.JXTitledSeparator selectionSeparator;
     private javax.swing.JPanel settingsPanel;
