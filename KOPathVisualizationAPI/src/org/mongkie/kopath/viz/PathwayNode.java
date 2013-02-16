@@ -18,23 +18,32 @@
 package org.mongkie.kopath.viz;
 
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import org.mongkie.kopath.Pathway;
+import org.mongkie.kopath.viz.worker.RetrievalWorker;
+import org.mongkie.visualization.MongkieDisplay;
+import org.mongkie.visualization.VisualizationController;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class PathwayNode extends AbstractNode {
 
     private final Pathway p;
+    private final RetrievalWorkerAction openAction;
 
     public PathwayNode(Pathway p) {
         super(Children.LEAF, Lookups.fixed(new Object[]{p}));
         this.p = p;
+        openAction = new RetrievalWorkerAction(p);
         setDisplayName(p.getName());
         setIconBaseWithExtension("org/mongkie/kopath/viz/resources/pathway.png");
     }
@@ -46,5 +55,36 @@ public class PathwayNode extends AbstractNode {
     @Override
     public Transferable drag() throws IOException {
         return p;
+    }
+
+    @Override
+    public Action[] getActions(boolean context) {
+        return new Action[]{openAction};
+    }
+
+    @Override
+    public Action getPreferredAction() {
+        return openAction;
+    }
+
+    private static class RetrievalWorkerAction extends AbstractAction {
+
+        private Pathway pathway;
+
+        RetrievalWorkerAction(Pathway pathway) {
+            super("Open...");
+            this.pathway = pathway;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ev) {
+            MongkieDisplay d = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
+            if (d != null && d instanceof PathwayDisplay) {
+                new RetrievalWorker((PathwayDisplay) d, pathway.getDatabase().getCode(), pathway.getId()).execute();
+            } else {
+                //TODO: open new display?
+                throw new AssertionError();
+            }
+        }
     }
 }
