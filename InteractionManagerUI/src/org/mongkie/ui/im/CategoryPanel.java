@@ -56,7 +56,7 @@ public class CategoryPanel extends javax.swing.JPanel implements SourceModelChan
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    add(new SourcePanel(d, model.getInteractionSource()), getComponentCount() - 2);
+                    add(new SourcePanel(d, model.getInteractionSource()), getComponentCount());
                 }
             });
         }
