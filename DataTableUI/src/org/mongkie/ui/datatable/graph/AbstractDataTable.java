@@ -266,6 +266,30 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
     }
     private boolean showing = false;
 
+    @Override
+    public void addNotify() {
+        if (model != null) {
+            model.setSelctionSyncEnabled(false);
+        }
+        super.addNotify();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (model != null) {
+                    model.setSelctionSyncEnabled(isSelected());
+                }
+            }
+        });
+    }
+
+    @Override
+    public void removeNotify() {
+        if (model != null) {
+            model.setSelctionSyncEnabled(false);
+        }
+        super.removeNotify();
+    }
+
     private AbstractModel lookupModel(MongkieDisplay d) {
         for (AbstractModel m : d.getLookup().lookupAll(AbstractModel.class)) {
             if (this == m.getDataTable()) {

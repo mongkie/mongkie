@@ -61,15 +61,14 @@ public class SelectionManager implements WorkspaceListener, TupleSetListener, Di
 
     @Override
     public void displayDeselected(MongkieDisplay display) {
+        this.display = null;
         TupleSet focusedTupleSet = display.getVisualization().getFocusGroup(FOCUS_ITEMS);
         focusedTupleSet.removeTupleSetListener(this);
         tupleSetChanged(new DefaultTupleSet(), new Tuple[]{}, ((DefaultTupleSet) focusedTupleSet).toArray());
-        this.display = null;
     }
 
     @Override
     public void displayClosed(MongkieDisplay display) {
-        display.getVisualization().getFocusGroup(FOCUS_ITEMS).clear();
     }
 
     @Override
@@ -96,11 +95,11 @@ public class SelectionManager implements WorkspaceListener, TupleSetListener, Di
             if (d != null && display != d) {
                 continue;
             }
-            if (selectedItems.length > 0) {
-                l.selected(focusedTupleSet.asSet(VisualItem.class), selectedItems);
-            }
             if (unselectedItems.length > 0) {
                 l.unselected(focusedTupleSet.asSet(VisualItem.class), unselectedItems);
+            }
+            if (selectedItems.length > 0) {
+                l.selected(focusedTupleSet.asSet(VisualItem.class), selectedItems);
             }
         }
     }
