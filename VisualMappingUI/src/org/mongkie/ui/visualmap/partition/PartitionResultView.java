@@ -27,7 +27,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import kobic.prefuse.Config;
 import net.java.dev.colorchooser.ColorChooser;
-import org.jdesktop.swingx.icon.EmptyIcon;
 import org.mongkie.visualmap.spi.partition.Partition;
 import org.netbeans.swing.outline.DefaultOutlineCellRenderer;
 import org.netbeans.swing.outline.Outline;
@@ -35,6 +34,7 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.OutlineView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -60,7 +60,7 @@ public class PartitionResultView extends OutlineView {
                 NbBundle.getMessage(PartNode.class, "PartNode.column.visual.name"), NbBundle.getMessage(PartNode.class, "PartNode.column.visual.displayName"),
                 NbBundle.getMessage(PartNode.class, "PartNode.column.color.name"), NbBundle.getMessage(PartNode.class, "PartNode.column.color.displayName"));
 
-        Outline outline = getOutline();
+        final Outline outline = getOutline();
         outline.setRootVisible(false);
         outline.setBackground(Color.WHITE);
         outline.setForeground(Color.BLACK);
@@ -71,8 +71,20 @@ public class PartitionResultView extends OutlineView {
         outline.setShowVerticalLines(false);
         outline.setTableHeader(null);
 
+        // Disable focus painting on the selected cell in outline view
+        outline.getColumnModel().getColumn(0).setCellRenderer(new DefaultOutlineCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                return super.getTableCellRendererComponent(table, value, isSelected, false, row, column);
+            }
+        });
         TableColumn visualCol = outline.getColumnModel().getColumn(1);
-//        visualCol.setCellRenderer(new StringPropertyRenderer(outline.getFont()));
+        visualCol.setCellRenderer(new DefaultOutlineCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                return outline.getDefaultRenderer(Node.Property.class).getTableCellRendererComponent(table, value, isSelected, false, row, column);
+            }
+        });
         visualCol.setPreferredWidth(120);
         visualCol.setMaxWidth(120);
         TableColumn colorCol = outline.getColumnModel().getColumn(2);
@@ -88,7 +100,6 @@ public class PartitionResultView extends OutlineView {
         this.partition = partition;
         getOutline().clearSelection();
         em.setRootContext(new AbstractNode(partition == null ? Children.LEAF : Children.create(new PartChildFactory(partition), true)) {
-
             @Override
             public Action[] getActions(boolean context) {
                 return new Action[]{};
@@ -96,64 +107,6 @@ public class PartitionResultView extends OutlineView {
         });
         return outlinePanel;
     }
-
-    private static class StringPropertyRenderer extends DefaultOutlineCellRenderer {
-
-        public StringPropertyRenderer(Font f) {
-            setFont(f);
-            setOpaque(true);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (isSelected) {
-                setBackground(table.getSelectionBackground());
-                setForeground(table.getSelectionForeground());
-            } else {
-                setBackground(table.getBackground());
-                setForeground(table.getForeground());
-            }
-            try {
-                setIcon(EMPTY_ICON);
-                setText(value == null ? "" : ((Property<String>) value).getValue());
-            } catch (IllegalAccessException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (InvocationTargetException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-            return this;
-        }
-    }
-    private static final Icon EMPTY_ICON = new EmptyIcon(6, 6);
-//    private static class TextPropertyRenderer extends JLabel implements TableCellRenderer {
-//
-//        public TextPropertyRenderer(Font f) {
-//            setFont(f);
-//            setOpaque(true);
-//        }
-//
-//        @Override
-//        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-//            if (isSelected) {
-//                setBackground(table.getSelectionBackground());
-//                setForeground(table.getSelectionForeground());
-//            } else {
-//                setBackground(table.getBackground());
-//                setForeground(table.getForeground());
-//            }
-//            if (value != null) {
-//                try {
-//                    setIcon(EMPTY_ICON);
-//                    setText(((Property<String>) value).getValue());
-//                } catch (IllegalAccessException ex) {
-//                    Exceptions.printStackTrace(ex);
-//                } catch (InvocationTargetException ex) {
-//                    Exceptions.printStackTrace(ex);
-//                }
-//            }
-//            return this;
-//        }
-//    }
 
     private static class ColorPropertyRenderer extends DefaultOutlineCellRenderer {
 
@@ -185,7 +138,6 @@ public class PartitionResultView extends OutlineView {
         public ColorChooserEditor() {
             chooser = new ColorChooser();
             chooser.addPropertyChangeListener(new PropertyChangeListener() {
-
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     if (evt.getPropertyName().equals(ColorChooser.PROP_COLOR)) {

@@ -21,6 +21,8 @@ public class Installer extends ModuleInstall {
         if (isGTK()) {
             UIManager.put("Label.disabledForeground", Color.gray);
         } else if (isWindows()) {
+            UIManager.put("windowTitleFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.BOLD, 11));
+            UIManager.put("controlFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
             if (System.getProperty("user.language").equals("ko")) {
                 setUIFont(new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
             }
