@@ -83,30 +83,23 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="hasHeaderCheckBox" min="-2" pref="16" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="sourceColumnLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="targetColumnLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="labelColumnLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="sourceColumnComboBox" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="targetColumnComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="labelColumnComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="sourceColumnLabel" linkSize="3" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="targetColumnLabel" linkSize="3" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="labelColumnLabel" linkSize="3" alignment="2" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="sourceColumnComboBox" linkSize="2" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="targetColumnComboBox" linkSize="2" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="labelColumnComboBox" linkSize="2" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="previewSeparator" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="editColumnExplainLabel" min="-2" pref="13" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="previewScroll" pref="133" max="32767" attributes="0"/>
+              <Component id="previewScroll" pref="134" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
