@@ -226,7 +226,7 @@ public class GroupsContextPanel extends javax.swing.JPanel implements ContextUI,
 
         groupsPiePanel.setLayout(new java.awt.BorderLayout());
 
-        groupListScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 50, 10, 50));
+        groupListScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 45, 10, 45));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -244,8 +244,8 @@ public class GroupsContextPanel extends javax.swing.JPanel implements ContextUI,
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(groupsPiePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(groupListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(groupListScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

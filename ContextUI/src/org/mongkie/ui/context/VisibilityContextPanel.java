@@ -180,22 +180,21 @@ public class VisibilityContextPanel extends javax.swing.JPanel implements Contex
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
-        jXTitledSeparator1 = new org.jdesktop.swingx.JXTitledSeparator();
+        nodesTitledSeparator = new org.jdesktop.swingx.JXTitledSeparator();
         nodesPiePanel = new javax.swing.JPanel();
-        jXTitledSeparator2 = new org.jdesktop.swingx.JXTitledSeparator();
+        edgesTitledSeparator = new org.jdesktop.swingx.JXTitledSeparator();
         edgesPiePanel = new javax.swing.JPanel();
         nodesCountInfoLabel = new javax.swing.JLabel();
         edgesCountInfoLabel = new javax.swing.JLabel();
 
-        jXTitledSeparator1.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jXTitledSeparator1.setTitle(org.openide.util.NbBundle.getMessage(VisibilityContextPanel.class, "VisibilityContextPanel.jXTitledSeparator1.title")); // NOI18N
+        nodesTitledSeparator.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        nodesTitledSeparator.setTitle(org.openide.util.NbBundle.getMessage(VisibilityContextPanel.class, "VisibilityContextPanel.nodesTitledSeparator.title")); // NOI18N
 
         nodesPiePanel.setLayout(new java.awt.BorderLayout());
 
-        jXTitledSeparator2.setFont(new java.awt.Font("Dialog", 1, 12)); // NOI18N
-        jXTitledSeparator2.setTitle(org.openide.util.NbBundle.getMessage(VisibilityContextPanel.class, "VisibilityContextPanel.jXTitledSeparator2.title")); // NOI18N
+        edgesTitledSeparator.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        edgesTitledSeparator.setTitle(org.openide.util.NbBundle.getMessage(VisibilityContextPanel.class, "VisibilityContextPanel.edgesTitledSeparator.title")); // NOI18N
 
         edgesPiePanel.setLayout(new java.awt.BorderLayout());
 
@@ -214,42 +213,42 @@ public class VisibilityContextPanel extends javax.swing.JPanel implements Contex
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jXTitledSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jXTitledSeparator2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(nodesTitledSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+                    .addComponent(edgesTitledSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(nodesCountInfoLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(edgesCountInfoLabel, javax.swing.GroupLayout.Alignment.TRAILING)))
-                    .addComponent(nodesPiePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-                    .addComponent(edgesPiePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
+                    .addComponent(nodesPiePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(edgesPiePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jXTitledSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(nodesTitledSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(nodesCountInfoLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(nodesPiePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(nodesPiePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jXTitledSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(edgesTitledSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(edgesCountInfoLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(edgesPiePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(edgesPiePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel edgesCountInfoLabel;
     private javax.swing.JPanel edgesPiePanel;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator1;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator2;
+    private org.jdesktop.swingx.JXTitledSeparator edgesTitledSeparator;
     private javax.swing.JLabel nodesCountInfoLabel;
     private javax.swing.JPanel nodesPiePanel;
+    private org.jdesktop.swingx.JXTitledSeparator nodesTitledSeparator;
     // End of variables declaration//GEN-END:variables
 
     private static class VisibilityPie extends ChartPanel {
