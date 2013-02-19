@@ -114,6 +114,7 @@ class FilterToolsPanel extends javax.swing.JPanel implements DataTable.Tool<Abst
         setFocusable(false);
         setRequestFocusEnabled(false);
 
+        filterLabel.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         filterLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/mongkie/ui/datatable/resources/funnel.png"))); // NOI18N
         filterLabel.setText(org.openide.util.NbBundle.getMessage(FilterToolsPanel.class, "FilterToolsPanel.filterLabel.text")); // NOI18N
 

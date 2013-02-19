@@ -166,16 +166,16 @@ public class ReportPanel extends javax.swing.JPanel {
 
         processorPanel.setLayout(new javax.swing.BoxLayout(processorPanel, javax.swing.BoxLayout.Y_AXIS));
 
-        nodeCountLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        nodeCountLabel.setFont(nodeCountLabel.getFont().deriveFont(nodeCountLabel.getFont().getStyle() | java.awt.Font.BOLD));
         nodeCountLabel.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.nodeCountLabel.text")); // NOI18N
 
-        edgeCountLabel.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        edgeCountLabel.setFont(edgeCountLabel.getFont().deriveFont(edgeCountLabel.getFont().getStyle() | java.awt.Font.BOLD));
         edgeCountLabel.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.edgeCountLabel.text")); // NOI18N
 
-        nodeCountValue.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        nodeCountValue.setFont(nodeCountValue.getFont().deriveFont(nodeCountValue.getFont().getStyle() | java.awt.Font.BOLD));
         nodeCountValue.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.nodeCountValue.text")); // NOI18N
 
-        edgeCountValue.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        edgeCountValue.setFont(edgeCountValue.getFont().deriveFont(edgeCountValue.getFont().getStyle() | java.awt.Font.BOLD));
         edgeCountValue.setText(org.openide.util.NbBundle.getMessage(ReportPanel.class, "ReportPanel.edgeCountValue.text")); // NOI18N
 
         javax.swing.GroupLayout statePanelLayout = new javax.swing.GroupLayout(statePanel);
@@ -184,7 +184,7 @@ public class ReportPanel extends javax.swing.JPanel {
             statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(statePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(nodeCountLabel)
                     .addComponent(edgeCountLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -198,12 +198,12 @@ public class ReportPanel extends javax.swing.JPanel {
             .addGroup(statePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(nodeCountValue)
-                    .addComponent(nodeCountLabel))
+                    .addComponent(nodeCountLabel)
+                    .addComponent(nodeCountValue))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(statePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(edgeCountValue)
-                    .addComponent(edgeCountLabel))
+                    .addComponent(edgeCountLabel)
+                    .addComponent(edgeCountValue))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 

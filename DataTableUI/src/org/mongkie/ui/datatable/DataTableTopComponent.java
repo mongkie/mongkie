@@ -19,6 +19,7 @@ package org.mongkie.ui.datatable;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -87,41 +88,41 @@ preferredID = DataTableTopComponent.PREFERRED_ID)
     "HINT_DataTableTopComponent=Nodes and Edges Table"
 })
 public final class DataTableTopComponent extends TopComponent implements DisplayListener<MongkieDisplay>, ExplorerManager.Provider {
-
+    
     static final String PREFERRED_ID = "DataTableTopComponent";
     private BusyLabel refreshing;
     private MongkieDisplay display;
-
+    
     public DataTableTopComponent() {
         initComponents();
         setName(Bundle.CTL_DataTableTopComponent());
         setToolTipText(Bundle.HINT_DataTableTopComponent());
-
+        
         addTableButtons();
         associateExplorerLookups();
-
+        
         viewScrollPane.setBorder(BorderFactory.createEmptyBorder());
         viewScrollPane.setViewportBorder(BorderFactory.createEmptyBorder());
         refreshing = new BusyLabel(null, 24, 24, viewScrollPane, null);
         refreshing.setBusy(false);
-
+        
         Lookup.getDefault().lookup(VisualizationController.class).addWorkspaceListener(new WorkspaceListener() {
             @Override
             public void displaySelected(MongkieDisplay display) {
                 refreshTables(display);
                 display.addDisplayListener(DataTableTopComponent.this);
             }
-
+            
             @Override
             public void displayDeselected(MongkieDisplay display) {
                 display.removeDisplayListener(DataTableTopComponent.this);
                 getSelectedTable().deselected();
             }
-
+            
             @Override
             public void displayClosed(MongkieDisplay display) {
             }
-
+            
             @Override
             public void displayClosedAll() {
                 refreshTables(null);
@@ -137,10 +138,11 @@ public final class DataTableTopComponent extends TopComponent implements Display
             });
         }
     }
-
+    
     private void addTableButtons() {
         for (final DataTable table : Lookup.getDefault().lookupAll(DataTable.class)) {
             JToggleButton toggle = new JToggleButton(table.getName(), table.getIcon());
+            toggle.setFont(new Font("Tahoma", Font.PLAIN, 12));
             toggle.setFocusable(false);
             toggle.setActionCommand(table.getName());
             tableButtonGroup.add(toggle);
@@ -172,7 +174,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             }
         }
     }
-
+    
     private void clearActionsAndTools() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -185,7 +187,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             }
         });
     }
-
+    
     private void addActionsAndTools(final DataTable table) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -199,13 +201,18 @@ public final class DataTableTopComponent extends TopComponent implements Display
                             : new JCommandButton(a.getName());
                     command.setCommandButtonKind(a instanceof PopupAction
                             ? (popupOnly = ((PopupAction) a).isPopupOnly()) ? POPUP_ONLY : ACTION_AND_POPUP_MAIN_ACTION : ACTION_ONLY);
-                    command.setDisplayState(a.hideActionText() ? SMALL : MEDIUM);
+                    if (a.hideActionText()) {
+                        command.setDisplayState(SMALL);
+                    } else {
+                        command.setDisplayState(MEDIUM);
+                        command.setFont(new Font("Tahoma", Font.PLAIN, 12));
+                    }
                     if (a.getDescription() != null && !a.getDescription().isEmpty()) {
                         if (a instanceof PopupAction) {
                             command.setPopupRichTooltip(new RichTooltip(a.getName(), ((PopupAction) a).getPopupDescription()));
                         }
                         command.setActionRichTooltip(new RichTooltip(a.getName(), a.getDescription()));
-
+                        
                     }
                     if (a instanceof PopupAction) {
                         command.setPopupCallback(new PopupPanelCallback() {
@@ -258,7 +265,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             }
         });
     }
-
+    
     private void refreshActionsAndTools(DataTable table) {
         for (Component c : topToolbar.getComponents()) {
             if (c instanceof JCommandButton) {
@@ -272,7 +279,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             }
         }
     }
-
+    
     private void associateExplorerLookups() {
         List<Lookup> lookups = new ArrayList<Lookup>();
         for (final DataTable table : Lookup.getDefault().lookupAll(DataTable.class)) {
@@ -283,7 +290,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
         }
         associateLookup(new ProxyLookup(lookups.toArray(new Lookup[]{})));
     }
-
+    
     DataTable selectTable(String name) {
         for (Enumeration<AbstractButton> toggles = tableButtonGroup.getElements(); toggles.hasMoreElements();) {
             AbstractButton toggle = toggles.nextElement();
@@ -294,7 +301,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
         }
         return null;
     }
-
+    
     void refreshModel(final DataTable table, boolean actionsOnly) {
         if (!actionsOnly) {
             table.refreshModel(display);
@@ -303,7 +310,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             refreshActionsAndTools(table);
         }
     }
-
+    
     private void refreshTables(final MongkieDisplay d) {
         this.display = d;
         refreshingTables = true;
@@ -356,11 +363,11 @@ public final class DataTableTopComponent extends TopComponent implements Display
     }
     private AccumulativeEventsProcessor refreshingQ;
     private volatile boolean refreshingTables = false;
-
+    
     boolean isRefreshing(DataTable table) {
         return refreshingTables;
     }
-
+    
     private void configureViewScrollPane(JComponent view) {
         if (view != null) {
             if (view instanceof JScrollPane) {
@@ -371,7 +378,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             }
         }
     }
-
+    
     @Override
     public void graphDisposing(MongkieDisplay d, Graph g) {
         DataTable currentTable = getSelectedTable();
@@ -385,7 +392,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
             refreshing.setBusy(true);
         }
     }
-
+    
     @Override
     public void graphChanged(final MongkieDisplay d, Graph g) {
         //TODO: refresh only graph tables
@@ -428,28 +435,28 @@ public final class DataTableTopComponent extends TopComponent implements Display
     public void componentOpened() {
         // TODO add custom code on component opening
     }
-
+    
     @Override
     public void componentClosed() {
         // TODO add custom code on component closing
     }
-
+    
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
         // TODO store your settings
     }
-
+    
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
-
+    
     public static DataTableTopComponent findInstance() {
         return (DataTableTopComponent) WindowManager.getDefault().findTopComponent(PREFERRED_ID);
     }
-
+    
     @Override
     public ExplorerManager getExplorerManager() {
         DataTable currentTable = getSelectedTable();
@@ -458,7 +465,7 @@ public final class DataTableTopComponent extends TopComponent implements Display
         }
         throw new AssertionError("The selected data table is not providing a explorer manager");
     }
-
+    
     DataTable getSelectedTable() {
         return Lookup.getDefault().lookup(DataTableController.class).getDataTable(tableButtonGroup.getSelection().getActionCommand());
     }
