@@ -5,4 +5,5 @@
 <project name="Mongkie" basedir=".">
     <description>Builds the module suite Mongkie.</description>
     <import file="nbproject/build-impl.xml"/>
+    <property name="app.icon.icns" value="${basedir}/mongkie.icns"/>
 </project>
