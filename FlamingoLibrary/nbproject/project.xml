@@ -15,7 +15,6 @@
                 <package>org.pushingpixels.flamingo.api.common.popup</package>
                 <package>org.pushingpixels.flamingo.api.ribbon</package>
                 <package>org.pushingpixels.flamingo.api.ribbon.resize</package>
-                <package>org.pushingpixels.flamingo.api.svg</package>
                 <package>org.pushingpixels.flamingo.internal.ui.bcb</package>
                 <package>org.pushingpixels.flamingo.internal.ui.common</package>
                 <package>org.pushingpixels.flamingo.internal.ui.common.popup</package>
@@ -24,8 +23,8 @@
                 <package>org.pushingpixels.flamingo.internal.utils</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/flamingo-6.3.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/flamingo-6.3.jar</binary-origin>
+                <runtime-relative-path>ext/flamingo-7.2.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/flamingo-7.2.1.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
