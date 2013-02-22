@@ -10,8 +10,8 @@
         </folder>
         <folder name="View">
             <attr name="position" intvalue="200"/>
-            <file name="org-netbeans-core-actions-HTMLViewAction.shadow_hidden"/>
             <file name="org-netbeans-core-actions-LogAction.shadow_hidden"/>
+            <file name="org-netbeans-core-windows-actions-ToolbarsListAction.shadow_hidden"/>
         </folder>
         <folder name="Tools">
             <attr name="position" intvalue="300"/>
@@ -19,6 +19,7 @@
         <folder name="Window">
             <attr name="position" intvalue="400"/>
             <file name="SwitchToRecentDocumentAction.shadow_hidden"/>
+            <file name="Web_hidden"/>
         </folder>
     </folder>
     <file name="Toolbars_hidden"/>
