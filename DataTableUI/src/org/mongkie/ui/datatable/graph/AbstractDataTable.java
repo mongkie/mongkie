@@ -214,7 +214,6 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
                 String col = outline.getColumnName(i);
                 addPropertyColumn(col, viewSupport.getColumnTitle(col), outline.getColumnType(i).getSimpleName());
             }
-            getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
             model.reset(table, showing); // Must reset the model *BEFORE* refreshing child nodes
             if (tools != null) {
                 // Also filter tool must be refreshed before filter actions called in the child factory performed
@@ -235,8 +234,8 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             clear();
             model = null;
             setPropertyColumns();
-            getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
         }
+        getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
     }
 
     public DataChildFactory getDataChildFactory() {
@@ -383,8 +382,8 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
 
         /**
          * Synchronize selections in the data table with selections in the
-         * display. It will pan the display to place a last selected *ONE* item in the
-         * center of the display.
+         * display. It will pan the display to place a last selected *ONE* item
+         * in the center of the display.
          *
          * @param evt event object of selection of the data table
          */
@@ -455,8 +454,8 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
          * table.
          *
          * @param tupleSet total set of selected items in the display
-         * @param added    just selected items
-         * @param removed  just deselected items
+         * @param added just selected items
+         * @param removed just deselected items
          */
         @Override
         public void tupleSetChanged(final TupleSet tupleSet, Tuple[] added, Tuple[] removed) {
