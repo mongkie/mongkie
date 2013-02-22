@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.Locale;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.ColorUIResource;
 import org.openide.modules.ModuleInstall;
@@ -15,33 +16,34 @@ import org.openide.util.ImageUtilities;
  */
 public class Installer extends ModuleInstall {
 
-    public Installer() {
-        if (isWindows()) {
-            UIManager.put("windowTitleFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.BOLD, 11));
-            UIManager.put("controlFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
-            if (System.getProperty("file.encoding").equals("MS949")) {
-                setUIFont(new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
-            }
-            UIManager.put("TabbedPane.font", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
-//            setUIFont(new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
-//            /* File chooser fonts */
-//            UIManager.put("ComboBox.font", new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
-//            UIManager.put("ToggleButton.font", new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
-//            UIManager.put("FileChooser.listFont", new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
-        }
-    }
-
     @Override
     public void restored() {
-        UIManager.put("Table.columnSelection", ImageUtilities.loadImageIcon("org/mongkie/desktop/branding/resources/column-selection.png", false));
-        if (isGTK()) {
-            UIManager.put("Label.disabledForeground", Color.gray);
-        } else if (isWindows()) {
-            UIManager.put("windowTitleFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.BOLD, 11));
-            UIManager.put("controlFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
-        }
-//        printDiagnosticInfo();
-        updateTaskPaneUI();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                UIManager.put("Table.columnSelection", ImageUtilities.loadImageIcon("org/mongkie/desktop/branding/resources/column-selection.png", false));
+                if (isGTK()) {
+                    UIManager.put("Label.disabledForeground", Color.gray);
+                } else if (isWindows()) {
+                    UIManager.put("windowTitleFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.BOLD, 11));
+                    UIManager.put("controlFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
+                    if (System.getProperty("file.encoding").equals("MS949")) {
+                        setUIFont(new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
+                    }
+                    UIManager.put("TabbedPane.font", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
+//                    setUIFont(new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
+//                    /* File chooser fonts */
+//                    UIManager.put("ComboBox.font", new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
+//                    UIManager.put("ToggleButton.font", new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
+//                    UIManager.put("FileChooser.listFont", new javax.swing.plaf.FontUIResource("Malgun Gothic", Font.PLAIN, 12));
+                    // Ensure?
+                    UIManager.put("windowTitleFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.BOLD, 11));
+                    UIManager.put("controlFont", new javax.swing.plaf.FontUIResource("Segoe UI", Font.PLAIN, 12));
+                }
+//                printDiagnosticInfo();
+                updateTaskPaneUI();
+            }
+        });
     }
 
     private void updateTaskPaneUI() {
