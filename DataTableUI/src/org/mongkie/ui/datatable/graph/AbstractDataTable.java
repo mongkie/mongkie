@@ -235,7 +235,12 @@ public abstract class AbstractDataTable extends OutlineView implements GraphData
             model = null;
             setPropertyColumns();
         }
-        getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                getOutline().getColumnModel().removeColumn(getOutline().getColumnModel().getColumn(0));
+            }
+        });
     }
 
     public DataChildFactory getDataChildFactory() {
