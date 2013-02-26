@@ -41,6 +41,11 @@ public class AggregateNameEdit extends AggregateItemEdit<String> {
     }
 
     @Override
+    public String getDefaultValue() {
+        return "NA";
+    }
+
+    @Override
     public String getValue(VisualItem group) {
         return group.getString(AggregateItem.AGGR_NAME);
     }

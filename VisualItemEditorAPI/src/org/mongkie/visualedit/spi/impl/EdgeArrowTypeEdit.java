@@ -43,6 +43,11 @@ public class EdgeArrowTypeEdit extends EdgeItemEdit<EdgeArrow> {
     }
 
     @Override
+    public EdgeArrow getDefaultValue() {
+        return EdgeArrow.ARROW;
+    }
+
+    @Override
     public EdgeArrow getValue(VisualItem e) {
         return EdgeArrow.get(e.getShape());
     }

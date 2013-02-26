@@ -18,11 +18,13 @@
 package org.mongkie.visualedit.spi.impl;
 
 import java.awt.Color;
+import kobic.prefuse.Constants;
 import org.mongkie.visualedit.spi.NodeItemEdit;
 import org.mongkie.visualedit.spi.VisualEdit;
 import org.mongkie.visualization.color.ColorController;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+import prefuse.util.ColorLib;
 import prefuse.visual.VisualItem;
 
 /**
@@ -42,6 +44,11 @@ public class NodeStrokeColorEdit extends NodeItemEdit<Color> {
     @Override
     public void setValue(VisualItem n, Color c) {
         Lookup.getDefault().lookup(ColorController.class).setStrokeColor(n, c);
+    }
+
+    @Override
+    public Color getDefaultValue() {
+        return ColorLib.getColor(Constants.COLOR_DEFAULT_NODE_STROKE);
     }
 
     @Override

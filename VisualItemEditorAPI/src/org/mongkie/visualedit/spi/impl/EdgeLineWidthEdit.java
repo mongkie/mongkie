@@ -46,6 +46,11 @@ public class EdgeLineWidthEdit extends EdgeItemEdit<Double> {
     }
 
     @Override
+    public Double getDefaultValue() {
+        return 1.0D;
+    }
+
+    @Override
     public void setValue(VisualItem e, Double size) {
         PrefuseLib.updateDouble(e, VisualItem.SIZE, size);
     }

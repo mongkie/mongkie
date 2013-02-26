@@ -36,6 +36,8 @@ public interface VisualEdit<T> {
     public Class<? extends VisualItem> getItemType();
 
     public Class<T> getValueType();
+    
+    public T getDefaultValue();
 
     public T getValue(VisualItem item);
 

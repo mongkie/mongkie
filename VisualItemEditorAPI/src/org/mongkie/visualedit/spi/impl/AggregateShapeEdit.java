@@ -39,6 +39,11 @@ public class AggregateShapeEdit extends AggregateItemEdit<AggregateShape> {
     }
 
     @Override
+    public AggregateShape getDefaultValue() {
+        return AggregateShape.CIRCLE;
+    }
+
+    @Override
     public Class<AggregateShape> getValueType() {
         return AggregateShape.class;
     }

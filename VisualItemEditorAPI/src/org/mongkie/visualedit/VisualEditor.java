@@ -74,8 +74,8 @@ public class VisualEditor<I extends VisualItem> extends AbstractNode {
         if (propertySets == null) {
             propertySets = isGroup
                     ? new PropertySet[]{
-                        prepareVisualProperties(NbBundle.getMessage(VisualEditor.class, "EditItems.group.properties.displayName"), items),
-                        prepareVisualProperties(NbBundle.getMessage(VisualEditor.class, "EditItems.member.properties.displayName"), ((AggregateItem) items[0]).toArray())}
+                prepareVisualProperties(NbBundle.getMessage(VisualEditor.class, "EditItems.group.properties.displayName"), items),
+                prepareVisualProperties(NbBundle.getMessage(VisualEditor.class, "EditItems.member.properties.displayName"), ((AggregateItem) items[0]).toArray())}
                     : new PropertySet[]{prepareVisualProperties(NbBundle.getMessage(VisualEditor.class, "EditItems.visual.properties.displayName"), items)};
         }
         return propertySets;
@@ -87,7 +87,6 @@ public class VisualEditor<I extends VisualItem> extends AbstractNode {
         try {
             Property<String> label = new PropertySupport.ReadOnly<String>("label",
                     String.class, NbBundle.getMessage(VisualEditor.class, "EditItems.label.displayName"), null) {
-
                 @Override
                 public String getValue() throws IllegalAccessException, InvocationTargetException {
                     return VisualEditor.this.getName();
@@ -148,6 +147,8 @@ public class VisualEditor<I extends VisualItem> extends AbstractNode {
                 for (int i = 1; i < items.length; i++) {
                     if (!property.equals(edit.getValue(items[i]))) {
                         return null;
+                        //TODO: Returns default value instead of null?
+//                        return edit.getDefaultValue();
                     }
                 }
             }
@@ -159,7 +160,7 @@ public class VisualEditor<I extends VisualItem> extends AbstractNode {
                 for (VisualItem item : items) {
                     edit.setValue(item, value);
                 }
-            } else if (items.length > 1) {
+            } else if (items.length > 1) { //TODO: Should be revised if the value of cancel is not null...
                 // After cancelling the first edit of multiple items,
                 // those items need to be restored to initial values
                 for (int i = 0; i < items.length; i++) {

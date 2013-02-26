@@ -43,6 +43,11 @@ public class EdgeLineStyleEdit extends EdgeItemEdit<EdgeStroke> {
     }
 
     @Override
+    public EdgeStroke getDefaultValue() {
+        return EdgeStroke.SOLID;
+    }
+
+    @Override
     public EdgeStroke getValue(VisualItem item) {
         return EdgeStroke.get(item.getStroke());
     }

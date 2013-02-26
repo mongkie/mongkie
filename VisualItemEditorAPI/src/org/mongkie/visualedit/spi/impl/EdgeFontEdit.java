@@ -18,6 +18,7 @@
 package org.mongkie.visualedit.spi.impl;
 
 import java.awt.Font;
+import kobic.prefuse.Constants;
 import org.mongkie.visualedit.spi.EdgeItemEdit;
 import org.mongkie.visualedit.spi.VisualEdit;
 import org.openide.util.lookup.ServiceProvider;
@@ -39,6 +40,11 @@ public class EdgeFontEdit extends EdgeItemEdit<Font> {
     @Override
     public Class<Font> getValueType() {
         return Font.class;
+    }
+
+    @Override
+    public Font getDefaultValue() {
+        return Constants.FONT_DEFAULT_EDGETEXT;
     }
 
     @Override

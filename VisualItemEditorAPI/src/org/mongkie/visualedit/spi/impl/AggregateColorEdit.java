@@ -18,11 +18,13 @@
 package org.mongkie.visualedit.spi.impl;
 
 import java.awt.Color;
+import kobic.prefuse.Constants;
 import org.mongkie.visualedit.spi.AggregateItemEdit;
 import org.mongkie.visualedit.spi.VisualEdit;
 import org.mongkie.visualization.color.ColorController;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+import prefuse.util.ColorLib;
 import prefuse.visual.VisualItem;
 
 /**
@@ -40,6 +42,11 @@ public class AggregateColorEdit extends AggregateItemEdit<Color> {
     @Override
     public Class<Color> getValueType() {
         return Color.class;
+    }
+
+    @Override
+    public Color getDefaultValue() {
+        return ColorLib.getColor(Constants.COLOR_DEFAULT_AGGR_FILL);
     }
 
     @Override

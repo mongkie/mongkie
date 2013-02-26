@@ -43,6 +43,11 @@ public class NodeShapeEdit extends NodeItemEdit<NodeShape> {
     }
 
     @Override
+    public NodeShape getDefaultValue() {
+        return NodeShape.ELLIPSE;
+    }
+
+    @Override
     public String getName() {
         return "Shape";
     }

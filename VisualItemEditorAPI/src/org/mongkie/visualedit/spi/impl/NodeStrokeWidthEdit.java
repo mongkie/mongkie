@@ -40,6 +40,11 @@ public class NodeStrokeWidthEdit extends NodeItemEdit<Float> {
     }
 
     @Override
+    public Float getDefaultValue() {
+        return 2.0F;
+    }
+
+    @Override
     public Float getValue(VisualItem item) {
         return item.getStroke().getLineWidth();
     }

@@ -46,6 +46,11 @@ public class NodeSizeEdit extends NodeItemEdit<Double> {
     }
 
     @Override
+    public Double getDefaultValue() {
+        return 1.0D;
+    }
+
+    @Override
     public void setValue(VisualItem n, Double size) {
         PrefuseLib.updateDouble(n, VisualItem.SIZE, size);
     }

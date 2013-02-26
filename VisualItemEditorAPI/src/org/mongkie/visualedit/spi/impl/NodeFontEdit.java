@@ -18,6 +18,7 @@
 package org.mongkie.visualedit.spi.impl;
 
 import java.awt.Font;
+import kobic.prefuse.Constants;
 import org.mongkie.visualedit.spi.NodeItemEdit;
 import org.mongkie.visualedit.spi.VisualEdit;
 import org.openide.util.lookup.ServiceProvider;
@@ -39,6 +40,11 @@ public class NodeFontEdit extends NodeItemEdit<Font> {
     @Override
     public void setValue(VisualItem n, Font f) {
         PrefuseLib.update(n, VisualItem.FONT, f);
+    }
+
+    @Override
+    public Font getDefaultValue() {
+        return Constants.FONT_DEFAULT_NODETEXT;
     }
 
     @Override
