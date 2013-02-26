@@ -52,7 +52,7 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
- * 
+ *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 public class ClusteringResultView extends OutlineView {
@@ -73,34 +73,34 @@ public class ClusteringResultView extends OutlineView {
         setDragSource(false);
         setDropTarget(false);
 
-        Outline resultOutline = getOutline();
-        resultOutline.setRootVisible(false);
-        resultOutline.getColumnModel().removeColumn(resultOutline.getColumnModel().getColumn(0));
+        Outline outline = getOutline();
+        outline.setAutoCreateColumnsFromModel(false);
+        outline.setRootVisible(false);
+        outline.getColumnModel().removeColumn(outline.getColumnModel().getColumn(0));
 
-        resultOutline.setBackground(Color.WHITE);
-        resultOutline.setForeground(Color.BLACK);
-        resultOutline.setFont(resultOutline.getFont().deriveFont(resultOutline.getFont().getSize() - 1f));
-        resultOutline.setOpaque(true);
-        resultOutline.setRowMargin(4);
-        resultOutline.setShowHorizontalLines(false);
-        resultOutline.setShowVerticalLines(false);
-        resultOutline.setTableHeader(null);
+        outline.setBackground(Color.WHITE);
+        outline.setForeground(Color.BLACK);
+        outline.setFont(outline.getFont().deriveFont(outline.getFont().getSize() - 1f));
+        outline.setOpaque(true);
+        outline.setRowMargin(4);
+        outline.setShowHorizontalLines(false);
+        outline.setShowVerticalLines(false);
+        outline.setTableHeader(null);
 
-        TableColumn nameCol = resultOutline.getColumnModel().getColumn(1);
-        nameCol.setCellRenderer(new TextPropertyRenderer(resultOutline.getFont()));
-        nameCol.setCellEditor(new DoubleClickTextPropertyEditor(resultOutline.getFont()));
-        TableColumn sizeCol = resultOutline.getColumnModel().getColumn(2);
-        sizeCol.setCellRenderer(new TextPropertyRenderer(resultOutline.getFont()));
+        TableColumn nameCol = outline.getColumnModel().getColumn(1);
+        nameCol.setCellRenderer(new TextPropertyRenderer(outline.getFont()));
+        nameCol.setCellEditor(new DoubleClickTextPropertyEditor(outline.getFont()));
+        TableColumn sizeCol = outline.getColumnModel().getColumn(2);
+        sizeCol.setCellRenderer(new TextPropertyRenderer(outline.getFont()));
         sizeCol.setPreferredWidth(100);
         sizeCol.setMaxWidth(100);
-        TableColumn colorCol = resultOutline.getColumnModel().getColumn(0);
+        TableColumn colorCol = outline.getColumnModel().getColumn(0);
         colorCol.setCellRenderer(new ColorPropertyRenderer());
         colorCol.setCellEditor(new ColorChooserEditor());
-        colorCol.setPreferredWidth(resultOutline.getRowHeight());
-        colorCol.setMaxWidth(resultOutline.getRowHeight());
+        colorCol.setPreferredWidth(outline.getRowHeight());
+        colorCol.setMaxWidth(outline.getRowHeight());
 
         NodePopupFactory npf = new NodePopupFactory() {
-
             @Override
             public JPopupMenu createPopupMenu(int row, int column, Node[] selectedNodes, Component component) {
                 JPopupMenu popup = super.createPopupMenu(row, column, selectedNodes, component);
@@ -123,7 +123,6 @@ public class ClusteringResultView extends OutlineView {
                         NbBundle.getMessage(ClusteringResultView.class, "ClusteringResultView.menuItem.randomizeColors.text"));
                 randomizeColors.setIcon(ImageUtilities.loadImageIcon("org/mongkie/ui/clustering/resources/randomize.png", false));
                 randomizeColors.addActionListener(new ActionListener() {
-
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         randomizeColors();
@@ -140,7 +139,7 @@ public class ClusteringResultView extends OutlineView {
         npf.setShowQuickFilter(false);
         setNodePopupFactory(npf);
 
-        outlinePanel = new OutlinePanel(resultOutline);
+        outlinePanel = new OutlinePanel(outline);
 
         this.em = em;
     }
@@ -176,7 +175,6 @@ public class ClusteringResultView extends OutlineView {
         this.clustering = clustering;
         getOutline().clearSelection();
         em.setRootContext(new AbstractNode(Children.create(new ClusterChildFactory(clustering), false)) {
-
             @Override
             public Action[] getActions(boolean context) {
                 return new Action[]{};
@@ -301,7 +299,6 @@ public class ClusteringResultView extends OutlineView {
         public ColorChooserEditor() {
             chooser = new ColorChooser();
             chooser.addPropertyChangeListener(new PropertyChangeListener() {
-
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     if (evt.getPropertyName().equals(ColorChooser.PROP_COLOR)) {
