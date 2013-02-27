@@ -29,7 +29,7 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.JToggleButton;
 import org.mongkie.perspective.NonSingletonTopComponent;
-import org.mongkie.perspective.PerspectiveController;
+import org.mongkie.perspective.PerspectiveChangeListener;
 import org.mongkie.perspective.spi.Perspective;
 import static org.mongkie.visualization.Config.MODE_DISPLAY;
 import org.openide.filesystems.FileObject;
@@ -41,7 +41,6 @@ import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbPreferences;
-import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -50,15 +49,45 @@ import org.openide.windows.WindowManager;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = PerspectiveController.class)
-public final class PerspectiveTopComponent extends javax.swing.JPanel implements PerspectiveController {
+final class PerspectiveTopComponent extends javax.swing.JPanel {
 
     private JToggleButton[] tabs;
     static final String LAST_PERSPECTIVE = "PerspectiveTopComponent.lastSelectedPerspective";
+    private final List<PerspectiveChangeListener> listeners = new ArrayList<PerspectiveChangeListener>();
 
-    public PerspectiveTopComponent() {
+    private PerspectiveTopComponent() {
         initComponents();
         addPerspectiveTabs();
+    }
+
+    static PerspectiveTopComponent getInstance() {
+        return Holder.INSTANCE;
+    }
+
+    void addPerspectiveChangeListener(PerspectiveChangeListener l) {
+        if (!listeners.contains(l)) {
+            listeners.add(l);
+        }
+    }
+
+    void removePerspectiveChangeListener(PerspectiveChangeListener l) {
+        listeners.remove(l);
+    }
+
+    void clearPerspectiveChangeListeners() {
+        listeners.clear();
+    }
+
+    private void firePerspectiveChangeEvent(boolean selected, Perspective p) {
+        if (selected) {
+            for (PerspectiveChangeListener l : listeners) {
+                l.perspectiveSelected(p);
+            }
+        } else {
+            for (PerspectiveChangeListener l : listeners) {
+                l.perspectiveDeselected(p);
+            }
+        }
     }
 
     private void addPerspectiveTabs() {
@@ -68,7 +97,6 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
         for (final Perspective perspective : perspectives) {
             final List<TopComponent> openedNonSingletons = new ArrayList<TopComponent>();
             WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
                 @Override
                 public void run() {
                     for (TopComponent tc : WindowManager.getDefault().findMode(MODE_DISPLAY).getTopComponents()) {
@@ -80,7 +108,6 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
             });
             PerspectiveButton toggleButton = new PerspectiveButton(perspective.getDisplayName(), perspective.getIcon());
             toggleButton.getModel().addItemListener(new ItemListener() {
-
                 TopComponent selectedTopComponent = null;
 
                 @Override
@@ -91,6 +118,7 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
                             if (WindowManager.getDefault().getRole().equals(role)) {
                                 selectedTopComponent = closeNonSingletonsInDisplayMode(perspective, openedNonSingletons);
                             }
+                            firePerspectiveChangeEvent(false, perspective);
                             break;
                         case ItemEvent.SELECTED:
                             if (!WindowManager.getDefault().getRole().equals(role)) {
@@ -102,6 +130,7 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
                                 }
                                 openedNonSingletons.clear();
                                 NbPreferences.forModule(PerspectiveTopComponent.class).put(LAST_PERSPECTIVE, role);
+                                firePerspectiveChangeEvent(true, perspective);
                             } else {
                                 Mode displayMode = WindowManager.getDefault().findMode(MODE_DISPLAY);
                                 TopComponent selected = displayMode.getSelectedTopComponent();
@@ -126,7 +155,6 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
             tabs[i++] = toggleButton;
         }
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
             @Override
             public void run() {
                 perspectivesButtonGroup.setSelected(tabs[getPerspectiveIndex(WindowManager.getDefault().getRole())].getModel(), true);
@@ -256,10 +284,10 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
         return new Dimension(32000, 30);
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -359,8 +387,7 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
     private javax.swing.ButtonGroup perspectivesButtonGroup;
     // End of variables declaration//GEN-END:variables
 
-    @Override
-    public Perspective getSelectedPerspective() {
+    Perspective getSelectedPerspective() {
         for (int i = 0; i < tabs.length; i++) {
             if (tabs[i].isSelected()) {
                 return getPerspective(i);
@@ -369,8 +396,7 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
         return null;
     }
 
-    @Override
-    public Perspective setSelectedPerspective(String role) {
+    Perspective setSelectedPerspective(String role) {
         int idx = getPerspectiveIndex(role);
         if (idx < 0) {
             return null;
@@ -397,5 +423,10 @@ public final class PerspectiveTopComponent extends javax.swing.JPanel implements
             setSelectedIcon(ImageUtilities.image2Icon(ImageUtilities.mergeImages(ImageUtilities.loadImage("org/mongkie/ui/perspective/resources/vistaSelected.png"),
                     ImageUtilities.icon2Image(icon), 6, 3)));
         }
+    }
+
+    private static class Holder {
+
+        private static final PerspectiveTopComponent INSTANCE = new PerspectiveTopComponent();
     }
 }

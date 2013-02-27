@@ -40,13 +40,12 @@ public class Installer extends ModuleInstall implements WindowSystemListener {
     public void restored() {
         // Add a toolbar pane for switching perspectives on the top of the main window
         SwingUtilities.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 //Get the main window of the NetBeans Platform:
                 JFrame frame = (JFrame) WindowManager.getDefault().getMainWindow();
                 //Get our custom main toolbar:
-                JComponent toolbar = new PerspectiveTopComponent();
+                JComponent toolbar = PerspectiveTopComponent.getInstance();
                 //Set the new layout of our root pane:
                 frame.getRootPane().setLayout(new PerspectiveRootPaneLayout(toolbar));
                 //Install a new toolbar component into the layered pane
@@ -57,7 +56,6 @@ public class Installer extends ModuleInstall implements WindowSystemListener {
         });
         // Add a pane on the bottom of the main window, if any exits
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-
             @Override
             public void run() {
                 JFrame frame = (JFrame) WindowManager.getDefault().getMainWindow();
@@ -84,6 +82,12 @@ public class Installer extends ModuleInstall implements WindowSystemListener {
         });
 
         WindowManager.getDefault().addWindowSystemListener(this);
+    }
+
+    @Override
+    public boolean closing() {
+        PerspectiveTopComponent.getInstance().clearPerspectiveChangeListeners();
+        return super.closing();
     }
 
     @Override
