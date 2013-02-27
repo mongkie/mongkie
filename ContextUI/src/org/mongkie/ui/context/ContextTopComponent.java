@@ -19,6 +19,7 @@ package org.mongkie.ui.context;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -27,9 +28,15 @@ import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import kobic.prefuse.display.DisplayListener;
+import org.jdesktop.swingx.JXBusyLabel;
 import org.mongkie.context.spi.ContextUI;
 import static org.mongkie.kopath.viz.Config.ROLE_PATHWAY;
+import org.mongkie.perspective.PerspectiveChangeListener;
+import org.mongkie.perspective.PerspectiveController;
+import org.mongkie.perspective.spi.Perspective;
 import static org.mongkie.visualization.Config.MODE_CONTEXT;
 import static org.mongkie.visualization.Config.ROLE_NETWORK;
 import org.mongkie.visualization.MongkieDisplay;
@@ -50,16 +57,16 @@ import prefuse.data.Graph;
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
 @ConvertAsProperties(dtd = "-//org.mongkie.ui.context//Context//EN",
-autostore = false)
+        autostore = false)
 @TopComponent.Description(preferredID = ContextTopComponent.PREFERRED_ID,
-iconBase = "org/mongkie/ui/context/resources/context.png",
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+        iconBase = "org/mongkie/ui/context/resources/context.png",
+        persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = MODE_CONTEXT, openAtStartup = true, roles = {ROLE_NETWORK, ROLE_PATHWAY}, position = 100)
 @ActionID(category = "Window", id = "org.mongkie.ui.context.ContextTopComponent")
 @ActionReference(path = "Menu/Window", position = 210)
 @TopComponent.OpenActionRegistration(displayName = "#CTL_ContextAction",
-preferredID = ContextTopComponent.PREFERRED_ID)
-public final class ContextTopComponent extends TopComponent implements DisplayListener<MongkieDisplay> {
+        preferredID = ContextTopComponent.PREFERRED_ID)
+public final class ContextTopComponent extends TopComponent implements DisplayListener<MongkieDisplay>, PerspectiveChangeListener {
 
     private static ContextTopComponent instance;
     /**
@@ -68,36 +75,44 @@ public final class ContextTopComponent extends TopComponent implements DisplayLi
     static final String PREFERRED_ID = "ContextTopComponent";
     private MongkieDisplay currentDisplay;
     private ContextUI selectedContext;
+    private final JXBusyLabel perspectiveChanging = new JXBusyLabel(new Dimension(24, 24));
 
     public ContextTopComponent() {
         initComponents();
+        perspectiveChanging.setHorizontalAlignment(SwingConstants.CENTER);
         setName(NbBundle.getMessage(ContextTopComponent.class, "CTL_ContextTopComponent"));
         setToolTipText(NbBundle.getMessage(ContextTopComponent.class, "HINT_ContextTopComponent"));
         putClientProperty(TopComponent.PROP_MAXIMIZATION_DISABLED, Boolean.TRUE);
+        WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+            @Override
+            public void run() {
+                Lookup.getDefault().lookup(PerspectiveController.class).addPerspectiveChangeListener(ContextTopComponent.this);
+            }
+        });
         Lookup.getDefault().lookup(VisualizationController.class).addWorkspaceListener(
                 new WorkspaceListener() {
-                    @Override
-                    public void displaySelected(MongkieDisplay display) {
-                        currentDisplay = display;
-                        display.addDisplayListener(ContextTopComponent.this);
-                        refreshModel();
-                    }
+            @Override
+            public void displaySelected(MongkieDisplay display) {
+                currentDisplay = display;
+                display.addDisplayListener(ContextTopComponent.this);
+                refreshModel();
+            }
 
-                    @Override
-                    public void displayDeselected(MongkieDisplay display) {
-                        display.removeDisplayListener(ContextTopComponent.this);
-                    }
+            @Override
+            public void displayDeselected(MongkieDisplay display) {
+                display.removeDisplayListener(ContextTopComponent.this);
+            }
 
-                    @Override
-                    public void displayClosed(MongkieDisplay display) {
-                    }
+            @Override
+            public void displayClosed(MongkieDisplay display) {
+            }
 
-                    @Override
-                    public void displayClosedAll() {
-                        currentDisplay = null;
-                        refreshModel();
-                    }
-                });
+            @Override
+            public void displayClosedAll() {
+                currentDisplay = null;
+                refreshModel();
+            }
+        });
         currentDisplay = Lookup.getDefault().lookup(VisualizationController.class).getDisplay();
         boolean actionTextVisible = NbPreferences.forModule(ContextTopComponent.class).getBoolean(ACTION_TEXT_VISIBILITY, true);
         String lastSelectedContextUI = NbPreferences.forModule(ContextTopComponent.class).get(LAST_SELECTED_CONTEXTUI, null);
@@ -170,6 +185,34 @@ public final class ContextTopComponent extends TopComponent implements DisplayLi
     private static final String HIDE_ACTION_TEXT = "Hide Text";
     private static final String LAST_SELECTED_CONTEXTUI = "LastSelectedContextUI";
 
+    @Override
+    public void perspectiveDeselected(Perspective p) {
+        setPerspectiveChanging(true);
+    }
+
+    @Override
+    public void perspectiveSelected(Perspective p) {
+        setPerspectiveChanging(false);
+    }
+
+    private void setPerspectiveChanging(boolean changing) {
+        if (changing && selectedContext != null) {
+            remove(selectedContext.getPanel());
+            perspectiveChanging.setBusy(true);
+            add(perspectiveChanging, BorderLayout.CENTER);
+        } else if (!changing && perspectiveChanging.isBusy()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("changed");
+                    perspectiveChanging.setBusy(false);
+                    remove(perspectiveChanging);
+                    add(selectedContext.getPanel(), BorderLayout.CENTER);
+                }
+            });
+        }
+    }
+
     private void refreshModel() {
         if (currentDisplay == null) {
             selectedContext.unload();
@@ -189,10 +232,9 @@ public final class ContextTopComponent extends TopComponent implements DisplayLi
     }
 
     /**
-     * This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -217,9 +259,10 @@ public final class ContextTopComponent extends TopComponent implements DisplayLi
     // End of variables declaration//GEN-END:variables
 
     /**
-     * Gets default instance. Do not use directly: reserved for *.settings files only,
-     * i.e. deserialization routines; otherwise you could get a non-deserialized instance.
-     * To obtain the singleton instance, use {@link #findInstance}.
+     * Gets default instance. Do not use directly: reserved for *.settings files
+     * only, i.e. deserialization routines; otherwise you could get a
+     * non-deserialized instance. To obtain the singleton instance, use
+     * {@link #findInstance}.
      */
     public static synchronized ContextTopComponent getDefault() {
         if (instance == null) {
@@ -229,7 +272,8 @@ public final class ContextTopComponent extends TopComponent implements DisplayLi
     }
 
     /**
-     * Obtain the ContextTopComponent instance. Never call {@link #getDefault} directly!
+     * Obtain the ContextTopComponent instance. Never call {@link #getDefault}
+     * directly!
      */
     public static synchronized ContextTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
