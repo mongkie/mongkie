@@ -204,7 +204,6 @@ public final class ContextTopComponent extends TopComponent implements DisplayLi
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    System.out.println("changed");
                     perspectiveChanging.setBusy(false);
                     remove(perspectiveChanging);
                     add(selectedContext.getPanel(), BorderLayout.CENTER);
