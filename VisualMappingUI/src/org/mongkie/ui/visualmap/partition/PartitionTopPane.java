@@ -51,6 +51,7 @@ public class PartitionTopPane extends javax.swing.JPanel
     private transient PartitionModel model;
     private ExplorerManager em;
     private Lookup lookup;
+    private volatile boolean internalPartionSelection = false;
 
     /**
      * Creates new form PartitionTopPane
@@ -75,6 +76,8 @@ public class PartitionTopPane extends javax.swing.JPanel
 
         em = new ExplorerManager();
         lookup = ExplorerUtils.createLookup(em, getActionMap());
+
+        partitionChooser.addItemListener(PartitionTopPane.this);
     }
 
     private void refreshModel() {
@@ -86,7 +89,7 @@ public class PartitionTopPane extends javax.swing.JPanel
     }
 
     private void refreshChooser() {
-        partitionChooser.removeItemListener(this);
+        internalPartionSelection = true;
         partitionChooser.removeAllItems();
         partitionChooser.addItem(NO_SELECTION);
         partitionChooser.setSelectedItem(NO_SELECTION);
@@ -104,7 +107,7 @@ public class PartitionTopPane extends javax.swing.JPanel
                         }
                     }
                     refreshPartList(model.getCurrentPartition()); // May have been refresh by the model
-                    partitionChooser.addItemListener(PartitionTopPane.this);
+                    internalPartionSelection = false;
                 }
             });
         }
@@ -119,7 +122,7 @@ public class PartitionTopPane extends javax.swing.JPanel
     public void processPartitionEvent(PartitionEvent e) {
         switch (e.getType()) {
             case CURRENT_PARTITION:
-                Partition selectedPartition = model.getCurrentPartition();
+                Partition selectedPartition = (Partition) e.getNewValue();
                 if (selectedPartition != null && partitionChooser.getSelectedItem() != selectedPartition) {
                     refreshChooser();
                 } else {
@@ -137,11 +140,15 @@ public class PartitionTopPane extends javax.swing.JPanel
 
     @Override
     public void itemStateChanged(ItemEvent e) {
-        if (e.getStateChange() == ItemEvent.SELECTED && model != null) {
-            if (!partitionChooser.getSelectedItem().equals(NO_SELECTION)) {
-                controller.setCurrentPartition((Partition) partitionChooser.getSelectedItem());
-            } else {
-                controller.setCurrentPartition(null);
+        if (!internalPartionSelection) {
+            Object selectedItem = e.getItem();
+            if (e.getStateChange() == ItemEvent.SELECTED && model != null
+                    && !selectedItem.equals(model.getCurrentPartition())) {
+                if (!selectedItem.equals(NO_SELECTION)) {
+                    controller.setCurrentPartition((Partition) selectedItem);
+                } else {
+                    controller.setCurrentPartition(null);
+                }
             }
         }
     }

@@ -101,7 +101,7 @@ public class PartitionResultView extends OutlineView {
     JPanel setPartition(ExplorerManager em, Partition partition) {
         this.partition = partition;
         getOutline().clearSelection();
-        em.setRootContext(new AbstractNode(partition == null ? Children.LEAF : Children.create(new PartChildFactory(partition), true)) {
+        em.setRootContext(new AbstractNode(partition == null ? Children.LEAF : Children.create(new PartChildFactory(partition), false)) {
             @Override
             public Action[] getActions(boolean context) {
                 return new Action[]{};
