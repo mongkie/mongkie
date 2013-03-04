@@ -1,5 +1,5 @@
 Visit <http://www.mongkie.org> for details about MONGKIE.
-Copyright (C) 2011 Korean Bioinformation Center(KOBIC)
+Copyright (C) 2013 Korean Bioinformation Center(KOBIC)
 
 MONGKIE is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by

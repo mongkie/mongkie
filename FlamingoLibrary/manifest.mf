@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
 OpenIDE-Module: org.mongkie.lib.flamingo
 OpenIDE-Module-Localizing-Bundle: org/mongkie/lib/flamingo/Bundle.properties
 OpenIDE-Module-Specification-Version: 7.2.1
