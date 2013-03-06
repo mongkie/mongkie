@@ -7,14 +7,6 @@
             <suite-component/>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.mongkie.datatable</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>1.0</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>org.mongkie.lib.prefuse</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -140,6 +132,7 @@
             <public-packages>
                 <package>org.mongkie.ui.visualization.menu.spi</package>
                 <package>org.mongkie.ui.visualization.options.spi</package>
+                <package>org.mongkie.ui.visualization.spi</package>
                 <package>org.mongkie.ui.visualization.tools.spi</package>
             </public-packages>
         </data>

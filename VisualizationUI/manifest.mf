@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+AutoUpdate-Essential-Module: true
 OpenIDE-Module: org.mongkie.ui.visualization
 OpenIDE-Module-Install: org/mongkie/ui/visualization/Installer.class
 OpenIDE-Module-Localizing-Bundle: org/mongkie/ui/visualization/Bundle.properties

@@ -22,10 +22,13 @@ import kobic.prefuse.display.DataViewSupport;
 import kobic.prefuse.display.NetworkDisplay;
 import org.mongkie.datatable.DataNode;
 import org.mongkie.datatable.spi.DataNodeFactory;
+import org.mongkie.ui.visualization.spi.TupleNodeFactory;
 import org.mongkie.visualization.MongkieDisplay;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.nodes.Sheet.Set;
 import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
 import prefuse.data.Schema;
 import prefuse.data.Table;
 import prefuse.data.Tuple;
@@ -34,8 +37,11 @@ import prefuse.data.Tuple;
  *
  * @author Yeongjun Jang <yjjang@kribb.re.kr>
  */
-@ServiceProvider(service = DataNodeFactory.class)
-public class DataNodeFactoryImpl implements DataNodeFactory {
+@ServiceProviders({
+    @ServiceProvider(service = DataNodeFactory.class),
+    @ServiceProvider(service = TupleNodeFactory.class)
+})
+public class DataNodeFactoryImpl implements DataNodeFactory, TupleNodeFactory {
 
     @Override
     public boolean readyFor(Table table) {
@@ -45,7 +51,6 @@ public class DataNodeFactoryImpl implements DataNodeFactory {
     @Override
     public DataNode createDataNode(Tuple data, String labelColumn) {
         return new DataNode(data, labelColumn) {
-
             @Override
             protected Set preparePropertySet(Tuple data) {
                 Sheet.Set attributes = Sheet.createPropertiesSet();
@@ -65,5 +70,10 @@ public class DataNodeFactoryImpl implements DataNodeFactory {
                 return ((DataViewSupport) data.getTable().getClientProperty(DataViewSupport.PROP_KEY)).getPropertySchema();
             }
         };
+    }
+
+    @Override
+    public Node createTupleNode(Tuple tuple, String labelColumn) {
+        return createDataNode(tuple, labelColumn);
     }
 }

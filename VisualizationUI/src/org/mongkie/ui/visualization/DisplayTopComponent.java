@@ -34,8 +34,6 @@ import javax.swing.event.PopupMenuListener;
 import static kobic.prefuse.Constants.EDGES;
 import static kobic.prefuse.Constants.NODES;
 import kobic.prefuse.controls.PopupControl;
-import org.mongkie.datatable.DataNode;
-import org.mongkie.datatable.DataTableController;
 import org.mongkie.lib.widgets.CollapsiblePanel;
 import org.mongkie.lib.widgets.WidgetUtilities;
 import org.mongkie.perspective.NonSingletonTopComponent;
@@ -43,6 +41,7 @@ import org.mongkie.perspective.spi.Perspective;
 import org.mongkie.ui.visualization.menu.spi.NodePopupMenuItemFactory;
 import org.mongkie.ui.visualization.options.OptionsSettingPanel;
 import org.mongkie.ui.visualization.options.OptionsToolbar;
+import org.mongkie.ui.visualization.spi.TupleNodeFactory;
 import org.mongkie.ui.visualization.tools.AddonPopupDialog;
 import org.mongkie.ui.visualization.tools.AddonsBar;
 import org.mongkie.ui.visualization.tools.PropertiesBar;
@@ -56,6 +55,7 @@ import org.mongkie.visualization.selection.SelectionListener;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -79,8 +79,8 @@ import prefuse.visual.VisualItem;
  */
 @ConvertAsProperties(dtd = "-//org.mongkie.ui.visualization//MongkieDisplay//EN", autostore = false)
 @TopComponent.Description(preferredID = "DisplayTopComponent",
-iconBase = "org/mongkie/ui/visualization/resources/network.png",
-persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED) // Need to open an initial display
+        iconBase = "org/mongkie/ui/visualization/resources/network.png",
+        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED) // Need to open an initial display
 @TopComponent.Registration(mode = MODE_DISPLAY, openAtStartup = true, roles = ROLE_NETWORK)
 public final class DisplayTopComponent extends TopComponent
         implements org.mongkie.visualization.DisplayTopComponent, NonSingletonTopComponent {
@@ -117,46 +117,46 @@ public final class DisplayTopComponent extends TopComponent
 
                 Lookup.getDefault().lookup(VisualizationController.class).getSelectionManager().addSelectionListener(
                         new SelectionListener() {
-                            @Override
-                            public MongkieDisplay getDisplay() {
-                                return display;
-                            }
+                    @Override
+                    public MongkieDisplay getDisplay() {
+                        return display;
+                    }
 
-                            @Override
-                            public void selected(Set<VisualItem> members, VisualItem... items) {
-                                setActivatedNodesOf(display, members);
-                            }
+                    @Override
+                    public void selected(Set<VisualItem> members, VisualItem... items) {
+                        setActivatedNodesOf(display, members);
+                    }
 
-                            @Override
-                            public void unselected(Set<VisualItem> members, VisualItem... items) {
-                                setActivatedNodesOf(display, members);
-                            }
+                    @Override
+                    public void unselected(Set<VisualItem> members, VisualItem... items) {
+                        setActivatedNodesOf(display, members);
+                    }
 
-                            private void setActivatedNodesOf(MongkieDisplay display, Set<VisualItem> items) {
-                                for (DataNode n : tupleNodes) {
-                                    try {
-                                        n.destroy();
-                                    } catch (IOException ex) {
-                                        Exceptions.printStackTrace(ex);
-                                    }
-                                }
-                                tupleNodes.clear();
-                                for (VisualItem item : items) {
-                                    if (item instanceof NodeItem) {
-                                        tupleNodes.add(Lookup.getDefault().lookup(DataTableController.class).createDataNode(item.getSourceTuple(), display.getGraph().getNodeLabelField()));
-                                    } else if (item instanceof EdgeItem) {
-                                        tupleNodes.add(Lookup.getDefault().lookup(DataTableController.class).createDataNode(item.getSourceTuple(), display.getGraph().getEdgeLabelField()));
-                                    }
-                                }
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        setActivatedNodes(tupleNodes.toArray(new DataNode[]{}));
-                                    }
-                                });
+                    private void setActivatedNodesOf(MongkieDisplay display, Set<VisualItem> items) {
+                        for (Node n : tupleNodes) {
+                            try {
+                                n.destroy();
+                            } catch (IOException ex) {
+                                Exceptions.printStackTrace(ex);
                             }
-                            private final List<DataNode> tupleNodes = new ArrayList<DataNode>();
+                        }
+                        tupleNodes.clear();
+                        for (VisualItem item : items) {
+                            if (item instanceof NodeItem) {
+                                tupleNodes.add(Lookup.getDefault().lookup(TupleNodeFactory.class).createTupleNode(item.getSourceTuple(), display.getGraph().getNodeLabelField()));
+                            } else if (item instanceof EdgeItem) {
+                                tupleNodes.add(Lookup.getDefault().lookup(TupleNodeFactory.class).createTupleNode(item.getSourceTuple(), display.getGraph().getEdgeLabelField()));
+                            }
+                        }
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                setActivatedNodes(tupleNodes.toArray(new Node[]{}));
+                            }
                         });
+                    }
+                    private final List<Node> tupleNodes = new ArrayList<Node>();
+                });
 
                 display.addControlListener(new PopupControl<MongkieDisplay>(display) {
                     @Override

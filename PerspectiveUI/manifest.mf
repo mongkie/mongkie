@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+AutoUpdate-Essential-Module: true
 OpenIDE-Module: org.mongkie.ui.perspective
 OpenIDE-Module-Install: org/mongkie/ui/perspective/Installer.class
 OpenIDE-Module-Localizing-Bundle: org/mongkie/ui/perspective/Bundle.properties
